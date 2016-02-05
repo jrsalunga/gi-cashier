@@ -61,3 +61,33 @@ get('branch', function () {
 get('sessions', function(){
 	return session()->all();
 });
+
+get('/env', function() {
+  return app()->environment();
+});
+
+get('/env/hostname', function() {
+  return gethostname();
+});
+
+get('/env/clientname', function(){
+	return gethostbyaddr($_SERVER['REMOTE_ADDR']);
+});
+
+get('/phpinfoko', function(){
+	return phpinfo();
+});
+
+get('/env/vars', function(){
+  echo 'MANDRILL_APIKEY - '.getenv('MANDRILL_APIKEY');
+});
+
+get('/checkdbconn', function(){
+	if(DB::connection()->getDatabaseName()){
+	  echo "connected sucessfully to database ".DB::connection()->getDatabaseName();
+	}
+});
+
+get('/v', function(){
+  dd($app->version());
+});
