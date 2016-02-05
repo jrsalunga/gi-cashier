@@ -1,0 +1,1 @@
+<p>{{ $user }} was changed password from {{ $from }} to {{ $to }} on {{ $ip }}</p>

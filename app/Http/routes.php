@@ -20,6 +20,12 @@ Route::get('dashboard', ['middleware' => 'auth', 'uses'=>'DashboardController@ge
 Route::group(['middleware' => 'auth'], function(){
 
 
+Route::get('settings/{param1?}/{param2?}', ['uses'=>'SettingsController@getIndex'])
+	->where(['param1'=>'password', 
+					'param2'=>'week|[0-9]+']);
+
+Route::post('/settings/password',  ['uses'=>'SettingsController@changePassword']);
+
 Route::get('backups/upload', ['uses'=>'BackupController@getUploadIndex']);
 Route::get('backups/{param1?}/{param2?}', ['uses'=>'BackupController@getIndex']);
 Route::post('upload/postfile', ['as'=>'upload.postfile', 'uses'=>'BackupController@postfile']); // upload to web
