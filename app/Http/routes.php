@@ -17,6 +17,21 @@ Route::get('dashboard', ['middleware' => 'auth', 'uses'=>'DashboardController@ge
 
 
 
+Route::group(['middleware' => 'auth'], function(){
+
+
+Route::get('backups/upload', ['uses'=>'BackupController@getUploadIndex']);
+Route::get('backups/{param1?}/{param2?}', ['uses'=>'BackupController@getIndex']);
+Route::post('upload/postfile', ['as'=>'upload.postfile', 'uses'=>'BackupController@postfile']); // upload to web
+Route::put('upload/postfile', ['as'=>'upload.putfile', 'uses'=>'BackupController@putfile']); // move from web to storage
+
+
+
+}); /******* end middeware:auth ********/
+
+
+
+
 
 
 get('branch', function () {

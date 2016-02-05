@@ -17,6 +17,6 @@ class DashboardController extends Controller
 
 	public function getIndex(Request $request) {
 
-		return view('welcome');
+		return view('index');
 	}
 }

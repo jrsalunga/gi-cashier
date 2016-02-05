@@ -43,9 +43,52 @@ return [
 
     'disks' => [
 
-        'local' => [
+        'web' => [
             'driver' => 'local',
-            'root'   => storage_path('app'),
+            //'root'   => storage_path('app'),
+            'root'   => public_path('uploads'),
+        ],
+        'pos'=>[
+            'local'=>[
+                'driver' => 'local',
+                'root'   => base_path('TEST_POS_BACKUP')
+            ],
+            'production'=>[
+                'driver' => 'local',
+                'root'   => '/home/server-admin/Public/maindepot/TEST_POS_BACKUP/'
+            ]
+        ],
+        'files'=>[
+            'local'=>[
+                'driver' => 'local',
+                'root'   => base_path('TEST_FILES_BACKUP')
+            ],
+            'production'=>[
+                'driver' => 'local',
+                'root'   => '/home/server-admin/Public/maindepot/TEST_FILES_BACKUP/'
+            ]
+        ],
+        'local' => [
+            'pos'=>[
+                'driver' => 'local',
+                'root'   => base_path('TEST_POS_BACKUP')
+            ],
+            'files'=>[
+                'driver' => 'local',
+                'root'   => base_path('TEST_FILES_BACKUP')
+            ],
+            'driver' => 'local'
+        ],
+        'production' => [
+            'pos'=>[
+                    'driver' => 'local',
+                    'root'   => '/home/server-admin/Public/maindepot/TEST_POS_BACKUP/'
+                ],
+            'files'=>[
+                    'driver' => 'local',
+                    'root'   => '/home/server-admin/Public/maindepot/TEST_POS_BACKUP/'
+                ],
+            'driver' => 'production'
         ],
 
         'ftp' => [

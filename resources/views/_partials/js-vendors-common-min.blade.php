@@ -1,0 +1,1 @@
+	<script src="/js/vendors-common.min.js"></script>
