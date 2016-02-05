@@ -3,7 +3,7 @@
 /bower_components
 Homestead.yaml
 Homestead.json
-.env
+
 /public/uploads
 /public/files
 /public/data
@@ -13,4 +13,3 @@ Homestead.json
 /TEST_FILES_BACKUP
 /storage/backup
 /tests
-*.env
