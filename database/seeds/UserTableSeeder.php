@@ -18,6 +18,7 @@ class UserTableSeeder extends Seeder
                 'email' => 'admin@giligansrestaurant.com',
                 'password' => bcrypt('giligans'),
                 'admin' => 1,
+                'branchid' => '0C17FE2D78A711E587FA00FF59FBB323',
                 'id'=> '29E4E2FA672C11E596ECDA40B3C0AA12'
             ),
             array(
@@ -25,7 +26,8 @@ class UserTableSeeder extends Seeder
                 'name' => 'Giligans Cashier',
                 'email' => 'cashier@giligansrestaurant.com',
                 'password' => bcrypt('giligans'),
-                'admin' => 2,
+                'admin' => 5,
+                'branchid' => '0C17FE2D78A711E587FA00FF59FBB323',
                 'id'=> '3060F4F3BE6011E5A3FA00FF59FBB323'
             )
         ));
