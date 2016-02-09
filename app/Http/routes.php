@@ -33,6 +33,20 @@ Route::put('upload/postfile', ['as'=>'upload.putfile', 'uses'=>'BackupController
 
 
 
+Route::get('timelog/{param1?}/{param2?}', ['uses'=>'TimelogController@getIndex'])
+  ->where(['param1'=>'add', 
+          'param2'=>'week|[0-9]+']);
+Route::post('timelog', ['uses'=>'TimelogController@post']);
+
+
+
+Route::group(['prefix'=>'api'], function(){  /******* begin prefix:api ********/
+
+
+Route::get('search/employee', ['uses'=>'EmployeeController@search']);
+
+
+}); /******* end prefix:api     ********/
 }); /******* end middeware:auth ********/
 
 

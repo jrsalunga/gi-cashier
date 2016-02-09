@@ -76,6 +76,18 @@ return [
             'strict'    => false,
         ],
 
+        'mysql-tk' => [
+            'driver'    => 'mysql',
+            'host'      => 'localhost',
+            'database'  => 'gi-tk',
+            'username'  => 'root',
+            'password'  => 'p@55w0rd',
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
         'pgsql' => [
             'driver'   => 'pgsql',
             'host'     => env('DB_HOST', 'localhost'),

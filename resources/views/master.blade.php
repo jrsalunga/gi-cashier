@@ -1,9 +1,4 @@
-@if(app()->environment() == 'local')
-<?php
-$debugbar = new DebugBar\StandardDebugBar();
-$debugbarRenderer = $debugbar->getJavascriptRenderer();
-?>
-@endif
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -17,6 +12,10 @@ $debugbarRenderer = $debugbar->getJavascriptRenderer();
 
   <link rel="shortcut icon" type="image/x-icon" href="/images/g.png" />
   <link rel="stylesheet" href="/css/styles-all.min.css">
+  @section('css-external')
+
+  @show
+ 
 
 
   
@@ -59,14 +58,5 @@ $debugbarRenderer = $debugbar->getJavascriptRenderer();
 @section('js-external')
 
 @show
-
-
-
-
-
-
-@if(app()->environment() == 'local')
-<?php echo $debugbarRenderer->render() ?>
-@endif
 </body>
 </html>
