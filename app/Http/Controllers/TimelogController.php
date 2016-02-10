@@ -12,9 +12,16 @@ use Carbon\Carbon;
 class TimelogController extends Controller {
 
 	private $repository;
+	private $_branchid;
 
-	public function __construct(TimelogRepository $repo){
+	public function __construct(TimelogRepository $repo, Request $request){
 		$this->repository = $repo;
+
+		if(is_null(session('user.branchid')) && is_null($request->cookie('branchid')))
+			return redirect()->route('auth.getlogin');
+		else
+			$this->_branchid = is_null(session('user.branchid')) ? $request->cookie('branchid') : session('user.branchid');
+	
 	}
 
 	public function getIndex(Request $request, $param1=null, $param2=null){
@@ -141,7 +148,7 @@ class TimelogController extends Controller {
 				//$timelog->employeeid	= $request->get('employeeid');
 				$timelog->employeeid  = $employee->id;
 				$timelog->datetime 		= $request->input('datetime');
-				$timelog->txncode 	 	= (strtolower($employee->branchid) == strtolower($request->user()->branchid)) ? $request->input('txncode'):'9';
+				$timelog->txncode 	 	= (strtolower($employee->branchid) == strtolower($this->_branchid)) ? $request->input('txncode'):'9';
 				$timelog->entrytype  	= $request->input('entrytype');
 				$timelog->rfid				= $employee->rfid;
 				$timelog->terminalid 	= $request->cookie('branchcode')!==null ? $request->cookie('branchcode'):$_SERVER["REMOTE_ADDR"];
@@ -210,7 +217,7 @@ class TimelogController extends Controller {
 											->select('timelog.*')
 											->join('hr.employee', function($join) use ($request) {
                             $join->on('timelog.employeeid', '=', 'employee.id')
-                                ->where('employee.branchid', '=', $request->user()->branchid);
+                                ->where('employee.branchid', '=', $this->_branchid);
                             })
 											->orderBy('datetime', 'DESC')
 											->take(20)
@@ -224,7 +231,7 @@ class TimelogController extends Controller {
 		//	return redirect()->route('auth.getlogin');
 		
 		$response = new Response(view('tk.index', compact('timelogs')));//->with('timelogs', $timelogs));
-		$response->withCookie(cookie('branchid', $request->user()->branchid, 45000));
+		$response->withCookie(cookie('branchid', $this->_branchid, 45000));
 		$response->withCookie(cookie('code', session('user.branchcode'), 45000));
 		return $response;
 
