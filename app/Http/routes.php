@@ -36,7 +36,7 @@ Route::put('upload/postfile', ['as'=>'upload.putfile', 'uses'=>'BackupController
 Route::get('timelog/{param1?}/{param2?}', ['uses'=>'TimelogController@getIndex'])
   ->where(['param1'=>'add', 
           'param2'=>'week|[0-9]+']);
-Route::post('timelog', ['uses'=>'TimelogController@post']);
+Route::post('timelog', ['uses'=>'TimelogController@manualPost']);
 
 
 
@@ -49,6 +49,10 @@ Route::get('search/employee', ['uses'=>'EmployeeController@search']);
 }); /******* end prefix:api     ********/
 }); /******* end middeware:auth ********/
 
+// for TK
+Route::post('api/timelog', ['as'=>'timelog.post', 'uses'=>'TimelogController@post']);
+Route::get('tk', ['as'=>'tk.index','uses'=>'TimelogController@getTkIndex']);
+Route::get('api/employee/{field?}/{value?}', ['as'=>'employee.getbyfield', 'uses'=>'EmployeeController@getByField']);
 
 
 

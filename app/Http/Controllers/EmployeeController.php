@@ -23,9 +23,6 @@ class EmployeeController extends Controller
 
 	public function search(Request $request, $param1=null) {
 
-		
-		
-
     $limit = empty($request->input('maxRows')) ? 10:$request->input('maxRows'); 
     $res = Employee::where('branchid', $request->user()->branchid)
     				->where(function ($query) use ($request) {
@@ -39,4 +36,31 @@ class EmployeeController extends Controller
 
 		return $res;
 	}
+
+
+
+
+	public function getByField($field, $value){
+		
+		$employee = Employee::with('position')->where($field, '=', $value)->first();
+		
+		if($employee){
+			$respone = array(
+						'code'=>'200',
+						'status'=>'success',
+						'message'=>'Hello '. $employee->firstname. '=)',
+						'data'=> $employee->toArray()
+			);	
+			
+		} else {
+			$respone = array(
+						'code'=>'404',
+						'status'=>'danger',
+						'message'=>'Invalid RFID! Record no found.',
+						'data'=> ''
+			);	
+		}
+				
+		return $respone;
+	} 
 }

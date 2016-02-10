@@ -19,7 +19,7 @@
         <div class="navbar-form">
           <div class="btn-group" role="group">
             <a href="/dashboard" class="btn btn-default" title="Back to Main Menu">
-              <span class="glyphicon glyphicon-th-list"></span>
+              <span class="gly gly-unshare"></span>
             </a> 
             <a href="/backups" class="btn btn-default">
               <span class="glyphicon glyphicon-cloud"></span>
