@@ -27,6 +27,15 @@
       <p class="navbar-text" style="font-size: 20px; margin: 11px 0px 11px -10px; color: #d6e9c6;">
         <em>Beta</em></p>
     </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav navbar-right"> 
+        <li>
+          <a href="/tk">
+            <span class="glyphicon glyphicon-time"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
     
   </div>
 </nav>
