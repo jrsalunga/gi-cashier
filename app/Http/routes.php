@@ -30,7 +30,7 @@ Route::get('backups/upload', ['uses'=>'BackupController@getUploadIndex']);
 Route::get('backups/{param1?}/{param2?}', ['uses'=>'BackupController@getIndex']);
 Route::post('upload/postfile', ['as'=>'upload.postfile', 'uses'=>'BackupController@postfile']); // upload to web
 Route::put('upload/postfile', ['as'=>'upload.putfile', 'uses'=>'BackupController@putfile']); // move from web to storage
-
+Route::get('download/{param1?}/{param2?}/{param3?}/{param4?}/{param5?}', ['uses'=>'BackupController@getDownload']);
 
 
 Route::get('timelog/{param1?}/{param2?}', ['uses'=>'TimelogController@getIndex'])
