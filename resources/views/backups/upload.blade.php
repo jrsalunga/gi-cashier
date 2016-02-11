@@ -84,7 +84,7 @@
                 <div class="col-lg-12">
                   
                   <button id="btn-upload" class="btn btn-primary" type="submit" disabled="disabled">Submit</button>
-                  <a class="btn btn-default" href="/upload/backup">Cancel</a>  
+                  <a class="btn btn-default" href="/backups/upload">Cancel</a>  
                 </div><!-- /.col-lg-6 -->
               </div>
             {!! Form::close() !!}
