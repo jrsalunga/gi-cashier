@@ -27,8 +27,12 @@
       <a class="navbar-brand" href="/">
         <img src="/images/giligans-header.png" class="img-responsive header-logo">
       </a>
-      <p class="navbar-text" style="font-size: 20px; margin: 11px 0px 11px -10px; color: #d6e9c6;">
-        <em>Beta</em></p>
+      <p class="navbar-text" style="font-size: 20px; margin: 11px 0px 11px -10px;">
+        <em style=" color: #3c763d;">
+          <span></span>
+          <span style=" color: #d6e9c6;">Bundy Clock - Beta</span>
+        </em>
+      </p>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav navbar-right"> 
