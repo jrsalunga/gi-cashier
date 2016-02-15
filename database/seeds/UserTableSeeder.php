@@ -1,6 +1,7 @@
 <?php
  
 use Illuminate\Database\Seeder;
+use App\Models\Branch;
 
 class UserTableSeeder extends Seeder  
 {
@@ -31,6 +32,24 @@ class UserTableSeeder extends Seeder
                 'id'=> '3060F4F3BE6011E5A3FA00FF59FBB323'
             )
         ));
+
+        $branches = Branch::all();
+
+        $users = [];
+        foreach ($branches as $branch) {
+
+            array_push($users, [
+                'username' => strtolower($branch->code).'-chr',
+                'name' => $branch->code.' Cashier',
+                'branchid'=> $branch->id,
+                'email' => strtolower($branch->code).'-chr@giligansrestaurant.com',
+                'password' => bcrypt('giligans'),
+                'admin'=>5,
+                'id' => $branch->id
+            ]);
+            //$this->command->info($branch->descriptor);
+        }
+        DB::table('user')->insert($users);
 
         $this->command->info('User table seeded!');
        
