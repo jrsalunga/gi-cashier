@@ -39,15 +39,15 @@ class UserTableSeeder extends Seeder
         foreach ($branches as $branch) {
 
             array_push($users, [
-                'username' => strtolower($branch->code).'-chr',
+                'username' => strtolower($branch->code).'-cashier',
                 'name' => $branch->code.' Cashier',
                 'branchid'=> $branch->id,
-                'email' => strtolower($branch->code).'-chr@giligansrestaurant.com',
+                'email' => strtolower($branch->code).'-cashier@giligansrestaurant.com',
                 'password' => bcrypt('giligans'),
                 'admin'=>5,
                 'id' => $branch->id
             ]);
-            //$this->command->info($branch->descriptor);
+            $this->command->info(strtolower($branch->code).'-cashier');
         }
         DB::table('user')->insert($users);
 

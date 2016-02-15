@@ -42,7 +42,12 @@
             <a href="/backups/upload" class="list-group-item">DropBox 
               @if(!is_null($backup))
                 <small class="pull-right">
-                <em>last upload {{ Carbon\Carbon::now()->diffForHumans($backup->uploaddate) }}</em>
+                  <em>
+                    <?php
+                      $x = "last upload ".Carbon\Carbon::now()->diffForHumans($backup->uploaddate);
+                    ?>
+                    {{ str_replace("after", "ago",  $x)  }}
+                  </em>
                 </small>
               @endif
             </a> 
