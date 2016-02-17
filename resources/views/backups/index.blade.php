@@ -1,6 +1,6 @@
 @extends('index')
 
-@section('title', '- Backups')
+@section('title', '- Backups History')
 
 @section('body-class', 'generate-dtr')
 
@@ -9,7 +9,8 @@
 
   <ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
-    <li class="active">Backups</li>
+    <li>Backups</li>
+    <li class="active">History</li>
   </ol>
 
   <div>
@@ -20,9 +21,15 @@
             <a href="/dashboard" class="btn btn-default" title="Back to Main Menu">
               <span class="gly gly-unshare"></span>
             </a> 
+            <!--
+            <a href="/backups/history" class="btn btn-default">
+              <span class="glyphicon glyphicon-th-list"></span>
+            </a>
+            -->
             <button type="button" class="btn btn-default active">
-              <span class="glyphicon glyphicon-cloud"></span>
+              <span class="glyphicon glyphicon-th-list"></span>
             </button>
+            
           </div> <!-- end btn-grp -->
           <div class="btn-group" role="group">
             <a href="/backups/upload" class="btn btn-default">
@@ -36,7 +43,27 @@
     @include('_partials.alerts')
 
     
-   
+   <table class="table">
+      <thead>
+        <tr>
+          <th>Filename</th><th>Upload Date</th><th>Processed</th><th>Remarks</th><th>IP Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($backups as $backup)
+        <tr>
+          <td>{{ $backup->filename }} </td>
+          <td>{{ $backup->uploaddate->format('m/d/Y h:i A') }} <em><small>({{ last_upload($backup->uploaddate) }})</small></em></td>
+          <td class="text-center"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
+          <?php  $x = explode(':', $backup->remarks) ?>
+          <td>{{ $x['1'] }} </td>
+          <td>{{ $backup->terminal }} </td>
+        </tr>
+        @endforeach
+      </tbody>
+    </table>
+    
+    {!! $backups->render() !!}
 
     
       

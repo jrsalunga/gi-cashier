@@ -154,3 +154,11 @@ function carbonCheckorNow($date=NULL) {
 	return $d;
 }
 
+
+function last_upload(Carbon\Carbon $time) {
+
+  $x = Carbon\Carbon::now()->diffForHumans($time);
+                    
+  return str_replace("after", "ago",  $x);
+}
+

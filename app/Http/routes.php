@@ -1,10 +1,5 @@
 <?php
 
-
-
-
-
-
 Route::get('login', ['as'=>'auth.getlogin', 'uses'=>'Auth\AuthController@getLogin']);
 Route::post('login', ['as'=>'auth.postlogin', 'uses'=>'Auth\AuthController@postLogin']);
 Route::get('logout', ['as'=>'auth.getlogout', 'uses'=>'Auth\AuthController@getLogout']);
@@ -27,6 +22,7 @@ Route::get('settings/{param1?}/{param2?}', ['uses'=>'SettingsController@getIndex
 Route::post('/settings/password',  ['uses'=>'SettingsController@changePassword']);
 
 Route::get('backups/upload', ['uses'=>'BackupController@getUploadIndex']);
+Route::get('backups/history', ['uses'=>'BackupController@getHistory']);
 Route::get('backups/{param1?}/{param2?}', ['uses'=>'BackupController@getIndex']);
 Route::post('upload/postfile', ['as'=>'upload.postfile', 'uses'=>'BackupController@postfile']); // upload to web
 Route::put('upload/postfile', ['as'=>'upload.putfile', 'uses'=>'BackupController@putfile']); // move from web to storage

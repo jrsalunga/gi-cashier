@@ -10,6 +10,7 @@
   <ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
     <!-- <li><a href="/backups">Backups</a></li> -->
+    <li>Backups</li>
     <li class="active">Upload</li>
   </ol>
 
@@ -21,6 +22,9 @@
             <a href="/dashboard" class="btn btn-default" title="Back to Main Menu">
               <span class="gly gly-unshare"></span>
             </a> 
+            <a href="/backups/history" class="btn btn-default">
+              <span class="glyphicon glyphicon-th-list"></span>
+            </a>
             <!--
             <a href="/backups" class="btn btn-default">
               <span class="glyphicon glyphicon-cloud"></span>

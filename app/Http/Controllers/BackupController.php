@@ -11,6 +11,7 @@ use App\Repositories\PosUploadRepository;
 use App\Repositories\StorageRepository;
 use App\Repositories\Filters\WithBranch;
 use App\Repositories\Filters\ByBranch;
+use App\Repositories\Filters\ByUploaddate;
 use App\Models\Backup;
 use App\Models\DailySales;
 
@@ -33,8 +34,9 @@ class BackupController extends Controller
 		$this->pos = new StorageRepository($mimeDetect, 'pos.'.app()->environment());
 		$this->web = new StorageRepository($mimeDetect, 'web');
 		$this->backup = $posuploadrepo;
-		//$this->backup->pushFilters(new WithBranch(['code', 'descriptor', 'id']));
   	$this->backup->pushFilters(new ByBranch($request));
+  	$this->backup->pushFilters(new ByUploaddate);
+		//$this->backup->pushFilters(new WithBranch(['code', 'descriptor', 'id']));
 
 		
 		$this->path['temp'] = strtolower(session('user.branchcode')).DS.now('year').DS;
@@ -72,6 +74,15 @@ class BackupController extends Controller
 		return view('backups.filelist')->with('data', $data)->with('tab', 'pos');
 	} 
 	
+	public function getHistory(Request $request) {
+
+		//return $this->backup->all();
+		$backups = $this->backup->paginate(10, $columns = ['*']);
+		//return dd($timelogs);
+		return view('backups.index')->with('backups', $backups);
+
+		return view('backups.index');
+	}
 
 
 	public function getUploadIndex(Request $request) {
@@ -211,7 +222,7 @@ class BackupController extends Controller
     	'month' => $request->input('month'),
     	'size' => $this->pos->fileSize($src),
     	'mimetype' => $this->pos->fileMimeType($src),
-    	'terminal' => $request->ip(),
+    	'terminal' => clientIP(), //$request->ip(),
     	'remarks' => $src.':'.$request->input('notes'),
     	'userid' => $request->user()->id
     ];
