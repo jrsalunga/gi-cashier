@@ -46,7 +46,10 @@
    <table class="table">
       <thead>
         <tr>
-          <th>Filename</th><th>Upload Date</th><th>Processed</th><th>Remarks</th><th>IP Address</th>
+          <th>Filename</th><th>Upload Date</th>
+          <th class="hidden-xs hidden-sm">Processed</th>
+          <th class="hidden-xs">Remarks</th>
+          <th class="hidden-xs hidden-sm">IP Address</th>
         </tr>
       </thead>
       <tbody>
@@ -54,10 +57,10 @@
         <tr>
           <td>{{ $backup->filename }} </td>
           <td>{{ $backup->uploaddate->format('m/d/Y h:i A') }} <em><small>({{ diffForHumans($backup->uploaddate) }})</small></em></td>
-          <td class="text-center"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
+          <td class="text-center hidden-xs hidden-sm"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
           <?php  $x = explode(':', $backup->remarks) ?>
-          <td>{{ $x['1'] }} </td>
-          <td>{{ $backup->terminal }} </td>
+          <td class="hidden-xs">{{ $x['1'] }} </td>
+          <td class="hidden-xs hidden-sm">{{ $backup->terminal }} </td>
         </tr>
         @endforeach
       </tbody>
