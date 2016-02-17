@@ -53,7 +53,7 @@
         @foreach($backups as $backup)
         <tr>
           <td>{{ $backup->filename }} </td>
-          <td>{{ $backup->uploaddate->format('m/d/Y h:i A') }} <em><small>({{ last_upload($backup->uploaddate) }})</small></em></td>
+          <td>{{ $backup->uploaddate->format('m/d/Y h:i A') }} <em><small>({{ diffForHumans($backup->uploaddate) }})</small></em></td>
           <td class="text-center"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
           <?php  $x = explode(':', $backup->remarks) ?>
           <td>{{ $x['1'] }} </td>

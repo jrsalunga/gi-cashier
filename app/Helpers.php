@@ -155,7 +155,7 @@ function carbonCheckorNow($date=NULL) {
 }
 
 
-function last_upload(Carbon\Carbon $time) {
+function diffForHumans(Carbon\Carbon $time) {
 
   $x = Carbon\Carbon::now()->diffForHumans($time);
                     
