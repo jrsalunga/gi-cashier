@@ -46,6 +46,16 @@ class Handler extends ExceptionHandler
             $e = new NotFoundHttpException($e->getMessage(), $e);
         }
 
+        if(app()->environment()=='production'){
+          if($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+            return redirect('/');
+          }
+        }
+
+        if ($e instanceof \Illuminate\Session\TokenMismatchException) {
+            return redirect('logout');
+        }
+
         return parent::render($request, $e);
     }
 }
