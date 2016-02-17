@@ -35,7 +35,7 @@ class BackupController extends Controller
 		$this->web = new StorageRepository($mimeDetect, 'web');
 		$this->backup = $posuploadrepo;
   	$this->backup->pushFilters(new ByBranch($request));
-  	$this->backup->pushFilters(new ByUploaddate);
+  	
 		//$this->backup->pushFilters(new WithBranch(['code', 'descriptor', 'id']));
 
 		
@@ -85,7 +85,7 @@ class BackupController extends Controller
 		
 		$this->backup->with(['branch'=>function($query){
             $query->select(['code', 'descriptor', 'id']);
-        }])->all();
+        }])->orderBy('uploaddate', 'DESC')->all();
 		
 		$backups = $this->backup->paginate(10, $columns = ['*']);
 
