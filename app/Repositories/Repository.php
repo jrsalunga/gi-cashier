@@ -97,8 +97,9 @@ abstract class Repository implements RepositoryInterface, FiltersInterface {
     }
 
     public function with($ar){
-        $this->model->with($ar);
-        return $this->model;
+        $this->model = $this->model->with($ar);
+        //$this->model->with($ar);
+        return $this;
     }
 
     /**

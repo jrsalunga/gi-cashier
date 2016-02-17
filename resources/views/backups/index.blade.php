@@ -46,6 +46,9 @@
    <table class="table">
       <thead>
         <tr>
+          @if($all)
+            <th>Br Code</th>
+          @endif
           <th>Filename</th><th>Upload Date</th>
           <th class="hidden-xs hidden-sm">Processed</th>
           <th class="hidden-xs">Remarks</th>
@@ -55,6 +58,9 @@
       <tbody>
         @foreach($backups as $backup)
         <tr>
+          @if($all)
+            <td title="{{ $backup->branch->descriptor }}">{{ $backup->branch->code }}</td>
+          @endif
           <td>{{ $backup->filename }} </td>
           <td>{{ $backup->uploaddate->format('m/d/Y h:i A') }} <em><small>({{ diffForHumans($backup->uploaddate) }})</small></em></td>
           <td class="text-center hidden-xs hidden-sm"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
@@ -66,7 +72,9 @@
       </tbody>
     </table>
     
-    {!! $backups->render() !!}
+   
+      {!! $backups->render() !!}
+     
 
     
       

@@ -76,12 +76,23 @@ class BackupController extends Controller
 	
 	public function getHistory(Request $request) {
 
-		//return $this->backup->all();
+		if($request->input('all')==='1') {
+			$this->backup->skipFilters();
+			$all = true;
+		} else 
+			$all = false;
+		
+		
+		$this->backup->with(['branch'=>function($query){
+            $query->select(['code', 'descriptor', 'id']);
+        }])->all();
+		
 		$backups = $this->backup->paginate(10, $columns = ['*']);
-		//return dd($timelogs);
-		return view('backups.index')->with('backups', $backups);
 
-		return view('backups.index');
+		if($request->input('all')==='1') // for Query String for URL
+			$backups->appends(['all' => '1']);
+		
+		return view('backups.index')->with('backups', $backups)->with('all', $all);
 	}
 
 
