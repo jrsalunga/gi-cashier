@@ -31,7 +31,9 @@ class AuthLoginEventHandler
         //dd($event->request->user()->id);
         $data = [
             'ip' => clientIP(),
-            'user' => $event->request->user()->name
+            'user' => $event->request->user()->name,
+            'lat' => $event->request->input('lat'),
+            'lng' => $event->request->input('lng')
         ];
 
         \Mail::send('emails.loggedin', $data, function ($message) {

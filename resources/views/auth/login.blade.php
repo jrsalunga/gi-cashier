@@ -10,7 +10,8 @@
 
   <link rel="shortcut icon" type="image/x-icon" href="/images/g.png" /> 
   <link rel="stylesheet" href="/css/styles-all.min.css">
-
+  <style>
+  </style>
 
 </head>
 <body class="@yield('body-class')">
@@ -48,6 +49,7 @@
 
 {{--  $errors->first('email') --}}
 {{--  $errors->first('username') --}}
+  <div class="geo-callback-message"></div>
   <div class="div-signin">
     <div>
       <img class="center-block img-signin img-circle img-responsive" src="/images/login-avatar.png">
@@ -74,10 +76,61 @@
       @else
         <input id="inputPassword" class="form-control" type="password" required="" placeholder="Password" name="password">
       @endif
-
+      <input type="hidden" name="lat" id="lat">
+      <input type="hidden" name="lng" id="lng">
       <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
       {!! Form::close() !!}
   </div>
 
+  
+  
 
 
+
+
+
+<script src="/js/vendors-common.min.js"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjNiaRtUU5cE7G2IcIYVGm5vxyNDzh6ws&signed_in=true&callback=findMyGeo"></script>
+
+<script type="text/javascript">
+
+var findMyGeo = function() {
+
+  var response = {};
+  var output = document.getElementsByClassName('geo-callback-message')[0];
+
+  if (!navigator.geolocation){
+    output.innerHTML = '<div class="alert alert-danger alert-important" role="alert">Geolocation is not supported by your browser. Please use Google Chrome</div>';
+    return;
+  }
+
+  function success(position) {
+    var latitude  = position.coords.latitude;
+    var longitude = position.coords.longitude;
+    $('#lat').val(latitude);
+    $('#lng').val(longitude);
+    //output.innerHTML = 'Latitude is ' + latitude + '° <br>Longitude is ' + longitude + '°';
+    //output.innerHTML = '<div class="alert alert-success alert-important" role="alert">Latitude is ' + latitude + '° <br>Longitude is ' + longitude + '°</div>';
+    output.innerHTML = '';
+  };
+
+  function error() {
+    output.innerHTML = '<div class="alert alert-danger alert-important" role="alert">Unable to retrieve your location. Please contact system administrator.</div>';
+  };
+
+  //output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Loading...</div>';                                  
+
+  var opt = {
+    //enableHighAccuracy: true,
+    //timeout: 5000,
+    //maximumAge: 0
+  }
+
+  navigator.geolocation.getCurrentPosition(success, error, opt);
+}
+
+
+</script>
+
+</body>
+</html>
