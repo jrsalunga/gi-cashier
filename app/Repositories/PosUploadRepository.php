@@ -304,6 +304,8 @@ class PosUploadRepository extends Repository
     return config('gi-dtr.upload_path.web').$path;
   }
 
+  
+
   /**
    * Return the full web path to a file
    */

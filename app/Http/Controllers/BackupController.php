@@ -128,7 +128,10 @@ class BackupController extends Controller
 		$mon 	= empty($request->input('month')) ? now('M'):$request->input('month');
 
 		$filepath = $this->path['temp'].$request->input('filename');
-		$storage_path = $this->branch.DS.$yr.DS.$mon.DS.$request->input('filename'); 
+		$storage_path = strtoupper($this->branch).DS.$yr.DS.$mon.DS.$request->input('filename'); 
+		//$storage_path = config('gi-dtr.upload_path.web').session('user.branchcode').DS.now('year').DS.$request->input('filename');
+
+
 
 		if($this->web->exists($filepath)){ //public/uploads/{branch_code}/{year}/{filename}.ZIP
 
@@ -176,8 +179,14 @@ class BackupController extends Controller
 				return redirect('/backups/upload')->with('alert-error', $msg);
 			}
 
+			try {
+	     	$this->pos->moveFile($this->web->realFullPath($filepath), $storage_path, true); // false = override file!
+	    }catch(\Exception $e){
+					return redirect('/backups/upload')->with('alert-error', $e->getMessage());
+	    }
+	     
 			$this->removeExtratedDir();
-			return redirect('/backups/upload')->with('alert-success', $backup->filename.' processed!');
+			return redirect('/backups/upload')->with('alert-success', $backup->filename.' saved and processed daily sales!');
 			
 
 
@@ -189,11 +198,7 @@ class BackupController extends Controller
 			
 
 
-			try {
-	      $storage->moveFile($this->web->realFullPath($filepath), $storage_path, false); // false = override file!
-	    }catch(\Exception $e){
-					return redirect('/backups/upload')->with('alert-error', $e->getMessage());
-	    }
+			
 
 	    /*** if backup file ****/
 	    if(starts_with($storage->getType(),'pos') && starts_with($request->input('filename'),'GC')) {
