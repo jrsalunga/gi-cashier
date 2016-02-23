@@ -115,7 +115,7 @@ var findMyGeo = function() {
   };
 
   function error() {
-    output.innerHTML = '<div class="alert alert-danger alert-important" role="alert">Unable to retrieve your location. Please contact system administrator.</div>';
+    output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Unable to retrieve your location. </div>';
   };
 
   //output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Loading...</div>';                                  
