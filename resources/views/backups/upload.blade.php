@@ -22,7 +22,7 @@
             <a href="/dashboard" class="btn btn-default" title="Back to Main Menu">
               <span class="gly gly-unshare"></span>
             </a> 
-            <a href="/backups/history" class="btn btn-default">
+            <a href="/backups/log" class="btn btn-default">
               <span class="glyphicon glyphicon-th-list"></span>
             </a>
             <!--
@@ -41,6 +41,7 @@
     </nav>
 
     @include('_partials.alerts')
+    <div class="geo-callback-message"></div>
 
     <div class="row row-centered dtr-daterange">
       <div class="col-sm-7 col-md-6 col-centered">
@@ -65,11 +66,11 @@
                 <div class="col-lg-12">
                   <div class="input-group">
                     <span class="input-group-btn">
-                      
-
-                      
                       <input type="hidden"  name="year" id="year" value="{{ now('Y') }}">
                       <input type="hidden"  name="month" id="month" value="{{ pad(now('M'),2) }}">
+                      
+                      <input type="hidden"  name="lat" id="lat">
+                      <input type="hidden"  name="lng" id="lng">
                       <button id="attached" class="btn btn-default" type="button">
                         <span class="glyphicon glyphicon-paperclip"></span>
                       </button>
@@ -111,7 +112,47 @@
   @parent
   <script src="/js/vendors/jquery.filedrop-0.1.0.js"></script>
   <script src="/js/filedrop.js"></script>
-  <script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjNiaRtUU5cE7G2IcIYVGm5vxyNDzh6ws&signed_in=true&callback=findMyGeo"></script>
+
+  <script type="text/javascript">
+
+  var findMyGeo = function() {
+
+    var response = {};
+    var output = document.getElementsByClassName('geo-callback-message')[0];
+
+    if (!navigator.geolocation){
+      output.innerHTML = '<div class="alert alert-danger alert-important" role="alert">Geolocation is not supported by your browser. Please use Google Chrome</div>';
+      return;
+    }
+
+    function success(position) {
+      var latitude  = position.coords.latitude;
+      var longitude = position.coords.longitude;
+      $('#lat').val(latitude);
+      $('#lng').val(longitude);
+      //output.innerHTML = 'Latitude is ' + latitude + '° <br>Longitude is ' + longitude + '°';
+      //output.innerHTML = '<div class="alert alert-success alert-important" role="alert">Latitude is ' + latitude + '° <br>Longitude is ' + longitude + '°</div>';
+      output.innerHTML = '';
+    };
+
+    function error() {
+      output.innerHTML = '<div class="alert alert-danger alert-important" role="alert">Unable to retrieve your location. Please contact system administrator.</div>';
+    };
+
+    //output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Loading...</div>';                                  
+
+    var opt = {
+      //enableHighAccuracy: true,
+      //timeout: 5000,
+      //maximumAge: 0
+    }
+
+    navigator.geolocation.getCurrentPosition(success, error, opt);
+  }
+
+
+
   $('#attached').on('click', function(){
       //console.log($('.lbl-file_upload'));
       $('#file_upload').click();

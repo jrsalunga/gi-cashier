@@ -31,15 +31,18 @@
         <div class="navbar-form">
           <div class="btn-group" role="group">
             <a href="/dashboard" class="btn btn-default" title="Back to Main Menu">
-              <span class="gly gly-unshare"></span>
+              <span class="gly gly-unshare"></span> Back
+            </a> 
+            <a href="/backups/log" class="btn btn-default" title="Back to Main Menu">
+              <span class="glyphicon glyphicon-th-list"></span> Log
             </a> 
             <button type="button" class="btn btn-default active">
-              <span class="glyphicon glyphicon-cloud"></span>
+              <span class="fa fa-archive"></span> Archive
             </button>
           </div> <!-- end btn-grp -->
           <div class="btn-group" role="group">
             <a href="/backups/upload" class="btn btn-default">
-              <span class="glyphicon glyphicon-cloud-upload"></span>
+              <span class="glyphicon glyphicon-cloud-upload"></span> DropBox
             </a>
           </div>
         </div>
@@ -52,7 +55,11 @@
     <div>
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
-      <li role="presentation" class="<?=($tab==='pos')?'active':''?>"><a href="/backups" aria-controls="pos" role="tab">POS</a></li>
+      <li role="presentation" class="<?=($tab==='pos')?'active':''?>">
+        <a href="/backups" aria-controls="pos" role="tab">
+          POS Backup Archive
+        </a>
+      </li>
     </ul>
 
     <!-- Tab panes -->
@@ -110,7 +117,9 @@
                 @endif 
 
                 {{ $file['name'] }}</td>
+                {{-- 
                 <td><a href="/download/{{$tab}}/{{ $file['fullPath'] }}" target="_blank"><span class="glyphicon glyphicon-download-alt"></span></a></td>
+                --}}
                 <td>{{ human_filesize($file['size']) }}</td>
                 <td>{{ $file['mimeType'] or 'Unknown' }}</td>
                 <td>{{ $file['modified']->format('j-M-y g:ia') }}</td>

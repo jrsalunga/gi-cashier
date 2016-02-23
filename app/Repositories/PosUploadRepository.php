@@ -42,9 +42,11 @@ class PosUploadRepository extends Repository
 
 
     public function extract($src, $pwd=NULL){
+     
       $dir = $this->realFullPath($src);
       $zip = new ZipArchive();
       $zip_status = $zip->open($dir);
+
       if($zip_status === true) {
 
         if(!is_null($pwd))
@@ -56,12 +58,14 @@ class PosUploadRepository extends Repository
           $this->removeDir($path);
         }
         mkdir($path, 0777, true);
-          
-
-        if(!$zip->extractTo($path))
-          return false;
-
+         
         $this->extracted_path = $path;
+
+        if(!$zip->extractTo($path)) {
+          $zip->close();
+          return false;
+        }
+
         //$this->postDailySales($path, filename_to_date2(pathinfo($src, PATHINFO_FILENAME)));
         //$this->removeDir($path);
 
@@ -71,6 +75,27 @@ class PosUploadRepository extends Repository
       } else {
         return false;
       }
+    }
+
+
+    public function getBackupCode() {
+      $dbf_file = $this->extracted_path.DS.'SYSINFO.DBF';
+
+      if (file_exists($dbf_file)) { 
+        $db = dbase_open($dbf_file, 0);
+        $row = dbase_get_record_with_names($db, 1);
+        $code = trim($row['GI_BRCODE']);
+
+        dbase_close($db);
+        if(empty($code)) {
+          throw new \Exception("Cannot locate Branch Code on backup");
+        }
+        else 
+          return $code;
+      } else {
+        throw new \Exception("Cannot locate SYSINFO.DBF"); 
+      }
+      
     }
 
     public function postDailySales(){
@@ -275,7 +300,8 @@ class PosUploadRepository extends Repository
   }
 
   public function realFullPath($path){
-    return config('gi-dtr.upload_path.pos.'.app()->environment()).$path;
+    //return config('gi-dtr.upload_path.pos.'.app()->environment()).$path;
+    return config('gi-dtr.upload_path.web').$path;
   }
 
   /**

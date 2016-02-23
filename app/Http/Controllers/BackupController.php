@@ -14,6 +14,7 @@ use App\Repositories\Filters\ByBranch;
 use App\Repositories\Filters\ByUploaddate;
 use App\Models\Backup;
 use App\Models\DailySales;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException as Http404;
 
 class BackupController extends Controller 
 {
@@ -40,7 +41,7 @@ class BackupController extends Controller
 
 		
 		$this->path['temp'] = strtolower(session('user.branchcode')).DS.now('year').DS;
-		$this->path['web'] = config('gi-dtr.upload_path.web').strtolower(session('user.branchcode')).DS.now('year').DS;
+		$this->path['web'] = config('gi-dtr.upload_path.web').session('user.branchcode').DS.now('year').DS;
 	
 		
 	}
@@ -52,6 +53,7 @@ class BackupController extends Controller
 		//$uri .= (is_null($param1) && is_year($param1)) ? $param1 : now('Y');
 
 		if(!is_null($param2) && is_month($param2)){
+
 			if(!is_null($param1) && is_year($param1)){
 				$uri = '/'.$param1.'/'.$param2;
 			} else {
@@ -59,10 +61,12 @@ class BackupController extends Controller
 			}
 		} else if(!is_null($param1) && is_year($param1)) {
 			$uri = '/'.$param1;
+		} else if(!is_null($param1) && !is_year($param1)) {
+			throw new Http404();
 		} else {
-			$uri = '';
+			$uri = '';//throw new Http404();
 		}
-		 return $uri;
+		return $uri;
 	}
 
 	public function getIndex(Request $request, $param1=null, $param2=null) {
@@ -74,9 +78,10 @@ class BackupController extends Controller
 		return view('backups.filelist')->with('data', $data)->with('tab', 'pos');
 	} 
 	
+	//backups/history
 	public function getHistory(Request $request) {
 
-		if($request->input('all')==='1') {
+		if($request->input('all')==='1' || $request->user()->username==='cashier') {
 			$this->backup->skipFilters();
 			$all = true;
 		} else 
@@ -84,12 +89,12 @@ class BackupController extends Controller
 		
 		
 		$this->backup->with(['branch'=>function($query){
-            $query->select(['code', 'descriptor', 'id']);
-        }])->orderBy('uploaddate', 'DESC')->all();
+        $query->select(['code', 'descriptor', 'id']);
+      }])->orderBy('uploaddate', 'DESC')->all();
 		
 		$backups = $this->backup->paginate(10, $columns = ['*']);
 
-		if($request->input('all')==='1') // for Query String for URL
+		if($request->input('all')==='1' || $request->user()->username==='cashier') // for Query String for URL
 			$backups->appends(['all' => '1']);
 		
 		return view('backups.index')->with('backups', $backups)->with('all', $all);
@@ -109,20 +114,80 @@ class BackupController extends Controller
 		return $this->files;
 	}
 
+	private function isBackup(Request $request) {
+		return (starts_with($request->input('filename'),'GC') 
+					&& strtolower(pathinfo($request->input('filename'), PATHINFO_EXTENSION))==='zip')
+					? true : false;
+	}
+
 	/* move file from web to maindepot
 	*/
 	public function putfile(Request $request) {
 
-		$yr = empty($request->input('year')) ? now('Y'):$request->input('year');
-		$mon = empty($request->input('month')) ? now('M'):$request->input('month');
+		$yr 	= empty($request->input('year')) 	? now('Y'):$request->input('year');
+		$mon 	= empty($request->input('month')) ? now('M'):$request->input('month');
 
 		$filepath = $this->path['temp'].$request->input('filename');
 		$storage_path = $this->branch.DS.$yr.DS.$mon.DS.$request->input('filename'); 
 
-		if($this->web->exists($filepath)){
-			$storage = $this->getStorageType($filepath);
+		if($this->web->exists($filepath)){ //public/uploads/{branch_code}/{year}/{filename}.ZIP
 
+			$backup = $this->createPosUpload($filepath, $request);
 			
+			/*** check if backup file ****/
+			if(!$this->isBackup($request)) {
+				$msg = $backup->filename.' not backup';
+				if(!is_null($backup)){
+					$d = $this->web->deleteFile($filepath);
+					$msg .= $d ? ' & deleted':'';
+					$this->updateBackupRemarks($backup, $msg);
+				}
+				return redirect('/backups/upload')->with('alert-error', $msg);
+			} 
+				
+
+			if(!$this->extract($filepath)){
+				$msg =  'Unable to extract '. $backup->filename;
+				$d = $this->web->deleteFile($filepath);
+				$msg .= $d ? ' & deleted':'';
+				$this->updateBackupRemarks($backup, $msg);
+				$this->removeExtratedDir();
+				return redirect('/backups/upload')->with('alert-error', $msg);
+			}
+
+			try {
+				$this->verifyBackup($request);
+			} catch (\Exception $e) {
+				$msg =  $e->getMessage();
+				$d = $this->web->deleteFile($filepath);
+				$msg .= $d ? ' & deleted':'';
+				$this->updateBackupRemarks($backup, $msg);
+				$this->removeExtratedDir();
+				return redirect('/backups/upload')->with('alert-error', $msg);
+			}
+
+
+			if(!$this->processDailySales($backup)){
+				$msg = 'File: '.$request->input('filename').' unable to process daily sales!';
+				$d = $this->web->deleteFile($filepath);
+				$msg .= $d ? ' & deleted':'';
+				$this->updateBackupRemarks($backup, $msg);
+				$this->removeExtratedDir();
+				return redirect('/backups/upload')->with('alert-error', $msg);
+			}
+
+			$this->removeExtratedDir();
+			return redirect('/backups/upload')->with('alert-success', $backup->filename.' processed!');
+			
+
+
+
+
+
+			$storage = $this->getStorageType($filepath); // check if ZIP or Document File (e.g JPG, PNG) 
+																									 // & return which StorageRepository ($this->pos or this->file)
+			
+
 
 			try {
 	      $storage->moveFile($this->web->realFullPath($filepath), $storage_path, false); // false = override file!
@@ -138,11 +203,26 @@ class BackupController extends Controller
 					return redirect('/backups/upload')
 									->with('alert-error', 'File: '.$request->input('filename').' unable to create record');
 		    
-				if(!$this->processDailySales($storage_path, $res))
-					return redirect('/backups/upload')
-									->with('alert-error', 'File: '.$request->input('filename').' unable to extract');
+				if($this->extract($storage_path)) {
 
-				return redirect('/backups/upload')->with('alert-success', 'File: '.$request->input('filename').' successfully uploaded and processed daily sales!');
+					try {
+						$this->verifyBackup($request);
+					} catch (\Exception $e) {
+						$this->removeExtratedDir();
+						return redirect('/backups/upload')->with('alert-error', $e->getMessage());
+					}
+
+					if(!$this->processDailySales($res))
+						return redirect('/backups/upload')
+										->with('alert-error', 'File: '.$request->input('filename').' unable to extract');
+					
+					$this->removeExtratedDir();
+					return redirect('/backups/upload')->with('alert-success', 'File: '.$request->input('filename').' successfully uploaded and processed daily sales!');
+				} else {
+					return redirect('/backups/upload')->with('alert-error', 'Unable to extract backup.');
+				}
+
+
 	    } else {
 				return redirect('/backups/upload')->with('alert-success', 'File: '.$request->input('filename').' successfully uploaded!');
 	    }
@@ -231,17 +311,19 @@ class BackupController extends Controller
     	'filename' => $request->input('filename'),
     	'year' => $request->input('year'),
     	'month' => $request->input('month'),
-    	'size' => $this->pos->fileSize($src),
-    	'mimetype' => $this->pos->fileMimeType($src),
+    	'size' => $this->web->fileSize($src),
+    	'mimetype' => $this->web->fileMimeType($src),
     	'terminal' => clientIP(), //$request->ip(),
+    	'lat' => round($request->input('lat'),7), 
+    	'long' => round($request->input('lng'),7), 
     	'remarks' => $src.':'.$request->input('notes'),
     	'userid' => $request->user()->id
     ];
 
-    return $this->backup->create($data)?:false;
+    return $this->backup->create($data)?:NULL;
   }
 
-  public function extract($src, $pwd=NULL){
+  public function extract_old($src, $pwd=NULL){
   	return $this->backup->extract($src, $pwd);
   }
 
@@ -250,16 +332,45 @@ class BackupController extends Controller
   	return $this->backup->ds->lastRecord();
   }
 
-  public function processDailySales($filepath, Backup $posupload){
-  	$this->backup->extract($filepath, 'admate');
+  public function extract($filepath) {
+  	return $this->backup->extract($filepath, 'admate');	
+  }
+
+  public function verifyBackup(Request $request) {
+  	try {
+  		$code = $this->backup->getBackupCode(); 
+  	} catch (\Exception $e) {
+  		throw new \Exception($e->getMessage());
+  	}
+  	
+  	if(strtolower($code)===strtolower($request->user()->branch->code)) {
+  		return $code;
+  	} else {
+  		throw new \Exception("Backup file is property of ". $code .' not '.$request->user()->branch->code);
+  	}
+  }
+
+  public function processDailySales(Backup $posupload){
+  	//$this->backup->extract($filepath, 'admate');
   	$res = $this->backup->postDailySales();
   	if($res) 
   		$this->backup->update(['processed'=>1], $posupload->id);
   	
-  	$this->backup->removeExtratedDir();
   	return $res;
   }
 
+  public function removeExtratedDir() {
+  	return $this->backup->removeExtratedDir();
+  }
+
+  public function updateBackupRemarks(Backup $posupload, $message) {
+  	$x = explode(':', $posupload->remarks);
+		$msg = empty($x['1']) 
+			? $posupload->remarks.' '. $message
+			: $posupload->remarks.', '. $message;
+					
+		return $this->backup->update(['remarks'=> $msg], $posupload->id);
+  }
 
 
 

@@ -9,7 +9,7 @@ function is_month($value){
 }
 
 function is_year($value){
-	return preg_match('/(20[0-9][0-9])/', $value);
+	return preg_match('/(20[0-9][0-9])$/', $value);
 }
 
 function is_iso_date($date){

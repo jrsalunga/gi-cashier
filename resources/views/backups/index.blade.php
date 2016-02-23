@@ -10,7 +10,7 @@
   <ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
     <li>Backups</li>
-    <li class="active">History</li>
+    <li class="active">Log</li>
   </ol>
 
   <div>
@@ -66,19 +66,18 @@
           <td class="text-center hidden-xs hidden-sm"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
           <?php  $x = explode(':', $backup->remarks) ?>
           <td class="hidden-xs">{{ $x['1'] }} </td>
-          <td class="hidden-xs hidden-sm">{{ $backup->terminal }} </td>
+          <td class="hidden-xs hidden-sm">
+            <a href="https://www.google.com/maps/search/{{$backup->lat}},{{$backup->long}}/{{urldecode('%40')}}{{$backup->lat}},{{$backup->long}},18z" target="_blank">
+              {{ $backup->terminal }} 
+            </a>
+          </td>
         </tr>
         @endforeach
       </tbody>
     </table>
     
-   
-      {!! $backups->render() !!}
+    {!! $backups->render() !!}
      
-
-    
-      
-  
   </div>
 </div><!-- end container-fluid -->
 @endsection

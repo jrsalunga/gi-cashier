@@ -22,7 +22,7 @@ Route::get('settings/{param1?}/{param2?}', ['uses'=>'SettingsController@getIndex
 Route::post('/settings/password',  ['uses'=>'SettingsController@changePassword']);
 
 Route::get('backups/upload', ['uses'=>'BackupController@getUploadIndex']);
-Route::get('backups/history', ['uses'=>'BackupController@getHistory']);
+Route::get('backups/log', ['uses'=>'BackupController@getHistory']);
 Route::get('backups/{param1?}/{param2?}', ['uses'=>'BackupController@getIndex']);
 Route::post('upload/postfile', ['as'=>'upload.postfile', 'uses'=>'BackupController@postfile']); // upload to web
 Route::put('upload/postfile', ['as'=>'upload.putfile', 'uses'=>'BackupController@putfile']); // move from web to storage
