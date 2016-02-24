@@ -151,7 +151,7 @@ class TimelogController extends Controller {
 				$timelog->txncode 	 	= (strtolower($employee->branchid) == strtolower($this->_branchid)) ? $request->input('txncode'):'9';
 				$timelog->entrytype  	= $request->input('entrytype');
 				$timelog->rfid				= $employee->rfid;
-				$timelog->terminalid 	= $request->cookie('branchcode')!==null ? $request->cookie('branchcode'):$_SERVER["REMOTE_ADDR"];
+				$timelog->terminalid 	= $request->cookie('branchcode')!==null ? $request->cookie('branchcode'):clientIP();
 				//$timelog->terminal 	= gethostname();
 				$timelog->id 	 	 			= strtoupper(Timelog::get_uid());
 				
