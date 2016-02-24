@@ -93,7 +93,7 @@ class PosUploadRepository extends Repository
         else 
           return $code;
       } else {
-        throw new \Exception("Cannot locate SYSINFO.DBF"); 
+        throw new \Exception("Cannot locate SYSINFO"); 
       }
       
     }
@@ -304,7 +304,7 @@ class PosUploadRepository extends Repository
     return config('gi-dtr.upload_path.web').$path;
   }
 
-  
+
 
   /**
    * Return the full web path to a file
