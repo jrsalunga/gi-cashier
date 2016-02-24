@@ -33,12 +33,12 @@
             <a href="/dashboard" class="btn btn-default" title="Back to Main Menu">
               <span class="gly gly-unshare"></span> Back
             </a> 
-            <a href="/backups/log" class="btn btn-default" title="Back to Main Menu">
-              <span class="glyphicon glyphicon-th-list"></span> Log
-            </a> 
             <button type="button" class="btn btn-default active">
               <span class="fa fa-archive"></span> Archive
             </button>
+            <a href="/backups/log" class="btn btn-default" title="Back to Main Menu">
+              <span class="glyphicon glyphicon-th-list"></span> Log
+            </a> 
           </div> <!-- end btn-grp -->
           <div class="btn-group" role="group">
             <a href="/backups/upload" class="btn btn-default">

@@ -120,18 +120,34 @@ class BackupController extends Controller
 					? true : false;
 	}
 
+	private function backupParseDate(Request $request) {
+
+		$f = pathinfo($request->input('filename'), PATHINFO_FILENAME);
+
+		$m = substr($f, 2, 2);
+		$d = substr($f, 4, 2);
+		$y = '20'.substr($f, 6, 2);
+		
+		return carbonCheckorNow($y.'-'.$m.'-'.$d);
+	}
+
 	/* move file from web to maindepot
 	*/
 	public function putfile(Request $request) {
 
-		$yr 	= empty($request->input('year')) 	? now('Y'):$request->input('year');
-		$mon 	= empty($request->input('month')) ? now('M'):$request->input('month');
+		$this->logAction('start:submit:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message:user press submit');
+		//$yr 	= empty($request->input('year')) 	? now('Y'):$request->input('year');
+		//$mon 	= empty($request->input('month')) ? now('M'):$request->input('month');
+
+		$d = $this->backupParseDate($request);
+
+		$mon = $d->format('m');
+		//$d = substr($f, 4, 2);
+		$yr = $d->format('Y');
 
 		$filepath = $this->path['temp'].$request->input('filename');
 		$storage_path = strtoupper($this->branch).DS.$yr.DS.$mon.DS.$request->input('filename'); 
 		//$storage_path = config('gi-dtr.upload_path.web').session('user.branchcode').DS.now('year').DS.$request->input('filename');
-
-
 
 		if($this->web->exists($filepath)){ //public/uploads/{branch_code}/{year}/{filename}.ZIP
 
@@ -145,8 +161,10 @@ class BackupController extends Controller
 					$msg .= $d ? ' & deleted':'';
 					$this->updateBackupRemarks($backup, $msg);
 				}
+				$this->logAction('error:check:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message:'.$msg);
 				return redirect('/backups/upload')->with('alert-error', $msg);
 			} 
+			$this->logAction('success:check:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 				
 
 			if(!$this->extract($filepath)){
@@ -155,8 +173,10 @@ class BackupController extends Controller
 				$msg .= $d ? ' & deleted':'';
 				$this->updateBackupRemarks($backup, $msg);
 				$this->removeExtratedDir();
+				$this->logAction('error:extract:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message:'.$msg);
 				return redirect('/backups/upload')->with('alert-error', $msg);
 			}
+			$this->logAction('success:extract:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 
 			try {
 				$this->verifyBackup($request);
@@ -166,8 +186,10 @@ class BackupController extends Controller
 				$msg .= $d ? ' & deleted':'';
 				$this->updateBackupRemarks($backup, $msg);
 				$this->removeExtratedDir();
+				$this->logAction('error:verify:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message:'.$msg);
 				return redirect('/backups/upload')->with('alert-error', $msg);
 			}
+			$this->logAction('success:verify:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 
 
 			if(!$this->processDailySales($backup)){
@@ -176,31 +198,28 @@ class BackupController extends Controller
 				$msg .= $d ? ' & deleted':'';
 				$this->updateBackupRemarks($backup, $msg);
 				$this->removeExtratedDir();
+				$this->logAction('error:process:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message:'.$msg);
 				return redirect('/backups/upload')->with('alert-error', $msg);
 			}
+			$this->logAction('success:process:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 
 			try {
-	     	$this->pos->moveFile($this->web->realFullPath($filepath), $storage_path, true); // false = override file!
+	     	$this->pos->moveFile($this->web->realFullPath($filepath), $storage_path, false); // false = override file!
 	    }catch(\Exception $e){
+					$this->logAction('error:move:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message:'.$e->getMessage());
 					return redirect('/backups/upload')->with('alert-error', $e->getMessage());
 	    }
+			$this->logAction('success:move:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 	     
 			$this->removeExtratedDir();
+			$this->logAction('end:submit:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message: saved and processed daily sales');
 			return redirect('/backups/upload')->with('alert-success', $backup->filename.' saved and processed daily sales!');
 			
 
-
-
-
-
+			/*
 			$storage = $this->getStorageType($filepath); // check if ZIP or Document File (e.g JPG, PNG) 
 																									 // & return which StorageRepository ($this->pos or this->file)
-			
-
-
-			
-
-	    /*** if backup file ****/
+	    // if backup file
 	    if(starts_with($storage->getType(),'pos') && starts_with($request->input('filename'),'GC')) {
 
 		    $res = $this->createPosUpload($storage_path, $request);
@@ -231,17 +250,24 @@ class BackupController extends Controller
 	    } else {
 				return redirect('/backups/upload')->with('alert-success', 'File: '.$request->input('filename').' successfully uploaded!');
 	    }
+				*/
 			
 		
 		} else {
-			$this->logAction('move:error', 'user:'.$request->user()->username.' '.$request->input('filename').' message:try_again');
+			$this->logAction('move:error', 'user:'.$request->user()->username.' '.$request->input('filename').' message:file not found on public/upload');
 			return redirect('/backups/upload')->with('alert-error', 'File: '.$request->input('filename').' do not exist! Try to upload again..');
 		}
 	} 
 
 
 	private function logAction($action, $log) {
-		$logfile = base_path().DS.'logs'.DS.now().'-log.txt';
+		$logfile = base_path().DS.'logs'.DS.$this->branch.DS.now().'-log.txt';
+
+		$dir = pathinfo($logfile, PATHINFO_DIRNAME);
+
+		if(!is_dir($dir))
+			mkdir($dir, 0775, true);
+
 		$new = file_exists($logfile) ? false : true;
 		if($new){
 			$handle = fopen($logfile, 'w+');
@@ -249,7 +275,7 @@ class BackupController extends Controller
 		} else
 			$handle = fopen($logfile, 'a');
 
-		$ip = $_SERVER['REMOTE_ADDR'];
+		$ip = clientIP();
 		$brw = $_SERVER['HTTP_USER_AGENT'];
 		$content = date('r')." | {$ip} | {$action} | {$log} \t {$brw}\n";
     fwrite($handle, $content);
@@ -269,6 +295,7 @@ class BackupController extends Controller
 	public function postfile(Request $request) {
 
 		
+		$this->logAction('start:upload:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 		if($request->file('pic')->isValid()) {
 
 			$filename = rawurldecode($request->file('pic')->getClientOriginalName());
@@ -284,12 +311,14 @@ class BackupController extends Controller
 
 
 			if($res===true){
+				$this->logAction('success:upload:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 				return json_encode(['status'=>'success', 
 													'code'=>'200', 
 													'message'=>$res, 
 													'year'=>$request->input('year'),
 													'month'=>$request->input('month')]);
 			} else {
+				$this->logAction('error:upload:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 				return json_encode(['status'=>'warning', 
 													'code'=>'201', 
 													'message'=>$res, 
@@ -299,6 +328,7 @@ class BackupController extends Controller
 			
 
 		} else {
+			$this->logAction('error:corrupted:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 			return redirect('/upload/backup')
 								->with('alert-error', 'File: '.$request->input('filename').' corrupted! Try to upload again..');
 		}
@@ -311,11 +341,13 @@ class BackupController extends Controller
   //public function processPosBackup($src, $ip){
   public function createPosUpload($src, Request $request){
 
+  	$d = $this->backupParseDate($request);
+
 	 	$data = [
 	 		'branchid' => session('user.branchid'),
     	'filename' => $request->input('filename'),
-    	'year' => $request->input('year'),
-    	'month' => $request->input('month'),
+    	'year' => $d->format('Y'), //$request->input('year'),
+    	'month' => $d->format('m'), //$request->input('month'),
     	'size' => $this->web->fileSize($src),
     	'mimetype' => $this->web->fileMimeType($src),
     	'terminal' => clientIP(), //$request->ip(),

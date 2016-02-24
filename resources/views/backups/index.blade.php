@@ -9,7 +9,7 @@
 
   <ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
-    <li>Backups</li>
+    <li><a href="/backups">Backups</a></li>
     <li class="active">Log</li>
   </ol>
 
