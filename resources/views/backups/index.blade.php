@@ -49,9 +49,9 @@
           @if($all)
             <th>Br Code</th>
           @endif
-          <th>Filename</th><th>Upload Date</th>
-          <th class="hidden-xs hidden-sm">Processed</th>
-          <th class="hidden-xs">Remarks</th>
+          <th>Filename</th><th>Uploaded</th>
+          <th class="">Processed</th>
+          <th class="hidden-xs hidden-sm">Remarks</th>
           <th class="hidden-xs hidden-sm">IP Address</th>
         </tr>
       </thead>
@@ -62,10 +62,17 @@
             <td title="{{ $backup->branch->descriptor }}">{{ $backup->branch->code }}</td>
           @endif
           <td>{{ $backup->filename }} </td>
-          <td>{{ $backup->uploaddate->format('m/d/Y h:i A') }} <em><small>({{ diffForHumans($backup->uploaddate) }})</small></em></td>
-          <td class="text-center hidden-xs hidden-sm"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
+          <td>
+            <span class="hidden-xs">{{ $backup->uploaddate->format('m/d/Y h:i A') }}</span> 
+            <em>
+              <small title="{{ $backup->uploaddate->format('m/d/Y h:i A') }}">
+              ({{ diffForHumans($backup->uploaddate) }})
+              </small>
+            </em>
+          </td>
+          <td class="text-center"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
           <?php  $x = explode(':', $backup->remarks) ?>
-          <td class="hidden-xs">{{ $x['1'] }} </td>
+          <td class="hidden-xs hidden-sm">{{ $x['1'] }} </td>
           <td class="hidden-xs hidden-sm">
             <a href="https://www.google.com/maps/search/{{$backup->lat}},{{$backup->long}}/{{urldecode('%40')}}{{$backup->lat}},{{$backup->long}},18z" target="_blank">
               {{ $backup->terminal }} 
