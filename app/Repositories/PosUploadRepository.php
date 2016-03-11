@@ -113,16 +113,29 @@ class PosUploadRepository extends Repository
           $row = dbase_get_record_with_names($db, $i);
           $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
           
+          $sales      = ($row['CSH_SALE'] + $row['CHG_SALE']);
+          $empcount   = ($row['CREW_KIT'] + $row['CREW_DIN']);
+          $tips       = empty(trim($row['TIP'])) ? 0: trim($row['TIP']);
+          $custcount  = empty(trim($row['CUST_CNT'])) ? 0 : trim($row['CUST_CNT']);
+          $headspend  = $custcount=='0' ? 0:($sales/$custcount);
+          $tipspct    = ($custcount=='0' || $tips=='0' || $tips=='0.00') ? 0 : (($sales/$custcount)/$tips);
+          $mancostpct = ($sales=='0.00' || $sales=='0') ? 0:(session('user.branchmancost')*$empcount)/$sales;
+
           if(is_null($last_ds)) {
+
             $attrs = [
               //'date'      => $date->format('Y-m-d'),
               'date'      => $vfpdate->format('Y-m-d'),
               'branchid'  => session('user.branchid'),
               'managerid' => session('user.id'),
-              'sales'     => ($row['CSH_SALE'] + $row['CHG_SALE']),
-              'tips'      => $row['TIP'],
-              'custcount' => $row['CUST_CNT'],
-              'empcount'  => ($row['CREW_KIT'] + $row['CREW_DIN'])
+              'sales'     => $sales,
+              'tips'      => $tips,
+              'custcount' => $custcount,
+              'empcount'  => $empcount,
+              'headspend' => number_format($headspend,2),
+              'tipspct'   => number_format($tipspct,2),
+              'mancostpct'=> number_format($mancostpct,2),
+              'cospct'   => number_format(0,2)
             ];
 
             if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
@@ -134,10 +147,14 @@ class PosUploadRepository extends Repository
                 'date'      => $vfpdate->format('Y-m-d'),
                 'branchid'  => session('user.branchid'),
                 'managerid' => session('user.id'),
-                'sales'     => ($row['CSH_SALE'] + $row['CHG_SALE']),
-                'tips'      => $row['TIP'],
-                'custcount' => $row['CUST_CNT'],
-                'empcount'  => ($row['CREW_KIT'] + $row['CREW_DIN'])
+                'sales'     => $sales,
+                'tips'      => $tips,
+                'custcount' => $custcount,
+                'empcount'  => $empcount,
+                'headspend' => number_format($headspend,2),
+                'tipspct'   => number_format($tipspct,2),
+                'mancostpct'=> number_format($mancostpct,2),
+                'cospct'   => number_format(0,2)
               ];
 
               if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));

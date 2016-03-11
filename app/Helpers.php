@@ -162,3 +162,29 @@ function diffForHumans(Carbon\Carbon $time) {
   return str_replace("after", "ago",  $x);
 }
 
+
+
+function logAction($action, $log, $logfile=NULL) {
+	$logfile = !is_null($logfile) 
+		? $logfile
+		: base_path().DS.'logs'.DS.now().'-log.txt';
+
+	$dir = pathinfo($logfile, PATHINFO_DIRNAME);
+
+	if(!is_dir($dir))
+		mkdir($dir, 0775, true);
+
+	$new = file_exists($logfile) ? false : true;
+	if($new){
+		$handle = fopen($logfile, 'w+');
+		chmod($logfile, 0775);
+	} else
+		$handle = fopen($logfile, 'a');
+
+	$ip = clientIP();
+	$brw = $_SERVER['HTTP_USER_AGENT'];
+	$content = date('r')." | {$ip} | {$action} | {$log} \t {$brw}\n";
+  fwrite($handle, $content);
+  fclose($handle);
+}	
+
