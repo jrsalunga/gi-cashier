@@ -7,6 +7,7 @@ use App\User;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\Request;
+use Mail;
 
 class AuthLoginEventHandler
 {
@@ -37,7 +38,7 @@ class AuthLoginEventHandler
         ];
 
 
-        \Mail::send('emails.loggedin', $data, function ($message) {
+        Mail::send('emails.loggedin', $data, function ($message) {
             $message->subject('User Logged In');
             $message->from('no-reply@giligansrestaurant.com', 'GI App - Cashier');
             $message->to('giligans.app@gmail.com');

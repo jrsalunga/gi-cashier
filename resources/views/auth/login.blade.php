@@ -55,7 +55,7 @@
       <img class="center-block img-signin img-circle img-responsive" src="/images/login-avatar.png">
     </div>
     
-      {!! Form::open(['url' => 'login', 'accept-charset'=>'utf-8', 'class'=>'form-signin']) !!}
+      {!! Form::open(['url' => 'auth/login', 'accept-charset'=>'utf-8', 'class'=>'form-signin']) !!}
     
 
 
