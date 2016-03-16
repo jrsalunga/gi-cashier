@@ -118,8 +118,8 @@ class PosUploadRepository extends Repository
           $tips       = empty(trim($row['TIP'])) ? 0: trim($row['TIP']);
           $custcount  = empty(trim($row['CUST_CNT'])) ? 0 : trim($row['CUST_CNT']);
           $headspend  = $custcount=='0' ? 0:($sales/$custcount);
-          $tipspct    = ($custcount=='0' || $tips=='0' || $tips=='0.00') ? 0 : (($sales/$custcount)/$tips);
-          $mancostpct = ($sales=='0.00' || $sales=='0') ? 0:(session('user.branchmancost')*$empcount)/$sales;
+          $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
+          $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ((session('user.branchmancost')*$empcount)/$sales)*100;
 
           if(is_null($last_ds)) {
 
