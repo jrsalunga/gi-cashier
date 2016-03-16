@@ -70,7 +70,7 @@
                       
                       <input type="hidden"  name="lat" id="lat">
                       <input type="hidden"  name="lng" id="lng">
-                      <button id="attached" class="btn btn-default" type="button">
+                      <button id="attached" class="btn btn-default" type="button" title="Attach file">
                         <span class="glyphicon glyphicon-paperclip"></span>
                       </button>
                     
@@ -82,7 +82,7 @@
               <div class="row" style="margin-top: 10px;">
                 <div class="col-lg-12">
                   
-                  <textarea class="form-control" id="notes" name="notes" placeholder="Notes" style="max-width:100%;"></textarea>
+                  <textarea class="form-control" id="notes" name="notes" placeholder="Notes: 2016-03-23 backup file submitted by cashier Anna" style="max-width:100%;"></textarea>
                 </div><!-- /.col-lg-6 -->
               </div>
               <div class="row" style="margin-top: 10px;">
