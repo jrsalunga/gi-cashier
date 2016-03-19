@@ -42,7 +42,6 @@ class AuthLoginEventHandler
             $message->subject('User Logged In');
             $message->from('no-reply@giligansrestaurant.com', 'GI App - Cashier');
             $message->to('giligans.app@gmail.com');
-            $message->to('freakyash_02@yahoo.com');
         });
     }
 }
