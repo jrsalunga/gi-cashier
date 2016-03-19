@@ -68,7 +68,7 @@
             <span class="hidden-xs">{{ $backup->uploaddate->format('m/d/Y h:i A') }}</span> 
             <em>
               <small title="{{ $backup->uploaddate->format('m/d/Y h:i A') }}">
-              ({{ diffForHumans($backup->uploaddate) }})
+              {{ diffForHumans($backup->uploaddate) }}
               </small>
             </em>
           </td>
