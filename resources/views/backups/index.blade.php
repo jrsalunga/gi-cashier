@@ -10,7 +10,7 @@
   <ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
     <li><a href="/backups">Backups</a></li>
-    <li class="active">Log</li>
+    <li class="active">Logs</li>
   </ol>
 
   <div>
@@ -20,20 +20,22 @@
           <div class="btn-group" role="group">
             <a href="/dashboard" class="btn btn-default" title="Back to Main Menu">
               <span class="gly gly-unshare"></span>
+              <span class="hidden-xs hidden-sm">Back</span>
             </a> 
-            <!--
-            <a href="/backups/history" class="btn btn-default">
-              <span class="glyphicon glyphicon-th-list"></span>
+            <a href="/backups" class="btn btn-default">
+              <span class="fa fa-archive"></span>
+              <span class="hidden-xs hidden-sm">Filing System</span>
             </a>
-            -->
             <button type="button" class="btn btn-default active">
               <span class="glyphicon glyphicon-th-list"></span>
+              <span class="hidden-xs hidden-sm">Logs</span>
             </button>
             
           </div> <!-- end btn-grp -->
           <div class="btn-group" role="group">
             <a href="/backups/upload" class="btn btn-default">
               <span class="glyphicon glyphicon-cloud-upload"></span>
+              <span class="hidden-xs hidden-sm">DropBox</span>
             </a>
           </div>
         </div>

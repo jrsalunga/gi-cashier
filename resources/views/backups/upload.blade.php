@@ -20,9 +20,15 @@
           <div class="btn-group" role="group">
             <a href="/dashboard" class="btn btn-default" title="Back to Main Menu">
               <span class="gly gly-unshare"></span>
+              <span class="hidden-xs hidden-sm">Back</span>
             </a> 
+            <a href="/backups" class="btn btn-default">
+              <span class="fa fa-archive"></span>
+              <span class="hidden-xs hidden-sm">Filing System</span>
+            </a>
             <a href="/backups/log" class="btn btn-default">
               <span class="glyphicon glyphicon-th-list"></span>
+              <span class="hidden-xs hidden-sm">Logs</span>
             </a>
             <!--
             <a href="/backups" class="btn btn-default">
@@ -33,6 +39,7 @@
           <div class="btn-group" role="group">
             <button type="button" class="btn btn-default active">
               <span class="glyphicon glyphicon-cloud-upload"></span>
+              <span class="hidden-xs hidden-sm">DropBox</span>
             </button>
           </div>
         </div>
@@ -82,7 +89,7 @@
               <div class="row" style="margin-top: 10px;">
                 <div class="col-lg-12">
                   
-                  <textarea class="form-control" id="notes" name="notes" placeholder="Notes: 2016-03-23 backup file submitted by cashier Anna" style="max-width:100%;"></textarea>
+                  <textarea class="form-control" id="notes" name="notes" placeholder="2016-03-23 backup file submitted by cashier Anna" style="max-width:100%;"></textarea>
                 </div><!-- /.col-lg-6 -->
               </div>
               <div class="row" style="margin-top: 10px;">

@@ -124,7 +124,6 @@ class PosUploadRepository extends Repository
           if(is_null($last_ds)) {
 
             $attrs = [
-              //'date'      => $date->format('Y-m-d'),
               'date'      => $vfpdate->format('Y-m-d'),
               'branchid'  => session('user.branchid'),
               'managerid' => session('user.id'),
@@ -140,10 +139,10 @@ class PosUploadRepository extends Repository
 
             if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
               $update++;
+          
           } else {
             if($last_ds->date->lte($vfpdate)) {
               $attrs = [
-                //'date'      => $date->format('Y-m-d'),
                 'date'      => $vfpdate->format('Y-m-d'),
                 'branchid'  => session('user.branchid'),
                 'managerid' => session('user.id'),
