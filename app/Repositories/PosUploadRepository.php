@@ -108,7 +108,7 @@ class PosUploadRepository extends Repository
         $record_numbers = dbase_numrecords($db);
         $last_ds = $this->ds->lastRecord();
         $update = 0;
-        for ($i = 1; $i <= $record_numbers; $i++) {
+        for ($i = 1; $i <= ($record_numbers-1); $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
           $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
@@ -131,10 +131,10 @@ class PosUploadRepository extends Repository
               'tips'      => $tips,
               'custcount' => $custcount,
               'empcount'  => $empcount,
-              'headspend' => number_format($headspend,2),
-              'tipspct'   => number_format($tipspct,2),
-              'mancostpct'=> number_format($mancostpct,2),
-              'cospct'   => number_format(0,2)
+              'headspend' => number_format($headspend,2, '.', ''),
+              'tipspct'   => number_format($tipspct,2, '.', ''),
+              'mancostpct'=> number_format($mancostpct,2, '.', ''),
+              'cospct'    => number_format(0,2, '.', '')
             ];
 
             if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
@@ -150,10 +150,10 @@ class PosUploadRepository extends Repository
                 'tips'      => $tips,
                 'custcount' => $custcount,
                 'empcount'  => $empcount,
-                'headspend' => number_format($headspend,2),
-                'tipspct'   => number_format($tipspct,2),
-                'mancostpct'=> number_format($mancostpct,2),
-                'cospct'   => number_format(0,2)
+                'headspend' => number_format($headspend,2, '.', ''),
+                'tipspct'   => number_format($tipspct,2, '.', ''),
+                'mancostpct'=> number_format($mancostpct,2, '.', ''),
+                'cospct'    => number_format(0,2, '.', '')
               ];
 
               if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
