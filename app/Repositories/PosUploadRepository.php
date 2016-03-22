@@ -108,7 +108,7 @@ class PosUploadRepository extends Repository
         $record_numbers = dbase_numrecords($db);
         $last_ds = $this->ds->lastRecord();
         $update = 0;
-        for ($i = 1; $i <= ($record_numbers-1); $i++) {
+        for ($i = 1; $i <= $record_numbers; $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
           $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
