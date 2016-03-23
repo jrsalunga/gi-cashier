@@ -28,6 +28,16 @@ class TimelogRepository extends BaseRepository
   }
 
 
+
+  public function whereBetween($field, $arr) {
+  	$this->applyCriteria();
+    $this->applyScope();
+
+
+   return $this->model->whereBetween($field, $arr);
+  }
+
+
   
 
     

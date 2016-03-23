@@ -8,6 +8,7 @@ Route::get('logout', ['as'=>'auth.getlogout', 'uses'=>'Auth\AuthController@getLo
 Route::get('/', ['middleware' => 'auth', 'uses'=>'DashboardController@getIndex']);
 
 Route::get('dashboard', ['middleware' => 'auth', 'uses'=>'DashboardController@getIndex']);
+Route::get('timelog/daily', ['middleware' => 'auth', 'uses'=>'DashboardController@getDailyDTR']);
 
 
 

@@ -86,6 +86,7 @@ class TimelogController extends Controller {
 
 		$attributes = [
 			'employeeid' 	=> $employee->id,
+			'branchid' 		=> $this->_branchid,
 			'datetime' 		=> $datetime->format('Y-m-d H:i').':00',
 			'txncode' 		=> $request->input('txncode'),
 			'entrytype' 	=> 2,
@@ -147,6 +148,7 @@ class TimelogController extends Controller {
 				$timelog = new Timelog;
 				//$timelog->employeeid	= $request->get('employeeid');
 				$timelog->employeeid  = $employee->id;
+				$timelog->branchid  	= $this->_branchid;
 				$timelog->datetime 		= $request->input('datetime');
 				$timelog->txncode 	 	= (strtolower($employee->branchid) == strtolower($this->_branchid)) ? $request->input('txncode'):'9';
 				$timelog->entrytype  	= $request->input('entrytype');
