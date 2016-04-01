@@ -59,7 +59,7 @@
             {!! Form::open(['method'=>'PUT', 'url'=>'upload/postfile', 'class'=>'form-horizontal', 'enctype'=>'multipart/form-data']) !!}
             <div class="dropbox-container">
               <div id="dropbox" class="prod-image">
-                <span class="message">Drop images here to upload. <br />
+                <span class="message">Drag and Drop your backup here. <br />
                 <i>(they will only be visible to you)</i>
                 </span>
               </div>

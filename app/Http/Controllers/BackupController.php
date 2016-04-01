@@ -47,6 +47,7 @@ class BackupController extends Controller
 	}
 
 	
+	
 
 	private function setUri($param1=null, $param2=null){
 		//$uri = '';
@@ -128,7 +129,10 @@ class BackupController extends Controller
 		$d = substr($f, 4, 2);
 		$y = '20'.substr($f, 6, 2);
 		
-		return carbonCheckorNow($y.'-'.$m.'-'.$d);
+		if(is_iso_date($y.'-'.$m.'-'.$d))
+			return carbonCheckorNow($y.'-'.$m.'-'.$d);
+		else 
+			return false;
 	}
 
 	/* move file from web to maindepot
@@ -141,6 +145,9 @@ class BackupController extends Controller
 
 		$d = $this->backupParseDate($request);
 
+
+		if($d) {
+		
 		$mon = $d->format('m');
 		//$d = substr($f, 4, 2);
 		$yr = $d->format('Y');
@@ -152,6 +159,7 @@ class BackupController extends Controller
 		if($this->web->exists($filepath)){ //public/uploads/{branch_code}/{year}/{filename}.ZIP
 
 			$backup = $this->createPosUpload($filepath, $request);
+			$backup->date = $d;
 			
 			/*** check if backup file ****/
 			if(!$this->isBackup($request)) {
@@ -202,6 +210,18 @@ class BackupController extends Controller
 				return redirect('/backups/upload')->with('alert-error', $msg);
 			}
 			$this->logAction('success:process:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
+
+
+			if(!$this->processPurchased($backup)){
+				$msg = 'File: '.$request->input('filename').' unable to process purchased!';
+				$d = $this->web->deleteFile($filepath);
+				$msg .= $d ? ' & deleted':'';
+				$this->updateBackupRemarks($backup, $msg);
+				$this->removeExtratedDir();
+				$this->logAction('error:process:purchased', 'user:'.$request->user()->username.' '.$request->input('filename').' message:'.$msg);
+				return redirect('/backups/upload')->with('alert-error', $msg);
+			}
+			$this->logAction('success:process:purchased', 'user:'.$request->user()->username.' '.$request->input('filename'));
 
 			try {
 	     	$this->pos->moveFile($this->web->realFullPath($filepath), $storage_path, false); // false = override file!
@@ -257,6 +277,12 @@ class BackupController extends Controller
 			$this->logAction('move:error', 'user:'.$request->user()->username.' '.$request->input('filename').' message:file not found on public/upload');
 			return redirect('/backups/upload')->with('alert-error', 'File: '.$request->input('filename').' do not exist! Try to upload again..');
 		}
+
+		}
+		$this->logAction('move:error', 'user:'.request()->user()->username.' '.$request->input('filename').' message:invalid backup file');
+		return redirect('/backups/upload')->with('alert-error', 'File: '.$request->input('filename').' invalid backup file');
+
+
 	} 
 
 
@@ -392,6 +418,14 @@ class BackupController extends Controller
   	$res = $this->backup->postDailySales();
   	if($res) 
   		$this->backup->update(['processed'=>1], $posupload->id);
+  	
+  	return $res;
+  }
+
+
+  public function processPurchased(Backup $posupload){
+  	$res = $this->backup->postPurchased($posupload);
+  	
   	
   	return $res;
   }

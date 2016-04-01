@@ -17,8 +17,8 @@ Route::group(['middleware' => 'auth'], function(){
 
 
 Route::get('settings/{param1?}/{param2?}', ['uses'=>'SettingsController@getIndex'])
-	->where(['param1'=>'password', 
-					'param2'=>'week|[0-9]+']);
+  ->where(['param1'=>'password', 
+          'param2'=>'week|[0-9]+']);
 
 Route::post('/settings/password',  ['uses'=>'SettingsController@changePassword']);
 
@@ -55,19 +55,8 @@ Route::get('api/employee/{field?}/{value?}', ['as'=>'employee.getbyfield', 'uses
 
 
 
-get('branch', function () {
-    return App\User::with(['bossbranch'=>function($query){
-    	$query->select('bossid', 'branchid', 'id')
-    	->with(['branch'=>function($query){
-    		$query->select('code', 'descriptor', 'id');
-    	}]);
-    }])->get();
 
-    
-
-
-});
-
+Route::get('test', ['uses'=>'BackupController@d']);
 
 
 

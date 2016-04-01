@@ -19,7 +19,9 @@ class DashboardController extends Controller
 	}
 
 	
-
+	public function d(Request $request){
+		
+	}
 
 	
 

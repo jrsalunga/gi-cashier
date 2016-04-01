@@ -8,6 +8,7 @@ use App\Repositories\Repository;
 use App\Models\Backup;
 use App\Models\DailySales;
 use App\Repositories\DailySalesRepository;
+use App\Repositories\PurchaseRepository as Purchase;
 use ZipArchive;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -20,6 +21,7 @@ class PosUploadRepository extends Repository
     
     public $ds;
     public $extracted_path;
+    public $purchase;
 
     
 
@@ -28,10 +30,11 @@ class PosUploadRepository extends Repository
      * @param Collection $collection
      * @throws \App\Repositories\Exceptions\RepositoryException
      */
-    public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales) {
+    public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, Purchase $purchase) {
         parent::__construct($app, $collection);
 
         $this->ds = $dailysales;
+        $this->purchase = $purchase;
     }
 
     public function model() {
@@ -168,6 +171,93 @@ class PosUploadRepository extends Repository
 
       return false;
     }
+
+
+
+
+    public function postPurchased(Backup $backup) {
+      
+      $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
+
+      if (file_exists($dbf_file)) {
+        $db = dbase_open($dbf_file, 0);
+        $header = dbase_get_header_info($db);
+        $record_numbers = dbase_numrecords($db);
+        $tot_purchase = 0;
+        $update = 0;
+
+        // delete if exist
+        $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$backup->date->format('Y-m-d')]);
+
+        for ($i = 1; $i <= $record_numbers; $i++) {
+
+          $row = dbase_get_record_with_names($db, $i);
+          $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+
+          if ($vfpdate->format('Y-m-d')==$backup->date->format('Y-m-d')) {
+            //$this->logAction($vfpdate->format('Y-m-d'), trim($row['COMP']), base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
+            $tcost = trim($row['TCOST']);
+
+            $attrs = [
+              'comp'      => trim($row['COMP']),
+              'unit'      => trim($row['UNIT']),
+              'qty'       => trim($row['QTY']),
+              'ucost'     => trim($row['UCOST']),
+              'tcost'     => $tcost,
+              'date'      => $vfpdate->format('Y-m-d'),
+              'supno'     => trim($row['SUPNO']),
+              'supname'   => trim($row['SUPNAME']),
+              'catname'   => trim($row['CATNAME']),
+              'vat'       => trim($row['VAT']),
+              'terms'     => trim($row['TERMS']),
+              'branchid'  => session('user.branchid')
+            ];
+
+            $this->purchase->create($attrs);
+            $tot_purchase += $tcost;
+            $update++;
+          }
+
+
+
+        }
+
+        $this->ds->firstOrNew(['branchid'=>session('user.branchid'), 
+                              'date'=>$backup->date->format('Y-m-d'),
+                              'purchcost'=>$tot_purchase],
+                              ['date', 'branchid']);
+
+        dbase_close($db);
+        return count($update>0) ? true:false;
+      }
+      return false;
+    }
+
+
+    public function logAction($action, $log, $logfile=NULL) {
+      $logfile = !is_null($logfile) 
+        ? $logfile
+        : base_path().DS.'logs'.DS.now().'-log.txt';
+
+      $dir = pathinfo($logfile, PATHINFO_DIRNAME);
+
+      if(!is_dir($dir))
+        mkdir($dir, 0775, true);
+
+      $new = file_exists($logfile) ? false : true;
+      if($new){
+        $handle = fopen($logfile, 'w+');
+        chmod($logfile, 0775);
+      } else
+        $handle = fopen($logfile, 'a');
+
+      $ip = clientIP();
+      $brw = $_SERVER['HTTP_USER_AGENT'];
+      //$content = date('r')." | {$ip} | {$action} | {$log} \t {$brw}\n";
+      $content = "{$action} | {$log}\n";
+      fwrite($handle, $content);
+      fclose($handle);
+    } 
 
 
 
