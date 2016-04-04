@@ -116,7 +116,7 @@ class PosUploadRepository extends Repository
           $row = dbase_get_record_with_names($db, $i);
           $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
           
-          $sales      = ($row['CSH_SALE'] + $row['CHG_SALE'] + $row['SIG_SALEP']);
+          $sales      = ($row['CSH_SALE'] + $row['CHG_SALE'] + $row['SIG_SALE']);
           $empcount   = ($row['CREW_KIT'] + $row['CREW_DIN']);
           $tips       = empty(trim($row['TIP'])) ? 0: trim($row['TIP']);
           $custcount  = empty(trim($row['CUST_CNT'])) ? 0 : trim($row['CUST_CNT']);
@@ -151,7 +151,15 @@ class PosUploadRepository extends Repository
 
             //if($last_ds->date->lte($vfpdate)) {
 
-            
+            if($i==$record_numbers) {
+              $attrs = [
+                'date'      => $vfpdate->format('Y-m-d'),
+                'branchid'  => session('user.branchid'),
+                'managerid' => session('user.id'),
+                'sales'     => $sales,
+              ];
+
+            } else {
             
               $attrs = [
                 'date'      => $vfpdate->format('Y-m-d'),
@@ -167,10 +175,11 @@ class PosUploadRepository extends Repository
                 'cospct'    => number_format(0,2, '.', '')
               ];
 
-              if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
-                $update++;
 
-            //}
+            }
+            
+            if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
+              $update++;
           }
         }
         dbase_close($db);
