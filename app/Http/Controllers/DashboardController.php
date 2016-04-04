@@ -15,16 +15,7 @@ class DashboardController extends Controller
 
 		$this->timelog = $timelog;
 	
-		
 	}
-
-	
-	public function d(Request $request){
-		
-	}
-
-	
-
 
 	public function getIndex(Request $request) {
 

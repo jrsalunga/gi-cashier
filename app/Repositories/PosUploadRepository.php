@@ -101,7 +101,7 @@ class PosUploadRepository extends Repository
       
     }
 
-    public function postDailySales(){
+    public function postDailySales(Backup $backup){
 
       $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
 
@@ -116,7 +116,7 @@ class PosUploadRepository extends Repository
           $row = dbase_get_record_with_names($db, $i);
           $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
           
-          $sales      = ($row['CSH_SALE'] + $row['CHG_SALE']);
+          $sales      = ($row['CSH_SALE'] + $row['CHG_SALE'] + $row['SIG_SALEP']);
           $empcount   = ($row['CREW_KIT'] + $row['CREW_DIN']);
           $tips       = empty(trim($row['TIP'])) ? 0: trim($row['TIP']);
           $custcount  = empty(trim($row['CUST_CNT'])) ? 0 : trim($row['CUST_CNT']);
@@ -144,7 +144,15 @@ class PosUploadRepository extends Repository
               $update++;
           
           } else {
-            if($last_ds->date->lte($vfpdate)) {
+
+
+           
+
+
+            //if($last_ds->date->lte($vfpdate)) {
+
+            
+            
               $attrs = [
                 'date'      => $vfpdate->format('Y-m-d'),
                 'branchid'  => session('user.branchid'),
@@ -162,7 +170,7 @@ class PosUploadRepository extends Repository
               if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
                 $update++;
 
-            }
+            //}
           }
         }
         dbase_close($db);

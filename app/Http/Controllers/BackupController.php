@@ -415,7 +415,7 @@ class BackupController extends Controller
 
   public function processDailySales(Backup $posupload){
   	//$this->backup->extract($filepath, 'admate');
-  	$res = $this->backup->postDailySales();
+  	$res = $this->backup->postDailySales($posupload);
   	if($res) 
   		$this->backup->update(['processed'=>1], $posupload->id);
   	
