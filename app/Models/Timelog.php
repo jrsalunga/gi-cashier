@@ -10,6 +10,10 @@ class Timelog extends BaseModel {
 	public $timestamps = false;
  	//protected $fillable = ['branchid', 'size', 'terminal', 'filename', 'remarks', 'userid', 'year', 'month', 'mimetype'];
 	protected $guarded = ['id'];
+		protected $casts = [
+    'txncode' => 'integer',
+    'entrytype' => 'integer'
+  ];
 
 	public function __construct(array $attributes = [])
   {
