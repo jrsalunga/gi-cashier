@@ -28,8 +28,12 @@
               <span class="hidden-xs hidden-sm">Back</span>
             </a> 
             <a href="/timelog" class="btn btn-default">
-              <span class="glyphicon glyphicon-th-list"></span>
+              <span class="gly gly-stopwatch"></span>
               <span class="hidden-xs hidden-sm">Timelogs</span>
+            </a>
+            <a href="/timesheet" class="btn btn-default">
+              <span class="glyphicon glyphicon-th-list"></span>
+              <span class="hidden-xs hidden-sm">Timesheet</span>
             </a>
           </div> <!-- end btn-grp -->
           <div class="btn-group" role="group">
@@ -65,7 +69,7 @@
               <div class="form-group">
                 <label for="search-employee" class="control-label">Date</label>
                 <div class="input-group date datepicker" id="datepicker">
-                  <input type="text" class="form-control datepicker" id="date" name="date" placeholder="Date" maxlength="10" value="{{ carbonCheckorNow()->format('Y-m-d') }}" required>
+                  <input type="text" class="form-control datepicker" id="date" name="date" placeholder="Date" maxlength="10" value="{{ carbonCheckorNow()->format('Y-m-d') }}" required readonly>
                   <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                   </span>
@@ -78,7 +82,7 @@
               <div class="form-group">
                 <label for="search-employee" class="control-label">Time</label>
                 <div class="input-group date timepicker" id="timepicker">
-                  <input type="text" class="form-control timepicker" id="time" name="time" placeholder="Time" maxlength="8"  value="{{ carbonCheckorNow()->format('g:i A') }}" required>
+                  <input type="text" class="form-control timepicker" id="time" name="time" placeholder="Time" maxlength="8"  value="{{ carbonCheckorNow()->format('g:i A') }}" required readonly>
                   <span class="input-group-addon">
                       <span class="glyphicon glyphicon-time"></span>
                   </span>
@@ -186,11 +190,15 @@
     employeeSearch();
 
     $('.timepicker').datetimepicker({
-        format: 'LT'
+        format: 'LT',
+        showTodayButton: true,
+        ignoreReadonly: true,
+        calendarWeeks: true
     });
 
     $('.datepicker').datetimepicker({
-        format: 'YYYY-MM-DD'
+        format: 'YYYY-MM-DD',
+        ignoreReadonly: true
     });
   });
 

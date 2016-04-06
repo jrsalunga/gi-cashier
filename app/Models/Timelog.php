@@ -17,16 +17,14 @@ class Timelog extends BaseModel {
     if (app()->environment()==='production')
       $this->setConnection('mysql-tk');
       
-     $this->setConnection('mysql-tk');
+    $this->setConnection('mysql-tk');
   }
 
 	public function employee() {
     return $this->belongsTo('App\Models\Employee', 'employeeid');
   }
 
-  public function getDatetimeAttribute($value){
-    return Carbon::parse($value);
-  }
+ 
 
 
   /***************** misc functions *****************************************************/
@@ -49,6 +47,16 @@ class Timelog extends BaseModel {
 				break;
 		}
 	}
+
+
+	/***************** mutators *****************************************************/
+  public function getDatetimeAttribute($value){
+    return Carbon::parse($value);
+  }
+
+  public function getCreatedateAttribute($value){
+    return Carbon::parse($value);
+  }
  
 
  

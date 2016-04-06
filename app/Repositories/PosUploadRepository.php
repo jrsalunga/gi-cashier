@@ -124,6 +124,18 @@ class PosUploadRepository extends Repository
           $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
           $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ((session('user.branchmancost')*$empcount)/$sales)*100;
 
+          
+
+
+
+          if($vfpdate->format('Y-m')==$backup->date->format('Y-m')
+            && $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d')) {
+            $this->postPurchased($vfpdate);
+          }
+
+
+
+
           if(is_null($last_ds)) {
 
             $attrs = [
@@ -192,7 +204,7 @@ class PosUploadRepository extends Repository
 
 
 
-    public function postPurchased(Backup $backup) {
+    public function postPurchased(Carbon $date) {
       
       $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
 
@@ -204,14 +216,14 @@ class PosUploadRepository extends Repository
         $update = 0;
 
         // delete if exist
-        $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$backup->date->format('Y-m-d')]);
+        $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
 
         for ($i = 1; $i <= $record_numbers; $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
           $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
 
-          if ($vfpdate->format('Y-m-d')==$backup->date->format('Y-m-d')) {
+          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
             //$this->logAction($vfpdate->format('Y-m-d'), trim($row['COMP']), base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
             $tcost = trim($row['TCOST']);
 
@@ -240,7 +252,7 @@ class PosUploadRepository extends Repository
         }
 
         $this->ds->firstOrNew(['branchid'=>session('user.branchid'), 
-                              'date'=>$backup->date->format('Y-m-d'),
+                              'date'=>$date->format('Y-m-d'),
                               'purchcost'=>$tot_purchase],
                               ['date', 'branchid']);
 

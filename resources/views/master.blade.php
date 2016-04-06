@@ -11,6 +11,7 @@
   <title>GI Cashier @yield('title')</title>
 
   <link rel="shortcut icon" type="image/x-icon" href="/images/g.png" />
+  <link rel="stylesheet" href="/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" href="/css/styles-all.min.css">
   @section('css-external')
 

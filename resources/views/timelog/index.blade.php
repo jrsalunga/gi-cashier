@@ -22,9 +22,13 @@
               <span class="hidden-xs hidden-sm">Back</span>
             </a> 
             <button type="button" class="btn btn-default active">
-              <span class="glyphicon glyphicon-th-list"></span>
+              <span class="gly gly-stopwatch"></span>
               <span class="hidden-xs hidden-sm">Timelogs</span>
             </button>
+            <a href="/timesheet" class="btn btn-default">
+              <span class="glyphicon glyphicon-th-list"></span>
+              <span class="hidden-xs hidden-sm">Timesheet</span>
+            </a>
           </div> <!-- end btn-grp -->
           <div class="btn-group" role="group">
             <a href="/timelog/add" class="btn btn-default">

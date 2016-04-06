@@ -212,7 +212,7 @@ class BackupController extends Controller
 			$this->logAction('success:process:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 
 
-			if(!$this->processPurchased($backup)){
+			if(!$this->processPurchased($backup->date)){
 				$msg = 'File: '.$request->input('filename').' unable to process purchased!';
 				$d = $this->web->deleteFile($filepath);
 				$msg .= $d ? ' & deleted':'';
@@ -423,7 +423,7 @@ class BackupController extends Controller
   }
 
 
-  public function processPurchased(Backup $posupload){
+  public function processPurchased($posupload){
   	$res = $this->backup->postPurchased($posupload);
   	
   	
