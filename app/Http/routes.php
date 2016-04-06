@@ -23,7 +23,7 @@ Route::get('settings/{param1?}/{param2?}', ['uses'=>'SettingsController@getIndex
 Route::post('/settings/password',  ['uses'=>'SettingsController@changePassword']);
 
 
-Route::get('timesheet', ['uses'=>'TimesheetController@getIndex']);
+Route::get('timesheet/{param1?}', ['uses'=>'TimesheetController@getRoute']);
 
 Route::get('backups/upload', ['uses'=>'BackupController@getUploadIndex']);
 Route::get('backups/log', ['uses'=>'BackupController@getHistory']);

@@ -161,37 +161,38 @@ class PosUploadRepository extends Repository
            
 
 
-            //if($last_ds->date->lte($vfpdate)) {
+            if($last_ds->date->lte($vfpdate)) {
 
-            if($i==$record_numbers) {
-              $attrs = [
-                'date'      => $vfpdate->format('Y-m-d'),
-                'branchid'  => session('user.branchid'),
-                'managerid' => session('user.id'),
-                'sales'     => $sales,
-              ];
+              if($i==$record_numbers) {
+                $attrs = [
+                  'date'      => $vfpdate->format('Y-m-d'),
+                  'branchid'  => session('user.branchid'),
+                  'managerid' => session('user.id'),
+                  'sales'     => $sales,
+                ];
 
-            } else {
-            
-              $attrs = [
-                'date'      => $vfpdate->format('Y-m-d'),
-                'branchid'  => session('user.branchid'),
-                'managerid' => session('user.id'),
-                'sales'     => $sales,
-                'tips'      => $tips,
-                'custcount' => $custcount,
-                'empcount'  => $empcount,
-                'headspend' => number_format($headspend,2, '.', ''),
-                'tipspct'   => number_format($tipspct,2, '.', ''),
-                'mancostpct'=> number_format($mancostpct,2, '.', ''),
-                'cospct'    => number_format(0,2, '.', '')
-              ];
+              } else {
+              
+                $attrs = [
+                  'date'      => $vfpdate->format('Y-m-d'),
+                  'branchid'  => session('user.branchid'),
+                  'managerid' => session('user.id'),
+                  'sales'     => $sales,
+                  'tips'      => $tips,
+                  'custcount' => $custcount,
+                  'empcount'  => $empcount,
+                  'headspend' => number_format($headspend,2, '.', ''),
+                  'tipspct'   => number_format($tipspct,2, '.', ''),
+                  'mancostpct'=> number_format($mancostpct,2, '.', ''),
+                  'cospct'    => number_format(0,2, '.', '')
+                ];
 
 
+              }
+              
+              if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
+                $update++;
             }
-            
-            if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
-              $update++;
           }
         }
         dbase_close($db);

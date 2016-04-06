@@ -19,25 +19,40 @@ class TimesheetController extends Controller
 	}
 
 
-
-	public function getIndex(){
-
-		/*
-		$date = carbonCheckorNow(request()->input('date'));
-		$this->dr->date = $date;
-		*/
-
-		$date = is_null(request()->input('date')) ? $this->dr->date : carbonCheckorNow(request()->input('date'));
-
-		$data = $this->timelog->allByDate($date);
-
-		//return $data[0][1]['raw']->toJson();
-
-		return $this->setViewWithDR(view('timesheet.index')->with('dr', $this->dr)->with('data', $data));
+	public function getRoute(Request $request, $param1=null) {
+		if(!is_null($param1) && $param1=='print')
+			return $this->getPrintIndex($request);
+		else
+			return $this->getIndex($request);
 	}
 
 
+	private function getIndex(Request $request){
+		
+		$date = is_null($request->input('date')) 
+			? $this->dr->date 
+			: carbonCheckorNow($request->input('date'));
+		
+		$data = $this->timelog->allByDate($date);
+		
+		return $this->setViewWithDR(view('timesheet.index')
+																	->with('dr', $this->dr)
+																	->with('data', $data));
+	}
 
+
+	private function getPrintIndex(Request $request){
+
+		$date = is_null($request->input('date')) 
+			? $this->dr->date 
+			: carbonCheckorNow($request->input('date'));
+		
+		$data = $this->timelog->allByDate($date);
+
+		return view('timesheet.index-print')
+							->with('dr', $this->dr)
+							->with('data', $data);
+	}
 
 	private function setViewWithDR($view){
 		$response = new Response($view->with('dr', $this->dr));
