@@ -22,13 +22,29 @@ class TimesheetController extends Controller
 
 	public function getIndex(){
 
-
+		/*
 		$date = carbonCheckorNow(request()->input('date'));
 		$this->dr->date = $date;
+		*/
+
+		$date = is_null(request()->input('date')) ? $this->dr->date : carbonCheckorNow(request()->input('date'));
 
 		$data = $this->timelog->allByDate($date);
 
-		return view('timesheet.index')->with('dr', $this->dr)->with('data', $data);
+		//return $data[0][1]['raw']->toJson();
+
+		return $this->setViewWithDR(view('timesheet.index')->with('dr', $this->dr)->with('data', $data));
+	}
+
+
+
+
+	private function setViewWithDR($view){
+		$response = new Response($view->with('dr', $this->dr));
+		$response->withCookie(cookie('to', $this->dr->to->format('Y-m-d'), 45000));
+		$response->withCookie(cookie('fr', $this->dr->fr->format('Y-m-d'), 45000));
+		$response->withCookie(cookie('date', $this->dr->date->format('Y-m-d'), 45000));
+		return $response;
 	}
 
 	

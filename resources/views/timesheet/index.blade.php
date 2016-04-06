@@ -31,7 +31,7 @@
             </button>
           </div> <!-- end btn-grp -->
           <div class="btn-group" role="group">
-            <a href="/timelog/add" class="btn btn-default" title="Back to Main Menu">
+            <a href="/timelog/add?ref=timesheet" class="btn btn-default" title="Back to Main Menu">
               <span class="glyphicon glyphicon-plus"></span>
               <span class="hidden-xs hidden-sm">Add Timelog</span>
             </a> 
@@ -78,6 +78,9 @@
           <th class="text-right">Break In</th>
           <th class="text-right">Break Out</th>
           <th class="text-right">Time Out</th>
+          <!--
+          <th class="text-right">Timelog Count</th>
+          -->
         </tr>
       </thead>
       <tbody>
@@ -98,6 +101,15 @@
               @endif
            
             @endforeach
+            <!--
+          <td class="text-right">
+            @if(count($e['raw'])>0)
+              {{ count($e['raw']) }}
+            @else
+              -
+            @endif 
+          </td>
+        -->
           
         </tr>
         @endforeach

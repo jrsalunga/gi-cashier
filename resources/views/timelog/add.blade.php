@@ -62,6 +62,9 @@
                 <input type="text" class="form-control" id="search-employee" placeholder="Search Employee" maxlength="120" required>
                 <!-- <input type="text" name="employeeid" id="employeeid" required style="height:0; width:0; padding:0; margin:0; border:0;"> --> 
                 <input type="hidden" name="employeeid" id="employeeid"> 
+                @if(!is_null($ref))
+                  <input type="hidden" name="ref" value="{{ $ref }}"> 
+                @endif
               </div>
             </div>
 
@@ -95,8 +98,8 @@
                 <label for="search-employee" class="control-label">Type</label>
                 <select class="form-control" name="txncode" id="txncode"> 
                   <option value="1">Time In</option>
-                  <option value="2">Break Start</option>
-                  <option value="3">Break End</option>
+                  <option value="2">Break In</option>
+                  <option value="3">Break Out</option>
                   <option value="4">Time Out</option>
                 </select>
               </div>

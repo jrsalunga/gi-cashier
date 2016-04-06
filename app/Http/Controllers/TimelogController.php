@@ -41,13 +41,11 @@ class TimelogController extends Controller {
 	}
 
 	public function makeAddView(Request $request, $p1, $p2) {
-
-		
-		
-		return view('timelog.add');	
+		return view('timelog.add')->with('ref', request()->input('ref'));	
 	}
 
 	public function manualPost(Request $request) {
+
   	$rules = array(
 			'employeeid'	=> 'required|max:32|min:32',
 			'date'      	=> 'required|date',
@@ -99,8 +97,8 @@ class TimelogController extends Controller {
 			return redirect('/timelog/add')->withErrors(
 				['message' => 'Unable to save timelog.']);
 		} else {
-			return redirect('/timelog/add')
-				->with('alert-success', 'Timelog saved!');
+			$uri = is_null(request()->input('ref')) ? '/timelog/add':'/timesheet';
+			return redirect($uri)->with('alert-success', 'Timelog saved!');
 		}
 
 
