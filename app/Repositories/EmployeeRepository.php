@@ -1,7 +1,7 @@
 <?php namespace App\Repositories;
 
 use App\Models\Employee;
-use App\Repositories\Criterias\ByBranch;
+use App\Repositories\Criterias\ByBranchCriteria;
 
 use App\Repositories\Repository;
 use Prettus\Repository\Eloquent\BaseRepository;
@@ -15,10 +15,15 @@ use Prettus\Repository\Contracts\CacheableInterface;
 class EmployeeRepository extends BaseRepository 
 {
 
-	public function __construct(App $app, Collection $collection, ByBranch $byBranch) {
-      parent::__construct($app, $collection);
 
-      $this->pushCriteria($byBranch);
+
+  public function __construct() {
+      parent::__construct(app());
+
+      $this->pushCriteria(new ByBranchCriteria(request()))
+      ->scopeQuery(function($query){
+        return $query->orderBy('lastname')->orderBy('firstname');
+      });
   }
 
 

@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Container\Container as App;
 use Prettus\Repository\Traits\CacheableRepository;
 use Prettus\Repository\Contracts\CacheableInterface;
+use App\Repositories\EmployeeRepository;
 
 
 //class TimelogRepository extends BaseRepository implements CacheableInterface
@@ -57,8 +58,8 @@ class TimelogRepository extends BaseRepository
                       $date->copy()->addDay()->format('Y-m-d').' 05:59:59' // '2015-11-14 05:59:59'
                     ])
                   ->where('timelog.branchid', session('user.branchid'))
-                  ->orderBy('datetime', 'ASC')
-                  ->orderBy('txncode', 'ASC');
+                  ->orderBy('timelog.datetime', 'ASC')
+                  ->orderBy('timelog.txncode', 'ASC');
       });
   }
 
