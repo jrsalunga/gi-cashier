@@ -124,16 +124,15 @@ class PosUploadRepository extends Repository
           $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
           $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ((session('user.branchmancost')*$empcount)/$sales)*100;
 
-          
 
-
-
-          if($vfpdate->format('Y-m')==$backup->date->format('Y-m')
-            && $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d')) {
+          // back job on posting purchased 
+          if ( $vfpdate->format('Y-m')==$backup->date->format('Y-m') // trans date equal year & mons of backup
+          && $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d') // if the backupdate = mon end date
+          && $backup->date->lte(Carbon::parse('2016-04-01'))) // only backup less than april 1
+          {
             $this->postPurchased($vfpdate);
-          }
-
-
+            $this->logAction($vfpdate->format('Y-m-d'), '', base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
+          } 
 
 
           if(is_null($last_ds)) {
@@ -161,7 +160,7 @@ class PosUploadRepository extends Repository
            
 
 
-            if($last_ds->date->lte($vfpdate)) {
+            if($last_ds->date->lte($vfpdate)) { 
 
               if($i==$record_numbers) {
                 $attrs = [
@@ -170,9 +169,7 @@ class PosUploadRepository extends Repository
                   'managerid' => session('user.id'),
                   'sales'     => $sales,
                 ];
-
               } else {
-              
                 $attrs = [
                   'date'      => $vfpdate->format('Y-m-d'),
                   'branchid'  => session('user.branchid'),
@@ -186,8 +183,6 @@ class PosUploadRepository extends Repository
                   'mancostpct'=> number_format($mancostpct,2, '.', ''),
                   'cospct'    => number_format(0,2, '.', '')
                 ];
-
-
               }
               
               if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
@@ -242,8 +237,9 @@ class PosUploadRepository extends Repository
               'terms'     => trim($row['TERMS']),
               'branchid'  => session('user.branchid')
             ];
-
+            //\DB::beginTransaction();
             $this->purchase->create($attrs);
+            //\DB::rollBack();
             $tot_purchase += $tcost;
             $update++;
           }
@@ -252,10 +248,15 @@ class PosUploadRepository extends Repository
 
         }
 
+
+        
+
         $this->ds->firstOrNew(['branchid'=>session('user.branchid'), 
                               'date'=>$date->format('Y-m-d'),
                               'purchcost'=>$tot_purchase],
                               ['date', 'branchid']);
+
+        
 
         dbase_close($db);
         return count($update>0) ? true:false;

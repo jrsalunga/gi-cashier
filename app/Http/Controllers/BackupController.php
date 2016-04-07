@@ -1,5 +1,5 @@
 <?php namespace App\Http\Controllers;
-
+use DB;
 use File;
 use Exception;
 use Carbon\Carbon;
@@ -139,147 +139,122 @@ class BackupController extends Controller
 	*/
 	public function putfile(Request $request) {
 
-		$this->logAction('start:submit:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message:user press submit');
-		//$yr 	= empty($request->input('year')) 	? now('Y'):$request->input('year');
-		//$mon 	= empty($request->input('month')) ? now('M'):$request->input('month');
+		$log_msg = 'user:'.$request->user()->username.' '.$request->input('filename').' message:';
+		$msg = '';
+		$success = true;
+		
+		$this->logAction('start:submit:backup', $log_msg.'user press submit');
 
 		$d = $this->backupParseDate($request);
 
-
-		if($d) {
+		if($d) { // check if filename (GC040616.ZIP) is valid date 
 		
-		$mon = $d->format('m');
-		//$d = substr($f, 4, 2);
-		$yr = $d->format('Y');
+			$mon = $d->format('m');
+			$yr = $d->format('Y');
 
-		$filepath = $this->path['temp'].$request->input('filename');
-		$storage_path = strtoupper($this->branch).DS.$yr.DS.$mon.DS.$request->input('filename'); 
-		//$storage_path = config('gi-dtr.upload_path.web').session('user.branchcode').DS.now('year').DS.$request->input('filename');
 
-		if($this->web->exists($filepath)){ //public/uploads/{branch_code}/{year}/{filename}.ZIP
+			$filepath = $this->path['temp'].$request->input('filename');
+			$storage_path = strtoupper($this->branch).DS.$yr.DS.$mon.DS.$request->input('filename'); 
 
-			$backup = $this->createPosUpload($filepath, $request);
-			$backup->date = $d;
-			
-			/*** check if backup file ****/
-			if(!$this->isBackup($request)) {
-				$msg = $backup->filename.' not backup';
-				if(!is_null($backup)){
-					$d = $this->web->deleteFile($filepath);
-					$msg .= $d ? ' & deleted':'';
-					$this->updateBackupRemarks($backup, $msg);
-				}
-				$this->logAction('error:check:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message:'.$msg);
-				return redirect('/backups/upload')->with('alert-error', $msg);
-			} 
-			$this->logAction('success:check:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
+			if($this->web->exists($filepath)){ //public/uploads/{branch_code}/{year}/{filename}.ZIP
 				
 
-			if(!$this->extract($filepath)){
-				$msg =  'Unable to extract '. $backup->filename;
-				$d = $this->web->deleteFile($filepath);
-				$msg .= $d ? ' & deleted':'';
-				$this->updateBackupRemarks($backup, $msg);
-				$this->removeExtratedDir();
-				$this->logAction('error:extract:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message:'.$msg);
-				return redirect('/backups/upload')->with('alert-error', $msg);
-			}
-			$this->logAction('success:extract:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
-
-			try {
-				$this->verifyBackup($request);
-			} catch (\Exception $e) {
-				$msg =  $e->getMessage();
-				$d = $this->web->deleteFile($filepath);
-				$msg .= $d ? ' & deleted':'';
-				$this->updateBackupRemarks($backup, $msg);
-				$this->removeExtratedDir();
-				$this->logAction('error:verify:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message:'.$msg);
-				return redirect('/backups/upload')->with('alert-error', $msg);
-			}
-			$this->logAction('success:verify:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
-
-
-			if(!$this->processDailySales($backup)){
-				$msg = 'File: '.$request->input('filename').' unable to process daily sales!';
-				$d = $this->web->deleteFile($filepath);
-				$msg .= $d ? ' & deleted':'';
-				$this->updateBackupRemarks($backup, $msg);
-				$this->removeExtratedDir();
-				$this->logAction('error:process:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message:'.$msg);
-				return redirect('/backups/upload')->with('alert-error', $msg);
-			}
-			$this->logAction('success:process:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
-
-
-			if(!$this->processPurchased($backup->date)){
-				$msg = 'File: '.$request->input('filename').' unable to process purchased!';
-				$d = $this->web->deleteFile($filepath);
-				$msg .= $d ? ' & deleted':'';
-				$this->updateBackupRemarks($backup, $msg);
-				$this->removeExtratedDir();
-				$this->logAction('error:process:purchased', 'user:'.$request->user()->username.' '.$request->input('filename').' message:'.$msg);
-				return redirect('/backups/upload')->with('alert-error', $msg);
-			}
-			$this->logAction('success:process:purchased', 'user:'.$request->user()->username.' '.$request->input('filename'));
-
-			try {
-	     	$this->pos->moveFile($this->web->realFullPath($filepath), $storage_path, false); // false = override file!
-	    }catch(\Exception $e){
-					$this->logAction('error:move:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message:'.$e->getMessage());
-					return redirect('/backups/upload')->with('alert-error', $e->getMessage());
-	    }
-			$this->logAction('success:move:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
-	     
-			$this->removeExtratedDir();
-			$this->logAction('end:submit:backup', 'user:'.$request->user()->username.' '.$request->input('filename').' message: saved and processed daily sales');
-			return redirect('/backups/upload')->with('alert-success', $backup->filename.' saved and processed daily sales!');
-			
-
-			/*
-			$storage = $this->getStorageType($filepath); // check if ZIP or Document File (e.g JPG, PNG) 
-																									 // & return which StorageRepository ($this->pos or this->file)
-	    // if backup file
-	    if(starts_with($storage->getType(),'pos') && starts_with($request->input('filename'),'GC')) {
-
-		    $res = $this->createPosUpload($storage_path, $request);
-		    if(!$res)
-					return redirect('/backups/upload')
-									->with('alert-error', 'File: '.$request->input('filename').' unable to create record');
-		    
-				if($this->extract($storage_path)) {
-
-					try {
-						$this->verifyBackup($request);
-					} catch (\Exception $e) {
-						$this->removeExtratedDir();
-						return redirect('/backups/upload')->with('alert-error', $e->getMessage());
+				$backup = $this->createPosUpload($filepath, $request);
+				$backup->date = $d;
+				DB::beginTransaction();
+				
+				/*** check if backup file ****/
+				if(!$this->isBackup($request)) {
+					$msg = $backup->filename.' not backup';
+					if(!is_null($backup)){
+						$d = $this->web->deleteFile($filepath);
+						$msg .= $d ? ' & deleted':'';
+						//$this->updateBackupRemarks($backup, $msg);
 					}
-
-					if(!$this->processDailySales($res))
-						return redirect('/backups/upload')
-										->with('alert-error', 'File: '.$request->input('filename').' unable to extract');
+					$this->logAction('error:check:backup', $log_msg.$msg);
+					return redirect('/backups/upload')->with('alert-error', $msg);
+				} 
+				$this->logAction('success:check:backup', $log_msg.$msg);
 					
+
+				if(!$this->extract($filepath)){
+					$msg =  'Unable to extract '. $backup->filename;
+					$d = $this->web->deleteFile($filepath);
+					$msg .= $d ? ' & deleted':'';
 					$this->removeExtratedDir();
-					return redirect('/backups/upload')->with('alert-success', 'File: '.$request->input('filename').' successfully uploaded and processed daily sales!');
-				} else {
-					return redirect('/backups/upload')->with('alert-error', 'Unable to extract backup.');
+					DB::rollBack();
+					$this->updateBackupRemarks($backup, $msg);
+					$this->logAction('error:extract:backup', $log_msg.$msg);
+					return redirect('/backups/upload')->with('alert-error', $msg);
 				}
+				$this->logAction('success:extract:backup', $log_msg.$msg);
+
+				try {
+					$this->verifyBackup($request);
+				} catch (\Exception $e) {
+					$msg =  $e->getMessage();
+					$d = $this->web->deleteFile($filepath);
+					$msg .= $d ? ' & deleted':'';
+					$this->removeExtratedDir();
+					DB::rollBack();
+					$this->updateBackupRemarks($backup, $msg);
+					$this->logAction('error:verify:backup', $log_msg.$msg);
+					return redirect('/backups/upload')->with('alert-error', $msg);
+				}
+				$this->logAction('success:verify:backup', $log_msg.$msg);
 
 
-	    } else {
-				return redirect('/backups/upload')->with('alert-success', 'File: '.$request->input('filename').' successfully uploaded!');
-	    }
-				*/
+				if(!$this->processDailySales($backup)){
+					$msg = 'File: '.$request->input('filename').' unable to process daily sales!';
+					$d = $this->web->deleteFile($filepath);
+					$msg .= $d ? ' & deleted':'';
+					$this->removeExtratedDir();
+					DB::rollBack();
+					$this->updateBackupRemarks($backup, $msg);
+					$this->logAction('error:process:backup', $log_msg.$msg);
+					return redirect('/backups/upload')->with('alert-error', $msg);
+				}
+				$this->logAction('success:process:backup', $log_msg.$msg);
+
+				//\DB::beginTransaction();
+				if(!$this->processPurchased($backup->date)){
+					$msg = 'File: '.$request->input('filename').' unable to process purchased!';
+					$d = $this->web->deleteFile($filepath);
+					$msg .= $d ? ' & deleted':'';
+					$this->removeExtratedDir();
+					DB::rollBack();
+					$this->updateBackupRemarks($backup, $msg);
+					$this->logAction('error:process:purchased', $log_msg.$msg);
+					return redirect('/backups/upload')->with('alert-error', $msg);
+				}
+				$this->logAction('success:process:purchased', $log_msg.$msg);
+				//\DB::rollBack();
+
+				try {
+		     	$this->pos->moveFile($this->web->realFullPath($filepath), $storage_path, false); // false = override file!
+		    }catch(\Exception $e){
+		    		DB::rollBack();
+						$this->logAction('error:move:backup', $log_msg.$e->getMessage());
+						return redirect('/backups/upload')->with('alert-error', $e->getMessage());
+		    }
+				$this->logAction('success:move:backup', $log_msg.$msg);
+		     
+				DB::commit();
+				
+				$this->removeExtratedDir();
+				$this->logAction('end:submit:backup', $log_msg.'saved and processed daily sales');
+				
+				return redirect('/backups/upload')->with('alert-success', $backup->filename.' saved and processed daily sales!');
+				
+				
 			
-		
-		} else {
-			$this->logAction('move:error', 'user:'.$request->user()->username.' '.$request->input('filename').' message:file not found on public/upload');
-			return redirect('/backups/upload')->with('alert-error', 'File: '.$request->input('filename').' do not exist! Try to upload again..');
-		}
+			} else { 
+				$this->logAction('move:error', $log_msg.'file not found on public/upload');
+				return redirect('/backups/upload')->with('alert-error', 'File: '.$request->input('filename').' do not exist! Try to upload again..');
+			}
 
 		}
-		$this->logAction('move:error', 'user:'.request()->user()->username.' '.$request->input('filename').' message:invalid backup file');
+		$this->logAction('move:error', $log_msg.'invalid backup file');
 		return redirect('/backups/upload')->with('alert-error', 'File: '.$request->input('filename').' invalid backup file');
 
 
