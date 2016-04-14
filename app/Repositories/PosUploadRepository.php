@@ -160,7 +160,7 @@ class PosUploadRepository extends Repository
            
 
 
-            if($last_ds->date->lte($vfpdate)) { 
+            if($last_ds->date->lte($vfpdate) && $last_ds->date->gte(Carbon::parse('2016-01-01')) { 
 
               if($i==$record_numbers) {
                 $attrs = [
