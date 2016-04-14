@@ -160,7 +160,7 @@ class PosUploadRepository extends Repository
            
 
 
-           // if($last_ds->date->lte($vfpdate))  //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
+            if($last_ds->date->lte($vfpdate))  //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
 
               if($i==$record_numbers) {
                 $attrs = [
@@ -187,7 +187,7 @@ class PosUploadRepository extends Repository
               
               if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
                 $update++;
-            //}
+            }
           }
         }
         dbase_close($db);
