@@ -7,7 +7,7 @@ class BossBranchTableSeeder extends Seeder
     public function run()
     {
 
-        DB::table('bossbranch')->delete();
+        //DB::table('bossbranch')->delete();
         //DB::connection('hr')->table('company')->delete();
 
         DB::table('bossbranch')->insert(array(

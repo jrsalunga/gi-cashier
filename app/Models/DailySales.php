@@ -10,6 +10,18 @@ class DailySales extends BaseModel {
 	public $timestamps = false;
  	//protected $fillable = ['date', 'branchid', 'managerid', 'sales', 'cos', 'tips', 'custcount', 'empcount'];
 	protected $guarded = ['id'];
+	protected $casts = [
+    'sales' => 'float',
+    'cos' => 'float',
+    'tips' => 'float',
+    'custcount' => 'integer',
+    'empcount' => 'integer',
+    'headspend' => 'float',
+    'tipspct' => 'float',
+    'mancostpct' => 'float',
+    'cospct' => 'float',
+    'purchcost' => 'float'
+  ];
 
 
 	public function branch() {

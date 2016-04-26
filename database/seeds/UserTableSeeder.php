@@ -8,7 +8,7 @@ class UserTableSeeder extends Seeder
     public function run()
     {
 
-        DB::table('user')->delete();
+        //DB::table('user')->delete();
         //DB::connection('hr')->table('company')->delete();
 
         DB::table('user')->insert(array(

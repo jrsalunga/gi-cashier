@@ -122,7 +122,9 @@ class PosUploadRepository extends Repository
           $custcount  = empty(trim($row['CUST_CNT'])) ? 0 : trim($row['CUST_CNT']);
           $headspend  = $custcount=='0' ? 0:($sales/$custcount);
           $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
-          $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ((session('user.branchmancost')*$empcount)/$sales)*100;
+          $brmancost  = ($row['MAN_COST'] * $empcount);
+          $mancost    = $brmancost==0 ? session('user.branchmancost')*$empcount : $brmancost;
+          $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ($mancost/$sales)*100;
 
 
           // back job on posting purchased 
@@ -145,6 +147,7 @@ class PosUploadRepository extends Repository
               'tips'      => $tips,
               'custcount' => $custcount,
               'empcount'  => $empcount,
+              'mancost'   => number_format($mancost,2, '.', ''),
               'headspend' => number_format($headspend,2, '.', ''),
               'tipspct'   => number_format($tipspct,2, '.', ''),
               'mancostpct'=> number_format($mancostpct,2, '.', ''),
@@ -178,6 +181,7 @@ class PosUploadRepository extends Repository
                   'tips'      => $tips,
                   'custcount' => $custcount,
                   'empcount'  => $empcount,
+                  'mancost'   => number_format($mancost,2, '.', ''),
                   'headspend' => number_format($headspend,2, '.', ''),
                   'tipspct'   => number_format($tipspct,2, '.', ''),
                   'mancostpct'=> number_format($mancostpct,2, '.', ''),
