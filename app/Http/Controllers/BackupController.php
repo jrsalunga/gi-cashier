@@ -138,7 +138,7 @@ class BackupController extends Controller
 	/* move file from web to maindepot
 	*/
 	public function putfile(Request $request) {
-
+		//return $request->all();
 		$log_msg = 'user:'.$request->user()->username.' '.$request->input('filename').' message:';
 		$msg = '';
 		$success = true;
@@ -317,14 +317,16 @@ class BackupController extends Controller
 													'code'=>'200', 
 													'message'=>$res, 
 													'year'=>$request->input('year'),
-													'month'=>$request->input('month')]);
+													'month'=>$request->input('month'),
+													'last_backup'=>$this->backup->ds->lastRecord()->date->format('Y-m-d')]);
 			} else {
 				$this->logAction('error:upload:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 				return json_encode(['status'=>'warning', 
 													'code'=>'201', 
 													'message'=>$res, 
 													'year'=>$request->input('year'),
-													'month'=>$request->input('month')]);
+													'month'=>$request->input('month'),
+													'last_backup'=>$this->backup->ds->lastRecord()]);
 			}
 			
 
@@ -355,7 +357,9 @@ class BackupController extends Controller
     	'lat' => round($request->input('lat'),7), 
     	'long' => round($request->input('lng'),7), 
     	'remarks' => $src.':'.$request->input('notes'),
-    	'userid' => $request->user()->id
+    	'userid' => $request->user()->id,
+    	'filedate' => $d->format('Y-m-d').' '.Carbon::now()->format('H:i:s'),
+    	'cashier' => $request->input('cashier')
     ];
 
     return $this->backup->create($data)?:NULL;

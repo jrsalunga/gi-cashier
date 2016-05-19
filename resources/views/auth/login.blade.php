@@ -117,8 +117,8 @@ var findMyGeo = function() {
   };
 
   function error() {
-   output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Unable to retrieve your location. Kindly refresh and allow the browser\'s location notification.</div>';
-    };
+   //output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Unable to retrieve your location. Kindly refresh and allow the browser\'s location notification.</div>';
+  };
 
   //output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Loading...</div>';                                  
 

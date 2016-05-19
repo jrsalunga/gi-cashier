@@ -11,10 +11,7 @@ Route::get('dashboard', ['middleware' => 'auth', 'uses'=>'DashboardController@ge
 Route::get('timelog/daily', ['middleware' => 'auth', 'uses'=>'DashboardController@getDailyDTR']);
 
 
-
-
 Route::group(['middleware' => 'auth'], function(){
-
 
 Route::get('settings/{param1?}/{param2?}', ['uses'=>'SettingsController@getIndex'])
   ->where(['param1'=>'password', 

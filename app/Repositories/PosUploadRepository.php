@@ -247,13 +247,7 @@ class PosUploadRepository extends Repository
             $tot_purchase += $tcost;
             $update++;
           }
-
-
-
         }
-
-
-        
 
         $this->ds->firstOrNew(['branchid'=>session('user.branchid'), 
                               'date'=>$date->format('Y-m-d'),

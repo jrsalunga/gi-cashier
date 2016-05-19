@@ -68,36 +68,55 @@
               -->
               <input type="file" id="file_upload" style="display: none" />
 
-              <div class="row">
+              <div class="row" style="margin-top: 5px;">
                 <div class="col-lg-12">
                   <div class="input-group">
                     <span class="input-group-btn">
+                      <button id="attached" class="btn btn-default" type="button" title="Attach file">
+                        <span class="glyphicon glyphicon-paperclip"></span>
+                      </button>
                       <input type="hidden"  name="year" id="year" value="{{ now('Y') }}">
                       <input type="hidden"  name="month" id="month" value="{{ pad(now('M'),2) }}">
                       
                       <input type="hidden"  name="lat" id="lat">
                       <input type="hidden"  name="lng" id="lng">
-                      <button id="attached" class="btn btn-default" type="button" title="Attach file">
-                        <span class="glyphicon glyphicon-paperclip"></span>
-                      </button>
                     
                     </span>
                     <input type="text" class="form-control" id="filename" name="filename" readonly required>
                   </div><!-- /input-group -->
                 </div><!-- /.col-lg-6 -->
               </div>
+
               <div class="row" style="margin-top: 10px;">
-                <div class="col-lg-12">
-                  
-                  <textarea class="form-control" id="notes" name="notes" placeholder="2016-03-23 backup file submitted by cashier Anna" style="max-width:100%;"></textarea>
-                </div><!-- /.col-lg-6 -->
+                <div class="col-xs-11">
+                  <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">
+                      <span class="glyphicon glyphicon-user"></span>
+                    </span>
+                    <input type="text" class="form-control" id="cashier" name="cashier" required  placeholder="Anna (cashier's name only, required)"  maxlength="60">
+                  </div><!-- /input-group -->
+                </div><!-- /.col-lg-10 -->
+
+                <div class="col-xs-1">
+                  <div class="input-group pull-right">
+                    <button type="button" class="btn btn-link toggle-note" title="Show/Hide note">
+                      <span class="glyphicon glyphicon-option-vertical"></span>
+                    </button>
+                  </div><!-- /input-group -->
+                </div><!-- /.col-lg-2 -->
               </div>
+
+              <div class="row container-note" style="margin-top: 10px; display:none">
+                <div class="col-lg-12">
+                  <textarea class="form-control" id="notes" name="notes" placeholder="Notes: (optional)" style="max-width:100%;" maxlength="300"></textarea>
+                </div><!-- /.col-lg-12 -->
+              </div>
+
               <div class="row" style="margin-top: 10px;">
                 <div class="col-lg-12">
-                  
                   <button id="btn-upload" class="btn btn-primary" type="submit" disabled="disabled">Submit</button>
                   <a class="btn btn-default" href="/backups/upload">Cancel</a>  
-                </div><!-- /.col-lg-6 -->
+                </div><!-- /.col-lg-12 -->
               </div>
             {!! Form::close() !!}
           </div>
@@ -143,7 +162,7 @@
     };
 
     function error() {
-      output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Unable to retrieve your location. Kindly refresh and allow the browser\'s location notification.</div>';
+      //output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Unable to retrieve your location. Kindly refresh and allow the browser\'s location notification.</div>';
     };
 
     //output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Loading...</div>';                                  
@@ -164,6 +183,10 @@
       $('#file_upload').click();
     });
   $(document).ready(function(){
+
+  $('.toggle-note').on('click', function(){
+    $('.container-note').toggle();
+  })
     
   });
   </script>
