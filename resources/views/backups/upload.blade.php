@@ -99,7 +99,7 @@
 
                 <div class="col-xs-1">
                   <div class="input-group pull-right">
-                    <button type="button" class="btn btn-link toggle-note" title="Show/Hide note">
+                    <button type="button" class="btn btn-default toggle-note" title="Show/Hide note">
                       <span class="glyphicon glyphicon-option-vertical"></span>
                     </button>
                   </div><!-- /input-group -->
