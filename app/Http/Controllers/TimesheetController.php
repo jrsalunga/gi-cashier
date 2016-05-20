@@ -30,7 +30,7 @@ class TimesheetController extends Controller
 	private function getIndex(Request $request){
 		
 		$date = is_null($request->input('date')) 
-			? $this->dr->date 
+			? $this->dr->now 
 			: carbonCheckorNow($request->input('date'));
 		
 		$data = $this->timelog->allByDate($date);
