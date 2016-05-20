@@ -53,6 +53,7 @@
           @endif
           <th>Filename</th><th>Uploaded</th>
           <th class="">Processed</th>
+          <th class="">Cashier</th>
           <th class="hidden-xs hidden-sm">Remarks</th>
           <th class="hidden-xs hidden-sm">IP Address</th>
         </tr>
@@ -72,6 +73,7 @@
               </small>
             </em>
           </td>
+          <td>{{ $backup->cashier }} </td>
           <td class="text-center"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
           <?php  $x = explode(':', $backup->remarks) ?>
           <td class="hidden-xs hidden-sm">{{ $x['1'] }} </td>
