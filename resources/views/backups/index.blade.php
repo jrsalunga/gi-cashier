@@ -52,8 +52,8 @@
             <th>Br Code</th>
           @endif
           <th>Filename</th><th>Uploaded</th>
-          <th class="">Processed</th>
           <th class="">Cashier</th>
+          <th class="">Processed</th>
           <th class="hidden-xs hidden-sm">Remarks</th>
           <th class="hidden-xs hidden-sm">IP Address</th>
         </tr>
