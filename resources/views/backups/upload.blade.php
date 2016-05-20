@@ -106,7 +106,7 @@
                 </div><!-- /.col-lg-2 -->
               </div>
 
-              <div class="row container-note" style="margin-top: 10px; display:none">
+              <div class="row container-note" style="margin-top: 10px;">
                 <div class="col-lg-12">
                   <textarea class="form-control" id="notes" name="notes" placeholder="Notes: (optional)" style="max-width:100%;" maxlength="300"></textarea>
                 </div><!-- /.col-lg-12 -->
