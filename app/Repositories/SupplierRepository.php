@@ -34,7 +34,25 @@ class SupplierRepository extends BaseRepository implements CacheableInterface
       'branchid' => $data['branchid']
     ];
 
-    return $this->firstOrNew($attr, ['descriptor', 'branchid']);
+    //return $this->firstOrNew($attr, ['descriptor', 'branchid']);
+    return $this->findOrNew($attr, ['descriptor', 'branchid']);
+  }
+
+  public function findOrNew($attributes, $field) {
+
+    $attr_idx = [];
+
+    if (is_array($field)) {
+      foreach ($field as $value) {
+        $attr_idx[$value] = array_pull($attributes, $value);
+      }
+    } else {
+      $attr_idx[$field] = array_pull($attributes, $field);
+    }
+
+    $obj = $this->findWhere($attr_idx)->first();
+
+    return !is_null($obj) ? $obj : $this->create($attributes);
   }
 
 
