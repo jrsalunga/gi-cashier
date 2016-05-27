@@ -11,7 +11,7 @@ class ExpenseTableSeeder extends Seeder
 
         $csvFile = base_path().'/database/seeds/data/expense.csv';
         $datas = $this->csv_to_array($csvFile);
-        //DB::table('expense')->insert($datas);
+        DB::table('expense')->insert($datas);
 
         $this->command->info('Expense table seeded!');
        

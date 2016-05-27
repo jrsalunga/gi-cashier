@@ -11,7 +11,7 @@ class CompcatTableSeeder extends Seeder
 
         $csvFile = base_path().'/database/seeds/data/compcat.csv';
         $datas = $this->csv_to_array($csvFile);
-        //DB::table('compcat')->insert($datas);
+        DB::table('compcat')->insert($datas);
 
         $this->command->info('Compcat table seeded!');
        
