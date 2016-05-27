@@ -30,7 +30,7 @@ class CompcatRepository extends BaseRepository implements CacheableInterface
   public function verifyAndCreate($data) {
     //return $this->expense->firstOrNew(['code'=>substr($data['supno'], 0, 1)], 'code');
     $code = substr($data['supno'], 0, 2);
-    $expense = $this->expense->firstOrNew(['code'=>$code], 'code');
+    $expense = $this->expense->firstOrNew(['code'=>$code], ['code']);
 
     $attr = [
       'code' => $code.'-new',
@@ -38,7 +38,7 @@ class CompcatRepository extends BaseRepository implements CacheableInterface
       'expenseid' => $expense->id
     ];
 
-    return $this->firstOrNew($attr, 'descriptor');
+    return $this->firstOrNew($attr, ['descriptor']);
   }
 
 

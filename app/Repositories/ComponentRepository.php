@@ -47,7 +47,7 @@ class ComponentRepository extends BaseRepository implements CacheableInterface
       'uom' => $data['unit']
     ];
 
-    return $this->firstOrNew($attr, 'descriptor');
+    return $this->firstOrNew($attr, ['descriptor']);
   }
 
 
