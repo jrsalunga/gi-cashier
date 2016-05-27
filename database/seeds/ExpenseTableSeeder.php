@@ -7,7 +7,7 @@ class ExpenseTableSeeder extends Seeder
     public function run()
     {
 
-        //DB::table('expense')->delete();
+        DB::table('expense')->delete();
 
         $csvFile = base_path().'/database/seeds/data/expense.csv';
         $datas = $this->csv_to_array($csvFile);

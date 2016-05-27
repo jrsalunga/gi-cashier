@@ -24,6 +24,23 @@ class ExpenseRepository extends BaseRepository implements CacheableInterface
     return 'App\Models\Expense';
   }
 
+  public function findOrNew($attributes, $field) {
+
+    $attr_idx = [];
+
+    if (is_array($field)) {
+      foreach ($field as $value) {
+        $attr_idx[$value] = array_pull($attributes, $value);
+      }
+    } else {
+      $attr_idx[$field] = array_pull($attributes, $field);
+    }
+
+    $obj = $this->findWhere($attr_idx)->first();
+
+    return !is_null($obj) ? $obj : $this->create($attributes);
+  }
+
   public function firstOrNew($attributes, $field) {
     	
   	$attr_idx = [];

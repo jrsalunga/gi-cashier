@@ -7,7 +7,7 @@ class CompcatTableSeeder extends Seeder
     public function run()
     {
 
-        //DB::table('compcat')->delete();
+        DB::table('compcat')->delete();
 
         $csvFile = base_path().'/database/seeds/data/compcat.csv';
         $datas = $this->csv_to_array($csvFile);

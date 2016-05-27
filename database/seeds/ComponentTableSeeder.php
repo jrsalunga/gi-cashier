@@ -7,13 +7,11 @@ class ComponentTableSeeder extends Seeder
     public function run()
     {
 
-        //DB::table('workexp')->delete();
-        //DB::connection('hr')->table('workexp')->delete();
+        DB::table('component')->delete();
 
         $csvFile = base_path().'/database/seeds/data/component.csv';
         $datas = $this->csv_to_array($csvFile);
         DB::table('component')->insert($datas);
-        //DB::connection('hr')->table('workexp')->insert($datas);
 
         $this->command->info('Component table seeded!');
        

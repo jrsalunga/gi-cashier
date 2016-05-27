@@ -30,7 +30,7 @@ class CompcatRepository extends BaseRepository implements CacheableInterface
   public function verifyAndCreate($data) {
     //return $this->expense->firstOrNew(['code'=>substr($data['supno'], 0, 1)], 'code');
     $code = substr($data['supno'], 0, 2);
-    $expense = $this->expense->firstOrNew(['code'=>$code], ['code']);
+    $expense = $this->expense->findOrNew(['code'=>$code], ['code']);
 
     $attr = [
       'code' => $code.'-new',
@@ -38,7 +38,25 @@ class CompcatRepository extends BaseRepository implements CacheableInterface
       'expenseid' => $expense->id
     ];
 
-    return $this->firstOrNew($attr, ['descriptor']);
+    //return $this->firstOrNew($attr, ['descriptor']);
+    return $this->findOrNew($attr, ['descriptor']);
+  }
+
+  public function findOrNew($attributes, $field) {
+
+    $attr_idx = [];
+
+    if (is_array($field)) {
+      foreach ($field as $value) {
+        $attr_idx[$value] = array_pull($attributes, $value);
+      }
+    } else {
+      $attr_idx[$field] = array_pull($attributes, $field);
+    }
+
+    $obj = $this->findWhere($attr_idx)->first();
+
+    return !is_null($obj) ? $obj : $this->create($attributes);
   }
 
 

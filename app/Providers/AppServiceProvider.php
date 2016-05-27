@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Providers;
-
+use DB;
 use Auth;
 use App\User;
 use Illuminate\Support\ServiceProvider;
@@ -34,6 +34,13 @@ class AppServiceProvider extends ServiceProvider
             
             $view->with('name', session('user.fullname'))->with('branch',  session('user.branch'));
         });
+
+        /*
+        DB::listen(function($sql, $bindings, $time) {
+            test_log($sql);
+            test_log(join(',', $bindings));
+        });
+        */
     }
 
     /**
