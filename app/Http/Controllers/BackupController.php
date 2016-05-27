@@ -402,8 +402,8 @@ class BackupController extends Controller
   }
 
 
-  public function processPurchased($posupload){
-  	$res = $this->backup->postPurchased($posupload);
+  public function processPurchased($date){
+  	$res = $this->backup->postPurchased($date);
   	
   	
   	return $res;

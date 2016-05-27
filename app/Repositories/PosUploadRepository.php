@@ -9,6 +9,7 @@ use App\Models\Backup;
 use App\Models\DailySales;
 use App\Repositories\DailySalesRepository;
 use App\Repositories\PurchaseRepository as Purchase;
+use App\Repositories\Purchase2Repository as PurchaseRepo;
 use ZipArchive;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -22,6 +23,7 @@ class PosUploadRepository extends Repository
     public $ds;
     public $extracted_path;
     public $purchase;
+    public $purchase2;
 
     
 
@@ -30,11 +32,12 @@ class PosUploadRepository extends Repository
      * @param Collection $collection
      * @throws \App\Repositories\Exceptions\RepositoryException
      */
-    public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, Purchase $purchase) {
+    public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, Purchase $purchase, PurchaseRepo $purchaserepo) {
         parent::__construct($app, $collection);
 
         $this->ds = $dailysales;
-        $this->purchase = $purchase;
+        $this->purchase   = $purchase;
+        $this->purchase2  = $purchaserepo;
     }
 
     public function model() {
@@ -101,6 +104,36 @@ class PosUploadRepository extends Repository
       
     }
 
+
+    private function getDailySalesDbfRowData($r){
+      $row = [];
+      
+      $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
+      $sales      = ($r['CSH_SALE'] + $r['CHG_SALE'] + $r['SIG_SALE']);
+      $empcount   = ($r['CREW_KIT'] + $r['CREW_DIN']);
+      $tips       = empty(trim($r['TIP'])) ? 0: trim($r['TIP']);
+      $custcount  = empty(trim($r['CUST_CNT'])) ? 0 : trim($r['CUST_CNT']);
+      $headspend  = $custcount=='0' ? 0:($sales/$custcount);
+      $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
+      $brmancost  = ($r['MAN_COST'] * $empcount);
+      $mancost    = $brmancost==0 ? session('user.branchmancost')*$empcount : $brmancost;
+      $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ($mancost/$sales)*100;
+
+      $row['branchid']  = session('user.branchid');
+      $row['managerid'] = session('user.id'); // cashierid actually
+      $row['date']      = $vfpdate->format('Y-m-d');
+      $row['sales']     = number_format($sales, 2, '.', ''); 
+      $row['empcount']  = $empcount;
+      $row['tips']      = $tips;
+      $row['custcount'] = $custcount;
+      $row['headspend'] = number_format($headspend,2, '.', '');
+      $row['tipspct']   = number_format($tipspct,2, '.', '');
+      $row['mancost']   = number_format($mancost,2, '.', '');
+      $row['mancostpct']= number_format($mancostpct,2, '.', '');
+      $row['cospct']    = number_format(0,2, '.', '');
+      return $row;
+    }
+
     public function postDailySales(Backup $backup){
 
       $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
@@ -114,17 +147,8 @@ class PosUploadRepository extends Repository
         for ($i = 1; $i <= $record_numbers; $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
-          $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
-          
-          $sales      = ($row['CSH_SALE'] + $row['CHG_SALE'] + $row['SIG_SALE']);
-          $empcount   = ($row['CREW_KIT'] + $row['CREW_DIN']);
-          $tips       = empty(trim($row['TIP'])) ? 0: trim($row['TIP']);
-          $custcount  = empty(trim($row['CUST_CNT'])) ? 0 : trim($row['CUST_CNT']);
-          $headspend  = $custcount=='0' ? 0:($sales/$custcount);
-          $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
-          $brmancost  = ($row['MAN_COST'] * $empcount);
-          $mancost    = $brmancost==0 ? session('user.branchmancost')*$empcount : $brmancost;
-          $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ($mancost/$sales)*100;
+          $data = $this->getDailySalesDbfRowData($row);
+          $vfpdate = Carbon::parse($data['date']);
 
 
           // back job on posting purchased 
@@ -134,68 +158,37 @@ class PosUploadRepository extends Repository
           {
             $this->postPurchased($vfpdate);
             $this->logAction($vfpdate->format('Y-m-d'), '', base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
+          
+
           } 
 
 
           if(is_null($last_ds)) {
 
-            $attrs = [
-              'date'      => $vfpdate->format('Y-m-d'),
-              'branchid'  => session('user.branchid'),
-              'managerid' => session('user.id'),
-              'sales'     => $sales,
-              'tips'      => $tips,
-              'custcount' => $custcount,
-              'empcount'  => $empcount,
-              'mancost'   => number_format($mancost,2, '.', ''),
-              'headspend' => number_format($headspend,2, '.', ''),
-              'tipspct'   => number_format($tipspct,2, '.', ''),
-              'mancostpct'=> number_format($mancostpct,2, '.', ''),
-              'cospct'    => number_format(0,2, '.', '')
-            ];
-
-            if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
+            if ($this->ds->firstOrNew($data, ['date', 'branchid']));
               $update++;
           
           } else {
 
-
-           
-
-
             if($last_ds->date->lte($vfpdate)) { //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
 
               if($i==$record_numbers) {
-                $attrs = [
-                  'date'      => $vfpdate->format('Y-m-d'),
-                  'branchid'  => session('user.branchid'),
-                  'managerid' => session('user.id'),
-                  'sales'     => $sales,
-                ];
+                
+                if ($this->ds->firstOrNew(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid']))
+                  $update++;
+
               } else {
-                $attrs = [
-                  'date'      => $vfpdate->format('Y-m-d'),
-                  'branchid'  => session('user.branchid'),
-                  'managerid' => session('user.id'),
-                  'sales'     => $sales,
-                  'tips'      => $tips,
-                  'custcount' => $custcount,
-                  'empcount'  => $empcount,
-                  'mancost'   => number_format($mancost,2, '.', ''),
-                  'headspend' => number_format($headspend,2, '.', ''),
-                  'tipspct'   => number_format($tipspct,2, '.', ''),
-                  'mancostpct'=> number_format($mancostpct,2, '.', ''),
-                  'cospct'    => number_format(0,2, '.', '')
-                ];
+                
+                if ($this->ds->firstOrNew($data, ['date', 'branchid']))
+                  $update++;
+
               }
-              
-              if ($this->ds->firstOrNew($attrs, ['date', 'branchid']));
-                $update++;
             }
+
           }
         }
         dbase_close($db);
-        return count($update>0) ? true:false;
+        return count($update>0) ? $update:false;
       }
 
       return false;
@@ -217,6 +210,7 @@ class PosUploadRepository extends Repository
 
         // delete if exist
         $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
+        $this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
 
         for ($i = 1; $i <= $record_numbers; $i++) {
 
@@ -243,6 +237,7 @@ class PosUploadRepository extends Repository
             ];
             //\DB::beginTransaction();
             $this->purchase->create($attrs);
+            $this->purchase2->verifyAndCreate($attrs);
             //\DB::rollBack();
             $tot_purchase += $tcost;
             $update++;

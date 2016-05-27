@@ -9,6 +9,7 @@ class Backup extends BaseModel {
 	protected $table = 'backup';
 	public $timestamps = false;
 	protected $appends = ['date'];
+  protected $dates = ['filedate'];
  	//protected $fillable = ['branchid', 'size', 'terminal', 'filename', 'remarks', 'userid', 'year', 'month', 'mimetype'];
 	protected $guarded = ['id'];
 	protected $casts = [

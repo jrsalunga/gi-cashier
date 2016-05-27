@@ -64,6 +64,53 @@ Route::get('test', ['uses'=>'BackupController@d']);
 
 
 
+get('test/component', function(){
+  return App\Models\Component::with('compcat.expense.expscat')->find('06156841637011E5B83800FF59FBB323');
+});
+
+
+
+
+get('date/compare', function(){
+  $backupdate = Carbon\Carbon::parse('2016-05-25');
+  $last_purchase = Carbon\Carbon::parse('2016-05-24');
+
+  echo $last_purchase->format('Y-m-d').' < '.$backupdate->format('Y-m-d').'</br>';
+  if($last_purchase->lte($backupdate))
+    echo 'process all transaction ';
+  else 
+    echo 'process only transaction dated as backup date';
+});
+
+
+get('test/array/set', function(){
+  $date = Carbon\Carbon::parse('2016-05-25');
+
+
+  $data = [];
+  $data['date'] = $date;
+  $data['branch'] = 'MOA';
+  $data['sales']  = 1000.00;
+
+  array_set($data, 'date', $date->format('Y-m-d'));
+
+  return $data;
+});
+
+
+get('test/array/only', function(){
+  $date = Carbon\Carbon::parse('2016-05-25');
+
+
+  $data = [];
+  $data['date'] = $date;
+  $data['branch'] = 'MOA';
+  $data['sales']  = 1000.00;
+
+  return array_only($data, ['date', 'branch']);
+
+  
+});
 
 
 
