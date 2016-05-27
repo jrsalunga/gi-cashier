@@ -188,7 +188,7 @@ class PosUploadRepository extends Repository
           }
         }
         dbase_close($db);
-        return count($update>0) ? $update:false;
+        return count($update>0) ? true:false;
       }
 
       return false;
@@ -210,7 +210,7 @@ class PosUploadRepository extends Repository
 
         // delete if exist
         $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
-        //$this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
+        $this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
 
         for ($i = 1; $i <= $record_numbers; $i++) {
 
@@ -237,7 +237,7 @@ class PosUploadRepository extends Repository
             ];
             //\DB::beginTransaction();
             $this->purchase->create($attrs);
-            //$this->purchase2->verifyAndCreate($attrs);
+            $this->purchase2->verifyAndCreate($attrs);
             //\DB::rollBack();
             $tot_purchase += $tcost;
             $update++;
