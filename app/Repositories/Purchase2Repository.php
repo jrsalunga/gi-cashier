@@ -48,7 +48,7 @@ class Purchase2Repository extends BaseRepository
 
   	$this->create($attr);
 
-  	//test_log($data['date'].' | '.$component->id.' '.$component->descriptor);
+  	//test_log($data['date'].' | '.$data['catname']);
   }
 
   public function deleteWhere(array $where){

@@ -30,10 +30,10 @@ class ExpenseRepository extends BaseRepository implements CacheableInterface
 
     if (is_array($field)) {
       foreach ($field as $value) {
-        $attr_idx[$value] = array_pull($attributes, $value);
+        $attr_idx[$value] = array_get($attributes, $value);
       }
     } else {
-      $attr_idx[$field] = array_pull($attributes, $field);
+      $attr_idx[$field] = array_get($attributes, $field);
     }
 
     $obj = $this->findWhere($attr_idx)->first();
