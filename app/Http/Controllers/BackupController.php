@@ -189,19 +189,21 @@ class BackupController extends Controller
 				}
 				$this->logAction('success:extract:backup', $log_msg.$msg);
 
-				try {
-					$this->verifyBackup($request);
-				} catch (\Exception $e) {
-					$msg =  $e->getMessage();
-					$d = $this->web->deleteFile($filepath);
-					$msg .= $d ? ' & deleted':'';
-					$this->removeExtratedDir();
-					DB::rollBack();
-					$this->updateBackupRemarks($backup, $msg);
-					$this->logAction('error:verify:backup', $log_msg.$msg);
-					return redirect('/backups/upload')->with('alert-error', $msg);
+				if($d->gt(Carbon::parse('2012-12-31'))) { // dont verify branchcode
+					try {
+						$this->verifyBackup($request);
+					} catch (\Exception $e) {
+						$msg =  $e->getMessage();
+						$d = $this->web->deleteFile($filepath);
+						$msg .= $d ? ' & deleted':'';
+						$this->removeExtratedDir();
+						DB::rollBack();
+						$this->updateBackupRemarks($backup, $msg);
+						$this->logAction('error:verify:backup', $log_msg.$msg);
+						return redirect('/backups/upload')->with('alert-error', $msg);
+					}
+					$this->logAction('success:verify:backup', $log_msg.$msg);
 				}
-				$this->logAction('success:verify:backup', $log_msg.$msg);
 
 
 				if(!$this->processDailySales($backup)){

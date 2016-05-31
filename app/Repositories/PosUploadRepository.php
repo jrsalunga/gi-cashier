@@ -1,5 +1,6 @@
 <?php namespace App\Repositories;
 
+use Exception;
 use Carbon\Carbon;
 use Dflydev\ApacheMimeTypes\PhpRepository;
 use Illuminate\Support\Facades\Storage;
@@ -107,16 +108,25 @@ class PosUploadRepository extends Repository
 
     private function getDailySalesDbfRowData($r){
       $row = [];
+
+      $kit = isset($r['CREW_KIT']) ? $r['CREW_KIT']:0;
+      $din = isset($r['CREW_DIN']) ? $r['CREW_DIN']:0;
+      $tip = isset($r['TIP']) ? $r['TIP']:0;
+      $cuscnt = isset($r['CUST_CNT']) ? $r['CUST_CNT']:0;
+      $mcost = isset($r['MAN_COST']) ? $r['MAN_COST']:session('user.branchmancost');
+
       
       $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
       $sales      = ($r['CSH_SALE'] + $r['CHG_SALE'] + $r['SIG_SALE']);
-      $empcount   = ($r['CREW_KIT'] + $r['CREW_DIN']);
-      $tips       = empty(trim($r['TIP'])) ? 0: trim($r['TIP']);
-      $custcount  = empty(trim($r['CUST_CNT'])) ? 0 : trim($r['CUST_CNT']);
+      $empcount   = ($kit + $din);
+      //$tips       = empty(trim($r['TIP'])) ? 0: trim($r['TIP']);
+      $tips       = $tip;
+      //$custcount  = empty(trim($r['CUST_CNT'])) ? 0 : trim($r['CUST_CNT']);
+      $custcount  = $cuscnt;
       $headspend  = $custcount=='0' ? 0:($sales/$custcount);
       $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
-      $brmancost  = ($r['MAN_COST'] * $empcount);
-      $mancost    = $brmancost==0 ? session('user.branchmancost')*$empcount : $brmancost;
+      //$brmancost  = ($r['MAN_COST'] * $empcount);
+      $mancost    = $mcost==0 ? 0:$mcost*$empcount;
       $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ($mancost/$sales)*100;
 
       $row['branchid']  = session('user.branchid');
@@ -156,10 +166,15 @@ class PosUploadRepository extends Repository
           && $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d') // if the backupdate = mon end date
           && $backup->date->lte(Carbon::parse('2016-04-01'))) // only backup less than april 1
           {
-            $this->postPurchased($vfpdate);
-            $this->logAction($vfpdate->format('Y-m-d'), '', base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
-          
 
+            try {
+              $this->postPurchased($vfpdate);
+            } catch(Exception $e) {
+              return false;
+              //throw new Exception($e->getMessage());    
+            }
+            //$this->logAction($vfpdate->format('Y-m-d'), '', base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
+     
           } 
 
 
@@ -209,8 +224,18 @@ class PosUploadRepository extends Repository
         $update = 0;
 
         // delete if exist
-        $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
-        $this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
+        try {
+          $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
+        } catch(Exception $e) {
+          throw new Exception($e->getMessage());    
+        }
+
+        try {
+          $this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
+        } catch(Exception $e) {
+          throw new Exception($e->getMessage());    
+        }
+
 
         for ($i = 1; $i <= $record_numbers; $i++) {
 
@@ -235,19 +260,34 @@ class PosUploadRepository extends Repository
               'terms'     => trim($row['TERMS']),
               'branchid'  => session('user.branchid')
             ];
+            
             //\DB::beginTransaction();
-            $this->purchase->create($attrs);
-            $this->purchase2->verifyAndCreate($attrs);
+            try {
+              $this->purchase->create($attrs);
+            } catch(Exception $e) {
+              throw new Exception($e->getMessage());    
+            }
+
+            try {
+              $this->purchase2->verifyAndCreate($attrs);
+            } catch(Exception $e) {
+              throw new Exception($e->getMessage());    
+            }
+            
             //\DB::rollBack();
             $tot_purchase += $tcost;
             $update++;
           }
         }
 
-        $this->ds->firstOrNew(['branchid'=>session('user.branchid'), 
+        try {
+          $this->ds->firstOrNew(['branchid'=>session('user.branchid'), 
                               'date'=>$date->format('Y-m-d'),
                               'purchcost'=>$tot_purchase],
                               ['date', 'branchid']);
+        } catch(Exception $e) {
+          throw new Exception($e->getMessage());    
+        }
 
         
 
