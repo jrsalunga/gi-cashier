@@ -189,7 +189,7 @@ class BackupController extends Controller
 				}
 				$this->logAction('success:extract:backup', $log_msg.$msg);
 
-				if($d->gt(Carbon::parse('2012-12-31'))) { // dont verify branchcode
+				if($d->gt(Carbon::parse('2012-12-31'))) { // dont verify branchco
 					try {
 						$this->verifyBackup($request);
 					} catch (\Exception $e) {
@@ -319,16 +319,19 @@ class BackupController extends Controller
 													'code'=>'200', 
 													'message'=>$res, 
 													'year'=>$request->input('year'),
-													'month'=>$request->input('month'),
-													'last_backup'=>$this->backup->ds->lastRecord()->date->format('Y-m-d')]);
+													'month'=>$request->input('month')
+													//,'last_backup'=>$this->backup->ds->lastRecord()->date->format('Y-m-d')
+													]);
+
 			} else {
 				$this->logAction('error:upload:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 				return json_encode(['status'=>'warning', 
 													'code'=>'201', 
 													'message'=>$res, 
 													'year'=>$request->input('year'),
-													'month'=>$request->input('month'),
-													'last_backup'=>$this->backup->ds->lastRecord()]);
+													'month'=>$request->input('month')
+													//,'last_backup'=>$this->backup->ds->lastRecord()
+													]);
 			}
 			
 

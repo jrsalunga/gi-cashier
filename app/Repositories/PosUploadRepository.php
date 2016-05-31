@@ -123,7 +123,7 @@ class PosUploadRepository extends Repository
       $tips       = $tip;
       //$custcount  = empty(trim($r['CUST_CNT'])) ? 0 : trim($r['CUST_CNT']);
       $custcount  = $cuscnt;
-      $headspend  = $custcount=='0' ? 0:($sales/$custcount);
+      $headspend  = $custcount==0 ? 0:($sales/$custcount);
       $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
       //$brmancost  = ($r['MAN_COST'] * $empcount);
       $mancost    = $mcost==0 ? 0:$mcost*$empcount;
