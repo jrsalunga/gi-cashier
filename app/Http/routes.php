@@ -68,6 +68,9 @@ get('test/component', function(){
   return App\Models\Component::with('compcat.expense.expscat')->find('06156841637011E5B83800FF59FBB323');
 });
 
+get('test/compledger', function(){
+  return App\Models\Compledger::with('branch')->get();
+});
 
 
 

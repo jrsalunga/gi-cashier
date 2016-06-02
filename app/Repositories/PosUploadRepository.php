@@ -117,7 +117,7 @@ class PosUploadRepository extends Repository
 
       
       $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
-      $sales      = ($r['CSH_SALE'] + $r['CHG_SALE'] + $r['SIG_SALE']);
+      $sales      = ($r['CSH_SALE'] + $r['CHG_SALE'] + $r['SIG_SALE']) + 0;
       $empcount   = ($kit + $din);
       //$tips       = empty(trim($r['TIP'])) ? 0: trim($r['TIP']);
       $tips       = $tip;
@@ -126,7 +126,7 @@ class PosUploadRepository extends Repository
       $headspend  = $custcount==0 ? 0:($sales/$custcount);
       $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
       //$brmancost  = ($r['MAN_COST'] * $empcount);
-      $mancost    = $mcost==0 ? 0:$mcost*$empcount;
+      $mancost    = $mcost*$empcount;
       $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ($mancost/$sales)*100;
 
       $row['branchid']  = session('user.branchid');

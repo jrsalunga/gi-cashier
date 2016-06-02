@@ -7,7 +7,7 @@ use App\Repositories\Repository;
 use Prettus\Repository\Eloquent\BaseRepository;
 use Prettus\Repository\Traits\CacheableRepository;
 use Prettus\Repository\Contracts\CacheableInterface;
-
+use App\Repositories\CompledgerRepository as CompledgerRepo;
 
 
 //class Purchase2Repository extends BaseRepository implements CacheableInterface
@@ -17,10 +17,11 @@ class Purchase2Repository extends BaseRepository
   private $supplier;
   private $component;
 
-	public function __construct(SupplierRepo $supplierrepo, CompRepo $comprepo) {
+	public function __construct(SupplierRepo $supplierrepo, CompRepo $comprepo, CompledgerRepo $ledger) {
     parent::__construct(app());
-    $this->supplier = $supplierrepo;
-    $this->component = $comprepo;
+    $this->supplier   = $supplierrepo;
+    $this->component  = $comprepo;
+    $this->ledger     = $ledger;
   }
 
 	public function model() {
@@ -46,8 +47,27 @@ class Purchase2Repository extends BaseRepository
   		'branchid' => $data['branchid']
   	];
 
-  	$this->create($attr);
-
+    try {
+  	  $this->create($attr);
+    } catch(Exception $e) {
+      throw new Exception($e->getMessage());    
+    }
+    
+    /*
+     must create the compledger table
+    try {
+      $this->ledger->findOrNew([
+        'purchdate' => $attr['date'],
+        'componentid' => $attr['componentid'],
+        'cost' => $attr['ucost'],
+        'supplierid' => $attr['supplierid'],
+        'branchid' => $attr['branchid']], 
+        ['componentid', 'cost', 'branchid']);
+    } catch(Exception $e) {
+      throw new Exception($e->getMessage());    
+    }
+    */
+    
   	//test_log($data['date'].' | '.$data['catname']);
   }
 
