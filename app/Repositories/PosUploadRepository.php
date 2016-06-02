@@ -164,7 +164,7 @@ class PosUploadRepository extends Repository
           // back job on posting purchased 
           if ( $vfpdate->format('Y-m')==$backup->date->format('Y-m') // trans date equal year & mons of backup
           && $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d') // if the backupdate = mon end date
-          && $backup->date->lte(Carbon::parse('2016-04-01'))) // only backup less than april 1
+          && $backup->date->lte(Carbon::parse('2016-06-01'))) // only backup less than april 1
           {
 
             try {
