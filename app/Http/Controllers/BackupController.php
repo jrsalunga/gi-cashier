@@ -241,7 +241,7 @@ class BackupController extends Controller
 						$msg .= $d ? ' & deleted':'';
 						$this->removeExtratedDir();
 						DB::rollBack();
-						$this->updateBackupRemarks($backup, $msg);
+						$this->updateBackupRemarks($backup, 'error:process:purchased'.$msg);
 						$this->logAction('error:process:purchased', $log_msg.$msg);
 						return redirect('/backups/upload')->with('alert-error', $msg);
 					}
