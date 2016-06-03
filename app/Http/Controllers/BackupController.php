@@ -219,6 +219,7 @@ class BackupController extends Controller
 				$this->logAction('success:process:backup', $log_msg.$msg);
 
 				//\DB::beginTransaction();
+				/*
 				if(!$this->processPurchased($backup->date)){
 					$msg = 'File: '.$request->input('filename').' unable to process purchased!';
 					$d = $this->web->deleteFile($filepath);
@@ -229,6 +230,19 @@ class BackupController extends Controller
 					$this->logAction('error:process:purchased', $log_msg.$msg);
 					return redirect('/backups/upload')->with('alert-error', $msg);
 				}
+				*/
+				try {
+						$this->processPurchased($backup->date);
+					} catch (\Exception $e) {
+						$msg =  $e->getMessage();
+						$d = $this->web->deleteFile($filepath);
+						$msg .= $d ? ' & deleted':'';
+						$this->removeExtratedDir();
+						DB::rollBack();
+						$this->updateBackupRemarks($backup, $msg);
+						$this->logAction('error:process:purchased', $log_msg.$msg);
+						return redirect('/backups/upload')->with('alert-error', $msg);
+					}
 				$this->logAction('success:process:purchased', $log_msg.$msg);
 				//\DB::rollBack();
 

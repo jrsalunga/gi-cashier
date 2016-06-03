@@ -170,8 +170,8 @@ class PosUploadRepository extends Repository
             try {
               $this->postPurchased($vfpdate);
             } catch(Exception $e) {
-              return false;
-              //throw new Exception($e->getMessage());    
+              //return false;
+              throw new Exception($e->getMessage());    
             }
             //$this->logAction($vfpdate->format('Y-m-d'), '', base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
      
