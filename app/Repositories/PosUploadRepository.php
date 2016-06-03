@@ -216,7 +216,7 @@ class PosUploadRepository extends Repository
       
       $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
 
-      $this->logAction('post:purchased:file_exists', '');
+      $this->logAction('post:purchased:file_exists', $date->format('Y-m-d'));
       if (file_exists($dbf_file)) {
         $db = dbase_open($dbf_file, 0);
         $header = dbase_get_header_info($db);
@@ -226,7 +226,7 @@ class PosUploadRepository extends Repository
 
         // delete if exist
         try {
-          $this->logAction('delete:purchased', '');
+          $this->logAction('delete:purchased', $date->format('Y-m-d'));
           $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
         } catch(Exception $e) {
           throw new Exception($e->getMessage());    
@@ -234,14 +234,14 @@ class PosUploadRepository extends Repository
 
 
         try {
-          $this->logAction('delete:purchased2', '');
+          $this->logAction('delete:purchased2', $date->format('Y-m-d'));
           $this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
         } catch(Exception $e) {
           throw new Exception($e->getMessage());    
         }
 
 
-        $this->logAction('loop:purchased', '');
+        $this->logAction('loop:purchased', $date->format('Y-m-d'));
         for ($i = 1; $i <= $record_numbers; $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
