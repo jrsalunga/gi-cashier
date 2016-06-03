@@ -244,7 +244,7 @@ class PosUploadRepository extends Repository
         }
 
 
-        $this->logAction($date->format('Y-m-d'), 'loop:purchased');
+        $this->logAction($date->format('Y-m-d'), 'start:loop:purchased');
         for ($i = 1; $i <= $record_numbers; $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
@@ -270,6 +270,7 @@ class PosUploadRepository extends Repository
             ];
             
             //\DB::beginTransaction();
+            $this->logAction($date->format('Y-m-d'), 'create:purchased');
             try {
               $this->purchase->create($attrs);
             } catch(Exception $e) {
@@ -277,6 +278,7 @@ class PosUploadRepository extends Repository
             }
 
             try {
+              $this->logAction($date->format('Y-m-d'), 'create:purchased2');
               $this->purchase2->verifyAndCreate($attrs);
             } catch(Exception $e) {
               throw new Exception($e->getMessage());    
@@ -287,8 +289,10 @@ class PosUploadRepository extends Repository
             $update++;
           }
         }
+        $this->logAction($date->format('Y-m-d'), 'end:loop:purchased');
 
         try {
+          $this->logAction($date->format('Y-m-d'), 'update:ds');
           $this->ds->firstOrNew(['branchid'=>session('user.branchid'), 
                               'date'=>$date->format('Y-m-d'),
                               'purchcost'=>$tot_purchase],
