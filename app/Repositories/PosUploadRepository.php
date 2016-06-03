@@ -145,7 +145,7 @@ class PosUploadRepository extends Repository
     }
 
     public function postDailySales(Backup $backup){
-      $this->logAction('function:postDailySales', '');
+      //$this->logAction('function:postDailySales', '');
       $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
 
       if (file_exists($dbf_file)) {
@@ -154,14 +154,14 @@ class PosUploadRepository extends Repository
         $record_numbers = dbase_numrecords($db);
         $last_ds = $this->ds->lastRecord();
         $update = 0;
-        $this->logAction('start:loop:ds', '');
+        //$this->logAction('start:loop:ds', '');
         for ($i = 1; $i <= $record_numbers; $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
           $data = $this->getDailySalesDbfRowData($row);
           $vfpdate = Carbon::parse($data['date']);
 
-          $this->logAction('loop:ds:'.$vfpdate->format('Y-m-d'), '');
+          //$this->logAction('loop:ds:'.$vfpdate->format('Y-m-d'), '');
           // back job on posting purchased 
           if ( $vfpdate->format('Y-m')==$backup->date->format('Y-m') // trans date equal year & mons of backup
           && $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d') // if the backupdate = mon end date
@@ -179,7 +179,7 @@ class PosUploadRepository extends Repository
           } 
 
 
-          $this->logAction('ds:get_last', '');
+          //$this->logAction('ds:get_last', '');
           if(is_null($last_ds)) {
 
             if ($this->ds->firstOrNew($data, ['date', 'branchid']));
@@ -188,14 +188,14 @@ class PosUploadRepository extends Repository
           } else {
 
             if($last_ds->date->lte($vfpdate)) { //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
-              $this->logAction('single:lte', '');
+              //$this->logAction('single:lte', '');
               if($i==$record_numbers) {
-                 $this->logAction('single:lte:i==record_numbers', '');
+                //$this->logAction('single:lte:i==record_numbers', '');
                 if ($this->ds->firstOrNew(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid']))
                   $update++;
 
               } else {
-                $this->logAction('single:lte:i!=record_numbers', '');
+                //$this->logAction('single:lte:i!=record_numbers', '');
                 if ($this->ds->firstOrNew($data, ['date', 'branchid']))
                   $update++;
 
@@ -204,7 +204,7 @@ class PosUploadRepository extends Repository
 
           }
         }
-        $this->logAction('end:loop:ds', '');
+        //$this->logAction('end:loop:ds', '');
         dbase_close($db);
         return count($update>0) ? true:false;
       }
@@ -219,7 +219,7 @@ class PosUploadRepository extends Repository
       
       $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
 
-      $this->logAction($date->format('Y-m-d'),'post:purchased:file_exists');
+      //$this->logAction($date->format('Y-m-d'),'post:purchased:file_exists');
       if (file_exists($dbf_file)) {
         $db = dbase_open($dbf_file, 0);
         $header = dbase_get_header_info($db);
@@ -229,7 +229,7 @@ class PosUploadRepository extends Repository
 
         // delete if exist
         try {
-          $this->logAction($date->format('Y-m-d'), 'delete:purchased');
+          //$this->logAction($date->format('Y-m-d'), 'delete:purchased');
           $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
         } catch(Exception $e) {
           throw new Exception($e->getMessage());    
@@ -237,14 +237,14 @@ class PosUploadRepository extends Repository
 
 
         try {
-          $this->logAction($date->format('Y-m-d'), 'delete:purchased2');
+          //$this->logAction($date->format('Y-m-d'), 'delete:purchased2');
           $this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
         } catch(Exception $e) {
           throw new Exception($e->getMessage());    
         }
 
 
-        $this->logAction($date->format('Y-m-d'), 'start:loop:purchased');
+        //$this->logAction($date->format('Y-m-d'), 'start:loop:purchased');
         for ($i = 1; $i <= $record_numbers; $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
@@ -270,7 +270,7 @@ class PosUploadRepository extends Repository
             ];
             
             //\DB::beginTransaction();
-            $this->logAction($date->format('Y-m-d'), 'create:purchased');
+            //$this->logAction($date->format('Y-m-d'), 'create:purchased');
             try {
               $this->purchase->create($attrs);
             } catch(Exception $e) {
@@ -278,7 +278,7 @@ class PosUploadRepository extends Repository
             }
 
             try {
-              $this->logAction($date->format('Y-m-d'), 'create:purchased2');
+              //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
               $this->purchase2->verifyAndCreate($attrs);
             } catch(Exception $e) {
               throw new Exception($e->getMessage());    
@@ -289,10 +289,10 @@ class PosUploadRepository extends Repository
             $update++;
           }
         }
-        $this->logAction($date->format('Y-m-d'), 'end:loop:purchased');
+        //$this->logAction($date->format('Y-m-d'), 'end:loop:purchased');
 
         try {
-          $this->logAction($date->format('Y-m-d'), 'update:ds');
+          //$this->logAction($date->format('Y-m-d'), 'update:ds');
           $this->ds->firstOrNew(['branchid'=>session('user.branchid'), 
                               'date'=>$date->format('Y-m-d'),
                               'purchcost'=>$tot_purchase],
