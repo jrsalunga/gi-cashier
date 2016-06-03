@@ -192,7 +192,7 @@ class BackupController extends Controller
 				if($d->gt(Carbon::parse('2012-12-31'))) { // dont verify branchco
 					try {
 						$this->verifyBackup($request);
-					} catch (\Exception $e) {
+					} catch (Exception $e) {
 						$msg =  $e->getMessage();
 						$d = $this->web->deleteFile($filepath);
 						$msg .= $d ? ' & deleted':'';
@@ -235,7 +235,7 @@ class BackupController extends Controller
 				$this->logAction('start:process:purchased', $log_msg.$msg);
 				try {
 						$this->processPurchased($backup->date);
-					} catch (\Exception $e) {
+					} catch (Exception $e) {
 						$msg =  $e->getMessage();
 						$d = $this->web->deleteFile($filepath);
 						$msg .= $d ? ' & deleted':'';

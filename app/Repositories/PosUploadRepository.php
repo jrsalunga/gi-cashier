@@ -154,13 +154,14 @@ class PosUploadRepository extends Repository
         $record_numbers = dbase_numrecords($db);
         $last_ds = $this->ds->lastRecord();
         $update = 0;
+        $this->logAction('start:loop:ds', '');
         for ($i = 1; $i <= $record_numbers; $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
           $data = $this->getDailySalesDbfRowData($row);
           $vfpdate = Carbon::parse($data['date']);
 
-          $this->logAction('loop:postPurchased:postDailySales', '');
+          $this->logAction('loop:ds:'.$vfpdate->format('Y-m-d'), '');
           // back job on posting purchased 
           if ( $vfpdate->format('Y-m')==$backup->date->format('Y-m') // trans date equal year & mons of backup
           && $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d') // if the backupdate = mon end date
@@ -178,7 +179,7 @@ class PosUploadRepository extends Repository
           } 
 
 
-          $this->logAction('single:postPurchased:postDailySales', '');
+          $this->logAction('ds:get_last', '');
           if(is_null($last_ds)) {
 
             if ($this->ds->firstOrNew($data, ['date', 'branchid']));
@@ -203,6 +204,7 @@ class PosUploadRepository extends Repository
 
           }
         }
+        $this->logAction('end:loop:ds', '');
         dbase_close($db);
         return count($update>0) ? true:false;
       }
