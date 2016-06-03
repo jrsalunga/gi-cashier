@@ -424,14 +424,12 @@ class BackupController extends Controller
 
 
   public function processPurchased($date){
-
-
   	try {
+  		$this->logAction('function:processPurchased', '');
       $this->backup->postPurchased($date);
     } catch(Exception $e) {
       throw new Exception($e->getMessage());    
     }
-
     /*        
   	$res = $this->backup->postPurchased($date);
   	return $res;

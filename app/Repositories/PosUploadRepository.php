@@ -216,6 +216,7 @@ class PosUploadRepository extends Repository
       
       $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
 
+      $this->logAction('post:purchased:file_exists', '');
       if (file_exists($dbf_file)) {
         $db = dbase_open($dbf_file, 0);
         $header = dbase_get_header_info($db);
@@ -225,18 +226,22 @@ class PosUploadRepository extends Repository
 
         // delete if exist
         try {
+          $this->logAction('delete:purchased', '');
           $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
         } catch(Exception $e) {
           throw new Exception($e->getMessage());    
         }
 
+
         try {
+          $this->logAction('delete:purchased2', '');
           $this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
         } catch(Exception $e) {
           throw new Exception($e->getMessage());    
         }
 
 
+        $this->logAction('loop:purchased', '');
         for ($i = 1; $i <= $record_numbers; $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
@@ -317,7 +322,7 @@ class PosUploadRepository extends Repository
 
       $ip = clientIP();
       $brw = $_SERVER['HTTP_USER_AGENT'];
-      //$content = date('r')." | {$ip} | {$action} | {$log} \t {$brw}\n";
+      $content = date('r')." | {$ip} | {$action} | {$log} \t {$brw}\n";
       $content = "{$action} | {$log}\n";
       fwrite($handle, $content);
       fclose($handle);
