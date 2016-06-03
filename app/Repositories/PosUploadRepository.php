@@ -301,7 +301,7 @@ class PosUploadRepository extends Repository
     public function logAction($action, $log, $logfile=NULL) {
       $logfile = !is_null($logfile) 
         ? $logfile
-        : base_path().DS.'logs'.DS.now().'-log.txt';
+        : base_path().DS.'logs'.DS.session('user.branchcode').DS.now().'-log.txt';
 
       $dir = pathinfo($logfile, PATHINFO_DIRNAME);
 
