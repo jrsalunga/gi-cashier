@@ -634,7 +634,7 @@ class PosUploadRepository extends Repository
     try {
       File::move($src, $this->realFullPath($path));
     }catch(\Exception $e){
-      throw new \Exception("Error: ". $e->getMessage());    
+      throw new \Exception("Error ". $e->getMessage());    
     }
   }
 

@@ -253,7 +253,7 @@ class BackupController extends Controller
 		    }catch(\Exception $e){
 		    		DB::rollBack();
 						$this->logAction('error:move:backup', $log_msg.$e->getMessage());
-						return redirect('/backups/upload')->with('alert-error', $e->getMessage());
+						return redirect('/backups/upload')->with('alert-error', 'Error on saving file! Please upload again.');
 		    }
 				$this->logAction('success:move:backup', $log_msg.$msg);
 		     
@@ -273,7 +273,7 @@ class BackupController extends Controller
 
 		}
 		$this->logAction('move:error', $log_msg.'invalid backup file');
-		return redirect('/backups/upload')->with('alert-error', 'File: '.$request->input('filename').' invalid backup file');
+		return redirect('/backups/upload')->with('alert-error', 'File '.$request->input('filename').' invalid backup file');
 
 
 	} 

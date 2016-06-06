@@ -263,9 +263,11 @@ class StorageRepository {
    */
   public function moveFile($src, $target, $exist=true)
   {
-    $path = $this->cleanFolder($target);
+    //$path = $this->cleanFolder($target);
+    $path = $target;
     $dir = pathinfo($this->realFullPath($path));
 
+    test_log('if exist:'. $path);
     if($exist) {
       if ($this->disk->exists($path)) {
         //return "File already exists...";
@@ -280,11 +282,12 @@ class StorageRepository {
       mkdir($dir['dirname'], 0775, true); //$this->createDirectory($dir);
 
     //return $this->disk->move($src, $target);
-
+    test_log('move:from:'. $src);
+    test_log('move:to:'. $this->realFullPath($path));
     try {
       File::move($src, $this->realFullPath($path));
     }catch(\Exception $e){
-      throw new \Exception("Error: ". $e->getMessage());    
+      throw new \Exception("Error ". $e->getMessage());    
     }
   }
 
