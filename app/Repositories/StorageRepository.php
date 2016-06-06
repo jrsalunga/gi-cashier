@@ -282,8 +282,8 @@ class StorageRepository {
       mkdir($dir['dirname'], 0775, true); //$this->createDirectory($dir);
 
     //return $this->disk->move($src, $target);
-    test_log('move:from:'. $src);
-    test_log('move:to:'. $this->realFullPath($path));
+    //test_log('move:from:'. $src);
+    //test_log('move:to:'. $this->realFullPath($path));
     try {
       File::move($src, $this->realFullPath($path));
     }catch(\Exception $e){
