@@ -129,7 +129,7 @@ class PosUploadRepository extends Repository
       $headspend  = $custcount==0 ? 0:($sales/$custcount);
       $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
       //$brmancost  = ($r['MAN_COST'] * $empcount);
-      $mancost    = ($mcost+0)*$empcount;
+      $mancost    = session('user.branchmancost')*$empcount;
       $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ($mancost/$sales)*100;
 
       $row['branchid']  = session('user.branchid');
@@ -199,6 +199,7 @@ class PosUploadRepository extends Repository
                   $update++;
 
               } else {
+                test_log('firstOrNew: '. $data['date'].' '.$data['mancost']);
                 //$this->logAction('single:lte:i!=record_numbers', '');
                 if ($this->ds->firstOrNew($data, ['date', 'branchid']))
                   $update++;
