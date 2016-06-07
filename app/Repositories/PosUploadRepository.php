@@ -194,7 +194,7 @@ class PosUploadRepository extends Repository
             * commented: issue not update DS if the last DS is higher than backup
             */
             //if($last_ds->date->lte($vfpdate)) { //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
-            if($vfpdate->format('Y-m')==$backup->date->format('Y-m'))
+            if($vfpdate->format('Y-m')==$backup->date->format('Y-m')) {
 
               //$this->logAction('single:lte', '');
             
