@@ -113,7 +113,9 @@ class PosUploadRepository extends Repository
       $din = isset($r['CREW_DIN']) ? $r['CREW_DIN']:0;
       $tip = isset($r['TIP']) ? $r['TIP']:0;
       $cuscnt = isset($r['CUST_CNT']) ? $r['CUST_CNT']:0;
-      $mcost = isset($r['MAN_COST']) ? $r['MAN_COST']:session('user.branchmancost');
+      $mcost = (isset($r['MAN_COST']) && !empty($r['MAN_COST'])) 
+        ? $r['MAN_COST']
+        : session('user.branchmancost');
 
       
       $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));

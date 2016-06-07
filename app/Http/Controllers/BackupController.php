@@ -232,7 +232,7 @@ class BackupController extends Controller
 				}
 				*/
 
-				$this->logAction('start:process:purchased', $log_msg.$msg);
+				//$this->logAction('start:process:purchased', $log_msg.$msg);
 				try {
 						$this->processPurchased($backup->date);
 					} catch (Exception $e) {
@@ -425,7 +425,7 @@ class BackupController extends Controller
 
   public function processPurchased($date){
   	try {
-  		$this->logAction('function:processPurchased', '');
+  		//$this->logAction('function:processPurchased', '');
       $this->backup->postPurchased($date);
     } catch(Exception $e) {
       throw new Exception($e->getMessage());    
