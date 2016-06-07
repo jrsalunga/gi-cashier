@@ -117,7 +117,7 @@ class PosUploadRepository extends Repository
         ? $r['MAN_COST']
         : session('user.branchmancost');
 
-      
+      test_log('mancost: '. $r['MAN_COST']);
       $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
       $sales      = ($r['CSH_SALE'] + $r['CHG_SALE'] + $r['SIG_SALE']) + 0;
       $empcount   = ($kit + $din);
@@ -179,6 +179,7 @@ class PosUploadRepository extends Repository
             //$this->logAction($vfpdate->format('Y-m-d'), '', base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
      
           } 
+          test_log('date: '. $vfpdate->format('Y-m-d'));
 
 
           //$this->logAction('ds:get_last', '');
