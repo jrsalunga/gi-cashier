@@ -191,24 +191,29 @@ class PosUploadRepository extends Repository
               $update++;
           
           } else {
-
+            /*
+            * commented: issue not update DS if the last DS is higher than backup
+            */
             //if($last_ds->date->lte($vfpdate)) { //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
+            if($vfpdate->format('Y-m')==$backup->date->format('Y-m'))
+
               //$this->logAction('single:lte', '');
+            
               if($i==$record_numbers) {
-                test_log('i=recno: '. $data['date'].' '.$data['mancost']);
+               
                 //$this->logAction('single:lte:i==record_numbers', '');
                 if ($this->ds->firstOrNew(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid']))
                   $update++;
 
               } else {
-                test_log('firstOrNew: '. $data['date'].' '.$data['mancost']);
+                
                 //$this->logAction('single:lte:i!=record_numbers', '');
                 if ($this->ds->firstOrNew($data, ['date', 'branchid']))
                   $update++;
 
               }
-            //}
-            //test_log('last ds is greater than current');
+            }
+
 
           }
         }
