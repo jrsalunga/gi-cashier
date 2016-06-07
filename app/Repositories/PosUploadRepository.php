@@ -118,7 +118,6 @@ class PosUploadRepository extends Repository
         : 0;
       $mcost = ($mcost+0)==0 ? session('user.branchmancost'):$mcost;
 
-      test_log('mancost: '. $r['MAN_COST']);
       $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
       $sales      = ($r['CSH_SALE'] + $r['CHG_SALE'] + $r['SIG_SALE']) + 0;
       $empcount   = ($kit + $din);
@@ -130,6 +129,7 @@ class PosUploadRepository extends Repository
       $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
       //$brmancost  = ($r['MAN_COST'] * $empcount);
       $mancost    = session('user.branchmancost')*$empcount;
+      test_log('mancost: '. $mancost);
       $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ($mancost/$sales)*100;
 
       $row['branchid']  = session('user.branchid');
@@ -186,6 +186,7 @@ class PosUploadRepository extends Repository
           //$this->logAction('ds:get_last', '');
           if(is_null($last_ds)) {
 
+            test_log('is null: '. $data['date'].' '.$data['mancost']);
             if ($this->ds->firstOrNew($data, ['date', 'branchid']));
               $update++;
           
@@ -207,6 +208,7 @@ class PosUploadRepository extends Repository
 
               }
             }
+            test_log('last ds is greater than current');
 
           }
         }
