@@ -194,6 +194,7 @@ class PosUploadRepository extends Repository
             if($last_ds->date->lte($vfpdate)) { //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
               //$this->logAction('single:lte', '');
               if($i==$record_numbers) {
+                test_log('i=recno: '. $data['date'].' '.$data['mancost']);
                 //$this->logAction('single:lte:i==record_numbers', '');
                 if ($this->ds->firstOrNew(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid']))
                   $update++;

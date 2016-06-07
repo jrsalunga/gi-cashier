@@ -267,7 +267,7 @@ class StorageRepository {
     $path = $target;
     $dir = pathinfo($this->realFullPath($path));
 
-    test_log('if exist:'. $path);
+    //test_log('if exist:'. $path);
     if($exist) {
       if ($this->disk->exists($path)) {
         //return "File already exists...";
