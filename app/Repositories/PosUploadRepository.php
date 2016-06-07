@@ -115,7 +115,8 @@ class PosUploadRepository extends Repository
       $cuscnt = isset($r['CUST_CNT']) ? $r['CUST_CNT']:0;
       $mcost = (isset($r['MAN_COST']) && !empty($r['MAN_COST'])) 
         ? $r['MAN_COST']
-        : session('user.branchmancost');
+        : 0;
+      $mcost = ($mcost+0)==0 ? session('user.branchmancost'):$mcost;
 
       test_log('mancost: '. $r['MAN_COST']);
       $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
@@ -128,7 +129,7 @@ class PosUploadRepository extends Repository
       $headspend  = $custcount==0 ? 0:($sales/$custcount);
       $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
       //$brmancost  = ($r['MAN_COST'] * $empcount);
-      $mancost    = $mcost*$empcount;
+      $mancost    = ($mcost+0)*$empcount;
       $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ($mancost/$sales)*100;
 
       $row['branchid']  = session('user.branchid');
