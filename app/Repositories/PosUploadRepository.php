@@ -192,7 +192,7 @@ class PosUploadRepository extends Repository
           
           } else {
 
-            if($last_ds->date->lte($vfpdate)) { //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
+            //if($last_ds->date->lte($vfpdate)) { //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
               //$this->logAction('single:lte', '');
               if($i==$record_numbers) {
                 test_log('i=recno: '. $data['date'].' '.$data['mancost']);
@@ -207,8 +207,8 @@ class PosUploadRepository extends Repository
                   $update++;
 
               }
-            }
-            test_log('last ds is greater than current');
+            //}
+            //test_log('last ds is greater than current');
 
           }
         }
