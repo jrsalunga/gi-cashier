@@ -197,10 +197,18 @@
   })
 
 
+  $('#cashier').on('blur', function(e){
+    e.preventDefault();
+    if($.trim($(this).val()).length===0) {
+      console.log('length zero');
+      $(this)[0].value='';
+    }
+  });
+
+
   $('form#form-backup').submit(function(e) { 
     $('.process-btn-container').addClass('hide');
     $('.progress-container').removeClass('hide');
-    //$('#btn-upload')[0].disabled = true;
     //e.preventDefault(); 
   });
     
