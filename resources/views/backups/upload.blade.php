@@ -56,12 +56,14 @@
             <h3 class="panel-title"><span class="glyphicon glyphicon-cloud-upload"></span> DropBox</h3>
           </div>
           <div class="panel-body">
-            {!! Form::open(['method'=>'PUT', 'url'=>'upload/postfile', 'class'=>'form-horizontal', 'enctype'=>'multipart/form-data']) !!}
+            {!! Form::open(['method'=>'PUT', 'url'=>'upload/postfile', 'id'=>'form-backup', 'class'=>'form-horizontal', 'enctype'=>'multipart/form-data']) !!}
             <div class="dropbox-container">
-              <div id="dropbox" class="prod-image">
+              <div id="dropbox" class="prod-image" disabled>
+              
                 <span class="message">Drag and Drop your backup here. <br />
                 <i>(they will only be visible to you)</i>
                 </span>
+                
               </div>
               <!--
               <label for="file_upload" class="lbl-file_upload">Upload</label> 
@@ -114,8 +116,14 @@
 
               <div class="row" style="margin-top: 10px;">
                 <div class="col-lg-12">
-                  <button id="btn-upload" class="btn btn-primary" type="submit" disabled="disabled">Submit</button>
-                  <a class="btn btn-default" href="/backups/upload">Cancel</a>  
+                  <div class="process-btn-container">
+                    <button id="btn-upload" class="btn btn-primary" type="submit" disabled="disabled">Process Backup</button>
+                    <a class="btn btn-link" href="/backups/upload">Cancel</a>  
+                  </div>
+                  <div class="progress-container hide">
+                    <img src="/images/spinner_google.gif">
+                    <span style="padding-left: 10px; font-weight: bold;"> Processing backup... please wait.</span>
+                  </div>
                 </div><!-- /.col-lg-12 -->
               </div>
             {!! Form::close() !!}
@@ -187,6 +195,14 @@
   $('.toggle-note').on('click', function(){
     $('.container-note').toggle();
   })
+
+
+  $('form#form-backup').submit(function(e) { 
+    $('.process-btn-container').addClass('hide');
+    $('.progress-container').removeClass('hide');
+    //$('#btn-upload')[0].disabled = true;
+    //e.preventDefault(); 
+  });
     
   });
   </script>
