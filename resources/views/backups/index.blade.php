@@ -78,9 +78,11 @@
           <?php  $x = explode(':', $backup->remarks) ?>
           <td class="hidden-xs hidden-sm">{{ $x['1'] }} </td>
           <td class="hidden-xs hidden-sm">
-            <a href="https://www.google.com/maps/search/{{$backup->lat}},{{$backup->long}}/{{urldecode('%40')}}{{$backup->lat}},{{$backup->long}},18z" target="_blank">
               {{ $backup->terminal }} 
+            <!--
+            <a href="https://www.google.com/maps/search/{{$backup->lat}},{{$backup->long}}/{{urldecode('%40')}}{{$backup->lat}},{{$backup->long}},18z" target="_blank">
             </a>
+            -->
           </td>
         </tr>
         @endforeach
