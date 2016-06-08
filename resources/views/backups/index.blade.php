@@ -66,7 +66,13 @@
           @endif
           <td>{{ $backup->filename }} </td>
           <td>
-            <span class="hidden-xs">{{ $backup->uploaddate->format('m/d/Y h:i A') }}</span> 
+            <span class="hidden-xs">
+              @if($backup->uploaddate->format('Y-m-d')==now())
+                {{ $backup->uploaddate->format('h:i A') }}
+              @else
+                {{ $backup->uploaddate->format('m/d/Y h:i A') }}
+              @endif
+            </span> 
             <em>
               <small title="{{ $backup->uploaddate->format('m/d/Y h:i A') }}">
               {{ diffForHumans($backup->uploaddate) }}
