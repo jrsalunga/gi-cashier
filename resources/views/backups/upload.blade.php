@@ -75,7 +75,7 @@
                   <div class="input-group">
                     <span class="input-group-btn">
                       <button id="attached" class="btn btn-default" type="button" title="Attach file">
-                        <span class="glyphicon glyphicon-paperclip"></span>
+                        <span class="glyphicon glyphicon-paperclip"></span> Backup
                       </button>
                       <input type="hidden"  name="year" id="year" value="{{ now('Y') }}">
                       <input type="hidden"  name="month" id="month" value="{{ pad(now('M'),2) }}">
@@ -93,7 +93,7 @@
                 <div class="col-xs-11">
                   <div class="input-group">
                     <span class="input-group-addon" id="basic-addon1">
-                      <span class="glyphicon glyphicon-user"></span>
+                      <span class="glyphicon glyphicon-user"></span> Cashier
                     </span>
                     <input type="text" class="form-control" id="cashier" name="cashier" required  placeholder="Anna (cashier's name only, required)"  maxlength="60">
                   </div><!-- /input-group -->
@@ -200,7 +200,6 @@
   $('#cashier').on('blur', function(e){
     e.preventDefault();
     if($.trim($(this).val()).length===0) {
-      console.log('length zero');
       $(this)[0].value='';
     }
   });
