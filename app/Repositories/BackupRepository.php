@@ -31,8 +31,8 @@ class BackupRepository extends BaseRepository
 
   public function dailyLogs($days = 7) {
   	$arr = [];
-  	//$to = Carbon::now();
-  	$to = Carbon::parse('2016-05-31');
+  	$to = Carbon::now();
+  	//$to = Carbon::parse('2016-05-31');
   	$fr = $to->copy()->subDays($days);
 
   	$data = $this->aggregateDailyLogs($fr, $to);
