@@ -377,7 +377,7 @@ class BackupController extends Controller
     	'terminal' => clientIP(), //$request->ip(),
     	'lat' => round($request->input('lat'),7), 
     	'long' => round($request->input('lng'),7), 
-    	'remarks' => $src.':'.$request->input('notes'),
+    	'remarks' => $request->input('notes'),
     	'userid' => $request->user()->id,
     	'filedate' => $d->format('Y-m-d').' '.Carbon::now()->format('H:i:s'),
     	'cashier' => $request->input('cashier')
