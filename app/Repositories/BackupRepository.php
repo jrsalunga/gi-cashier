@@ -8,10 +8,12 @@ use Prettus\Repository\Traits\CacheableRepository;
 use Prettus\Repository\Contracts\CacheableInterface;
 
 
-//class BackupRepository extends BaseRepository implements CacheableInterface
-class BackupRepository extends BaseRepository 
+class BackupRepository extends BaseRepository implements CacheableInterface
+//class BackupRepository extends BaseRepository 
 {
-  //use CacheableRepository;
+	protected $cacheMinutes = 5;
+  
+  use CacheableRepository;
 
   public function boot(){
     $this->pushCriteria(new ByBranch(request()));
@@ -77,6 +79,34 @@ class BackupRepository extends BaseRepository
     						->groupBy(DB::raw('DAY(filedate)'))
     						->orderBy('filedate', 'DESC');
 		})->all();
+  }
+
+
+
+  public function monthlyLogs(Carbon $date) {
+  	$arr = [];
+  	$fr = $date->firstOfMonth();
+  	$to = $date->copy()->lastOfMonth();
+
+  	$data = $this->aggregateDailyLogs($fr, $to);
+
+  	for ($i=0; $i < $date->daysInMonth; $i++) { 
+
+  		$date = $fr->copy()->addDays($i);
+
+  		$filtered = $data->filter(function ($item) use ($date){
+        return $item->filedate->format('Y-m-d') == $date->format('Y-m-d')
+          ? $item : null;
+    	});
+
+  		array_push($arr, [ 
+      		'date'=>$date,
+      		'backup'=>$filtered->first()]
+      );
+  	}
+
+    
+    return $arr;
   }
 
 

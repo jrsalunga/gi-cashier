@@ -23,6 +23,7 @@ Route::post('/settings/password',  ['uses'=>'SettingsController@changePassword']
 Route::get('timesheet/{param1?}', ['uses'=>'TimesheetController@getRoute']);
 
 Route::get('backups/upload', ['uses'=>'BackupController@getUploadIndex']);
+Route::get('backups/checklist', ['uses'=>'DashboardController@getChecklist']);
 Route::get('backups/log', ['uses'=>'BackupController@getHistory']);
 Route::get('backups/{param1?}/{param2?}', ['uses'=>'BackupController@getIndex']);
 Route::post('upload/postfile', ['as'=>'upload.postfile', 'uses'=>'BackupController@postfile']); // upload to web

@@ -46,4 +46,19 @@ class DashboardController extends Controller
 
 		return view('dashboard')->with('backup', $backup=null);
 	}
+
+
+
+	public function getChecklist(Request $request) {
+
+
+  	$date = carbonCheckorNow($request->input('date'));
+
+  	$backups = $this->backup->monthlyLogs($date);
+  	
+
+  	return view('backups.checklist')
+  					->with('date', $date)
+  					->with('backups', $backups);
+  }
 }
