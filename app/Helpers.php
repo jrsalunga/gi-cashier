@@ -191,7 +191,7 @@ function logAction($action, $log, $logfile=NULL) {
 function test_log($log, $logfile=NULL) {
   $logfile = !is_null($logfile) 
     ? $logfile
-    : base_path().DS.'logs'.DS.now().'test-log.txt';
+    : base_path().DS.'logs'.DS.now().'-test-log.txt';
 
   $dir = pathinfo($logfile, PATHINFO_DIRNAME);
 

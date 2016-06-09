@@ -31,7 +31,44 @@
 
 
   <div style="margin-top:50px;" class="hidden-xs"></div>
-  <div class="row row-centered">
+  <!--<div class="row row-centered">-->
+  <div class="row">
+    <div class="col-sm-6 col-md-7">
+      <div id="panel-tasks" class="panel panel-success">
+        <div class="panel-heading">
+          <h3 class="panel-title"><span class="fa fa-file-archive-o"></span> Last 7 Days Backup</h3>
+        </div>
+        <div class="panel-body">
+          <table class="table">
+      <thead>
+        <tr>
+          <th>Backup Date</th>
+          <th>Filename</th>
+          <th>Cashier</th>
+          <th>Upload Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($backups as $key => $b) 
+        <tr>
+          <td>{{ $b['date']->format('M j, D') }}</td>
+          @if(is_null($b['backup']))
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+          @else
+            <td>{{ $b['filename'] }}</td>
+            <td>{{ $b['cashier'] }}</td>
+            <td>{{ $b['filename'] }}</td>
+          @endif
+          
+        </tr>
+        @endforeach
+      </tbody>
+    </table>
+        </div>
+      </div>
+    </div>
     <div class="col-sm-6 col-md-5 col-centered">
       <div id="panel-tasks" class="panel panel-success">
         <div class="panel-heading">
@@ -40,16 +77,7 @@
         <div class="panel-body">
           <div class="list-group">
             <a href="/backups/upload" class="list-group-item">DropBox 
-              @if(!is_null($backup))
-                <small class="pull-right">
-                  <em>
-                    <?php
-                      $x = "last upload ".Carbon\Carbon::now()->diffForHumans($backup->uploaddate);
-                    ?>
-                    {{ str_replace("after", "ago",  $x)  }}
-                  </em>
-                </small>
-              @endif
+              
             </a> 
             <a href="/timelog/add" class="list-group-item">Timelog Manual Entry</a>
             {{-- <a href="/backups/upload" class="list-group-item">Upload Backup</a> --}}
