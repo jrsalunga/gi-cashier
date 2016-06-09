@@ -57,9 +57,9 @@
             <td>-</td>
             <td>-</td>
           @else
-            <td>{{ $b['filename'] }}</td>
-            <td>{{ $b['cashier'] }}</td>
-            <td>{{ $b['filename'] }}</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
           @endif
           
         </tr>
