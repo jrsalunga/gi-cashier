@@ -44,7 +44,11 @@
         <tr>
           <th>Backup Date</th>
           <th>Filename</th>
-          <th>Cashier</th>
+          <th>
+            <span style="cursor: help;" title="Shows only the lastest uploader of the same backup.">
+              Cashier
+            </span>
+          </th>
           <th>Upload Date</th>
         </tr>
       </thead>
@@ -59,7 +63,12 @@
           @else
             <td>{{ $b['backup']->filename }}</td>
             <td>{{ $b['backup']->cashier }}</td>
-            <td>{{ $b['backup']->uploaddate->format('Y-m-d') }}</td>
+            <td>
+              <small><em>
+              {{ $b['backup']->uploaddate->format('Y-m-d h:m:i A') }}
+              </em>
+              </small>
+            </td>
           @endif
           
         </tr>
