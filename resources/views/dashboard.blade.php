@@ -57,9 +57,9 @@
             <td>-</td>
             <td>-</td>
           @else
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
+            <td>{{ $b['backup']->filename }}</td>
+            <td>{{ $b['backup']->cashier }}</td>
+            <td>{{ $b['backup']->uploadeddate->format('Y-m-d') }}</td>
           @endif
           
         </tr>
