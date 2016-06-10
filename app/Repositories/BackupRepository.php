@@ -75,7 +75,9 @@ class BackupRepository extends BaseRepository
   	return $this->scopeQuery(function($query) use ($fr, $to) {
     	return $query
     						->select(DB::raw('*, count(*) as count'))
-    						->whereBetween('filedate', [$fr->format('Y-m-d'), $to->format('Y-m-d')])
+    						->whereBetween('filedate', 
+    							[$fr->format('Y-m-d').' 00:00:00', $to->format('Y-m-d').' 12:59:59']
+    							)
     						->groupBy(DB::raw('DAY(filedate)'))
     						->orderBy('filedate', 'DESC');
 		})->all();
