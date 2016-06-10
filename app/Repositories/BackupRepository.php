@@ -76,7 +76,7 @@ class BackupRepository extends BaseRepository
     	return $query
     						->select(DB::raw('*, count(*) as count'))
     						->whereBetween('filedate', 
-    							[$fr->format('Y-m-d').' 00:00:00', $to->format('Y-m-d').' 24:59:59']
+    							[$fr->format('Y-m-d').' 00:00:00', $to->format('Y-m-d').' 23:59:59']
     							)
     						->groupBy(DB::raw('DAY(filedate)'))
     						->orderBy('filedate', 'DESC');
