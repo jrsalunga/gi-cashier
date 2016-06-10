@@ -81,7 +81,7 @@
           <th>Log Count</th>
           <th>
             <span style="cursor: help;" title="Tells whether the actual physical backup file is in the server's file system.">
-              In Server?
+              File in Server?
             </span>
           </th>
         </tr>

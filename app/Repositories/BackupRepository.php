@@ -8,12 +8,12 @@ use Prettus\Repository\Traits\CacheableRepository;
 use Prettus\Repository\Contracts\CacheableInterface;
 
 
-class BackupRepository extends BaseRepository implements CacheableInterface
-//class BackupRepository extends BaseRepository 
+//class BackupRepository extends BaseRepository implements CacheableInterface
+class BackupRepository extends BaseRepository 
 {
 	protected $cacheMinutes = 5;
   
-  use CacheableRepository;
+  //use CacheableRepository;
 
   public function boot(){
     $this->pushCriteria(new ByBranch(request()));
