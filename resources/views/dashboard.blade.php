@@ -77,12 +77,11 @@
                   <td title="Shows only the lastest uploader of the same backup.">
                     {{ $b['backup']->cashier }}
                   </td>
-                  <td>
+                  <td title="{{ $b['backup']->uploaddate->format('Y-m-d h:m:i A') }}">
                     <small>
                       <em>
-                        
-                    {{ $b['backup']->uploaddate->format('Y-m-d h:m:i A') }}
-                    </em>
+                      {{ diffForHumans($b['backup']->uploaddate) }}      
+                      </em>
                     </small>
                   </td>
                 @endif
