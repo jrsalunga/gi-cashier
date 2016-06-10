@@ -30,8 +30,9 @@
   </ol>
 
 
+  <!--
   <div style="margin-top:50px;" class="hidden-xs"></div>
-  <!--<div class="row row-centered">-->
+  <div class="row row-centered">-->
   <div class="row">
     <div class="col-sm-6 col-md-7">
       <div id="panel-tasks" class="panel panel-success">
@@ -39,6 +40,16 @@
           <h3 class="panel-title"><span class="fa fa-file-archive-o"></span> Last 7 Days Backup</h3>
         </div>
         <div class="panel-body">
+          <p class="text-right">
+            <a href="/backups/checklist" class="btn btn-default">
+              <span class="fa fa-calendar-check-o"></span> 
+              <span class="hidden-xs">Backup Checklist</span>
+            </a> 
+            <a href="/backups/log" class="btn btn-default">
+              <span class="glyphicon glyphicon-th-list"></span> 
+              <span class="hidden-xs">Backup Logs</span>
+            </a>
+          </p> 
           <table class="table table table-hover table-striped">
             <thead>
               <tr>

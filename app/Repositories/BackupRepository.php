@@ -102,7 +102,7 @@ class BackupRepository extends BaseRepository implements CacheableInterface
   		$b = $filtered->first();
 
   		if(!is_null($b))
-    		$e = file_exists(config('gi-dtr.upload_path.pos.'.app()->environment()).DS.session('user.branchcode').DS.$b->year.DS.$b->month.DS.$b->filename);
+    		$e = file_exists(config('gi-dtr.upload_path.pos.'.app()->environment()).session('user.branchcode').DS.$b->year.DS.$b->filedate->format('m').DS.$b->filename);
     	else
     		$e = 0;
   		

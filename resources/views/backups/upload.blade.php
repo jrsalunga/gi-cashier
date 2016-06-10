@@ -26,6 +26,10 @@
               <span class="fa fa-archive"></span>
               <span class="hidden-xs hidden-sm">Filing System</span>
             </a>
+            <a href="/backups/checklist" class="btn btn-default">
+              <span class="fa fa-calendar-check-o"></span>
+              <span class="hidden-xs hidden-sm">Checklist</span>
+            </a>
             <a href="/backups/log" class="btn btn-default">
               <span class="glyphicon glyphicon-th-list"></span>
               <span class="hidden-xs hidden-sm">Logs</span>

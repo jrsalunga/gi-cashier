@@ -38,6 +38,10 @@
               <span class="fa fa-archive"></span>
               <span class="hidden-xs hidden-sm">Filing System</span>
             </button>
+            <a href="/backups/checklist" class="btn btn-default">
+              <span class="fa fa-calendar-check-o"></span>
+              <span class="hidden-xs hidden-sm">Checklist</span>
+            </a>
             <a href="/backups/log" class="btn btn-default">
               <span class="glyphicon glyphicon-th-list"></span>
               <span class="hidden-xs hidden-sm">Logs</span>
@@ -119,8 +123,8 @@
                   <span class="fa file-o"></span>
 
                 @endif 
-
-                {{ $file['name'] }}</td>
+                <span id="{{$file['name']}}">{{ $file['name'] }}</span>
+                </td>
                 {{-- 
                 <td><a href="/download/{{$tab}}/{{ $file['fullPath'] }}" target="_blank"><span class="glyphicon glyphicon-download-alt"></span></a></td>
                 --}}

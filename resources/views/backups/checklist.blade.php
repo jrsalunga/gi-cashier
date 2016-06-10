@@ -78,6 +78,12 @@
             </span>
           </th>
           <th>Upload Date</th>
+          <th>Log Count</th>
+          <th>
+            <span style="cursor: help;" title="Tells whether the actual physical backup file is in the server's file system.">
+              In Server?
+            </span>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -88,17 +94,11 @@
             <td>-</td>
             <td>-</td>
             <td>-</td>
+            <td>-</td>
+            <td>-</td>
           @else
             <td>
-              {{ $b['backup']->filename }} 
-
-              @if($b['backup'])
-                exist
-              @else
-                not exist
-              @endif
-
-              <span class="badge">{{ $b['backup']->count }}</span>
+              {{ $b['backup']->filename }}
             </td>
             <td title="Shows only the lastest uploader of the same backup.">
               {{ $b['backup']->cashier }}
@@ -108,6 +108,16 @@
               {{ $b['backup']->uploaddate->format('Y-m-d h:m:i A') }}
               </em>
               </small>
+            </td>
+            <td>
+              <span class="badge">{{ $b['backup']->count }}</span>
+            </td>
+            <td>
+              @if($b['exist'])
+                <span class="glyphicon glyphicon-ok text-success"></span>
+              @else
+                <span class="glyphicon glyphicon-remove text-danger"></span>
+              @endif
             </td>
           @endif
           
