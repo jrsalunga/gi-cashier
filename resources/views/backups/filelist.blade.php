@@ -93,6 +93,7 @@
         @endif
         </div>
 
+        <div class="table-responsive">
         <table id="tb-backups" class="table">
           <!--
           <thead>
@@ -136,6 +137,7 @@
           @endif
           </tbody>
         </table>
+      </div>
       </div>
     </div>
 

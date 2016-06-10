@@ -67,6 +67,7 @@
 
     @include('_partials.alerts')
 
+    <div class="table-responsive">
     <table class="table table-hover table-striped">
       <thead>
         <tr>
@@ -125,6 +126,7 @@
         @endforeach
       </tbody>
     </table>
+    </div>
     
    
 

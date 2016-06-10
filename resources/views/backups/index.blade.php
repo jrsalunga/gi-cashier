@@ -48,8 +48,8 @@
 
     @include('_partials.alerts')
 
-    
-   <table class="table table-striped table-hover">
+    <div class="table-responsive">
+    <table class="table table-striped table-hover">
       <thead>
         <tr>
           @if($all)
@@ -98,6 +98,7 @@
         @endforeach
       </tbody>
     </table>
+    </div>
     
     {!! $backups->render() !!}
      

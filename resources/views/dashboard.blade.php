@@ -50,6 +50,7 @@
               <span class="hidden-xs">Backup Logs</span>
             </a>
           </p> 
+          <div class="table-responsive">
           <table class="table table table-hover table-striped">
             <thead>
               <tr>
@@ -88,6 +89,7 @@
               @endforeach
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     </div>

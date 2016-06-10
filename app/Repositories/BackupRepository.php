@@ -79,7 +79,8 @@ class BackupRepository extends BaseRepository
     							[$fr->format('Y-m-d').' 00:00:00', $to->format('Y-m-d').' 23:59:59']
     							)
     						->groupBy(DB::raw('DAY(filedate)'))
-    						->orderBy('filedate', 'DESC');
+    						->orderBy('uploaddate', 'DESC');
+    						//->orderBy('filedate', 'DESC');
 		})->all();
   }
 
