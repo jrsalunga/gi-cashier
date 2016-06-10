@@ -39,44 +39,44 @@
           <h3 class="panel-title"><span class="fa fa-file-archive-o"></span> Last 7 Days Backup</h3>
         </div>
         <div class="panel-body">
-          <table class="table">
-      <thead>
-        <tr>
-          <th>Backup Date</th>
-          <th>Filename</th>
-          <th>
-            <span style="cursor: help;" title="Shows only the lastest uploader of the same backup.">
-              Cashier
-            </span>
-          </th>
-          <th>Upload Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach($backups as $key => $b) 
-        <tr>
-          <td>{{ $b['date']->format('M j, D') }}</td>
-          @if(is_null($b['backup']))
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-          @else
-            <td>{{ $b['backup']->filename }}</td>
-            <td title="Shows only the lastest uploader of the same backup.">
-              {{ $b['backup']->cashier }}
-            </td>
-            <td>
-              <small><em>
-              {{ $b['backup']->uploaddate->format('Y-m-d h:m:i A') }}
-              </em>
-              </small>
-            </td>
-          @endif
-          
-        </tr>
-        @endforeach
-      </tbody>
-    </table>
+          <table class="table table table-hover table-striped">
+            <thead>
+              <tr>
+                <th>Backup Date</th>
+                <th>Filename</th>
+                <th>
+                  <span style="cursor: help;" title="Shows only the lastest uploader of the same backup.">
+                    Cashier
+                  </span>
+                </th>
+                <th>Upload Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($backups as $key => $b) 
+              <tr>
+                <td>{{ $b['date']->format('M j, D') }}</td>
+                @if(is_null($b['backup']))
+                  <td>-</td>
+                  <td>-</td>
+                  <td>-</td>
+                @else
+                  <td>{{ $b['backup']->filename }}</td>
+                  <td title="Shows only the lastest uploader of the same backup.">
+                    {{ $b['backup']->cashier }}
+                  </td>
+                  <td>
+                    <small><em>
+                    {{ $b['backup']->uploaddate->format('Y-m-d h:m:i A') }}
+                    </em>
+                    </small>
+                  </td>
+                @endif
+                
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

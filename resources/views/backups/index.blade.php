@@ -82,7 +82,7 @@
           <td>{{ $backup->cashier }} </td>
           <td class="text-center"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
           <?php  $x = explode(':', $backup->remarks) ?>
-          <td class="hidden-xs hidden-sm">{{ $x['1'] }} </td>
+          <td class="hidden-xs hidden-sm">{{ $backup->remarks }} </td>
           <td class="hidden-xs hidden-sm">
               {{ $backup->terminal }} 
             <!--

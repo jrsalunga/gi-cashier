@@ -67,7 +67,7 @@
 
     @include('_partials.alerts')
 
-    <table class="table">
+    <table class="table table-hover table-striped">
       <thead>
         <tr>
           <th>Backup Date</th>
@@ -89,7 +89,17 @@
             <td>-</td>
             <td>-</td>
           @else
-            <td>{{ $b['backup']->filename }} <span class="badge">{{ $b['backup']->count }}</span></td>
+            <td>
+              {{ $b['backup']->filename }} 
+
+              @if($b['backup'])
+                exist
+              @else
+                not exist
+              @endif
+
+              <span class="badge">{{ $b['backup']->count }}</span>
+            </td>
             <td title="Shows only the lastest uploader of the same backup.">
               {{ $b['backup']->cashier }}
             </td>
