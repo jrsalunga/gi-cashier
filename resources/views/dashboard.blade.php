@@ -80,8 +80,8 @@
                   <td>
                     <small>
                       <em>
-                        {{ diffForHumans($backup->uploaddate) }}
-                    
+                        
+                    {{ $b['backup']->uploaddate->format('Y-m-d h:m:i A') }}
                     </em>
                     </small>
                   </td>
