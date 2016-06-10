@@ -7,8 +7,10 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 
 use App\Handlers\Events\ChangePasswordEventHandler;
 use App\Handlers\Events\AuthLoginEventHandler;
+use App\Handlers\Events\AuthLoginErrorEventHandler;
 use App\Events\UserChangePassword;
 use App\Events\UserLoggedIn;
+use App\Events\UserLoggedFailed;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -26,6 +28,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserChangePassword::class => [
             ChangePasswordEventHandler::class,
+        ],
+        UserLoggedFailed::class => [
+            AuthLoginErrorEventHandler::class,
         ]
     ];
 
