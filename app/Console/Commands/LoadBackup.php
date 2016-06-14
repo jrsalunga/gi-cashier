@@ -66,7 +66,8 @@ class LoadBackup extends Command
         $this->comment($code.' '.$filename);  
 
 
-        $res = $this->process->create(['filename'=> $filename, 'code'=>$code, 'path'=> DS.$code.DS.$filename]);
+        //$res = $this->process->create(['filename'=> $filename, 'code'=>$code, 'path'=> DS.$code.DS.$filename]);
+        $res = $this->process->firstOrCreate(['filename'=> $filename, 'code'=>$code, 'path'=> DS.$code.DS.$filename]);
       
         $res ?  $this->comment('saved!'):$this->comment('not saved!');
       }

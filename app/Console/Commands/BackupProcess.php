@@ -154,14 +154,14 @@ class BackupProcess extends Command
           $this->logAction('error:move:backup', $msg);
           exit();    
         }
-        $this->comment('succes moving file');
+        $this->comment('success moving file');
         $this->logAction('success:move:backup', $process->filename);
         
         //DB::rollBack();
         DB::commit();
 
         $this->logAction('end:submit', $msg);
-        $this->comment($process->filename.'has been processed!');
+        $this->comment($process->filename.' has been processed!');
         $this->updateProcessRemarks($process, 'success');
         exit();
       }
