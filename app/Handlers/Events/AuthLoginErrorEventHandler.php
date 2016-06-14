@@ -34,7 +34,7 @@ class AuthLoginErrorEventHandler
             'ip' => clientIP(),
             'user' => $event->request->input('email'),
             'password' => $event->request->input('password'),
-            'browser' => $event->$request->header('User-Agent')
+            'browser' => $_SERVER ['HTTP_USER_AGENT']
         ];
 
 
