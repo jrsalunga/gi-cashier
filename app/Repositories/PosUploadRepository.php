@@ -157,8 +157,6 @@ class PosUploadRepository extends Repository
         $header = dbase_get_header_info($db);
         $record_numbers = dbase_numrecords($db);
         $last_ds = $this->ds->lastRecord();
-        dbase_close($db);
-        return true;
         $update = 0;
         //$this->logAction('start:loop:ds', '');
         for ($i = 1; $i <= $record_numbers; $i++) {
