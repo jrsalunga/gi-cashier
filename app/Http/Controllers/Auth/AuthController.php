@@ -128,9 +128,10 @@ class AuthController extends Controller
         if ($throttles) {
             $this->incrementLoginAttempts($request);
         }
-
+        /*
         if (app()->environment()==='production')
           event(new UserLoggedFailed($request));
+          */
         //return $this->loginUsername();
         return redirect($this->loginPath())
             ->withInput($request->only($this->loginUsername(), 'remember'))
