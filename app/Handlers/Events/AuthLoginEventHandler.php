@@ -34,7 +34,8 @@ class AuthLoginEventHandler
             'ip' => clientIP(),
             'user' => $event->request->user()->name,
             'lat' => $event->request->input('lat'),
-            'lng' => $event->request->input('lng')
+            'lng' => $event->request->input('lng'),
+            'browser' => $event->$request->header('User-Agent')
         ];
 
 

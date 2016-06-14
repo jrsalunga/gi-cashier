@@ -148,6 +148,7 @@ class PosUploadRepository extends Repository
     }
 
     public function postDailySales(Backup $backup){
+
       //$this->logAction('function:postDailySales', '');
       $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
 
@@ -156,6 +157,8 @@ class PosUploadRepository extends Repository
         $header = dbase_get_header_info($db);
         $record_numbers = dbase_numrecords($db);
         $last_ds = $this->ds->lastRecord();
+        dbase_close($db);
+        return true;
         $update = 0;
         //$this->logAction('start:loop:ds', '');
         for ($i = 1; $i <= $record_numbers; $i++) {
@@ -625,7 +628,8 @@ class PosUploadRepository extends Repository
    */
   public function moveFile($src, $target, $exist=true)
   {
-    $path = $this->cleanFolder($target);
+    //$path = $this->cleanFolder($target);
+    $path = $target;
     $dir = pathinfo($this->realFullPath($path));
 
     if($exist) {
@@ -653,6 +657,222 @@ class PosUploadRepository extends Repository
   public function get($path){
     return file_get_contents($this->realFullPath($path));
   }
+
+
+
+
+
+
+  public function extract2($src, $pwd=NULL){
+     
+    //$dir = $this->realFullPath($src);
+    $dir = $src;
+    $zip = new ZipArchive();
+    $zip_status = $zip->open($dir);
+
+    if($zip_status === true) {
+
+      if(!is_null($pwd))
+        $zip->setPassword($pwd);
+      
+      $path = storage_path().DS.'backup'.DS.pathinfo($src, PATHINFO_FILENAME);
+      
+      if(is_dir($path)) {
+        $this->removeDir($path);
+      }
+      mkdir($path, 0777, true);
+       
+      $this->extracted_path = $path;
+
+      if(!$zip->extractTo($path)) {
+        $zip->close();
+        return false;
+      }
+
+      //$this->postDailySales($path, filename_to_date2(pathinfo($src, PATHINFO_FILENAME)));
+      //$this->removeDir($path);
+
+      $zip->close();
+
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
+
+  public function postDailySales2(Backup $backup){
+
+      //$this->logAction('function:postDailySales', '');
+      $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+
+      if (file_exists($dbf_file)) {
+        $db = dbase_open($dbf_file, 0);
+        $header = dbase_get_header_info($db);
+        $record_numbers = dbase_numrecords($db);
+        //$last_ds = $this->ds->lastRecord();
+        $last_ds = NULL;
+        $update = 0;
+
+        for ($i = 1; $i <= $record_numbers; $i++) {
+
+          $row = dbase_get_record_with_names($db, $i);
+          $data = $this->getDailySalesDbfRowData($row);
+          $vfpdate = Carbon::parse($data['date']);
+
+          // back job on posting purchased 
+          if ( $vfpdate->format('Y-m')==$backup->date->format('Y-m') // trans date equal year & mons of backup
+          //&& $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d') // if the backupdate = mon end date
+          && $backup->date->lte(Carbon::parse('2016-06-01'))) // only backup less than april 1
+          {
+            
+            try {
+              $this->postPurchased2($vfpdate, $backup);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw new Exception($e->getMessage());    
+            }
+          } 
+
+          if(is_null($last_ds)) {
+
+            if ($this->ds->firstOrNew($data, ['date', 'branchid']));
+              $update++;
+          
+          } else {
+            /*
+            * commented: issue not update DS if the last DS is higher than backup
+            */
+            //if($last_ds->date->lte($vfpdate)) { //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
+            if($vfpdate->format('Y-m')==$backup->date->format('Y-m')) {
+
+              //$this->logAction('single:lte', '');
+            
+              if($i==$record_numbers) {
+               
+                //$this->logAction('single:lte:i==record_numbers', '');
+                if ($this->ds->firstOrNew(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid']))
+                  $update++;
+
+              } else {
+                
+                //$this->logAction('single:lte:i!=record_numbers', '');
+                if ($this->ds->firstOrNew($data, ['date', 'branchid']))
+                  $update++;
+
+              }
+            }
+
+
+          }
+        }
+        //$this->logAction('end:loop:ds', '');
+        dbase_close($db);
+        return count($update>0) ? true:false;
+      }
+
+      return false;
+    }
+
+    public function postPurchased2(Carbon $date, Backup $backup) {
+      
+      $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
+
+      //$this->logAction($date->format('Y-m-d'),'post:purchased:file_exists');
+      if (file_exists($dbf_file)) {
+        $db = dbase_open($dbf_file, 0);
+        $header = dbase_get_header_info($db);
+        $record_numbers = dbase_numrecords($db);
+        $tot_purchase = 0;
+        $update = 0;
+
+        // delete if exist
+        try {
+          //$this->logAction($date->format('Y-m-d'), 'delete:purchased');
+          $this->purchase->deleteWhere(['branchid'=>$backup->branchid, 'date'=>$date->format('Y-m-d')]);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw new Exception($e->getMessage());    
+        }
+
+
+        try {
+          //$this->logAction($date->format('Y-m-d'), 'delete:purchased2');
+          $this->purchase2->deleteWhere(['branchid'=>$backup->branchid, 'date'=>$date->format('Y-m-d')]);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw new Exception($e->getMessage());    
+        }
+
+
+        //$this->logAction($date->format('Y-m-d'), 'start:loop:purchased');
+        for ($i = 1; $i <= $record_numbers; $i++) {
+
+          $row = dbase_get_record_with_names($db, $i);
+          $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+
+          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+            //$this->logAction($vfpdate->format('Y-m-d'), trim($row['COMP']), base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
+            $tcost = trim($row['TCOST']);
+
+            $attrs = [
+              'comp'      => trim($row['COMP']),
+              'unit'      => trim($row['UNIT']),
+              'qty'       => trim($row['QTY']),
+              'ucost'     => trim($row['UCOST']),
+              'tcost'     => $tcost,
+              'date'      => $vfpdate->format('Y-m-d'),
+              'supno'     => trim($row['SUPNO']),
+              'supname'   => trim($row['SUPNAME']),
+              'catname'   => trim($row['CATNAME']),
+              'vat'       => trim($row['VAT']),
+              'terms'     => trim($row['TERMS']),
+              'branchid'  => $backup->branchid
+            ];
+            
+            //\DB::beginTransaction();
+            //$this->logAction($date->format('Y-m-d'), 'create:purchased');
+            try {
+              $this->purchase->create($attrs);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw new Exception($e->getMessage());    
+            }
+
+            try {
+              //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
+              $this->purchase2->verifyAndCreate($attrs);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw new Exception($e->getMessage());    
+            }
+            
+            //\DB::rollBack();
+            $tot_purchase += $tcost;
+            $update++;
+          }
+        }
+        //$this->logAction($date->format('Y-m-d'), 'end:loop:purchased');
+
+        try {
+          //$this->logAction($date->format('Y-m-d'), 'update:ds');
+          $this->ds->firstOrNew(['branchid'=>$backup->branchid, 
+                              'date'=>$date->format('Y-m-d'),
+                              'purchcost'=>$tot_purchase],
+                              ['date', 'branchid']);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw new Exception($e->getMessage());    
+        }
+
+        
+
+        dbase_close($db);
+        return count($update>0) ? true:false;
+      }
+      return false;
+    }
 
   
 

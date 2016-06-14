@@ -1,1 +1,1 @@
-<p>{{ $user }} was logged on <a href="https://www.google.com/maps/search/{{round($lat,7)}},{{round($lng,7)}}/{{urldecode('%40')}}{{round($lat,7)}},{{round($lng,7)}},18z" target="_blank">{{ $ip }}</a></p>
+<p>{{ $user }} was logged on {{ $ip }} using {{ $browser }}</p>

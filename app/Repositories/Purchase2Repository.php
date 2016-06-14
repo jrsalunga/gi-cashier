@@ -31,21 +31,20 @@ class Purchase2Repository extends BaseRepository
   // verify-create component and supplier if not found 
   public function verifyAndCreate($data) {
 
-  	$component = $this->component->verifyAndCreate(array_only($data, ['comp', 'ucost', 'unit', 'supno', 'catname']));
-  	$supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid']));
-
-  	$attr = [
-  		'date' => $data['date'],
-  		'componentid'	=> $component->id,
+    $component = $this->component->verifyAndCreate(array_only($data, ['comp', 'ucost', 'unit', 'supno', 'catname']));
+    $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid']));
+    $attr = [
+      'date' => $data['date'],
+      'componentid' => $component->id,
       'qty' => $data['qty'],
-  		//'unit' => $data['unit'],
-  		'ucost' => $data['ucost'],
-  		'tcost' => $data['tcost'],
-  		'terms' => $data['terms'],
+      //'unit' => $data['unit'],
+      'ucost' => $data['ucost'],
+      'tcost' => $data['tcost'],
+      'terms' => $data['terms'],
       'vat' => $data['vat'],
       'supplierid' => $supplier->id,
-  		'branchid' => $data['branchid']
-  	];
+      'branchid' => $data['branchid']
+    ];
 
     try {
   	  $this->create($attr);

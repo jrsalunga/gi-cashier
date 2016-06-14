@@ -12,5 +12,6 @@ Homestead.json
 /TEST_POS_BACKUP
 /TEST_FILES_BACKUP
 /storage/backup
+/storage/process
 
 *.env

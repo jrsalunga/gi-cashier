@@ -43,6 +43,7 @@ class ProcessBackupFiledate extends Command
     public function handle()
     {
         
+      /*
       $backups = \App\Models\Backup::all();
 
       foreach ($backups as $backup) {
@@ -68,6 +69,7 @@ class ProcessBackupFiledate extends Command
 
       }
 
+        */
 
         
     }

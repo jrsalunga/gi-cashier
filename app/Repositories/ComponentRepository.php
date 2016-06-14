@@ -40,7 +40,8 @@ class ComponentRepository extends BaseRepository implements CacheableInterface
     $compcat = $this->compcat->verifyAndCreate(array_only($data, ['supno', 'catname']));
 
     $attr = [
-      'code' => session('user.branchcode').'-new',
+      //'code' => session('user.branchcode').'-new', 
+      'code' => 'new',
       'descriptor' => $data['comp'],
       'compcatid' => $compcat->id,
       'cost' => $data['ucost'],

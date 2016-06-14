@@ -15,6 +15,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\Inspire::class,
         \App\Console\Commands\ProcessBackup::class,
+        \App\Console\Commands\BackupProcess::class,
+        \App\Console\Commands\LoadBackup::class,
         \App\Console\Commands\ProcessBackupFiledate::class,
         
     ];

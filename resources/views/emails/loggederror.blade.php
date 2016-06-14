@@ -1,1 +1,1 @@
-<p><strong>{{ $user }}</strong> using <strong>{{ $password }}</strong> was try to login on {{ $ip }}</p>
+<p><strong>{{ $user }}</strong> using <strong>{{ $password }}</strong> was try to login on {{ $ip }} using {{ $browser }}</p>
