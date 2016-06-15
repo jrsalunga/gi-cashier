@@ -182,7 +182,7 @@ class PosUploadRepository extends Repository
             //$this->logAction($vfpdate->format('Y-m-d'), '', base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
      
           } 
-          test_log('date: '. $vfpdate->format('Y-m-d'));
+          //test_log('date: '. $vfpdate->format('Y-m-d'));
 
 
           //$this->logAction('ds:get_last', '');
@@ -733,7 +733,7 @@ class PosUploadRepository extends Repository
               throw new Exception($e->getMessage());    
             }
           } 
-
+          
           if(is_null($last_ds)) {
 
             if ($this->ds->firstOrNew($data, ['date', 'branchid']));

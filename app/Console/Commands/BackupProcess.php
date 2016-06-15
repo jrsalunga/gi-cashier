@@ -64,7 +64,11 @@ class BackupProcess extends Command
   public function handle()
   {
     $msg = '';
-    $process = $this->process->where('processed', '0')->first();
+    $process = $this->process
+                    ->where('processed', '0')
+                    ->orderBy('code', 'DESC')
+                    ->orderBy('filedate', 'DESC')
+                    ->first();
 
     if(!is_null($process)) {
       $this->logAction('start:submit', $msg);
