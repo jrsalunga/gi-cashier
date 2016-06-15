@@ -233,7 +233,7 @@ class BackupController extends Controller
 				*/
 
 				//$this->logAction('start:process:purchased', $log_msg.$msg);
-				/*
+				
 				try {
 						$this->processPurchased($backup->date);
 					} catch (Exception $e) {
@@ -247,7 +247,7 @@ class BackupController extends Controller
 						return redirect('/backups/upload')->with('alert-error', $msg);
 					}
 				$this->logAction('success:process:purchased', $log_msg.$msg);
-				*/
+				
 				//\DB::rollBack();
 
 				try {
