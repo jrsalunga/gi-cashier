@@ -211,6 +211,7 @@ class BackupProcess extends Command
       'terminal' => '127.0.0.1', //$request->ip(),
       'userid' => '29E4E2FA672C11E596ECDA40B3C0AA12',
       'filedate' => $d->format('Y-m-d').' '.Carbon::now()->format('H:i:s'),
+      'remarks' => 'scheduled task run @ server',
       'cashier' => 'bot'
     ];
 
