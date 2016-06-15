@@ -218,7 +218,7 @@ class BackupController extends Controller
 				}
 				$this->logAction('success:process:backup', $log_msg.$msg);
 
-				//\DB::beginTransaction();
+				
 				/*
 				if(!$this->processPurchased($backup->date)){
 					$msg = 'File: '.$request->input('filename').' unable to process purchased!';
