@@ -171,13 +171,14 @@ class PosUploadRepository extends Repository
           //&& $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d') // if the backupdate = mon end date
           && $backup->date->lte(Carbon::parse('2016-06-01'))) // only backup less than april 1
           {
-
+            /*
             try {
               $this->postPurchased($vfpdate);
             } catch(Exception $e) {
               return false;
               //throw new Exception($e->getMessage());    
             }
+            */
             //$this->logAction($vfpdate->format('Y-m-d'), '', base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
      
           } 
