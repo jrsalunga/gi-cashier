@@ -24,12 +24,27 @@
 <div>
 	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
+			<tr>
+				<td>Month</td>
+			</tr>
 			@foreach($data[0] as $key => $purchase)
 			<tr>
 				<td>{{ $key }}</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Pepsi Reg</td>
+			</tr>
+			@foreach($data[0] as $key => $purchase)
+			<tr>
 				<td>
 				@if(is_null($purchase))
-					0
+					&nbsp;
 				@else
 					{{ $purchase->qty }}
 				@endif
@@ -41,12 +56,14 @@
 
 	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
+			<tr>
+				<td>Pepsi Max</td>
+			</tr>
 			@foreach($data[1] as $key => $purchase)
 			<tr>
-				<td>{{ $key }}</td>
 				<td>
 				@if(is_null($purchase))
-					0
+					&nbsp;
 				@else
 					{{ $purchase->qty }}
 				@endif
@@ -58,12 +75,14 @@
 
 	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
+			<tr>
+				<td>Pepsi Light</td>
+			</tr>
 			@foreach($data[2] as $key => $purchase)
 			<tr>
-				<td>{{ $key }}</td>
 				<td>
 				@if(is_null($purchase))
-					0
+					&nbsp;
 				@else
 					{{ $purchase->qty }}
 				@endif
@@ -75,12 +94,14 @@
 
 	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
+			<tr>
+				<td>Pepsi 500ml</td>
+			</tr>
 			@foreach($data[3] as $key => $purchase)
 			<tr>
-				<td>{{ $key }}</td>
 				<td>
 				@if(is_null($purchase))
-					0
+					&nbsp;
 				@else
 					{{ $purchase->qty }}
 				@endif
@@ -92,12 +113,14 @@
 
 	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
+			<tr>
+				<td>Iced Tea</td>
+			</tr>
 			@foreach($data[4] as $key => $purchase)
 			<tr>
-				<td>{{ $key }}</td>
 				<td>
 				@if(is_null($purchase))
-					0
+					&nbsp;
 				@else
 					{{ $purchase->qty }}
 				@endif
@@ -109,12 +132,14 @@
 
 	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
+			<tr>
+				<td>Hot Tea</td>
+			</tr>
 			@foreach($data[5] as $key => $purchase)
 			<tr>
-				<td>{{ $key }}</td>
 				<td>
 				@if(is_null($purchase))
-					0
+					&nbsp;
 				@else
 					{{ $purchase->qty }}
 				@endif
