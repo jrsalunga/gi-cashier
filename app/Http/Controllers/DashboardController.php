@@ -66,7 +66,7 @@ class DashboardController extends Controller
 
   public function pepsi(Request $request) {
 
-  	$components = ['06163FD0637011E5B83800FF59FBB323',
+  	$components = ['062BFFD1637011E5B83800FF59FBB323',
   								'063278FF637011E5B83800FF59FBB323',
   								'0631FF85637011E5B83800FF59FBB323',
   								'062C796C637011E5B83800FF59FBB323',
