@@ -44,7 +44,8 @@ class BackupRepository extends BaseRepository
   		$date = $to->copy()->subDays($i);
 
   		$filtered = $data->filter(function ($item) use ($date){
-        return $item->filedate->format('Y-m-d') == $date->format('Y-m-d')
+        return $item->filedate->format('Y-m-d') == $date->format('Y-m-d') 
+                && $item->processed == 1
           ? $item : null;
     	});
 
