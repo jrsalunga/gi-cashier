@@ -22,5 +22,106 @@
 </div>
 
 <div>
+	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			@foreach($data[0] as $key => $purchase)
+			<tr>
+				<td>{{ $key }}</td>
+				<td>
+				@if(is_null($purchase))
+					0
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			@foreach($data[1] as $key => $purchase)
+			<tr>
+				<td>{{ $key }}</td>
+				<td>
+				@if(is_null($purchase))
+					0
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			@foreach($data[2] as $key => $purchase)
+			<tr>
+				<td>{{ $key }}</td>
+				<td>
+				@if(is_null($purchase))
+					0
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			@foreach($data[3] as $key => $purchase)
+			<tr>
+				<td>{{ $key }}</td>
+				<td>
+				@if(is_null($purchase))
+					0
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			@foreach($data[4] as $key => $purchase)
+			<tr>
+				<td>{{ $key }}</td>
+				<td>
+				@if(is_null($purchase))
+					0
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="1" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			@foreach($data[5] as $key => $purchase)
+			<tr>
+				<td>{{ $key }}</td>
+				<td>
+				@if(is_null($purchase))
+					0
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
 
 </div>

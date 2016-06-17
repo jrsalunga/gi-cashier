@@ -106,6 +106,6 @@ class DashboardController extends Controller
   	if($request->input('data')!='')
   		return $data;
 
-  	return view('blank')->with('branches', $branches);
+  	return view('blank')->with('branches', $branches)->with('data', $data);
   }
 }
