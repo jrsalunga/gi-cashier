@@ -10,7 +10,7 @@
 	</select>
 	<select name="branchid">
 		@foreach($branches as $branch)
-			@if($_GET['branchid']==$branch->lid())
+			@if(isset($_GET['branchid']) && $_GET['branchid']==$branch->lid())
 				<option selected value="{{ $branch->lid() }}">{{ $branch->code }}</option>
 			@else
 				<option value="{{ $branch->lid() }}">{{ $branch->code }}</option>
