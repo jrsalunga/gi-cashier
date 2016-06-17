@@ -73,6 +73,8 @@ get('test/compledger', function(){
   return App\Models\Compledger::with('branch')->get();
 });
 
+Route::get('pepsi', ['uses'=>'DashboardController@pepsi']);
+
 
 
 get('date/compare', function(){

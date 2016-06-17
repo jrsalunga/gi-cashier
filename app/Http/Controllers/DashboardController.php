@@ -7,6 +7,7 @@ use App\Models\Backup;
 use Exception;
 use App\Repositories\TimelogRepository as Timelog;
 use App\Repositories\BackupRepository as BackupRepo;
+use DB;
 
 class DashboardController extends Controller 
 {
@@ -60,5 +61,51 @@ class DashboardController extends Controller
   	return view('backups.checklist')
   					->with('date', $date)
   					->with('backups', $backups);
+  }
+
+
+  public function pepsi(Request $request) {
+
+  	$components = ['06163FD0637011E5B83800FF59FBB323',
+  								'063278FF637011E5B83800FF59FBB323',
+  								'0631FF85637011E5B83800FF59FBB323',
+  								'062C796C637011E5B83800FF59FBB323',
+  								'0615D0AA637011E5B83800FF59FBB323',
+  								'06163FD0637011E5B83800FF59FBB323'];
+  	$data = [];
+
+  	$branches = \App\Models\Branch::orderBy('code')->get();
+
+  	if($request->input('year')!='' && $request->input('branchid')!='') {
+
+	  	foreach ($components as $key => $value) {
+	  		$date = \Carbon\Carbon::parse($request->input('year').'-01-01');
+
+	  		$results = \App\Models\Purchase2::select(DB::raw('date, SUM(qty) AS qty, SUM(tcost) AS tcost'))
+	  							->where('componentid', $value)
+	  							->where('branchid', $request->input('branchid'))
+	  							->where(DB::raw('YEAR(date)'), $request->input('year'))
+	  							->groupBy(DB::raw('YEAR(date)'))
+	  							->groupBy(DB::raw('MONTH(date)'))
+	  							->get();
+
+
+	  		for ($i=0; $i < 12; $i++) { 
+
+	  			$filtered = $results->filter(function ($item) use ($date){
+		          return $item->date->format('Y-m') == $date->format('Y-m')
+		                ? $item : null;
+		      });
+
+	  			$data[$key][$date->format('Y-m-d')] = $filtered->first();
+	  			$date->addMonth();
+	  		}
+	  	}
+  	}
+
+  	if($request->input('data')!='')
+  		return $data;
+
+  	return view('blank')->with('branches', $branches);
   }
 }
