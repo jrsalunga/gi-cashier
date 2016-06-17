@@ -44,7 +44,7 @@
 		</tbody>
 	</table>
 
-	<table border="0" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
 				<td>Pepsi Reg</td>
@@ -63,7 +63,7 @@
 		</tbody>
 	</table>
 
-	<table border="0" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
 				<td>Pepsi Max</td>
@@ -82,7 +82,7 @@
 		</tbody>
 	</table>
 
-	<table border="0" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
 				<td>Pepsi Light</td>
@@ -101,7 +101,7 @@
 		</tbody>
 	</table>
 
-	<table border="0" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
 				<td>Pepsi 500ml</td>
@@ -120,7 +120,7 @@
 		</tbody>
 	</table>
 
-	<table border="0" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
 				<td>Iced Tea</td>
@@ -139,7 +139,7 @@
 		</tbody>
 	</table>
 
-	<table border="0" cellpadding="5" cellspacing="0" style="margin-right: 20px; float: left;">
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
 				<td>Hot Tea</td>
