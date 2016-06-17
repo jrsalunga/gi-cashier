@@ -7,7 +7,7 @@ class Purchase2 extends BaseModel {
 	protected $table = 'purchase';
   public $timestamps = false;
   //protected $appends = ['date'];
-  //protected $dates = ['filedate'];
+  protected $dates = ['date'];
   //protected $fillable = ['branchid', 'size', 'terminal', 'filename', 'remarks', 'userid', 'year', 'month', 'mimetype'];
   protected $guarded = ['id'];
   protected $casts = [
