@@ -242,7 +242,7 @@ class BackupController extends Controller
 						$msg .= $d ? ' & deleted':'';
 						$this->removeExtratedDir();
 						DB::rollBack();
-						$this->updateBackupRemarks($backup, 'error:process:purchased'.$msg);
+						$this->updateBackupRemarks($backup, $msg);
 						$this->logAction('error:process:purchased', $log_msg.$msg);
 						return redirect('/backups/upload')->with('alert-error', $msg);
 					}
@@ -381,7 +381,8 @@ class BackupController extends Controller
     	'long' => round($request->input('lng'),7), 
     	'remarks' => $request->input('notes'),
     	'userid' => $request->user()->id,
-    	'filedate' => $d->format('Y-m-d').' '.Carbon::now()->format('H:i:s'),
+    	//'filedate' => $d->format('Y-m-d').' '.Carbon::now()->format('H:i:s'),
+    	'filedate' => $d->format('Y-m-d').' 06:00:00',
     	'cashier' => $request->input('cashier')
     ];
 
