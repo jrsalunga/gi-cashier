@@ -381,8 +381,8 @@ class BackupController extends Controller
     	'long' => round($request->input('lng'),7), 
     	'remarks' => $request->input('notes'),
     	'userid' => $request->user()->id,
-    	//'filedate' => $d->format('Y-m-d').' '.Carbon::now()->format('H:i:s'),
-    	'filedate' => $d->format('Y-m-d').' 06:00:00',
+    	'filedate' => $d->format('Y-m-d').' '.Carbon::now()->format('H:i:s'),
+    	//'filedate' => $d->format('Y-m-d').' 06:00:00',
     	'cashier' => $request->input('cashier')
     ];
 
