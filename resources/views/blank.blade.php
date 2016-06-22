@@ -8,7 +8,6 @@
 				: '';
 			}
 			?>
-
 			<option <?=i(2016)?> value="2016">2016</option>
 			<option <?=i(2015)?> value="2015">2015</option>
 			<option <?=i(2014)?> value="2014">2014</option>
@@ -47,7 +46,7 @@
 	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
-				<td>Pepsi Reg</td>
+				<td>7-Up</td>
 			</tr>
 			@foreach($data[0] as $key => $purchase)
 			<tr>
@@ -66,7 +65,7 @@
 	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
-				<td>Pepsi Max</td>
+				<td>7-Up Light</td>
 			</tr>
 			@foreach($data[1] as $key => $purchase)
 			<tr>
@@ -85,7 +84,7 @@
 	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
-				<td>Pepsi Light</td>
+				<td>7-UP 500ml</td>
 			</tr>
 			@foreach($data[2] as $key => $purchase)
 			<tr>
@@ -104,7 +103,7 @@
 	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
-				<td>Pepsi 500ml</td>
+				<td>Mirinda</td>
 			</tr>
 			@foreach($data[3] as $key => $purchase)
 			<tr>
@@ -123,7 +122,7 @@
 	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
-				<td>Iced Tea</td>
+				<td>Mount Dew</td>
 			</tr>
 			@foreach($data[4] as $key => $purchase)
 			<tr>
@@ -142,9 +141,123 @@
 	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
-				<td>Hot Tea</td>
+				<td>Mug</td>
 			</tr>
 			@foreach($data[5] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Blue</td>
+			</tr>
+			@foreach($data[6] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Grapes</td>
+			</tr>
+			@foreach($data[7] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Lemon</td>
+			</tr>
+			@foreach($data[8] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Orange</td>
+			</tr>
+			@foreach($data[9] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Pink</td>
+			</tr>
+			@foreach($data[10] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Tropical</td>
+			</tr>
+			@foreach($data[11] as $key => $purchase)
 			<tr>
 				<td>
 				@if(is_null($purchase))

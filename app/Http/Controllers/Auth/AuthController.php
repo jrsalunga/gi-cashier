@@ -106,7 +106,8 @@ class AuthController extends Controller
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
-        $throttles = $this->isUsingThrottlesLoginsTrait();
+        #$throttles = $this->isUsingThrottlesLoginsTrait();
+        $throttles = false;
 
         if ($throttles && $this->hasTooManyLoginAttempts($request)) {
             return $this->sendLockoutResponse($request);
