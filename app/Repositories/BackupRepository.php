@@ -37,7 +37,7 @@ class BackupRepository extends BaseRepository
   	//$to = Carbon::parse('2016-05-31');
   	$fr = $to->copy()->subDays($days);
 
-  	$data = $this->aggregateDailyLogs($fr, $to);
+  	$data = $this->aggregateDailyLogsProcessed($fr, $to);
 
   	for ($i=0; $i < $days; $i++) { 
 
@@ -67,6 +67,20 @@ class BackupRepository extends BaseRepository
     */
     
     return $arr;
+  }
+
+  private function aggregateDailyLogsProcessed(Carbon $fr, Carbon $to) {
+    return $this->scopeQuery(function($query) use ($fr, $to) {
+      return $query
+                ->select(DB::raw('*, count(*) as count'))
+                ->whereBetween('filedate', 
+                  [$fr->format('Y-m-d').' 00:00:00', $to->format('Y-m-d').' 23:59:59']
+                  )
+                ->where('processed', '1')
+                ->groupBy(DB::raw('DAY(filedate)'))
+                ->orderBy('uploaddate', 'DESC');
+                //->orderBy('filedate', 'DESC');
+    })->all();
   }
 
 
