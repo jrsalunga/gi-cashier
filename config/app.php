@@ -26,7 +26,7 @@ return [
     |
     */
 
-    'url' => 'http://localhost',
+    'url' => 'http://gi-cashier.dev',
 
     /*
     |--------------------------------------------------------------------------
@@ -151,6 +151,7 @@ return [
         Barryvdh\Debugbar\ServiceProvider::class,
         GrahamCampbell\Flysystem\FlysystemServiceProvider::class,
         Prettus\Repository\Providers\RepositoryServiceProvider::class,
+        Laravel\Socialite\SocialiteServiceProvider::class,
 
     ],
 
@@ -208,6 +209,7 @@ return [
         'Pusher' => Vinkla\Pusher\Facades\Pusher::class,
         'Debugbar' => Barryvdh\Debugbar\Facade::class,
         'Flysystem' => GrahamCampbell\Flysystem\Facades\Flysystem::class,
+        'Socialite' => Laravel\Socialite\Facades\Socialite::class,
 
     ],
 

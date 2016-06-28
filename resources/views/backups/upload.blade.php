@@ -99,7 +99,11 @@
                     <span class="input-group-addon" id="basic-addon1">
                       <span class="glyphicon glyphicon-user"></span> Cashier
                     </span>
-                    <input type="text" class="form-control" id="cashier" name="cashier" required  placeholder="Anna (cashier's name only, required)"  maxlength="60">
+                    <input type="text" class="form-control" id="cashier" name="cashier" required  placeholder="Anna (cashier's name only, required)"  maxlength="60" type="text" 
+                      pattern="[a-zA-Z\s-().]+"
+                      oninvalid="setCustomValidity('Please put cashier\'s name only ')"
+                      onchange="try{setCustomValidity('')}catch(e){}" 
+                    >
                   </div><!-- /input-group -->
                 </div><!-- /.col-lg-10 -->
 
