@@ -126,7 +126,7 @@ class PosUploadRepository extends Repository
       //$custcount  = empty(trim($r['CUST_CNT'])) ? 0 : trim($r['CUST_CNT']);
       $custcount  = $cuscnt;
       $headspend  = $custcount==0 ? 0:($sales/$custcount);
-      $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : (($tips/$sales)*100);
+      $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : ($tips/$sales)*100;
       //$brmancost  = ($r['MAN_COST'] * $empcount);
       $mancost    = $mcost*$empcount;
 
@@ -204,7 +204,7 @@ class PosUploadRepository extends Repository
                
                 //$this->logAction('single:lte:i==record_numbers', '');
                 if ($this->ds->firstOrNew(array_only($data, 
-                  ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'mancost', 'mancostpct']
+                  ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct']
                 ), ['date', 'branchid'])) {
                   $update++;
                 }
