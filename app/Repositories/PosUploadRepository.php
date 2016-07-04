@@ -203,7 +203,7 @@ class PosUploadRepository extends Repository
               if($i==$record_numbers) {
                
                 //$this->logAction('single:lte:i==record_numbers', '');
-                if ($this->ds->firstOrNew(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid']))
+                if ($this->ds->firstOrNew(array_only($data, ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips']), ['date', 'branchid']))
                   $update++;
 
               } else {
