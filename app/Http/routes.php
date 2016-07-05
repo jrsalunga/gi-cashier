@@ -56,7 +56,8 @@ Route::get('api/employee/{field?}/{value?}', ['as'=>'employee.getbyfield', 'uses
 
 
 
-
+Route::get('auth/google', 'Auth\AuthController@redirectToProvider');
+Route::get('oauth2callback', 'Auth\AuthController@handleProviderCallback');
 
 
 Route::get('test', ['uses'=>'BackupController@d']);
