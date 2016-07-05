@@ -152,7 +152,7 @@ class AuthController extends Controller
 
 
     /**
-     * Redirect the user to the GitHub authentication page.
+     * Redirect the user to the Google authentication page.
      *
      * @return Response
      */
@@ -162,7 +162,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Obtain the user information from GitHub.
+     * Obtain the user information from Google.
      *
      * @return Response
      */
@@ -170,6 +170,16 @@ class AuthController extends Controller
     {
         $user = Socialite::driver('google')->user();
 
-        return dd($user);
+        $u = User::where('email', $user->email)->first();
+
+        if(is_null($u))
+            return redirect($this->loginPath())
+            ->withErrors([
+                $this->loginUsername() => 'Google Account is not associated with the Giligan\'s User.',
+            ]);
+
+        Auth::loginUsingId($u->id);
+
+        return redirect('/?rdr=google');
     }
 }
