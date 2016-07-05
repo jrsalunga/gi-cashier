@@ -51,6 +51,9 @@
 
 {{--  $errors->first('email') --}}
 {{--  $errors->first('username') --}}
+
+
+
   <div class="geo-callback-message"></div>
   <div class="div-signin">
     <div>
@@ -73,7 +76,12 @@
       @if($errors->has('email'))
         <div class="has-error">
         <input id="inputPassword" class="form-control" type="password" required="" autofocus="" placeholder="Password" name="password">
-        <p class="text-danger">username or password you entered is incorrect.</p>
+        <p class="text-danger">
+          <!--username or password you entered is incorrect.-->
+          @foreach ($errors->all() as $error)
+            {{ $error }}
+          @endforeach
+        </p>
         </div>
       @else
         <input id="inputPassword" class="form-control" type="password" required="" placeholder="Password" name="password">
