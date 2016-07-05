@@ -1,5 +1,7 @@
 <?php
 
+
+
 Route::get('login', ['as'=>'auth.getlogin', 'uses'=>'Auth\AuthController@getLogin']);
 Route::post('auth/login', ['as'=>'auth.postlogin', 'uses'=>'Auth\AuthController@postLogin']);
 Route::get('logout', ['as'=>'auth.getlogout', 'uses'=>'Auth\AuthController@getLogout']);
@@ -61,8 +63,15 @@ Route::get('test', ['uses'=>'BackupController@d']);
 
 
 
+get('test/pusher', function(){
 
+  $pusher = app('pusher');
 
+  $pusher->trigger('test_channel', 'my_event', ['message'=>'hello world!']);
+
+    return;
+
+});
 
 
 get('test/component', function(){

@@ -38,9 +38,9 @@ return [
     'connections' => [
 
         'main' => [
-            'auth_key' => 'your-auth-key',
-            'secret' => 'your-secret',
-            'app_id' => 'your-app-id',
+            'auth_key' => 'f942a14fcafa46565a69',
+            'secret' => '02725b1765e18a56f75a',
+            'app_id' => '114346',
             'options' => [],
             'host' => null,
             'port' => null,

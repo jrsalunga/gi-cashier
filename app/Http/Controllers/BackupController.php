@@ -15,6 +15,8 @@ use App\Repositories\Filters\ByUploaddate;
 use App\Models\Backup;
 use App\Models\DailySales;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException as Http404;
+use Vinkla\Pusher\Facades\Pusher;
+use Vinkla\Pusher\PusherManager;
 
 class BackupController extends Controller 
 {
@@ -26,8 +28,9 @@ class BackupController extends Controller
 	protected $mime;
 	protected $backup;
 	public $override = false;
+	protected $pusher;
 
-	public function __construct(Request $request, PhpRepository $mimeDetect, PosUploadRepository $posuploadrepo){
+	public function __construct(PusherManager $pusher, Request $request, PhpRepository $mimeDetect, PosUploadRepository $posuploadrepo){
 		$this->branch = session('user.branchcode');
 		$this->mime = $mimeDetect;
 		$this->fs = new Filesystem;
@@ -36,6 +39,7 @@ class BackupController extends Controller
 		$this->web = new StorageRepository($mimeDetect, 'web');
 		$this->backup = $posuploadrepo;
   	$this->backup->pushFilters(new ByBranch($request));
+		$this->pusher = $pusher;
   	
 		//$this->backup->pushFilters(new WithBranch(['code', 'descriptor', 'id']));
 
@@ -46,7 +50,10 @@ class BackupController extends Controller
 		
 	}
 
-	
+	public function d(){
+		 $data['message'] = 'hello world';
+  		$this->pusher->trigger('test_channel', 'my_event', $data);
+	}
 	
 
 	private function setUri($param1=null, $param2=null){

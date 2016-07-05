@@ -206,7 +206,7 @@ return [
         'Zipper' => Chumper\Zipper\Zipper::class,
         'Form' => Collective\Html\FormFacade::class,
         'Html' => Collective\Html\HtmlFacade::class,
-        'Pusher' => Vinkla\Pusher\Facades\Pusher::class,
+        //'Pusher' => Vinkla\Pusher\Facades\Pusher::class,
         'Debugbar' => Barryvdh\Debugbar\Facade::class,
         'Flysystem' => GrahamCampbell\Flysystem\Facades\Flysystem::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
