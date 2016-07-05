@@ -36,9 +36,9 @@ return [
     ],
 
     'google' => [
-        'client_id' => '1029322301884-ujiepk1s7diktr9f6hii9ik2k79q5mii.apps.googleusercontent.com',
-        'client_secret' => 'v8Pnu7IFc1WzrPKFasR3TsJK',
-        'redirect' => 'http://gi-cashier.dev/oauth2callback',
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT'),
     ],
 
 ];

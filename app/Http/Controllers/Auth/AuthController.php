@@ -170,6 +170,6 @@ class AuthController extends Controller
     {
         $user = Socialite::driver('google')->user();
 
-        //return $user->token;
+        return dd($user);
     }
 }
