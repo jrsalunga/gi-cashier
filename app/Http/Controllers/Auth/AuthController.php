@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App\Events\UserLoggedIn;
+use App\Events\GoogleUserLoggedIn;
 use App\Events\UserLoggedFailed;
+use App\Events\GoogleUserLoggedFailed;
 use Socialite;
 
 class AuthController extends Controller
@@ -172,14 +174,22 @@ class AuthController extends Controller
 
         $u = User::where('email', $user->email)->first();
 
-        if(is_null($u))
+        if(is_null($u)) {
+            if (app()->environment()==='production')
+                event(new GoogleUserLoggedFailed($user->email));
+
             return redirect($this->loginPath())
             ->withErrors([
                 $this->loginUsername() => 'Google Account is not associated with the Giligan\'s User.',
             ]);
+        }
 
-        Auth::loginUsingId($u->id);
+        $au = Auth::loginUsingId($u->id);
+        Auth::login($au, true);
 
+        if (app()->environment()==='production')
+            event(new GoogleUserLoggedIn($user->email));
+        
         return redirect('/?rdr=google');
     }
 }
