@@ -32,9 +32,9 @@ class GoogleAuthLoginEventHandler
         //dd($event->request->user()->id);
         $data = [
             'ip' => clientIP(),
-            'user' => $event->request->email.' via Google',
-            'lat' => $event->request->input('lat'),
-            'lng' => $event->request->input('lng'),
+            'user' => $event->email.' via Google',
+            'lat' => '',
+            'lng' => '',
             'browser' => $_SERVER ['HTTP_USER_AGENT']
         ];
 
