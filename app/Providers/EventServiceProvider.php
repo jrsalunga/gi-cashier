@@ -7,10 +7,14 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 
 use App\Handlers\Events\ChangePasswordEventHandler;
 use App\Handlers\Events\AuthLoginEventHandler;
+use App\Handlers\Events\GoogleAuthLoginEventHandler;
 use App\Handlers\Events\AuthLoginErrorEventHandler;
+use App\Handlers\Events\GoogleAuthLoginErrorEventHandler;
 use App\Events\UserChangePassword;
 use App\Events\UserLoggedIn;
+use App\Events\GoogleUserLoggedIn;
 use App\Events\UserLoggedFailed;
+use App\Events\GoogleUserLoggedFailed;
 
 class EventServiceProvider extends ServiceProvider
 {
