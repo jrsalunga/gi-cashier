@@ -2,7 +2,7 @@
 
 namespace App\Handlers\Events;
 
-use App\Events\UserLoggedIn;
+use App\Events\GoogleUserLoggedIn;
 use App\User;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;

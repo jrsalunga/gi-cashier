@@ -2,7 +2,7 @@
 
 namespace App\Handlers\Events;
 
-use App\Events\UserLoggedFailed;
+use App\Events\GoogleUserLoggedFailed;
 use App\User;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
