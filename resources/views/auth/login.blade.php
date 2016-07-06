@@ -53,8 +53,15 @@
 {{--  $errors->first('username') --}}
 
 
-
-  <div class="geo-callback-message"></div>
+  
+  <div class="geo-callback-message">
+  </div>
+  <div style="padding:10px;">
+    <div class="alert alert-info alert-important" role="alert">
+      You can now Sign In alternatively without putting <strong>username</strong> and <strong>password</strong>,
+      just click on Sign In with Google and select the corresponding Cashier's Google Account. 
+    </div>
+  </div>
   <div class="div-signin">
     <div>
       <img class="center-block img-signin img-circle img-responsive" src="/images/login-avatar.png">
@@ -89,11 +96,8 @@
       <input type="hidden" name="lat" id="lat">
       <input type="hidden" name="lng" id="lng">
       <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-      <!--
-      
       <div class="text-center"><strong>or</strong></div>
       <a class="btn btn-lg btn-danger btn-block" href="http://cashier.giligans.net/auth/google">Sign in with Google</a>
-      -->
       {!! Form::close() !!}
   </div>
 
