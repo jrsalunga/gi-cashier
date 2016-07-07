@@ -32,8 +32,8 @@ class GoogleAuthLoginErrorEventHandler
         //dd($event->request->user()->id);
         $data = [
             'ip' => clientIP(),
-            'user' => $event->email.' via Google',
-            'password' => '',
+            'user' => $event->email,
+            'password' => 'Google Account',
             'browser' => $_SERVER ['HTTP_USER_AGENT']
         ];
 

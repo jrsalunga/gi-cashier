@@ -165,20 +165,6 @@ var findMyGeo = function() {
 
 
 
-<script src="https://js.pusher.com/3.1/pusher.min.js"></script>
-  <script>
 
-    // Enable pusher logging - don't include this in production
-    Pusher.logToConsole = true;
-
-    var pusher = new Pusher('f942a14fcafa46565a69', {
-      encrypted: true
-    });
-
-    var channel = pusher.subscribe('test_channel');
-    channel.bind('my_event', function(data) {
-      alert(data.message);
-    });
-  </script>
 </body>
 </html>

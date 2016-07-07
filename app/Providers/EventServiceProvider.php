@@ -15,6 +15,7 @@ use App\Events\UserLoggedIn;
 use App\Events\GoogleUserLoggedIn;
 use App\Events\UserLoggedFailed;
 use App\Events\GoogleUserLoggedFailed;
+use App\Listeners\UserEventListener;
 
 class EventServiceProvider extends ServiceProvider
 {

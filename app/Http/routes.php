@@ -1,5 +1,45 @@
 <?php
 
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+
+class TestEvent implements ShouldBroadcast
+{
+    public $text;
+
+    public function __construct($text)
+    {
+        $this->text = $text;
+        $pusher = app('pusher');
+
+        $pusher->trigger('gi.cashier', 'auth', [
+          'module'=>'Giligan\'s Cashier Module', 
+          'message'=>'hello world!'
+        ]);
+
+    
+    }
+
+    public function broadcastOn()
+    {
+        return ['test-channel'];
+    }
+}
+
+
+get('/broadcast', function() {
+  /*
+  $autoloader_reflector = new ReflectionClass("Pusher");
+  $class_file_nanme = $autoloader_reflector->getFileName();
+  echo dirname($class_file_nanme);
+
+    return dd(new Pusher);
+    */
+
+    $res = event(new TestEvent('Broadcasting in Laravel using Pusher!'));
+
+    return dd($res);
+});
+
 
 
 Route::get('login', ['as'=>'auth.getlogin', 'uses'=>'Auth\AuthController@getLogin']);
@@ -68,7 +108,10 @@ get('test/pusher', function(){
 
   $pusher = app('pusher');
 
-  $pusher->trigger('test_channel', 'my_event', ['message'=>'hello world!']);
+  $pusher->trigger('gi.cashier', 'auth', [
+    'module'=>'Giligan\'s Cashier Module', 
+    'message'=>'hello world!'
+  ]);
 
     return;
 

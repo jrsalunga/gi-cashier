@@ -5,6 +5,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Http\Request;
 
+
 class UserLoggedIn extends Event
 {
     use SerializesModels;

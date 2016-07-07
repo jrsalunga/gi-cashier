@@ -38,6 +38,13 @@ class AuthLoginEventHandler
             'browser' => $_SERVER ['HTTP_USER_AGENT']
         ];
 
+        $pusher = app('pusher');
+
+        $pusher->trigger('gi.cashier', 'auth', [
+          'module'=>'Giligan\'s Cashier Module', 
+          'message'=> $data['user'].' successfully logged in @ '. clientIP()
+        ]);
+
 
         Mail::queue('emails.loggedin', $data, function ($message) {
             $message->subject('User Logged In');
