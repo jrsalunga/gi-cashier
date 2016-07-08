@@ -169,7 +169,7 @@ class PosUploadRepository extends Repository
           // back job on posting purchased 
           if ( $vfpdate->format('Y-m')==$backup->date->format('Y-m') // trans date equal year & mons of backup
           && $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d') // if the backupdate = mon end date
-          && $backup->date->lte(Carbon::parse('2016-06-01'))) // only backup less than april 1
+          && $backup->date->lte(Carbon::parse('2016-07-01'))) // only backup less than april 1
           {
             
             try {
@@ -183,6 +183,21 @@ class PosUploadRepository extends Repository
      
           } 
           //test_log('date: '. $vfpdate->format('Y-m-d'));
+          /*
+          // if backup is start of month, update end of last month
+          if($vfpdate->format('Y-m-d')==$backup->date->copy()->subDay()->format('Y-m-d')
+          && $backup->date->format('Y-m-d')==$backup->date->startOfMonth()->format('Y-m-d'))
+          {
+            test_log('date: '. $vfpdate->format('Y-m-d'));
+            try {
+              $this->postPurchased($vfpdate);
+            } catch(Exception $e) {
+              return false;
+              //throw new Exception($e->getMessage());    
+            }
+          }
+          */
+
 
 
           //$this->logAction('ds:get_last', '');

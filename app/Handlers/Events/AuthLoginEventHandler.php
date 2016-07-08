@@ -29,23 +29,19 @@ class AuthLoginEventHandler
      */
     public function handle(UserLoggedIn $event)
     {
-        //dd($event->request->user()->id);
         $data = [
             'ip' => clientIP(),
-            'user' => $event->request->user()->name,
-            'lat' => $event->request->input('lat'),
-            'lng' => $event->request->input('lng'),
+            'user' => $event->request['username'],
+            'lat' => $event->request['lat'],
+            'lng' => $event->request['lng'],
             'browser' => $_SERVER ['HTTP_USER_AGENT']
         ];
-
-        $pusher = app('pusher');
-
-        $pusher->trigger('gi.cashier', 'auth', [
-          'module'=>'Giligan\'s Cashier Module', 
-          'message'=> $data['user'].' successfully logged in @ '. clientIP()
+        /*
+        app('pusher')->trigger('gi.cashier', 'auth', [
+          'title'=>'Giligan\'s Cashier', 
+          'message'=> $data['user'].' successfully logged in at this IP: '.clientIP()
         ]);
-
-
+        */
         Mail::queue('emails.loggedin', $data, function ($message) {
             $message->subject('User Logged In');
             $message->from('no-reply@giligansrestaurant.com', 'GI App - Cashier');

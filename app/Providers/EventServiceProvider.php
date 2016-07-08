@@ -15,7 +15,7 @@ use App\Events\UserLoggedIn;
 use App\Events\GoogleUserLoggedIn;
 use App\Events\UserLoggedFailed;
 use App\Events\GoogleUserLoggedFailed;
-use App\Listeners\UserEventListener;
+use App\Listeners\AuthLoginEventListener;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -30,6 +30,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserLoggedIn::class => [
             AuthLoginEventHandler::class,
+            //AuthLoginEventListener::class, //separate event
         ],
         UserChangePassword::class => [
             ChangePasswordEventHandler::class,
@@ -44,7 +45,11 @@ class EventServiceProvider extends ServiceProvider
             GoogleAuthLoginErrorEventHandler::class,
         ]
     ];
-
+    /*
+    protected $subscribe = [
+        AuthLoginEventListener::class,
+    ];
+    */
     /**
      * Register any other events for your application.
      *
