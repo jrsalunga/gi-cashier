@@ -360,7 +360,7 @@ function getBrowser($user_agent) {
                             '/netscape/i'   =>  'Netscape',
                             '/maxthon/i'    =>  'Maxthon',
                             '/konqueror/i'  =>  'Konqueror',
-                            '/mobile/i'     =>  'Handheld Browser'
+                            //'/mobile/i'     =>  'Handheld Browser'
                         );
 
     foreach ($browser_array as $regex => $value) { 
