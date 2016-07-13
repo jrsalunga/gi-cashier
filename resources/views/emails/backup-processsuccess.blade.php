@@ -1,0 +1,1 @@
+<p>{{ $cashier }} successfully uploaded and process {{ $filename }} to the server.</p>

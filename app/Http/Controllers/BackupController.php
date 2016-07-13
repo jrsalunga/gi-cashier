@@ -17,6 +17,7 @@ use App\Models\DailySales;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException as Http404;
 use Vinkla\Pusher\Facades\Pusher;
 use Vinkla\Pusher\PusherManager;
+use App\Events\Backup\ProcessSuccess;
 
 class BackupController extends Controller 
 {
@@ -267,6 +268,7 @@ class BackupController extends Controller
 				$this->logAction('success:move:backup', $log_msg.$msg);
 		     
 				DB::commit();
+				event(new ProcessSuccess($backup, $request->user()));
 				
 				$this->removeExtratedDir();
 				$this->logAction('end:submit:backup', $log_msg.'saved and processed daily sales');

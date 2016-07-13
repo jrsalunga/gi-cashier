@@ -1,17 +1,18 @@
 <?php namespace App\Repositories;
 
-use Exception;
-use Carbon\Carbon;
-use Dflydev\ApacheMimeTypes\PhpRepository;
-use Illuminate\Support\Facades\Storage;
 use File;
-use App\Repositories\Repository;
+use StdClass;
+use Exception;
+use ZipArchive;
+use Carbon\Carbon;
 use App\Models\Backup;
 use App\Models\DailySales;
+use App\Repositories\Repository;
+use Dflydev\ApacheMimeTypes\PhpRepository;
+use Illuminate\Support\Facades\Storage;
 use App\Repositories\DailySalesRepository;
 use App\Repositories\PurchaseRepository as Purchase;
 use App\Repositories\Purchase2Repository as PurchaseRepo;
-use ZipArchive;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
@@ -25,6 +26,7 @@ class PosUploadRepository extends Repository
     public $extracted_path;
     public $purchase;
     public $purchase2;
+    private $sysinfo = null;
 
     
 
@@ -44,9 +46,6 @@ class PosUploadRepository extends Repository
     public function model() {
         return 'App\Models\Backup';
     }
-
-
-
 
     public function extract($src, $pwd=NULL){
      
@@ -85,22 +84,35 @@ class PosUploadRepository extends Repository
     }
 
 
+    private function getSysinfo($r) {
+      $s = new StdClass;
+      foreach ($r as $key => $value) {
+        $f = strtolower($key);
+        $s->{$f} = isset($r[$key]) ? $r[$key]:NULL;
+      }
+      return $s;
+    }
+
+
     public function getBackupCode() {
       $dbf_file = $this->extracted_path.DS.'SYSINFO.DBF';
 
       if (file_exists($dbf_file)) { 
         $db = dbase_open($dbf_file, 0);
         $row = dbase_get_record_with_names($db, 1);
+
+        $this->sysinfo = $this->getSysinfo($row);
+
         $code = trim($row['GI_BRCODE']);
 
         dbase_close($db);
         if(empty($code)) {
-          throw new \Exception("Cannot locate Branch Code on backup");
+          throw new Exception("Cannot locate Branch Code on backup");
         }
         else 
           return $code;
       } else {
-        throw new \Exception("Cannot locate SYSINFO"); 
+        throw new Exception("Cannot locate SYSINFO"); 
       }
       
     }
@@ -131,6 +143,7 @@ class PosUploadRepository extends Repository
       $mancost    = $mcost*$empcount;
 
       $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ($mancost/$sales)*100;
+      $salesemp   = ($empcount=='0.00' || $empcount=='0') ? 0 : $sales/$empcount;
 
       $row['branchid']  = session('user.branchid');
       $row['managerid'] = session('user.id'); // cashierid actually
@@ -139,11 +152,12 @@ class PosUploadRepository extends Repository
       $row['empcount']  = $empcount;
       $row['tips']      = $tips;
       $row['custcount'] = $custcount;
-      $row['headspend'] = number_format($headspend,2, '.', '');
-      $row['tipspct']   = number_format($tipspct,2, '.', '');
-      $row['mancost']   = number_format($mancost,2, '.', '');
-      $row['mancostpct']= number_format($mancostpct,2, '.', '');
-      $row['cospct']    = number_format(0,2, '.', '');
+      $row['headspend'] = number_format($headspend, 2, '.', '');
+      $row['tipspct']   = number_format($tipspct, 2, '.', '');
+      $row['mancost']   = number_format($mancost, 2, '.', '');
+      $row['mancostpct']= number_format($mancostpct, 2, '.', '');
+      $row['salesemp']  = number_format($salesemp, 2, '.', '');
+      $row['cospct']    = number_format(0, 2, '.', '');
       return $row;
     }
 
@@ -169,7 +183,7 @@ class PosUploadRepository extends Repository
           // back job on posting purchased 
           if ( $vfpdate->format('Y-m')==$backup->date->format('Y-m') // trans date equal year & mons of backup
           && $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d') // if the backupdate = mon end date
-          && $backup->date->lte(Carbon::parse('2016-07-01'))) // only backup less than april 1
+          && $backup->date->lte(Carbon::parse('2016-06-01'))) // only backup less than april 1
           {
             
             try {
@@ -211,26 +225,43 @@ class PosUploadRepository extends Repository
             * commented: issue not update DS if the last DS is higher than backup
             */
             //if($last_ds->date->lte($vfpdate)) { //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
-            if($vfpdate->format('Y-m')==$backup->date->format('Y-m')) {
-
-              //$this->logAction('single:lte', '');
+            if( $vfpdate->format('Y-m') == $backup->date->format('Y-m')) 
+            {
             
               if($i==$record_numbers) {
-               
-                //$this->logAction('single:lte:i==record_numbers', '');
-                if ($this->ds->firstOrNew(array_only($data, 
-                  ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct']
-                ), ['date', 'branchid'])) {
-                  $update++;
+
+                if( isset($this->sysinfo->posupdate) 
+                && vfpdate_to_carbon($this->sysinfo->posupdate)->lt(Carbon::parse('2016-07-06')))  // before sysinfo.update
+                {
+                  if ($this->ds->firstOrNew(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid'])) {
+                    $update++;
+                  }
+                } else {
+                  if ($this->ds->firstOrNew(array_only($data, 
+                    ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend']
+                  ), ['date', 'branchid'])) {
+                    $update++;
+                  }
                 }
 
               } else {
-                
                 //$this->logAction('single:lte:i!=record_numbers', '');
                 if ($this->ds->firstOrNew($data, ['date', 'branchid']))
                   $update++;
 
               }
+            }
+
+            // if FOM update EOM
+            if( $backup->date->format('Y-m-d') == $backup->date->copy()->startOfMonth()->format('Y-m-d')
+            && $vfpdate->format('Y-m-d') == $backup->date->copy()->subDay()->format('Y-m-d') )
+            {
+              //test_log('last: '. $vfpdate->format('Y-m-d'));
+              if ($this->ds->firstOrNew(array_only($data, 
+                  ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend']
+                ), ['date', 'branchid'])) {
+                  $update++;
+                }
             }
 
 
