@@ -39,7 +39,7 @@ class ProcessSuccess extends Event implements ShouldBroadcast
   {
     return [
       'title'=>'Cashier\'s Module', 
-      'message'=> $this->user->name.' successfully upload and process '
+      'message'=> $this->user->name.' successfully uploaded and processed '
       .$this->backup->filename.' - '.$this->backup->cashier
     ];
   }
