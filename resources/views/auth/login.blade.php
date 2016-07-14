@@ -62,7 +62,8 @@
       just click on Sign In with Google and select the corresponding Cashier's Google Account. 
     </div>
   </div>
-  <div class="div-signin">
+  <div style="height: 100px;" class="hidden-xs hidden-sm"></div>
+  <div class="div-signin" style="margin-top: 0;">
     <div>
       <img class="center-block img-signin img-circle img-responsive" src="/images/login-avatar.png">
     </div>

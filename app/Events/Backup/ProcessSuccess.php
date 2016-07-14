@@ -1,11 +1,10 @@
 <?php namespace App\Events\Backup;
 
+use App\User;
 use App\Events\Event;
+use App\Models\Backup;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Http\Request;
-use App\Models\Backup;
-use App\User;
 
 // to debug .env queue=database & mysql=job table
 class ProcessSuccess extends Event implements ShouldBroadcast

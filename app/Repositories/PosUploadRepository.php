@@ -243,12 +243,10 @@ class PosUploadRepository extends Repository
                     $update++;
                   }
                 }
-
               } else {
                 //$this->logAction('single:lte:i!=record_numbers', '');
                 if ($this->ds->firstOrNew($data, ['date', 'branchid']))
                   $update++;
-
               }
             }
 

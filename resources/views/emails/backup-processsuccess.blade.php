@@ -1,1 +1,1 @@
-<p>{{ $cashier }} successfully uploaded and processed {{ $filename }} to the server.</p>
+<p>{{ $user }}: {{ $cashier }} successfully uploaded and processed {{ $filename }} to the server.</p>

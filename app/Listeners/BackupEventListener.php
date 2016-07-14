@@ -17,6 +17,7 @@ class BackupEventListener
   public function onProcessSuccess($event) {
 
     $data = [
+      'user'      => $event->user->name,
       'cashier'   => $event->backup->cashier,
       'filename'  => $event->backup->filename,
     ];
@@ -26,7 +27,6 @@ class BackupEventListener
       $message->from($event->user->email, $event->user->name.' ('.$event->user->email.')');
       $message->to('giligans.app@gmail.com');
     });
-
   }
 
   public function subscribe($events) {
