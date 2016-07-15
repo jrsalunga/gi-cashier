@@ -1,5 +1,49 @@
 $(function(){
+
+	/*
+	var re = /\b(GC)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(\d\d)(\.ZIP)/gi; 
+	var str = 'GC071416.ZIP';
 	
+	console.log(re.exec(str));
+	console.log(str.match(re));
+	*/
+
+
+	var alertRemove = function() {
+		var a = $('.alert');
+		if(a[0]) 
+			a.remove();
+	}
+
+	var alertMessage = function(el, type, message, persist) {
+		type = type || 'info';
+		message = message || 'message';
+		persist = persist || false;
+		
+		alertRemove();
+
+		var html = '<div class="alert alert-'+ type;
+		if(persist)
+			html += ' alert-important';
+		html += ' alert-dismissible fade in" role="alert">';
+		html += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>';
+		html += message;
+		html += '</div>';
+
+		el.after(html);
+	}
+
+	var backupVerifyFilename = function(filename){
+		if(filename.length!==12) {
+			return false;
+		}
+		var re = /\b(GC)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(\d\d)(\.ZIP)/gi; 
+		if(!filename.match(re)) {
+			return false;
+		} 
+		return true;
+	}
+
 	var dropbox = $('#dropbox'),
 			message = $('.message', dropbox);
 	
@@ -77,7 +121,19 @@ $(function(){
 				console.log('but a zip file!');
 				// Returning false will cause the
 				// file to be rejected
-				
+
+				if(!backupVerifyFilename(file.name)) {
+					alertMessage($('#nav-action'), 'danger', '<b>'+ file.name +'</b> invalid backup! Kindly check the filename.');
+					$('#filename').val(file.name);
+					console.log($(this));
+					console.log(dropbox);
+					$('#dropbox').html('<span class="message">Drag and Drop your backup here. <br>'
+                +'<i>(they will only be visible to you)</i>'
+                +'</span>');
+					return false;
+				}
+				//else
+				//alertMessage($('#nav-action'), 'success', 'Valid filename');
 			}
 		},
 		
@@ -86,6 +142,7 @@ $(function(){
 			$('#filename').val('attaching file...');
 			//$('#attached > span').removeClass('')
 			createImage(file);
+			alertRemove();
 		},
 		
 		progressUpdated: function(i, file, progress) {
