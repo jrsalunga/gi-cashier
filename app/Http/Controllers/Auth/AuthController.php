@@ -136,7 +136,7 @@ class AuthController extends Controller
         if (app()->environment()==='production')
           event(new UserLoggedFailed($request));
         //return $this->loginUsername();
-        return redirect($this->loginPath())
+        return redirect($this->loginPath().'?error='.strtolower($request->input('email')))
             ->withInput($request->only($this->loginUsername(), 'remember'))
             ->withErrors([
                 $this->loginUsername() => $this->getFailedLoginMessage(),
