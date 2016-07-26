@@ -9,30 +9,6 @@ $(function(){
 	*/
 
 
-	var alertRemove = function() {
-		var a = $('.alert');
-		if(a[0]) 
-			a.remove();
-	}
-
-	var alertMessage = function(el, type, message, persist) {
-		type = type || 'info';
-		message = message || 'message';
-		persist = persist || false;
-		
-		alertRemove();
-
-		var html = '<div class="alert alert-'+ type;
-		if(persist)
-			html += ' alert-important';
-		html += ' alert-dismissible fade in" role="alert">';
-		html += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>';
-		html += message;
-		html += '</div>';
-
-		el.after(html);
-	}
-
 	var backupVerifyFilename = function(filename){
 		if(filename.length!==12) {
 			return false;
@@ -62,6 +38,7 @@ $(function(){
 		headers: {          // Send additional request headers
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     },
+		
 		uploadFinished:function(i,file,response){
 			// response is the JSON object that post_file.php returns
 			console.log('done uploading!')
@@ -72,10 +49,11 @@ $(function(){
 				$('#filename').val(file.name);
 				$('#btn-upload')[0].disabled = false;
 			} else {
-				$('#filename').val('Ooops! something went wrong while uploading....');
+				//$('#filename').val('Ooops! something went wrong while uploading....');
+				alertMessage($('#nav-action'), 'danger', '<b>Ooops!</b> Something went wrong while uploading. Try refreshing your browser.');
 			}
-			
 		},
+  	
   	error: function(err, file) {
 		 switch(err) {
           case 'BrowserNotSupported':
@@ -123,7 +101,7 @@ $(function(){
 				// file to be rejected
 
 				if(!backupVerifyFilename(file.name)) {
-					alertMessage($('#nav-action'), 'danger', '<b>'+ file.name +'</b> invalid backup! Kindly check the filename.');
+					alertMessage($('#nav-action'), 'danger', '<b>Ooops! '+ file.name +'</b> invalid backup! Kindly check the filename.');
 					$('#filename').val(file.name);
 					console.log($(this));
 					console.log(dropbox);
@@ -193,6 +171,18 @@ $(function(){
 		// this will trigger the onload function above:
 		reader.readAsDataURL(file);
 		
+		/*
+		reader.addEventListener("loadend", function() {
+      // send the file over web sockets
+      //ws.send(fr.result);
+      console.log('reader');
+      //console.log(reader.result);
+    });
+
+    // load the file into an array buffer
+    //reader.readAsArrayBuffer(file);
+		*/
+
 		message.hide();
 		//preview.appendTo(dropbox);
 		preview.appendTo(dropbox).prev(preview).remove();

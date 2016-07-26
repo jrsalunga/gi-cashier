@@ -274,7 +274,7 @@ class BackupController extends Controller
 				$this->removeExtratedDir();
 				$this->logAction('end:submit:backup', $log_msg.'saved and processed daily sales');
 				
-				return redirect('/backups/upload')->with('alert-success', $backup->filename.' saved and processed daily sales!');
+				return redirect('/backups/upload?success='.strtolower($this->branch).'-'.strtolower($backup->cashier))->with('alert-success', $backup->filename.' saved and processed daily sales!');
 				
 				
 			
