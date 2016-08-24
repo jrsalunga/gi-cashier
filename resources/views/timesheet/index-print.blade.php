@@ -60,7 +60,7 @@
                 <td class="text-right">-</td>
               @else
                 <td class="text-right">
-                  {{ $t['datetime']->format('h:m A') }}
+                  {{ $t['datetime']->format('h:i A') }}
                 </td>
               @endif
            

@@ -60,7 +60,7 @@
       @foreach($data[1] as $key => $f)
         <?php $f->load('employee.branch'); ?>
         <li>{{ $f->employee->lastname }}, {{ $f->employee->firstname }} of {{ $f->employee->branch->code }} - {{ $f->entrytype==2?'Manual':'Punched' }} {{ $f->getTxnCode() }} - 
-          {{ $f->datetime->format('D, M j, Y h:m:s A') }} created at {{ $f->createdate->format('D, M j, Y h:m:s A') }}</li>
+          {{ $f->datetime->format('D, M j, Y h:i:s A') }} created at {{ $f->createdate->format('D, M j, Y h:i:s A') }}</li>
       @endforeach
     </ul>
       </div>
