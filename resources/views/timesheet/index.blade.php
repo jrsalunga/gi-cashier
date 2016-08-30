@@ -94,7 +94,7 @@
               @if(is_null($t))
                 <td class="text-right">-</td>
               @else
-                <td class="text-right {{ $t['entrytype']=='2'?'-bg-warning':'-bg-success' }}" 
+                <td class="text-right {{ $t['entrytype']=='2'?'bg-warning':'bg-success' }}" 
                 title="{{ $t['datetime']->format('D, M j, Y h:i:s A') }} @ {{ $t['createdate']->format('D, M j, Y h:i:s A') }}">
                   {{ $t['datetime']->format('h:i A') }}
                 </td>
