@@ -87,7 +87,9 @@
         @foreach($data[0] as $key => $e)
         <tr>
           <td>
-           -</td>
+            {{ $key+1}}. {{ $e['employee']->firstname or '-' }}
+            <span class="label label-default pull-right" title="{{ $e['employee']->position->descriptor }}">{{ $e['employee']->position->code }}</span>
+          </td>
             @foreach($e['timelogs'] as $key => $t)
               @if(is_null($t))
                 <td class="text-right">-</td>
