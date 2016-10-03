@@ -66,15 +66,18 @@ class Employee extends BaseModel {
 
   /***************** mutators *****************************************************/
   public function getLastnameAttribute($value){
-    return ucwords(strtolower($value));
+    return mb_convert_case($value, MB_CASE_TITLE, "UTF-8");
+    //return ucwords(strtolower($value));
   }
 
   public function getFirstnameAttribute($value){
-    return ucwords(strtolower($value));
+    return mb_convert_case($value, MB_CASE_TITLE, "UTF-8");
+    //return ucwords(strtolower($value));
   }
 
   public function getMiddlenameAttribute($value){
-    return ucwords(strtolower($value));
+    return mb_convert_case($value, MB_CASE_TITLE, "UTF-8");
+    //return ucwords(strtolower($value));
   }
 	
 }
