@@ -263,7 +263,10 @@ function getBrowserInfo()
     { 
         $bname = 'Netscape'; 
         $ub = "Netscape"; 
-    } 
+    } else {
+        $bname = 'unkown'; 
+        $ub = "unkown"; 
+    }
     
     // finally get the correct version number
     $known = array('Version', $ub, 'other');

@@ -12,6 +12,7 @@ use Illuminate\Container\Container as App;
 use Prettus\Repository\Traits\CacheableRepository;
 use Prettus\Repository\Contracts\CacheableInterface;
 use App\Repositories\EmployeeRepository;
+use App\Helpers\Timesheet;
 
 
 //class TimelogRepository extends BaseRepository implements CacheableInterface
@@ -91,16 +92,27 @@ class TimelogRepository extends BaseRepository
 
       $arr[0][$key]['employee'] = $employee;
       
+      
+      
+
       for ($i=1; $i < 5; $i++) { 
         
         $arr[0][$key]['timelogs'][$i] = $col->where('employeeid', $employee->id)
                                         ->where('txncode', $i)
                                         ->sortBy('datetime')->first();
       }
-      $arr[0][$key]['raw'] = $timelogs[0]->where('employeeid', $employee->id)
+      
+      $raw = $timelogs[0]->where('employeeid', $employee->id)
                             ->sortBy('datetime');
+      
+      $ts = new Timesheet;
+      $arr[0][$key]['timesheet'] = $ts->generate($employee->id, $date, $raw);
+
+      $arr[0][$key]['raw'] = $raw;
+    
     }
     $arr[1] = $timelogs[1];
+    
 
 
     return $arr;
