@@ -77,7 +77,7 @@ class Timesheet
     if(!is_null($this->timein) && !is_null($this->timeout) && 
     (is_null($this->breakin) || is_null($this->breakout))) {
 
-
+    	$wh->addMinutes($this->getMinDiff($this->timein->timelog->datetime, $this->timeout->timelog->datetime)); 
     } else {
 
     	if(!is_null($this->timein) && !is_null($this->breakin))  // meaning may laman ti at bi
