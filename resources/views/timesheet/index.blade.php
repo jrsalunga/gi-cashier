@@ -104,14 +104,15 @@
             @endforeach
 
             <td class="text-right">
+              @if(count($e['raw'])>0)
+                <span class="label label-default pull-left">{{ count($e['raw']) }}</span>
+              @else
+                
+              @endif  
+              
               @if($e['timesheet']->workHours->format('H:i')==='00:00')
                 -
               @else
-                @if(count($e['raw'])>0)
-                  <span class="label label-default pull-left">{{ count($e['raw']) }}</span>
-                @else
-                  
-                @endif  
                 {{ $e['timesheet']->workHours->format('H:i') }}
               @endif
             </td>
