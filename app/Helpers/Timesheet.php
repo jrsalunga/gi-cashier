@@ -15,7 +15,9 @@ class Timesheet
 	protected $timelogs;
 	public $hasBreak = false;
 	public $workHours;
+	public $workedHours;
 	public $otHours;
+	public $otedHours;
 	private $workingHours = 8;
 	
 
@@ -110,8 +112,12 @@ class Timesheet
     }
     */
 
+    $this->workedHours = $wh->diffInMinutes($this->workHours)/60;
     $this->workHours = $wh;
     $this->otHours->addMinutes($this->getMinDiff($work, $this->workHours));
+
+
+    //$this->setHoursToWorkType($this->dtr->daytype, ($wh->diffInMinutes($who)/60), ($work->diffInMinutes($wh, false)/60));
   }
 
   // $this->computeWorkHours()

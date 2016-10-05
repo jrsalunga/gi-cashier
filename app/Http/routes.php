@@ -143,14 +143,14 @@ get('date/compare', function(){
 
 
 get('date/diff', function(){
-  $timein = Carbon\Carbon::parse('2016-10-04 11:57:48');
-  $timeout = Carbon\Carbon::parse('2016-10-05 00:26:52');
+  $timein = Carbon\Carbon::parse('2016-10-04 10:11:57');
+  $timeout = Carbon\Carbon::parse('2016-10-04 22:11:05');
   $workHrs = Carbon\Carbon::parse($timein->format('Y-m-d').' 00:00:00');
 
   $workHrs->addMinutes($timeout->diffInMinutes($timein));
   return $workHrs->format('Y-m-d H:i:s');
 
-  return $timeout->diff($timein)->format('%i');
+  return $timeout->diff($timein)->format('%H:%i:%s');
 });
 
 
