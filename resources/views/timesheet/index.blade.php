@@ -113,8 +113,8 @@
               @if($e['timesheet']->workHours->format('H:i')==='00:00')
                 -
               @else
-                {{ $e['timesheet']->workedHours }} -
-                {{ $e['timesheet']->workHours->format('H:i') }}
+                <small class="text-muted">{{ $e['timesheet']->workHours->format('H:i') }} </small>
+                {{ $e['timesheet']->workedHours }}
               @endif
             </td>
             <!--
