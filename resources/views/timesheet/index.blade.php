@@ -105,7 +105,9 @@
 
             <td class="text-right">
               @if(count($e['raw'])>0)
-                <span class="label label-default pull-left" title="Transaction count">{{ count($e['raw']) }}</span>
+                <span class="label label-default pull-left" title="Transaction count">
+                  {{ count($e['raw']) }}
+                </span>
               @else
                 
               @endif  
@@ -113,7 +115,7 @@
               @if($e['timesheet']->workHours->format('H:i')==='00:00')
                 -
               @else
-                <small class="text-muted">{{ $e['timesheet']->workHours->format('H:i') }} </small>
+                <small class="text-muted"><em>({{ $e['timesheet']->workHours->format('H:i') }})</em> </small>
                 {{ $e['timesheet']->workedHours }}
               @endif
             </td>
