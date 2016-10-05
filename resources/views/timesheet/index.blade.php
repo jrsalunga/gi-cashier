@@ -105,7 +105,7 @@
 
             <td class="text-right">
               @if(count($e['raw'])>0)
-                <span class="label label-default pull-left">{{ count($e['raw']) }}</span>
+                <span class="label label-default pull-left" title="Transaction count">{{ count($e['raw']) }}</span>
               @else
                 
               @endif  

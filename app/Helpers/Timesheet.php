@@ -116,9 +116,13 @@ class Timesheet
 
   // $this->computeWorkHours()
   private function getMinDiff(Carbon $time1, Carbon $time2){
-    if($time2->lt($time1)) // if timeout is less than breakout
-      $time2->addDay(); // add 1 day
+    //if($time2->lt($time1)) // if timeout is less than breakout
+      //$time2->addDay(); // add 1 day
     return $time2->diffInMinutes($time1);
+  }
+
+  private function getDiff(Carbon $time1, Carbon $time2){
+    return $time2->diff($time1);
   }
 
   // $this->computeWorkHours()
