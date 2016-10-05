@@ -79,9 +79,9 @@
           <th class="text-right">Break Out</th>
           <th class="text-right">Time Out</th>
           <th class="text-right">Work Hours</th>
-          
+          <!--
           <th class="text-right">Txn Count</th>
-          
+          -->
         </tr>
       </thead>
       <tbody>
@@ -106,11 +106,16 @@
             <td class="text-right">
               @if($e['timesheet']->workHours->format('H:i')==='00:00')
                 -
-              @else 
+              @else
+                @if(count($e['raw'])>0)
+                  <span class="label label-default pull-left">{{ count($e['raw']) }}</span>
+                @else
+                  
+                @endif  
                 {{ $e['timesheet']->workHours->format('H:i') }}
               @endif
             </td>
-
+            <!--
             <td class="text-right">
               @if(count($e['raw'])>0)
                 {{ count($e['raw']) }}
@@ -118,7 +123,7 @@
                 -
               @endif 
             </td>
-
+            -->
             <!--
           <td class="text-right">
             @if(count($e['raw'])>0)

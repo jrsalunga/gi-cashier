@@ -41,12 +41,16 @@
         </div>
         <div class="panel-body">
           <p class="text-right">
+            <a href="/timesheet?date={{date('Y-m-d')}}" class="btn btn-default">
+              <span class="glyphicon glyphicon-th-list"></span> 
+              <span class="hidden-xs">Timesheet</span>
+            </a>
             <a href="/backups/checklist" class="btn btn-default">
               <span class="fa fa-calendar-check-o"></span> 
               <span class="hidden-xs">Backup Checklist</span>
             </a> 
             <a href="/backups/log" class="btn btn-default">
-              <span class="glyphicon glyphicon-th-list"></span> 
+              <span class="gly gly-folder-lock"></span> 
               <span class="hidden-xs">Backup Logs</span>
             </a>
           </p> 
