@@ -112,7 +112,7 @@ class Timesheet
     }
     */
 
-    $this->workedHours = number_format($wh->diffInMinutes($this->workHours)/60,4);
+    $this->workedHours = number_format($wh->diffInMinutes($this->workHours)/60,2);
     $this->workHours = $wh;
     $this->otHours->addMinutes($this->getMinDiff($work, $this->workHours));
 
