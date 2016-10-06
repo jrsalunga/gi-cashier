@@ -72,6 +72,8 @@ class TimelogRepository extends BaseRepository
   public function getActiveEmployees($field = NULL) {
     $field = !is_null($field) ? $field : ['code', 'lastname', 'firstname','gender','empstatus','positionid','deptid','branchid','id'];
     return $this->employees->with('position')
+                ->orderBy('lastname')
+                ->orderBy('firstname')
                 ->findWhereNotIn('empstatus', [4, 5], $field);
   }
 
