@@ -64,6 +64,16 @@ class TimelogRepository extends BaseRepository
       });
   }
 
+  public function generateTimesheet($employeeid, Carbon $date, $timelogs) {
+    $ts = new Timesheet;
+    return $ts->generate($employeeid, $date, $timelogs);
+  }
+
+  public function getActiveEmployees($field = NULL) {
+    $field = !is_null($field) ? $field : ['code', 'lastname', 'firstname','gender','empstatus','positionid','deptid','branchid','id'];
+    return $this->employees->with('position')
+                ->findWhereNotIn('empstatus', [4, 5], $field);
+  }
 
   public function allByDate(Carbon $date) {
 
@@ -73,8 +83,7 @@ class TimelogRepository extends BaseRepository
     $raw_timelogs = $this->allTimelogByDate($date)->all();
     //$raw_timelogs = ;
 
-    $employees = $this->employees->with('position')
-                      ->all(['code', 'lastname', 'firstname','gender','empstatus','positionid','deptid','branchid','id']);
+    $employees = $this->getActiveEmployees();
     
     // timelog of employee assign to this branch
     $timelogs[0] = $raw_timelogs->filter(function ($item) use ($employees) {
@@ -91,22 +100,18 @@ class TimelogRepository extends BaseRepository
     foreach ($employees as $key => $employee) {
 
       $arr[0][$key]['employee'] = $employee;
-      
-      
-      
 
       for ($i=1; $i < 5; $i++) { 
         
         $arr[0][$key]['timelogs'][$i] = $col->where('employeeid', $employee->id)
-                                        ->where('txncode', $i)
-                                        ->sortBy('datetime')->first();
+                                            ->where('txncode', $i)
+                                            ->sortBy('datetime')
+                                            ->first();
       }
       
-      $raw = $timelogs[0]->where('employeeid', $employee->id)
-                            ->sortBy('datetime');
+      $raw = $timelogs[0]->where('employeeid', $employee->id)->sortBy('datetime');
       
-      $ts = new Timesheet;
-      $arr[0][$key]['timesheet'] = $ts->generate($employee->id, $date, $raw);
+      $arr[0][$key]['timesheet'] = $this->generateTimesheet($employee->id, $date, $raw);
 
       $arr[0][$key]['raw'] = $raw;
     
