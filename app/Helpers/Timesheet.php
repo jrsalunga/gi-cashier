@@ -90,28 +90,6 @@ class Timesheet
         $wh->addMinutes($this->getMinDiff($this->breakout->timelog->datetime, $this->timeout->timelog->datetime));
     }
 
-    
-    /*
-    // if there is a pair of timein and time out; but incomplete breakin and breakout
-    if(!is_null($this->timein) && !is_null($this->timeout) && 
-    (is_null($this->breakin) || is_null($this->breakout))) {
-      
-      $wh->addMinutes($this->getMinDiff($this->timein->timelog->datetime, $this->timeout->timelog->datetime->timelog->datetime)); 
-    } else {
-    
-      //  this algo is  (BI-TI)+(TO-BI)
-
-      // if there is a pair of timein and breakin
-      if(!is_null($this->timein) && !is_null($this->breakin))  // meaning may laman ti at bi
-        $wh->addMinutes($this->getMinDiff($this->timein->timelog->datetime, $this->breakin->timelog->datetime));
-        
-      // if there is a pair of breakout and timeout
-      if(!is_null($this->breakout) && !is_null($this->timeout)) // meaning may laman bo at to
-        $wh->addMinutes($this->getMinDiff($this->breakout->timelog->datetime, $this->timeout->timelog->datetime));
-      
-    }
-    */
-
     $this->workedHours = number_format($wh->diffInMinutes($this->workHours)/60,2);
     $this->workHours = $wh;
     $this->otHours->addMinutes($this->getMinDiff($work, $this->workHours));

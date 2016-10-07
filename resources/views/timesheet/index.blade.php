@@ -74,11 +74,11 @@
       <thead>
         <tr>
           <th>Employee</th>
+          <th class="text-right">Work Hours</th>
           <th class="text-right">Time In</th>
           <th class="text-right">Break In</th>
           <th class="text-right">Break Out</th>
           <th class="text-right">Time Out</th>
-          <th class="text-right">Work Hours</th>
           <!--
           <th class="text-right">Txn Count</th>
           -->
@@ -91,34 +91,35 @@
             {{ $key+1}}. {{ $e['employee']->lastname or '-' }}, {{ $e['employee']->firstname or '-' }}
             <span class="label label-default pull-right" title="{{ $e['employee']->position->descriptor or '-' }}">{{ $e['employee']->position->code or '-' }}</span>
           </td>
-            @foreach($e['timelogs'] as $key => $t)
-              @if(is_null($t))
-                <td class="text-right">-</td>
-              @else
-                <td class="text-right {{ $t['entrytype']=='2'?'bg-warning':'bg-success' }}" 
-                title="{{ $t['datetime']->format('D, M j, Y h:i:s A') }} @ {{ $t['createdate']->format('D, M j, Y h:i:s A') }}">
-                  {{ $t['datetime']->format('h:i A') }}
-                </td>
-              @endif
-           
-            @endforeach
-
-            <td class="text-right">
-              @if(count($e['raw'])>0)
-                <span class="label label-default pull-left" title="Transaction count">
-                  {{ count($e['raw']) }}
-                </span>
-              @else
-                
-              @endif  
+          <td class="text-right">
+            <!--
+            @if(count($e['raw'])>0)
+              <span class="label label-default pull-left" title="Transaction count">
+                {{ count($e['raw']) }}
+              </span>
+            @else
               
-              @if($e['timesheet']->workHours->format('H:i')==='00:00')
-                -
-              @else
-                <small class="text-muted"><em>({{ $e['timesheet']->workHours->format('H:i') }})</em> </small>
-                {{ $e['timesheet']->workedHours }}
-              @endif
-            </td>
+            @endif  
+            -->
+            
+            @if($e['timesheet']->workHours->format('H:i')==='00:00')
+              -
+            @else
+              <small class="text-muted"><em>({{ $e['timesheet']->workHours->format('H:i') }})</em> </small>
+              {{ $e['timesheet']->workedHours }}
+            @endif
+          </td>
+          @foreach($e['timelogs'] as $key => $t)
+            @if(is_null($t))
+              <td class="text-right">-</td>
+            @else
+              <td class="text-right {{ $t['entrytype']=='2'?'bg-warning':'bg-success' }}" 
+              title="{{ $t['datetime']->format('D, M j, Y h:i:s A') }} @ {{ $t['createdate']->format('D, M j, Y h:i:s A') }}">
+                {{ $t['datetime']->format('h:i A') }}
+              </td>
+            @endif
+          @endforeach
+
             <!--
             <td class="text-right">
               @if(count($e['raw'])>0)
@@ -171,17 +172,17 @@
   $('document').ready(function(){
 
   	$('#dp-date').datetimepicker({
-        defaultDate: "{{ $dr->fr->format('Y-m-d') }}",
-        format: 'MM/DD/YYYY',
-        showTodayButton: true,
-        ignoreReadonly: true,
-        calendarWeeks: true
-      }).on('dp.change', function(e){
-        var date = e.date.format('YYYY-MM-DD');
-        console.log(date);
-        document.location.href = '/timesheet?date='+e.date.format('YYYY-MM-DD');
-        
-      });
+      defaultDate: "{{ $dr->date->format('Y-m-d') }}",
+      format: 'MM/DD/YYYY',
+      showTodayButton: true,
+      ignoreReadonly: true,
+      calendarWeeks: true
+    }).on('dp.change', function(e){
+      //var date = e.date.format('YYYY-MM-DD');
+      //console.log(date);
+      //document.location.href = '/timesheet?date='+e.date.format('YYYY-MM-DD');
+      document.location.replace('/timesheet?date='+e.date.format('YYYY-MM-DD'));
+    });
 
 
       
