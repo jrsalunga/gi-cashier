@@ -105,8 +105,12 @@
             @if($e['timesheet']->workHours->format('H:i')==='00:00')
               -
             @else
-              <small class="text-muted"><em>({{ $e['timesheet']->workHours->format('H:i') }})</em> </small>
-              {{ $e['timesheet']->workedHours }}
+              <small class="text-muted"><em>
+                ({{ $e['timesheet']->workHours->format('H:i') }})</em> 
+              </small>
+              <strong>
+                {{ $e['timesheet']->workedHours }}
+              </strong>
             @endif
           </td>
           @foreach($e['timelogs'] as $key => $t)
