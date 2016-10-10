@@ -171,9 +171,8 @@ class BackupController extends Controller
 				$backup->date = $d;
 				DB::beginTransaction();
 				
-
+				
 				/*** check if backup file ****/
-				/*
 				if(!$this->isBackup($request)) {
 					$msg = $backup->filename.' not backup';
 					if(!is_null($backup)){
@@ -243,7 +242,7 @@ class BackupController extends Controller
 				*/
 
 				//$this->logAction('start:process:purchased', $log_msg.$msg);
-				/*
+				
 				try {
 						$this->processPurchased($backup->date);
 					} catch (Exception $e) {
@@ -257,7 +256,6 @@ class BackupController extends Controller
 						return redirect('/backups/upload')->with('alert-error', $msg);
 					}
 				$this->logAction('success:process:purchased', $log_msg.$msg);
-				*/
 				
 				//\DB::rollBack();
 
