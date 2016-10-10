@@ -101,7 +101,6 @@
               
             @endif  
             -->
-            
             @if($e['timesheet']->workHours->format('H:i')==='00:00')
               -
             @else
@@ -151,15 +150,6 @@
     @else
       No data
     @endif
-
-
-  
-    
-
-      
-    
-
-
 
 </div><!-- end .container-fluid -->
 @endsection
