@@ -148,7 +148,7 @@
                 </td>
                 <td class="text-right">
                   @if(!empty($timesheet['timelog']->workHours))
-                    <small><em>({{$timesheet['timelog']->workHours}})</em></small>
+                    <small><em>({{$timesheet['timelog']->workHours->format('H:i:s')}})</em></small>
                   @endif
                   {{ $timesheet['timelog']->workedHours or '' }}
                 </td>
