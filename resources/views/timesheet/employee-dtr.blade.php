@@ -147,8 +147,8 @@
                   </a>
                 </td>
                 <td class="text-right">
-                  @if($timesheet['timelog']->workHours->format('h:i A')!=='00:00:00')
-                    <small><em>({{$timesheet['timelog']->workHours->format('H:i:s')}})</em></small>
+                  @if($timesheet['timelog']->workHours->format('H:i')!=='00:00')
+                    <small><em>({{$timesheet['timelog']->workHours->format('H:i')}})</em></small>
                   @endif
                   {{ $timesheet['timelog']->workedHours or '' }}
                 </td>
