@@ -96,7 +96,7 @@ class Timesheet
     }
 
     $worked = $wh->diffInMinutes($this->workHours)/60;
-    if($worked<1) 
+    if($worked<0) 
       $this->workedHours = null;
     else
       $this->workedHours = number_format($worked,2);
@@ -105,7 +105,7 @@ class Timesheet
     $this->otHours->addMinutes($this->getMinDiff($work, $this->workHours));
 
     $oted = $work->diffInMinutes($wh, false)/60;
-    if($oted<1)
+    if($oted<0)
       $this->otedHours = null;
     else
       $this->otedHours = number_format($oted,2);
