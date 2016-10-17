@@ -131,7 +131,15 @@
             </thead>
             <tbody>
             @foreach($timesheets as $timesheet)
-              <tr <?=$timesheet['date']->dayOfWeek==0?'class="bg-warning"':''?>>
+              <tr 
+                @if($timesheet['date']->dayOfWeek==0 && $timesheet['date']->dayOfWeek->isToday())
+                  class="bg-success"
+                @elseif()
+                  class="bg-warning"
+                @else
+
+                @endif
+              >
                 <td>
                   {{-- $timesheet['date']->format('Y-m-d') --}}
                   <a href="/timesheet?date={{$timesheet['date']->format('Y-m-d')}}">
