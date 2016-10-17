@@ -96,7 +96,7 @@ class Timesheet
     }
 
     $worked = $wh->diffInMinutes($this->workHours)/60;
-    if($worked<1) 
+    if($worked<0) 
       $this->workedHours = null;
     else
       $this->workedHours = number_format($worked,2);
