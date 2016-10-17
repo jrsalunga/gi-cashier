@@ -132,7 +132,7 @@
             <tbody>
             @foreach($timesheets as $timesheet)
               <tr 
-                @if($timesheet['date']->dayOfWeek==0 && $timesheet['date']->isToday())
+                @if($timesheet['date']->isToday())
                   class="bg-success"
                 @elseif($timesheet['date']->dayOfWeek==0)
                   class="bg-warning"
