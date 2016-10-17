@@ -134,7 +134,7 @@
               <tr 
                 @if($timesheet['date']->dayOfWeek==0 && $timesheet['date']->dayOfWeek->isToday())
                   class="bg-success"
-                @elseif()
+                @elseif($timesheet['date']->dayOfWeek==0)
                   class="bg-warning"
                 @else
 
