@@ -88,9 +88,12 @@
         @foreach($data[0] as $key => $e)
         <tr>
           <td>
-            {{ $key+1}}. {{ $e['employee']->lastname or '-' }}, {{ $e['employee']->firstname or '-' }}
+            {{ $key+1}}. 
+
+            <a href="/timesheet/{{$e['employee']->lid()}}?fr={{$dr->date->copy()->startOfMonth()->format('Y-m-d')}}&amp;to={{$dr->date->copy()->endOfMonth()->format('Y-m-d')}}">
+              {{ $e['employee']->lastname or '-' }}, {{ $e['employee']->firstname or '-' }}
+            </a>
             <span class="label label-default pull-right" title="{{ $e['employee']->position->descriptor or '-' }}">{{ $e['employee']->position->code or '-' }}</span>
-            {{ $e['employee']->lid() }}
           </td>
           <td class="text-right">
             <!--

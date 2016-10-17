@@ -119,7 +119,7 @@
           <table class="table table-hover table-condensed">
             <thead>
               <tr>
-                <th>Day</th>
+                <th>Day(s)</th>
                 <th class="text-right">Rendered Hours</th>
                 <th class="text-right">Tardy Hours</th>
                 <th class="text-right">OT Hours</th>
@@ -134,7 +134,9 @@
               <tr <?=$timesheet['date']->dayOfWeek==0?'class="bg-warning"':''?>>
                 <td>
                   {{-- $timesheet['date']->format('Y-m-d') --}}
+                  <a href="/timesheet?date={{$timesheet['date']->format('Y-m-d')}}">
                   {{ $timesheet['date']->format("D, M j") }}
+                  </a>
                 </td>
                 <td class="text-right">
                   {{ $timesheet['timelog']->workedHours or '' }}
