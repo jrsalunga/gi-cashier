@@ -99,7 +99,7 @@ class Timesheet
     if($worked<0) 
       $this->workedHours = null;
     else
-      $this->workedHours = number_format($worked,2);
+      $this->workedHours = $worked;
       
     $this->workHours = $wh;
     $this->otHours->addMinutes($this->getMinDiff($work, $this->workHours));
