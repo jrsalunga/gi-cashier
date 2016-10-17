@@ -5,6 +5,7 @@ use App\Models\Timelog;
 use App\Repositories\DateRange;
 
 
+
 class Timesheet 
 {
 
@@ -18,12 +19,16 @@ class Timesheet
 	public $workedHours;
 	public $otHours;
 	public $otedHours;
-	private $workingHours = 8;
+	private $workingHours = 10;
 	
 
 	public function __construct() {
 		
 	}
+
+  public function setWorkingHours(int $hrs) {
+    return $this->workingHours = is_empty($hrs) ? $this->workingHours : $hrs;
+  }
 
 	public function generate($employeeid, Carbon $date, $timelogs) {
 		$this->timelogs = $timelogs;
@@ -90,10 +95,20 @@ class Timesheet
         $wh->addMinutes($this->getMinDiff($this->breakout->timelog->datetime, $this->timeout->timelog->datetime));
     }
 
-    $this->workedHours = number_format($wh->diffInMinutes($this->workHours)/60,2);
+    $worked = $wh->diffInMinutes($this->workHours)/60;
+    if($worked<1) 
+      $this->workedHours = null;
+    else
+      $this->workedHours = number_format($worked,2);
+      
     $this->workHours = $wh;
     $this->otHours->addMinutes($this->getMinDiff($work, $this->workHours));
 
+    $oted = $work->diffInMinutes($wh, false)/60;
+    if($oted<1)
+      $this->otedHours = null;
+    else
+      $this->otedHours = number_format($oted,2);
 
     //$this->setHoursToWorkType($this->dtr->daytype, ($wh->diffInMinutes($who)/60), ($work->diffInMinutes($wh, false)/60));
   }

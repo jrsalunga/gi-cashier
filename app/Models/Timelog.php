@@ -6,7 +6,7 @@ use Carbon\Carbon;
 class Timelog extends BaseModel {
 
 
-	protected $table = 'timelog';
+	protected $table = 'gi-tk.timelog';
 	public $timestamps = false;
  	//protected $fillable = ['branchid', 'size', 'terminal', 'filename', 'remarks', 'userid', 'year', 'month', 'mimetype'];
 	protected $guarded = ['id'];
