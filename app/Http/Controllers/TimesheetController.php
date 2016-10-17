@@ -10,6 +10,7 @@ use Illuminate\Container\Container as App;
 use App\Repositories\TimelogRepository as Timelog;
 use App\Models\Employee;
 use App\Helpers\Timesheet;
+use StdClass;
 
 class TimesheetController extends Controller 
 { 
@@ -157,11 +158,14 @@ class TimesheetController extends Controller
 
 		//return dd($timesheets[0]->timein->timelog->datetime->format('Y-m-d'));
 		//return dd($timesheets);
+		$header = new StdClass;
+		$header->totalWorkedHours = collect($timesheets)->pluck('timelog')->sum('workedHours');
 
 		return 	$this->setViewWithDR(
 							view('timesheet.employee-dtr')
 							->with('timesheets', $timesheets)
 							->with('employee', $employee)
+							->with('header', $header)
 							->with('dr', $this->dr)
 						);
 	}

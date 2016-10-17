@@ -92,7 +92,7 @@
           </div>
           <div class="panel-body text-right">
             <h3>
-              0
+              {{ $header->totalWorkedHours }}
               <span class="small"> Hrs</span>
             </h3>
           </div>
