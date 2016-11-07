@@ -161,6 +161,31 @@ class PosUploadRepository extends Repository
       return $row;
     }
 
+
+    public function parseCustomerCount(Carbon $date) {
+      $dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
+
+      $cust_count = 0;
+      
+      if (file_exists($dbf_file)) {
+        $db = dbase_open($dbf_file, 0);
+        $header = dbase_get_header_info($db);
+        $record_numbers = dbase_numrecords($db);
+
+        for ($i = 1; $i <= $record_numbers; $i++) {
+          $row = dbase_get_record_with_names($db, $i);
+
+          $vfpdate = Carbon::parse($row['ORDDATE']);
+
+          if ($date->format('Y-m-d')==$vfpdate->format('Y-m-d')) {
+            $cust_count += $row['SR_TCUST']; 
+          }
+        }
+        dbase_close($db);
+      }
+      return $cust_count;
+    }
+
     public function postDailySales(Backup $backup){
 
       //$this->logAction('function:postDailySales', '');
@@ -178,6 +203,8 @@ class PosUploadRepository extends Repository
           $row = dbase_get_record_with_names($db, $i);
           $data = $this->getDailySalesDbfRowData($row);
           $vfpdate = Carbon::parse($data['date']);
+
+          
 
           //$this->logAction('loop:ds:'.$vfpdate->format('Y-m-d'), '');
           // back job on posting purchased 
@@ -227,8 +254,15 @@ class PosUploadRepository extends Repository
             //if($last_ds->date->lte($vfpdate)) { //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
             if( $vfpdate->format('Y-m') == $backup->date->format('Y-m')) 
             {
+              // fix cust_count on boss module = 0     - 2016-11-06
+              if ($data['custcount']=='0') {
+                $data['custcount'] = $this->parseCustomerCount($vfpdate);
+                $data['headspend'] = $data['custcount']==0 ? 0:($data['sales']/$data['custcount']);
+              }
             
               if($i==$record_numbers) {
+
+                  
 
                 if( isset($this->sysinfo->posupdate) 
                 && vfpdate_to_carbon($this->sysinfo->posupdate)->lt(Carbon::parse('2016-07-06')))  // before sysinfo.update
@@ -237,6 +271,8 @@ class PosUploadRepository extends Repository
                     $update++;
                   }
                 } else {
+                 
+                  
                   if ($this->ds->firstOrNew(array_only($data, 
                     ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend']
                   ), ['date', 'branchid'])) {
@@ -254,6 +290,10 @@ class PosUploadRepository extends Repository
             if( $backup->date->format('Y-m-d') == $backup->date->copy()->startOfMonth()->format('Y-m-d')
             && $vfpdate->format('Y-m-d') == $backup->date->copy()->subDay()->format('Y-m-d') )
             {
+              // fix cust_count on boss module = 0     - 2016-11-06
+              //if ($data['custcount']=='0')
+               // $data['custcount'] = $this->parseCustomerCount($vfpdate);
+
               //test_log('last: '. $vfpdate->format('Y-m-d'));
               if ($this->ds->firstOrNew(array_only($data, 
                   ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend']
