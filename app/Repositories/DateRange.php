@@ -4,6 +4,7 @@ use DateInterval;
 use DatePeriod;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Exception;
 
 class DateRange {
 
@@ -110,7 +111,7 @@ class DateRange {
 		
 		try {
 			return Carbon::parse($date); 
-		} catch(\Exception $e) {
+		} catch(Exception $e) {
 			return Carbon::now(); 
 		}
 	}

@@ -149,9 +149,10 @@ return [
         Collective\Html\HtmlServiceProvider::class,
         Vinkla\Pusher\PusherServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class,
-        GrahamCampbell\Flysystem\FlysystemServiceProvider::class,
         Prettus\Repository\Providers\RepositoryServiceProvider::class,
+        GrahamCampbell\Flysystem\FlysystemServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
 
     ],
 
@@ -210,7 +211,7 @@ return [
         'Debugbar' => Barryvdh\Debugbar\Facade::class,
         'Flysystem' => GrahamCampbell\Flysystem\Facades\Flysystem::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
-
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ],
 
 ];

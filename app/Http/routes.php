@@ -52,7 +52,7 @@ Route::get('/', ['middleware' => 'auth', 'uses'=>'DashboardController@getIndex']
 Route::get('dashboard', ['middleware' => 'auth', 'uses'=>'DashboardController@getIndex']);
 Route::get('timelog/daily', ['middleware' => 'auth', 'uses'=>'DashboardController@getDailyDTR']);
 
-
+/******* start middeware:auth ********/
 Route::group(['middleware' => 'auth'], function(){
 
 Route::get('settings/{param1?}/{param2?}', ['uses'=>'SettingsController@getIndex'])
@@ -78,8 +78,11 @@ Route::get('timelog/{param1?}/{param2?}', ['uses'=>'TimelogController@getIndex']
           'param2'=>'week|[0-9]+']);
 Route::post('timelog', ['uses'=>'TimelogController@manualPost']);
 
+Route::get('remittance/philhealth', ['uses'=>'RemittanceController@philhealthIndex']);
+Route::post('remittance/upload', ['uses'=>'RemittanceController@postUpload']);
+Route::get('dl/{dl}', ['uses'=>'RemittanceController@dl']);
 
-
+/******* start prefix:api     ********/
 Route::group(['prefix'=>'api'], function(){  /******* begin prefix:api ********/
 
 

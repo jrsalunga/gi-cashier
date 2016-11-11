@@ -13,7 +13,8 @@
         "graham-campbell/flysystem": "^3.0",
         "dflydev/apache-mime-types": "^1.0",
         "prettus/l5-repository": "^2.1",
-        "laravel/socialite": "^2.0"
+        "laravel/socialite": "^2.0",
+        "maatwebsite/excel": "~2.1.0"
     },
     "require-dev": {
         "mockery/mockery": "0.9.*",
