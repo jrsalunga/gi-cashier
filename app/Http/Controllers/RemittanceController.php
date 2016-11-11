@@ -49,7 +49,7 @@ class RemittanceController extends Controller
 		$file = $destinationPath.DS.$filename;
 
 		try {
-			$e = Excel::selectSheetsByIndex(0)->load($file);
+			$e = \Excel::selectSheetsByIndex(0)->load($file);
 		} catch (\Exception $e) {
 			return redirect('/remittance/philhealth')->withErrors('Something went wrong! '. $e->getMessage());
 		}
@@ -102,7 +102,7 @@ class RemittanceController extends Controller
 
 		try {
 			
-			Excel::create($fname, function($excel) use ($fname, $data) {
+			\Excel::create($fname, function($excel) use ($fname, $data) {
 				$excel->sheet($fname, function($sheet) use ($data)  {
 		        $sheet->fromArray($data);
 		    });
