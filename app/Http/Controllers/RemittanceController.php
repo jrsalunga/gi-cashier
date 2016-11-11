@@ -3,7 +3,7 @@
 use DB;
 use File;
 use Html;
-use Excel;
+use Maatwebsite\Excel\Facades\Excel;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
