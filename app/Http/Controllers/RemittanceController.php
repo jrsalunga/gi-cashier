@@ -1,13 +1,13 @@
 <?php namespace App\Http\Controllers;
 
-use Excel;
 use DB;
 use File;
+use Html;
+use Excel;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Repositories\CompanyRepository as CompanyRepo;
-use Html;
 
 class RemittanceController extends Controller 
 {
@@ -18,12 +18,8 @@ class RemittanceController extends Controller
     $this->company = $company;
   }
 
-
-
-
 	public function philhealthIndex(Request $request)
 	{
-
 		$companies = $this->company->all(['code','descriptor','id']);
 		return view('remittance.philhealth.index', compact('companies'));
 	}
@@ -32,7 +28,6 @@ class RemittanceController extends Controller
 	public function postUpload(Request $request)
 	{
 		//return dd($request->all());
-		ini_set('display_errors', 0);
 
 		if (!$request->hasFile('file') || !$request->file('file')->isValid())
 			return  redirect('/remittance/philhealth')->withErrors('File is corrupted! Try again.');
@@ -49,7 +44,7 @@ class RemittanceController extends Controller
 		$file = $destinationPath.DS.$filename;
 
 		try {
-			$e = \Excel::selectSheetsByIndex(0)->load($file);
+			$e = Excel::selectSheetsByIndex(0)->load($file);
 		} catch (\Exception $e) {
 			return redirect('/remittance/philhealth')->withErrors('Something went wrong! '. $e->getMessage());
 		}
@@ -102,7 +97,7 @@ class RemittanceController extends Controller
 
 		try {
 			
-			\Excel::create($fname, function($excel) use ($fname, $data) {
+			Excel::create($fname, function($excel) use ($fname, $data) {
 				$excel->sheet($fname, function($sheet) use ($data)  {
 		        $sheet->fromArray($data);
 		    });
