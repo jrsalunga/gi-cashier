@@ -5,7 +5,7 @@ use Carbon\Carbon;
 
 class Timelog extends BaseModel {
 
-
+	//protected $connection = 'tk-live';
 	protected $table = 'gi-tk.timelog';
 	public $timestamps = false;
  	//protected $fillable = ['branchid', 'size', 'terminal', 'filename', 'remarks', 'userid', 'year', 'month', 'mimetype'];
@@ -21,7 +21,7 @@ class Timelog extends BaseModel {
     if (app()->environment()==='production')
       $this->setConnection('mysql-tk');
       
-    $this->setConnection('mysql-tk');
+    $this->setConnection('tk-live');
   }
 
 	public function employee() {

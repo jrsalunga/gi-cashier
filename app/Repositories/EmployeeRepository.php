@@ -11,10 +11,10 @@ use Prettus\Repository\Traits\CacheableRepository;
 use Prettus\Repository\Contracts\CacheableInterface;
 
 
-//class TimelogRepository extends BaseRepository implements CacheableInterface
-class EmployeeRepository extends BaseRepository 
+class EmployeeRepository extends BaseRepository implements CacheableInterface
+//class EmployeeRepository extends BaseRepository 
 {
-
+  use CacheableRepository;
 
 
   public function __construct() {

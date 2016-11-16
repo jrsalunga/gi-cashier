@@ -87,7 +87,7 @@
       <tbody>
         @foreach($data[0] as $key => $e)
         <tr>
-          <td>
+          <td <?=$e['onbr']?'':'class="bg-danger"'?> >
             {{ $key+1}}. 
 
             <a href="/timesheet/{{$e['employee']->lid()}}?fr={{$dr->date->copy()->startOfMonth()->format('Y-m-d')}}&amp;to={{$dr->date->copy()->endOfMonth()->format('Y-m-d')}}">

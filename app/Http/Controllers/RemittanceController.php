@@ -114,9 +114,7 @@ class RemittanceController extends Controller
 			return redirect('remittance/philhealth')
 						->with('companies', $companies)
 						->with('dl', $fname.'.csv');
-			
 		} else {
-
 			return redirect('remittance/philhealth')
 						->with('companies', $companies)
 						->withErrors('Something went wrong!');

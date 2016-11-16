@@ -76,6 +76,18 @@ return [
             'strict'    => false,
         ],
 
+        'tk-live' => [
+            'driver'    => 'mysql',
+            'host'      => '192.168.1.5:1686',
+            'database'  => 'gi-tk',
+            'username'  => 'server-admin',
+            'password'  => 'b33rpr0m0',
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
         'mysql-tk' => [
             'driver'    => 'mysql',
             'host'      => 'localhost',
