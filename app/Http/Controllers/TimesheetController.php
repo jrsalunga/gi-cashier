@@ -1,16 +1,14 @@
 <?php namespace App\Http\Controllers;
 
+use StdClass;
 use Carbon\Carbon;
+use App\Models\Employee;
+use App\Helpers\Timesheet;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Repositories\DateRange;
-use Illuminate\Support\Collection;
 use App\Http\Controllers\Controller;
-use Illuminate\Container\Container as App;
 use App\Repositories\TimelogRepository as Timelog;
-use App\Models\Employee;
-use App\Helpers\Timesheet;
-use StdClass;
 
 class TimesheetController extends Controller 
 { 
@@ -40,9 +38,6 @@ class TimesheetController extends Controller
 		
 		$data = $this->timelog->allByDate($date);
 		//return dd($data);
-		//echo $data[0][5]['timesheet']->timein->timelog->datetime;
-		//return $data[0][5];
-		
 		return $this->setViewWithDR(view('timesheet.index')
 																	->with('dr', $this->dr)
 																	->with('data', $data));

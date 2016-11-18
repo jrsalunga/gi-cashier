@@ -17,6 +17,7 @@
   		<ul class="nav nav-pills nav-stacked">
   			<li role="presentation" class="active"><a href="/settings">Profile</a></li>
 			  <li role="presentation"><a href="/settings/password">Change Password</a></li>
+        <li role="presentation"><a href="/settings/rfid">RFID Assignment</a></li>
 			</ul>
   	</div>
   	<div class="col-sm-9">

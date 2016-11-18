@@ -131,7 +131,7 @@
 @section('js-external')
   @parent
 
-  <script src="/js/vendors/bootstrap-datetimepicker.js"></script>
+  <script src="/js/vendors/bootstrap-datetimepicker.min.js"></script>
 
   <script>
   

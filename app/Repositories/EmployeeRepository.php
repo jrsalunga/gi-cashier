@@ -2,7 +2,6 @@
 
 use App\Models\Employee;
 use App\Repositories\Criterias\ByBranchCriteria;
-
 use App\Repositories\Repository;
 use Prettus\Repository\Eloquent\BaseRepository;
 use Illuminate\Support\Collection;
@@ -26,14 +25,9 @@ class EmployeeRepository extends BaseRepository implements CacheableInterface
       });
   }
 
-
-
-
 	public function model() {
     return 'App\\Models\\Employee';
   }
-
-
 
   public function findOrWhere( array $where , $columns = array('*'))
   {
@@ -86,12 +80,6 @@ class EmployeeRepository extends BaseRepository implements CacheableInterface
     }
     return $model->get($columns);
   }
-
-
-
-
-
-
 
   public function andOrWhere($where, $columns = ['*'], $or = true)
   {

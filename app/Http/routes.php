@@ -1,8 +1,5 @@
 <?php
 
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-
-
 Route::get('login', ['as'=>'auth.getlogin', 'uses'=>'Auth\AuthController@getLogin']);
 Route::post('auth/login', ['as'=>'auth.postlogin', 'uses'=>'Auth\AuthController@postLogin']);
 Route::get('logout', ['as'=>'auth.getlogout', 'uses'=>'Auth\AuthController@getLogout']);
@@ -17,11 +14,11 @@ Route::get('timelog/daily', ['middleware' => 'auth', 'uses'=>'DashboardControlle
 Route::group(['middleware' => 'auth'], function(){
 
 Route::get('settings/{param1?}/{param2?}', ['uses'=>'SettingsController@getIndex'])
-  ->where(['param1'=>'password', 
+  ->where(['param1'=>'password|rfid', 
           'param2'=>'week|[0-9]+']);
 
 Route::post('/settings/password',  ['uses'=>'SettingsController@changePassword']);
-
+Route::post('/settings/rfid',  ['uses'=>'SettingsController@changeRfid']);
 
 Route::get('timesheet/{param1?}', ['uses'=>'TimesheetController@getRoute']);
 

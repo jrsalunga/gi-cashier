@@ -29,7 +29,8 @@ class EmployeeController extends Controller
               $query->orWhere('code', 'like', '%'.$request->input('q').'%')
           			->orWhere('lastname', 'like',  '%'.$request->input('q').'%')
 		            ->orWhere('firstname', 'like',  '%'.$request->input('q').'%')
-		            ->orWhere('middlename',  'like', '%'.$request->input('q').'%');
+		            ->orWhere('middlename',  'like', '%'.$request->input('q').'%')
+		            ->orWhere('rfid',  'like', '%'.$request->input('q').'%');
             })
             ->take($limit)
             ->get();

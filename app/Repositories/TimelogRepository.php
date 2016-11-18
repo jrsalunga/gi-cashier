@@ -79,7 +79,6 @@ class TimelogRepository extends BaseRepository
 
   public function allByDate(Carbon $date) {
 
-        //return $e = $this->employees->find('D7D6B706652A11E68E8F00FF18C615EC');
     $arr = [];
     $timelogs = [];
     // get all timelog on the day/date
@@ -93,31 +92,26 @@ class TimelogRepository extends BaseRepository
 
     $o = [];
     foreach ($combined_empids as $key => $id) {
-     
-        $o[$key] = $this->employees
-              ->skipCriteria()
-              ->findByField('id', $id, ['code', 'lastname', 'firstname', 'id'])
-              ->first()->toArray();
-
+      $o[$key] = $this->employees
+            ->skipCriteria()
+            ->findByField('id', $id, ['code', 'lastname', 'firstname', 'id'])
+            ->first()->toArray();
     }
 
     $sorted_emps = collect($o)->sortBy('firstname')->sortBy('lastname');
 
-
     $col = collect($raw_timelogs);
     foreach (array_values($sorted_emps->toArray()) as $key => $emp) {
      
-        $e = $this->employees
-              ->skipCriteria()
-              ->findByField('id', $emp['id'], ['code', 'lastname', 'firstname', 'id', 'positionid'])
-              ->first();
-      //$key = substr(strtolower($e->lastname), 0, 1).substr(strtolower($e->firstname), 1);
+      $e = $this->employees
+            ->skipCriteria()
+            ->findByField('id', $emp['id'], ['code', 'lastname', 'firstname', 'id', 'positionid'])
+            ->first();
+      
       $arr[0][$key]['employee'] = $e;
-      $arr[0][$key]['id'] = $emp['id'];
-      $arr[0][$key]['onbr'] = in_array($emp['id'], $br_empids) ? true : false;
+      $arr[0][$key]['onbr'] = in_array($emp['id'], $br_empids) ? true : false; // on branch??
 
       for ($i=1; $i < 5; $i++) { 
-        
         $arr[0][$key]['timelogs'][$i] = $col->where('employeeid', $emp['id'])
                                             ->where('txncode', $i)
                                             ->sortBy('datetime')
@@ -132,7 +126,6 @@ class TimelogRepository extends BaseRepository
     }
     $arr[1] = [];
     return $arr;
-
     
     // timelog of employee assign to this branch
     $timelogs[0] = $raw_timelogs->filter(function ($item) use ($employees) {
