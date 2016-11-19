@@ -130,6 +130,7 @@
   }
 
   $(document).ready(function(){
+    $('#search-employee').focus();
     employeeSearch();
 
     $(document).delegate('.lnk-change', 'click', function(e) { 

@@ -105,8 +105,6 @@ class SettingsController extends Controller {
 	    'rfid.numeric' => 'Invalid RFID.',
 		];
 
-
-
 		$validator = Validator::make($request->all(), $rules, $messages);
 
 		if ($validator->fails())
@@ -114,15 +112,15 @@ class SettingsController extends Controller {
 
 		$rfid = $this->employee->findByField('rfid', $request->input('rfid'), $fields)->first();
 		if (!is_null($rfid))
-			if ( $rfid->empstatus > 0)
+			if ($rfid->empstatus > 0)
 				return redirect('/settings/rfid')->withErrors('RFID already assigned to '. $rfid->lastname.', '.$rfid->firstname);
 
 		$employee = $this->employee->find($request->input('employeeid'), $fields);
-		if(is_null($employee))
+		if (is_null($employee))
 			return redirect('/settings/rfid')->withErrors('Employee not found!');
 
 		$result = $this->employee->update(['rfid'=>$request->input('rfid')], $employee->id);
-		if($result->rfid==$request->input('rfid'))
+		if ($result->rfid==$request->input('rfid'))
 			return redirect('settings/rfid')->with('alert-success', 'RFID updated!');
 		else
 			return redirect('settings/rfid')->withErrors('Something went wrong while saving RFID.');
