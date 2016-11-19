@@ -110,7 +110,7 @@ class SettingsController extends Controller {
 		if ($validator->fails())
 			return redirect('/settings/rfid')->withErrors($validator);
 
-		$rfid = $this->employee->findByField('rfid', $request->input('rfid'), $fields)->first();
+		$rfid = $this->employee->skipCriteria()->findByField('rfid', $request->input('rfid'), $fields)->first();
 		if (!is_null($rfid))
 			if ($rfid->empstatus > 0)
 				return redirect('/settings/rfid')->withErrors('RFID already assigned to '. $rfid->lastname.', '.$rfid->firstname);
