@@ -92,10 +92,12 @@ class SettingsController extends Controller {
 
 	public function changeRfid(Request $request) {
 
-		$rules = array(
+		$fields = ['code', 'firstname', 'lastname', 'rfid', 'empstatus', 'id'];
+
+		$rules = [
 			'employeeid'      => 'required|max:32',
 			'rfid'      	=> 'required|numeric',
-		);
+		];
 
 		$messages = [
 	    'employeeid.required' => 'Employee field is required.',
@@ -103,23 +105,27 @@ class SettingsController extends Controller {
 	    'rfid.numeric' => 'Invalid RFID.',
 		];
 
+
+
 		$validator = Validator::make($request->all(), $rules, $messages);
 
 		if ($validator->fails())
 			return redirect('/settings/rfid')->withErrors($validator);
 
-		$rfid = $this->employee->findByField('rfid', $request->input('rfid'), ['code', 'firstname', 'lastname', 'rfid', 'empstatus', 'id'])->first();
-		if ($rfid->empstatus > 0)
-			return redirect('/settings/rfid')->withErrors('RFID already assigned to '. $rfid->lastname.', '.$rfid->firstname);
+		$rfid = $this->employee->findByField('rfid', $request->input('rfid'), $fields)->first();
+		if (!is_null($rfid))
+			if ( $rfid->empstatus > 0)
+				return redirect('/settings/rfid')->withErrors('RFID already assigned to '. $rfid->lastname.', '.$rfid->firstname);
 
-		$employee = $this->employee->find($request->input('employeeid'), ['code', 'firstname', 'lastname', 'rfid', 'id']);
+		$employee = $this->employee->find($request->input('employeeid'), $fields);
 		if(is_null($employee))
 			return redirect('/settings/rfid')->withErrors('Employee not found!');
 
-		if($this->employee->update(['rfid'=>$rfid->rfid], $employee->id))
-			return redirect('settings/rfid')->withSuccess('RFID updated!');
+		$result = $this->employee->update(['rfid'=>$request->input('rfid')], $employee->id);
+		if($result->rfid==$request->input('rfid'))
+			return redirect('settings/rfid')->with('alert-success', 'RFID updated!');
 		else
-			return redirect('settings/rfid')->withErrors('Something went wrong on saving RFID.');
+			return redirect('settings/rfid')->withErrors('Something went wrong while saving RFID.');
 	}
 
 

@@ -6,7 +6,7 @@ class Employee extends BaseModel {
 
   //protected $connection = 'mysql-hr';
 	protected $table = 'employee';
- 	protected $fillable = ['code', 'lastname', 'firstname', 'middlename', 'positionid', 'branchid', 'punching', 'processing'];
+ 	protected $fillable = ['code', 'lastname', 'firstname', 'middlename', 'positionid', 'branchid', 'punching', 'processing', 'rfid'];
   public $timestamps = false;
 
   public function __construct(array $attributes = [])

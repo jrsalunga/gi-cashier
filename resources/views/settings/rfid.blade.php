@@ -79,7 +79,7 @@
               success: function( data ) {
                 response( $.map( data, function( item ) {
                   return {
-                    label: item.code + ' - ' + item.lastname+ ', ' + item.firstname,
+                    label: item.lastname+ ', ' + item.firstname,
                     value: item.lastname+ ', ' + item.firstname,
                     id: item.id,
                     rfid: item.rfid
