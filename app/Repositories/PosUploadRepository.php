@@ -178,7 +178,14 @@ class PosUploadRepository extends Repository
           $vfpdate = Carbon::parse($row['ORDDATE']);
 
           if ($date->format('Y-m-d')==$vfpdate->format('Y-m-d')) {
-            $cust_count += $row['SR_TCUST']; 
+
+            if (($row['SR_TCUST']==$row['SR_BODY']) && ($row['SR_DISC']>0)) // 4 4 78.7
+              $cust_count += $row['SR_TCUST']; 
+            else if ($row['SR_TCUST']>0 && $row['SR_BODY']>0 && $row['SR_DISC']>0)
+              continue;
+            else
+              $cust_count += ($row['SR_TCUST'] + $row['SR_BODY']);
+
           }
         }
         dbase_close($db);
