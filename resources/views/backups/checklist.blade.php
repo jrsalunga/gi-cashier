@@ -89,31 +89,36 @@
       </thead>
       <tbody>
         @foreach($backups as $key => $b) 
+        <?php
+          $class = c()->format('Y-m-d')==$b['date']->format('Y-m-d')
+            ?'class=bg-success'
+            :'';
+        ?>
         <tr>
-          <td>{{ $b['date']->format('M j, D') }}</td>
+          <td {{ $class }}>{{ $b['date']->format('M j, D') }}</td>
           @if(is_null($b['backup']))
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
+            <td {{ $class }}>-</td>
+            <td {{ $class }}>-</td>
+            <td {{ $class }}>-</td>
+            <td {{ $class }}>-</td>
+            <td {{ $class }}>-</td>
           @else
-            <td>
+            <td {{ $class }}>
               {{ $b['backup']->filename }}
             </td>
-            <td title="Shows only the lastest uploader of the same backup.">
+            <td title="Shows only the lastest uploader of the same backup." {{ $class }}>
               {{ $b['backup']->cashier }}
             </td>
-            <td>
+            <td {{ $class }}>
               <small><em>
               {{ $b['backup']->uploaddate->format('Y-m-d h:m:i A') }}
               </em>
               </small>
             </td>
-            <td>
+            <td {{ $class }}>
               <span class="badge">{{ $b['backup']->count }}</span>
             </td>
-            <td>
+            <td {{ $class }}>
               @if($b['exist'])
                 <span class="glyphicon glyphicon-ok text-success"></span>
               @else
