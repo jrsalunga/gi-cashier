@@ -378,4 +378,12 @@ function getBrowser($user_agent) {
 
 }
 
+if (!function_exists('c')) {
+    function c($datetime=null) {
+        return is_null($datetime) 
+        ? Carbon\Carbon::now()
+        : Carbon\Carbon::parse($datetime);
+    }
+}
+
 
