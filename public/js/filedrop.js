@@ -32,7 +32,7 @@ $(function(){
 			'month': $('#month')[0].value,
 		},
 		maxfiles: 1,
-    maxfilesize: 8, // max file size in MBs
+    maxfilesize: 10, // max file size in MBs
 		url: '/upload/postfile',
 		withCredentials: true, 
 		headers: {          // Send additional request headers
