@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Repositories\DailySalesRepository;
 use App\Repositories\PurchaseRepository as Purchase;
 use App\Repositories\Purchase2Repository as PurchaseRepo;
+use App\Http\Controllers\SalesmtdController as SalesmtdCtrl;
+use App\Repositories\ChargesRepository as ChargesRepo;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
@@ -26,7 +28,9 @@ class PosUploadRepository extends Repository
     public $extracted_path;
     public $purchase;
     public $purchase2;
+    public $charges;
     private $sysinfo = null;
+    protected $salesmtdCtrl;
 
     
 
@@ -35,12 +39,15 @@ class PosUploadRepository extends Repository
      * @param Collection $collection
      * @throws \App\Repositories\Exceptions\RepositoryException
      */
-    public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, Purchase $purchase, PurchaseRepo $purchaserepo) {
+    public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, 
+      Purchase $purchase, PurchaseRepo $purchaserepo, SalesmtdCtrl $salesmtdCtrl, ChargesRepo $charges) {
         parent::__construct($app, $collection);
 
         $this->ds = $dailysales;
         $this->purchase   = $purchase;
         $this->purchase2  = $purchaserepo;
+        $this->salesmtdCtrl = $salesmtdCtrl;
+        $this->charges = $charges;
     }
 
     public function model() {
@@ -378,7 +385,7 @@ class PosUploadRepository extends Repository
             ];
             
             //\DB::beginTransaction();
-            //$this->logAction($date->format('Y-m-d'), 'create:purchased');
+            $this->logAction($date->format('Y-m-d'), 'create:purchased');
             try {
               $this->purchase->create($attrs);
             } catch(Exception $e) {
@@ -386,7 +393,7 @@ class PosUploadRepository extends Repository
             }
 
             try {
-              //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
+              $this->logAction($date->format('Y-m-d'), 'create:purchased2');
               $this->purchase2->verifyAndCreate($attrs);
             } catch(Exception $e) {
               throw new Exception($e->getMessage());    
@@ -933,8 +940,8 @@ class PosUploadRepository extends Repository
               throw new Exception($e->getMessage());    
             }
 
+            //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
             try {
-              //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
               $this->purchase2->verifyAndCreate($attrs);
             } catch(Exception $e) {
               dbase_close($db);
@@ -963,6 +970,121 @@ class PosUploadRepository extends Repository
 
         dbase_close($db);
         return count($update>0) ? true:false;
+      }
+      return false;
+    }
+
+
+
+    public function postSalesmtd(Carbon $date, Backup $backup) {
+
+      $dbf_file = $this->extracted_path.DS.'SALESMTD.DBF';
+
+      if (file_exists($dbf_file)) {
+        $this->logAction('posting', 'post:salesmtd');
+        $db = dbase_open($dbf_file, 0);
+        
+        $header = dbase_get_header_info($db);
+        $record_numbers = dbase_numrecords($db);
+        $update = 0;
+
+        // delete salesmtd (branchid, date) if exist
+        try {
+          $this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
+          $this->salesmtdCtrl->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw new Exception($e->getMessage());    
+        }
+        
+        for ($i=1; $i<=$record_numbers; $i++) {
+
+          $row = dbase_get_record_with_names($db, $i);
+          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+
+          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+            $data = $this->salesmtdCtrl->associateAttributes($row);
+            $data['branch_id'] = $backup->branchid;
+
+            try {
+              $this->logAction($data['orddate'], ' create:salesmtd');
+              $this->salesmtdCtrl->create($data);
+              $update++;
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw new Exception('salesmtd: '.$e->getMessage());   
+              return false;   
+            }
+          }
+        }
+        dbase_close($db);
+        return $update;
+      }
+      return false;  
+    }
+
+
+
+    public function postCharges(Carbon $date, Backup $backup) {
+
+      $dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
+
+      if (file_exists($dbf_file)) {
+        $this->logAction('posting', 'post:charges');
+        $db = dbase_open($dbf_file, 0);
+        
+        $header = dbase_get_header_info($db);
+        $record_numbers = dbase_numrecords($db);
+        $update = 0;
+
+        // delete charges (branchid, date) if exist
+        try {
+          $this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
+          $this->charges->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw new Exception('charges: '.$e->getMessage());    
+        }
+        
+        for ($i=1; $i<=$record_numbers; $i++) {
+          
+          $row = dbase_get_record_with_names($db, $i);
+          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+          
+          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+            $data = $this->charges->associateAttributes($row);
+            
+            $data['branch_id'] = $backup->branchid;
+
+            try {
+              $this->logAction($data['orddate'], ' create:charges');
+              $this->charges->create($data);
+              $update++;
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw new Exception('charges: '.$e->getMessage());  
+              return false;  
+            }
+          }
+        }
+        dbase_close($db);
+        return $update;
+      }
+      return false;
+    }
+
+   
+
+    // prototype
+    public function dbase($dbf) {
+      $obj = new StdClass;
+      $obj->filepath = $this->extracted_path.DS.$dbf;
+      if (file_exists($obj->filepath)) {
+        $obj->dbf = dbase_open($obj->filepath, 0);
+        $obj->headers = dbase_get_header_info($obj->dbf);
+        $obj->numrecords = dbase_numrecords($obj->dbf);
+        dbase_close($obj->filepath);
+        return $obj;
       }
       return false;
     }

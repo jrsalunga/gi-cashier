@@ -6,6 +6,7 @@ Route::get('logout', ['as'=>'auth.getlogout', 'uses'=>'Auth\AuthController@getLo
 
 
 Route::get('/', ['middleware' => 'auth', 'uses'=>'DashboardController@getIndex']);
+Route::get('salesmtd', ['middleware' => 'auth', 'uses'=>'SalesmtdController@test']);
 
 Route::get('dashboard', ['middleware' => 'auth', 'uses'=>'DashboardController@getIndex']);
 Route::get('timelog/daily', ['middleware' => 'auth', 'uses'=>'DashboardController@getDailyDTR']);
@@ -74,7 +75,7 @@ get('test/pusher', function(){
     'message'=>'hello world!'
   ]);
 
-    return;
+  return;
 
 });
 
@@ -143,7 +144,6 @@ get('test/array/only', function(){
 
   
 });
-
 
 
 

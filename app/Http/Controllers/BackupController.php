@@ -256,6 +256,35 @@ class BackupController extends Controller
 						return redirect('/backups/upload')->with('alert-error', $msg);
 					}
 				$this->logAction('success:process:purchased', $log_msg.$msg);
+
+
+				try {
+					$this->processSalesmtd($backup->date, $backup);
+				} catch (Exception $e) {
+					$msg =  $e->getMessage();
+					$d = $this->web->deleteFile($filepath);
+					$msg .= $d ? ' & deleted':'';
+					$this->removeExtratedDir();
+					DB::rollBack();
+					$this->updateBackupRemarks($backup, $msg);
+					$this->logAction('error:process:salesmtd', $log_msg.$msg);
+					return redirect('/backups/upload')->with('alert-error', $msg);
+				}
+				$this->logAction('success:process:salesmtd', $log_msg.$msg);
+
+				try {
+					$this->processCharges($backup->date, $backup);
+				} catch (Exception $e) {
+					$msg =  $e->getMessage();
+					$d = $this->web->deleteFile($filepath);
+					$msg .= $d ? ' & deleted':'';
+					$this->removeExtratedDir();
+					DB::rollBack();
+					$this->updateBackupRemarks($backup, $msg);
+					$this->logAction('error:process:charges', $log_msg.$msg);
+					return redirect('/backups/upload')->with('alert-error', $msg);
+				}
+				$this->logAction('success:process:charges', $log_msg.$msg);
 				
 				//\DB::rollBack();
 
@@ -448,6 +477,22 @@ class BackupController extends Controller
   	$res = $this->backup->postPurchased($date);
   	return $res;
   	*/
+  }
+
+  public function processSalesmtd($date, Backup $backup){
+  	try {
+      $this->backup->postSalesmtd($date, $backup);
+    } catch(Exception $e) {
+      throw new Exception($e->getMessage());    
+    }
+  }
+
+  public function processCharges($date, Backup $backup){
+  	try {
+      $this->backup->postCharges($date, $backup);
+    } catch(Exception $e) {
+      throw $e;    
+    }
   }
 
   public function removeExtratedDir() {
