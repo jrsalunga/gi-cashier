@@ -8,6 +8,7 @@ Homestead.json
 /public/files
 /public/data
 /public/Resources
+/public/downloads
 /logs
 /TEST_POS_BACKUP
 /TEST_FILES_BACKUP

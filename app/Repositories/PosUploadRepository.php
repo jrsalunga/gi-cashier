@@ -385,7 +385,7 @@ class PosUploadRepository extends Repository
             ];
             
             //\DB::beginTransaction();
-            $this->logAction($date->format('Y-m-d'), 'create:purchased');
+            //$this->logAction($date->format('Y-m-d'), 'create:purchased');
             try {
               $this->purchase->create($attrs);
             } catch(Exception $e) {
@@ -393,7 +393,7 @@ class PosUploadRepository extends Repository
             }
 
             try {
-              $this->logAction($date->format('Y-m-d'), 'create:purchased2');
+              //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
               $this->purchase2->verifyAndCreate($attrs);
             } catch(Exception $e) {
               throw new Exception($e->getMessage());    
@@ -981,7 +981,7 @@ class PosUploadRepository extends Repository
       $dbf_file = $this->extracted_path.DS.'SALESMTD.DBF';
 
       if (file_exists($dbf_file)) {
-        $this->logAction('posting', 'post:salesmtd');
+        //$this->logAction('posting', 'post:salesmtd');
         $db = dbase_open($dbf_file, 0);
         
         $header = dbase_get_header_info($db);
@@ -990,7 +990,7 @@ class PosUploadRepository extends Repository
 
         // delete salesmtd (branchid, date) if exist
         try {
-          $this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
+          //$this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
           $this->salesmtdCtrl->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
         } catch(Exception $e) {
           dbase_close($db);
@@ -1007,7 +1007,7 @@ class PosUploadRepository extends Repository
             $data['branch_id'] = $backup->branchid;
 
             try {
-              $this->logAction($data['orddate'], ' create:salesmtd');
+              //$this->logAction($data['orddate'], ' create:salesmtd');
               $this->salesmtdCtrl->create($data);
               $update++;
             } catch(Exception $e) {
@@ -1030,7 +1030,7 @@ class PosUploadRepository extends Repository
       $dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
 
       if (file_exists($dbf_file)) {
-        $this->logAction('posting', 'post:charges');
+        //$this->logAction('posting', 'post:charges');
         $db = dbase_open($dbf_file, 0);
         
         $header = dbase_get_header_info($db);
@@ -1039,7 +1039,7 @@ class PosUploadRepository extends Repository
 
         // delete charges (branchid, date) if exist
         try {
-          $this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
+          //$this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
           $this->charges->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
         } catch(Exception $e) {
           dbase_close($db);
@@ -1053,11 +1053,10 @@ class PosUploadRepository extends Repository
           
           if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
             $data = $this->charges->associateAttributes($row);
-            
             $data['branch_id'] = $backup->branchid;
 
             try {
-              $this->logAction($data['orddate'], ' create:charges');
+              //$this->logAction($data['orddate'], ' create:charges');
               $this->charges->create($data);
               $update++;
             } catch(Exception $e) {

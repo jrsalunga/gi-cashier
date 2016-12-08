@@ -41,6 +41,7 @@ class SalesmtdController extends Controller
 	public function associateAttributes($r) {
 		$row = [];
 
+		$cut = c(trim($r['ORDDATE']).' 06:00:00');
 		$vfpdate = c(trim($r['ORDDATE']).' '.trim($r['ORDTIME']));
 		$cuscount = substr(trim($r['CUSNO']), 0, strspn(trim($r['CUSNO']), '0123456789'));
 

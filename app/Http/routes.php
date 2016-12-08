@@ -62,8 +62,20 @@ Route::get('auth/google', 'Auth\AuthController@redirectToProvider');
 Route::get('oauth2callback', 'Auth\AuthController@handleProviderCallback');
 
 
-Route::get('test', ['uses'=>'BackupController@d']);
+get('test', function(){
 
+  $c = Carbon\Carbon::parse('2016-05-26 06:00:00');
+  $t = Carbon\Carbon::parse('2016-05-26 04:00:00');
+
+
+
+
+  //return 
+  return $c->lte($t)
+    ? 'same '. $t->format('Y-m-d')
+    : '- day '.$t->copy()->subDay()->format('Y-m-d');
+
+});
 
 
 get('test/pusher', function(){

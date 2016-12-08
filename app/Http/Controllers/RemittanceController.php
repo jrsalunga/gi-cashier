@@ -60,7 +60,7 @@ class RemittanceController extends Controller
 
 		
 		
-		$fields = ['phealth_no', 'bracket', 'e_status', 'date_hired', 'birthday'];
+		$fields = ['phealth_no', 'bracket', 'e_status', 'date_hired', 'birthdate'];
 		$rs = $e->select($fields)->get();
 
 		$data = [];
@@ -74,13 +74,30 @@ class RemittanceController extends Controller
 					case 'e_status':
 						if ($row->{$value}=='NH') {
 							$data[$idx][$key] = 'NH';
-							$data[$idx][$key+1] = $row->date_hired->format('Y-m-d');
+							
+							try { 
+								$h = c($row->date_hired)->format('Y-m-d');
+							} catch(Exception $e) { 
+								$h = '';
+							}
+							$data[$idx][$key+1] = $h;
+						
 						} else {
 							$data[$idx][$key] = 'A';
 							$data[$idx][$key+1] = null;
 						}
 						break;
 					case 'date_hired':
+						break;
+					case 'birthdate':
+
+						try { 
+							$dob = c($row->birthdate)->format('Y-m-d');
+						} catch(Exception $e) { 
+							$dob = '';
+						}
+						$data[$idx][$key] = $dob;
+
 						break;
 					default:
 						$data[$idx][$key] = $row->{$value};
@@ -99,7 +116,9 @@ class RemittanceController extends Controller
 			
 			Excel::create($fname, function($excel) use ($fname, $data) {
 				$excel->sheet($fname, function($sheet) use ($data)  {
-		        $sheet->fromArray($data);
+						//array_shift($data);
+		        //$sheet->fromArray($data);
+						$sheet->fromArray($data, null, 'A1', false, false); // Won't auto generate heading columns
 		    });
 			})->store('csv', public_path('downloads'.DS.'remittance'));
 
