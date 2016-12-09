@@ -8,8 +8,10 @@ class DailySales extends BaseModel {
 	//protected $connection = 'boss';
 	protected $table = 'dailysales';
 	public $timestamps = false;
- 	//protected $fillable = ['date', 'branchid', 'managerid', 'sales', 'cos', 'tips', 'custcount', 'empcount'];
-	protected $guarded = ['id'];
+ 	protected $fillable = ['date', 'branchid', 'managerid', 'sales', 'cos', 'tips', 'custcount', 'empcount', 
+        'mancost', 'headspend', 'tipspct', 'mancostpct', 'cospct', 'purchcost', 'salesemp', 'chrg_total', 
+        'chrg_csh', 'chrg_chrg', 'chrg_othr', 'bank_totchrg'];
+	//protected $guarded = ['id'];
 	protected $casts = [
     'sales' => 'float',
     'cos' => 'float',
@@ -22,6 +24,11 @@ class DailySales extends BaseModel {
     'cospct' => 'float',
     'purchcost' => 'float',
     'salesemp' => 'float',
+    'chrg_total' => 'float',
+    'chrg_csh' => 'float',
+    'chrg_chrg' => 'float',
+    'chrg_othr' => 'float',
+    'bank_totchrg' => 'float',
   ];
 
 

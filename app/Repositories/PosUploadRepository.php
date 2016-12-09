@@ -1041,11 +1041,21 @@ class PosUploadRepository extends Repository
         try {
           //$this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
           $this->charges->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
-        } catch(Exception $e) {
+          } catch(Exception $e) {
           dbase_close($db);
           throw new Exception('charges: '.$e->getMessage());    
         }
         
+        $ds = [];
+        $ds['bank_totchrg'] = 0;
+        $ds['chrg_total'] = 0;
+        $ds['chrg_csh']   = 0;
+        $ds['chrg_chrg']  = 0;
+        $ds['chrg_othr']  = 0;
+        $ds['date']       = $date->format('Y-m-d');
+        $ds['branchid']   = $backup->branchid;
+        
+
         for ($i=1; $i<=$record_numbers; $i++) {
           
           $row = dbase_get_record_with_names($db, $i);
@@ -1059,13 +1069,37 @@ class PosUploadRepository extends Repository
               //$this->logAction($data['orddate'], ' create:charges');
               $this->charges->create($data);
               $update++;
-            } catch(Exception $e) {
+              } catch(Exception $e) {
               dbase_close($db);
               throw new Exception('charges: '.$e->getMessage());  
               return false;  
             }
+
+            switch (strtolower($data['terms'])) {
+              case 'cash':
+                $ds['chrg_csh'] += $data['tot_chrg'];
+                break;
+              case 'charge':
+                $ds['chrg_chrg'] += $data['tot_chrg'];
+                break;
+              default:
+                $ds['chrg_othr'] += $data['tot_chrg'];
+                break;
+            }
+            $ds['chrg_total'] += $data['tot_chrg'];
+            $ds['bank_totchrg'] += $data['bank_chrg'];
+
           }
         }
+        
+        // update dailysales
+        try {
+          $this->ds->firstOrNew($ds, ['date', 'branchid']);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw new Exception('charges:ds: '.$e->getMessage());    
+        }
+
         dbase_close($db);
         return $update;
       }
