@@ -76,14 +76,15 @@ class RemittanceController extends Controller
 							$data[$idx][$key] = 'NH';
 							
 							try { 
-								$h = c($row->date_hired)->format('Y-m-d');
+								$h = sprintf('%s', c($row->date_hired)->format('m/d/Y'));
+								//$h = c($row->date_hired)->format('Y-m-d');
 							} catch(Exception $e) { 
-								$h = '';
+								$h = null;
 							}
-							$data[$idx][$key+1] = $h;
+							$data[$idx][$key+1] = sprintf('%s', $h);
 						
 						} else {
-							$data[$idx][$key] = 'A';
+							$data[$idx][$key] = sprintf('%s', 'A');
 							$data[$idx][$key+1] = null;
 						}
 						break;
@@ -92,15 +93,15 @@ class RemittanceController extends Controller
 					case 'birthdate':
 
 						try { 
-							$dob = c($row->birthdate)->format('Y-m-d');
+							$dob = sprintf('%s', c($row->birthdate)->format('m/d/Y'));
 						} catch(Exception $e) { 
-							$dob = '';
+							$dob = null;
 						}
-						$data[$idx][$key] = $dob;
+						$data[$idx][$key] = sprintf('%s', $dob);
 
 						break;
 					default:
-						$data[$idx][$key] = $row->{$value};
+						$data[$idx][$key] = sprintf('%s', $row->{$value});
 						break;
 				}
 			}
