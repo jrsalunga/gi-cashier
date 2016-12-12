@@ -996,6 +996,11 @@ class PosUploadRepository extends Repository
           dbase_close($db);
           throw new Exception($e->getMessage());    
         }
+
+        $ds = [];
+        $ds['slsmtd_totgrs'] = 0;
+        $ds['date']       = $date->format('Y-m-d');
+        $ds['branchid']   = $backup->branchid;
         
         for ($i=1; $i<=$record_numbers; $i++) {
 
@@ -1015,8 +1020,18 @@ class PosUploadRepository extends Repository
               throw new Exception('salesmtd: '.$e->getMessage());   
               return false;   
             }
+            $ds['slsmtd_totgrs'] += $data['grsamt'];
           }
         }
+
+        // update dailysales
+        try {
+          $this->ds->firstOrNew($ds, ['date', 'branchid']);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw new Exception('salesmtd:ds: '.$e->getMessage());    
+        }
+
         dbase_close($db);
         return $update;
       }
@@ -1052,6 +1067,7 @@ class PosUploadRepository extends Repository
         $ds['chrg_csh']   = 0;
         $ds['chrg_chrg']  = 0;
         $ds['chrg_othr']  = 0;
+        $ds['disc_totamt']  = 0;
         $ds['date']       = $date->format('Y-m-d');
         $ds['branchid']   = $backup->branchid;
         
@@ -1088,6 +1104,7 @@ class PosUploadRepository extends Repository
             }
             $ds['chrg_total'] += $data['tot_chrg'];
             $ds['bank_totchrg'] += $data['bank_chrg'];
+            $ds['disc_totamt']  += $data['disc_amt'];
 
           }
         }

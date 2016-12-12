@@ -9,8 +9,8 @@ class DailySales extends BaseModel {
 	protected $table = 'dailysales';
 	public $timestamps = false;
  	protected $fillable = ['date', 'branchid', 'managerid', 'sales', 'cos', 'tips', 'custcount', 'empcount', 
-        'mancost', 'headspend', 'tipspct', 'mancostpct', 'cospct', 'purchcost', 'salesemp', 'chrg_total', 
-        'chrg_csh', 'chrg_chrg', 'chrg_othr', 'bank_totchrg'];
+        'mancost', 'headspend', 'tipspct', 'mancostpct', 'cospct', 'purchcost', 'salesemp', 'slsmtd_totgrs', 
+        'chrg_total', 'chrg_csh', 'chrg_chrg', 'chrg_othr', 'bank_totchrg', 'disc_totamt'];
 	//protected $guarded = ['id'];
 	protected $casts = [
     'sales' => 'float',
@@ -24,11 +24,13 @@ class DailySales extends BaseModel {
     'cospct' => 'float',
     'purchcost' => 'float',
     'salesemp' => 'float',
+    'slsmtd_totgrs' => 'float',
     'chrg_total' => 'float',
     'chrg_csh' => 'float',
     'chrg_chrg' => 'float',
     'chrg_othr' => 'float',
     'bank_totchrg' => 'float',
+    'disc_totamt' => 'float',
   ];
 
 
