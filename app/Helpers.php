@@ -137,7 +137,14 @@ function vfpdate_to_carbon($f){
 	$d = substr($f, 6, 2);
 	$y = substr($f, 0, 4);
 
-	return Carbon\Carbon::parse($y.'-'.$m.'-'.$d);
+    try {
+        $d = Carbon\Carbon::parse($y.'-'.$m.'-'.$d); 
+    } catch(\Exception $e) {
+        return Carbon\Carbon::now(); 
+    }
+    return $d;
+
+	//return Carbon\Carbon::parse($y.'-'.$m.'-'.$d);
 }
 
 
