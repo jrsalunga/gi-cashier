@@ -94,7 +94,7 @@ class RemittanceController extends Controller
 							$data[$idx][$key+1] = sprintf('%s', $h);
 
 						} else {
-							$data[$idx][$key] = sprintf('%s', $value);
+							$data[$idx][$key] = sprintf('%s', 'A');
 							$data[$idx][$key+1] = null;
 						}
 						break;
