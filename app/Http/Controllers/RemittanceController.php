@@ -83,8 +83,8 @@ class RemittanceController extends Controller
 							}
 							$data[$idx][$key+1] = sprintf('%s', $h);
 						
-						} else if ($row->{$value}=='NE') {
-							$data[$idx][$key] = 'NE';
+						} else if ($row->{$value}=='S') {
+							$data[$idx][$key] = 'S';
 
 							try { 
 								$h = sprintf('%s', c($row->date_hired)->format('m/d/Y'));
