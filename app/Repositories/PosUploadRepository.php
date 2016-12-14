@@ -1005,7 +1005,12 @@ class PosUploadRepository extends Repository
         for ($i=1; $i<=$record_numbers; $i++) {
           $row = dbase_get_record_with_names($db, $i);
           //$this->logAction('-', $row['ORDDATE']);
-          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+
+          try {
+            $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+          } catch(Exception $e) {
+            $vfpdate = $date->copy()->subDay();
+          }
 
           if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
             $data = $this->salesmtdCtrl->associateAttributes($row);
