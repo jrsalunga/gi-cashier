@@ -1048,6 +1048,61 @@ class PosUploadRepository extends Repository
     public function postCharges(Carbon $date, Backup $backup) {
 
       $dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
+      
+      // delete charges (branchid, date) if exist
+      try {
+        //$this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
+        $this->charges->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
+        } catch(Exception $e) {
+        throw new Exception('charges: '.$e->getMessage());    
+      }
+
+      $ds = [];
+      $ds['bank_totchrg'] = 0;
+      $ds['chrg_total']   = 0;
+      $ds['chrg_csh']     = 0;
+      $ds['chrg_chrg']    = 0;
+      $ds['chrg_othr']    = 0;
+      $ds['disc_totamt']  = 0;
+      $ds['date']         = $date->format('Y-m-d');
+      $ds['branchid']     = $backup->branchid;
+        
+
+      try {
+        $c = $this->postRawCharges($date, $backup);
+        } catch(Exception $e) {
+        throw new Exception('charges: '.$e->getMessage());    
+      }
+
+      try {
+        $s = $this->postRawSigned($date, $backup);
+        } catch(Exception $e) {
+        throw new Exception('signed: '.$e->getMessage());    
+      }
+
+
+      $ds['bank_totchrg'] = $c['bank_totchrg'] + $s['bank_totchrg'];
+      $ds['chrg_total']   = $c['chrg_total'] + $s['chrg_total'];
+      $ds['chrg_csh']     = $c['chrg_csh'] + $s['chrg_csh'];
+      $ds['chrg_chrg']    = $c['chrg_chrg'] + $s['chrg_chrg'];
+      $ds['chrg_othr']    = $c['chrg_othr'] + $s['chrg_othr'];
+      $ds['disc_totamt']  = $c['disc_totamt'] + $s['disc_totamt'];
+
+      // update dailysales
+      try {
+        $this->ds->firstOrNew($ds, ['date', 'branchid']);
+      } catch(Exception $e) {
+        dbase_close($db);
+        throw new Exception('charges:ds: '.$e->getMessage());    
+      }
+
+      return false;
+    }
+
+
+    public function postRawCharges(Carbon $date, Backup $backup) {
+
+      $dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
 
       if (file_exists($dbf_file)) {
         //$this->logAction('posting', 'post:charges');
@@ -1056,15 +1111,6 @@ class PosUploadRepository extends Repository
         $header = dbase_get_header_info($db);
         $record_numbers = dbase_numrecords($db);
         $update = 0;
-
-        // delete charges (branchid, date) if exist
-        try {
-          //$this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
-          $this->charges->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
-          } catch(Exception $e) {
-          dbase_close($db);
-          throw new Exception('charges: '.$e->getMessage());    
-        }
         
         $ds = [];
         $ds['bank_totchrg'] = 0;
@@ -1073,9 +1119,6 @@ class PosUploadRepository extends Repository
         $ds['chrg_chrg']  = 0;
         $ds['chrg_othr']  = 0;
         $ds['disc_totamt']  = 0;
-        $ds['date']       = $date->format('Y-m-d');
-        $ds['branchid']   = $backup->branchid;
-        
 
         for ($i=1; $i<=$record_numbers; $i++) {
           
@@ -1114,18 +1157,72 @@ class PosUploadRepository extends Repository
           }
         }
         
-        // update dailysales
-        try {
-          $this->ds->firstOrNew($ds, ['date', 'branchid']);
-        } catch(Exception $e) {
-          dbase_close($db);
-          throw new Exception('charges:ds: '.$e->getMessage());    
+        dbase_close($db);
+      }
+      return $ds;
+    }
+
+
+    public function postRawSigned(Carbon $date, Backup $backup) {
+
+      $dbf_file = $this->extracted_path.DS.'SIGNED.DBF';
+
+      if (file_exists($dbf_file)) {
+        //$this->logAction('posting', 'post:charges');
+        $db = dbase_open($dbf_file, 0);
+        
+        $header = dbase_get_header_info($db);
+        $record_numbers = dbase_numrecords($db);
+        $update = 0;
+        
+        $ds = [];
+        $ds['bank_totchrg'] = 0;
+        $ds['chrg_total'] = 0;
+        $ds['chrg_csh']   = 0;
+        $ds['chrg_chrg']  = 0;
+        $ds['chrg_othr']  = 0;
+        $ds['disc_totamt']  = 0;
+
+        for ($i=1; $i<=$record_numbers; $i++) {
+          
+          $row = dbase_get_record_with_names($db, $i);
+          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+          
+          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+            $data = $this->charges->associateAttributes($row);
+            $data['branch_id'] = $backup->branchid;
+
+            try {
+              //$this->logAction($data['orddate'], ' create:charges');
+              $this->charges->create($data);
+              $update++;
+              } catch(Exception $e) {
+              dbase_close($db);
+              throw new Exception('signed: '.$e->getMessage());  
+              return false;  
+            }
+
+            switch (strtolower($data['terms'])) {
+              case 'cash':
+                $ds['chrg_csh'] += $data['tot_chrg'];
+                break;
+              case 'charge':
+                $ds['chrg_chrg'] += $data['tot_chrg'];
+                break;
+              default:
+                $ds['chrg_othr'] += $data['tot_chrg'];
+                break;
+            }
+            $ds['chrg_total'] += $data['tot_chrg'];
+            $ds['bank_totchrg'] += $data['bank_chrg'];
+            $ds['disc_totamt']  += $data['disc_amt'];
+
+          }
         }
 
         dbase_close($db);
-        return $update;
       }
-      return false;
+      return $ds;
     }
 
    
