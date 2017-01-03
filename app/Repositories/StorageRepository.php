@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Dflydev\ApacheMimeTypes\PhpRepository;
 use Illuminate\Support\Facades\Storage;
 use File;
+use Exception;
 
 
 class StorageRepository {
@@ -271,12 +272,9 @@ class StorageRepository {
     if($exist) {
       if ($this->disk->exists($path)) {
         //return "File already exists...";
-        throw new \Exception("File ".$dir['basename']." already exists on storage ".$this->type);        
+        throw new Exception("File ".$dir['basename']." already exists on storage ".$this->type);        
       }
     }
-
-   
-
     
     if(!is_dir($dir['dirname']))
       mkdir($dir['dirname'], 0775, true); //$this->createDirectory($dir);
@@ -286,8 +284,8 @@ class StorageRepository {
     //test_log('move:to:'. $this->realFullPath($path));
     try {
       File::move($src, $this->realFullPath($path));
-    }catch(\Exception $e){
-      throw new \Exception("Error ". $e->getMessage());    
+    } catch(Exception $e){
+      throw new Exception("Error ". $e->getMessage());    
     }
   }
 
