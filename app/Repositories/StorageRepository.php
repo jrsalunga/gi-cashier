@@ -270,18 +270,15 @@ class StorageRepository {
 
     //test_log('if exist:'. $path);
     if($exist) {
-      if ($this->disk->exists($this->realFullPath($path))) {
+      if ($this->disk->exists($path) {
       //if ($this->disk->exists($path)) {
-        //return "File already exists...";
         throw new Exception("File ".$dir['basename']." already exists on storage ".$this->type);        
       }
     }
 
     if($exist) {
-      if (file_exists($this->realFullPath($path))) {
-        //return "File already exists...";
-        throw new Exception("File ".$dir['basename']." already exists on storage ".$this->type);        
-      }
+      if (file_exists($this->realFullPath($path))) 
+        throw new Exception("File ".$dir['basename']." already exists.");        
     }
     
     if(!is_dir($dir['dirname']))
