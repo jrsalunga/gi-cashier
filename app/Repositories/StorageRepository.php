@@ -276,6 +276,13 @@ class StorageRepository {
         throw new Exception("File ".$dir['basename']." already exists on storage ".$this->type);        
       }
     }
+
+    if($exist) {
+      if (file_exists($this->realFullPath($path))) {
+        //return "File already exists...";
+        throw new Exception("File ".$dir['basename']." already exists on storage ".$this->type);        
+      }
+    }
     
     if(!is_dir($dir['dirname']))
       mkdir($dir['dirname'], 0775, true); //$this->createDirectory($dir);
