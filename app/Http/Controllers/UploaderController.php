@@ -299,7 +299,7 @@ class UploaderController extends Controller
 
 			$file = $this->createFileUpload($upload_path, $request);
 
-			return $storage_path;
+			return $this->web->realFullPath($storage_path);
 
 			try {
 	     	$this->files->moveFile($this->web->realFullPath($upload_path), $storage_path, true); // false = override file!
