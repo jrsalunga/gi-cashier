@@ -270,7 +270,7 @@ class StorageRepository {
 
     //test_log('if exist:'. $path);
     if($exist) {
-      if ($this->disk->exists($path) {
+      if ($this->disk->exists($path)) {
       //if ($this->disk->exists($path)) {
         throw new Exception("File ".$dir['basename']." already exists on storage ".$this->type);        
       }
