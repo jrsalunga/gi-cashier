@@ -311,8 +311,8 @@ class UploaderController extends Controller
 	    if (!is_null($this->createDepslip($file, $filename)))
 	    	$this->fileUploadRepo->update(['processed'=>1], $file->id);
 
-	    return redirect('/uploader?success='.$br.'-'.strtolower($request->cashier))
-	    ->with('alert-success', $request->filename.' saved on server as '.$filename.'!')
+	    return redirect('/uploader?success='.strtolower($br).'-'.strtolower($request->cashier))
+	    ->with('alert-success', $request->filename.' saved on server as '.$filename.'.')
 	    ->with('alert-important', '');
 
 		}
