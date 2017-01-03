@@ -277,7 +277,7 @@ class StorageRepository {
     }
 
     if($exist) {
-      if (file_exists($path)) {
+      if (file_exists($this->realFullPath($path))) {
         //return "File already exists...";
         throw new Exception("File ".$dir['basename']." already exists on storage ".$this->type);        
       }
