@@ -75,7 +75,7 @@ return [
             ],
             'files'=>[
                 'driver' => 'local',
-                'root'   => base_path('TEST_FILES_BACKUP')
+                'root'   => base_path('GI_FILES_BACKUP')
             ],
             'driver' => 'local'
         ],
