@@ -7,7 +7,10 @@ $(function(){
 	console.log(re.exec(str));
 	console.log(str.match(re));
 	*/
-
+	var resetForm =  function () {
+		$('#form-file').trigger("reset");
+		$('#btn-upload').prop('disabled', true);
+	}
 
 	var backupVerifyFilename = function(filename){
 		if(filename.length!==12) {
@@ -31,7 +34,7 @@ $(function(){
 			'year': $('#year')[0].value,
 			'month': $('#month')[0].value,
 		},
-		maxfiles: 1,
+		maxfiles: 5,
     maxfilesize: 10, // max file size in MBs
 		url: '/upload/postfile',
 		withCredentials: true, 
@@ -57,7 +60,8 @@ $(function(){
   	error: function(err, file) {
 		 switch(err) {
           case 'BrowserNotSupported':
-              alert('browser does not support HTML5 drag and drop')
+          		console.log('browser does not support HTML5 drag and drop')
+              //alert('browser does not support HTML5 drag and drop')
               break;
           case 'TooManyFiles':
           	alert('Too Many Files')
@@ -70,11 +74,13 @@ $(function(){
               // use file.name to reference the filename of the culprit file
               break;
           case 'FileTypeNotAllowed':
-          	alert('File Type Not Allowed')
+          	alertMessage($('#nav-action'), 'warning', 'File type not allowed. Please save your file as .jpg, .png, .pdf or .zip');
+          	//alert('File Type Not Allowed')
               // The file type is not in the specified list 'allowedfiletypes'
               break;
           case 'FileExtensionNotAllowed':
-          	alert('File Extension Not Allowed')
+          	alertMessage($('#nav-action'), 'warning', 'File extension not allowed. Please save your file as .jpg, .png, .pdf or .zip');
+          	//alert('File Extension Not Allowed')
               // The file extension is not in the specified list 'allowedfileextensions'
               break;
           default:
@@ -82,18 +88,26 @@ $(function(){
       }
 		},
 		//allowedfiletypes: ['image/jpg', 'image/jpeg','image/png','image/gif', 'application/zip'],   // filetypes allowed by Content-Type.  Empty array means no restrictions
-    allowedfileextensions: ['.ZIP','.zip'], // file extensions allowed. Empty array means no restrictions
-    //allowedfileextensions: ['.ZIP','.zip','.PNG','.png','.JPG','.jpg'], // file extensions allowed. Empty array means no restrictions
+    //allowedfileextensions: ['.ZIP','.zip'], // file extensions allowed. Empty array means no restrictions
+    allowedfileextensions: ['.ZIP','.zip','.PNG','.png','.JPG','.jpg', '.PDF','.pdf'], // file extensions allowed. Empty array means no restrictions
     
 		// Called before each upload is started
 		beforeEach: function(file){
 			console.log(file);
-			if(!file.type.match(/^image\//)){
+			var ext = file.name.replace(/^.*\./, '').toLowerCase();
+			console.log(ext);
+			
+			if (ext === 'pdf') {
+				$('#filetype').val('depslp').trigger('change');
+				console.log('pdf');
+				return true;
+			}
+				
+			
+			if (!file.type.match(/^image\//)) {
 				console.log('file is not an image!');
 				
-				var ext = file.name.replace(/^.*\./, '');
-				console.log(ext);
-				if(ext.toLowerCase()!=='zip'){
+				if (ext !=='zip'){
 					console.log('File not supported!');
 					return false;
 				}
@@ -102,18 +116,26 @@ $(function(){
 				// file to be rejected
 
 				if(!backupVerifyFilename(file.name)) {
-					alertMessage($('#nav-action'), 'danger', '<b>Ooops! '+ file.name +'</b> invalid backup! Kindly check the filename.');
+					alertMessage($('#nav-action'), 'danger', '<b>Ooops! '+ file.name +'</b> invalid backup! Kindly check the file.');
 					$('#filename').val(file.name);
 					console.log($(this));
 					console.log(dropbox);
-					$('#dropbox').html('<span class="message">Drag and Drop your backup here. <br>'
+					$('#dropbox').html('<span class="message">You can \'Drag and Drop\' or \'Click\' here to attach your file.  <br>'
                 +'<i>(they will only be visible to you)</i>'
                 +'</span>');
+					resetForm();
 					return false;
+				} else {
+					console.log($('#filetype').val());
+					$('#filetype').val('backup').trigger('change');
+					return true;
 				}
-				//else
-				//alertMessage($('#nav-action'), 'success', 'Valid filename');
 			}
+			
+			console.log('Continue on pics');
+			
+			$('#filetype').val('depslp').trigger('change');
+			console.log($('#filetype'));
 		},
 		
 		uploadStarted:function(i, file, len){
@@ -121,7 +143,7 @@ $(function(){
 			$('#filename').val('attaching file...');
 			//$('#attached > span').removeClass('')
 			createImage(file);
-			alertRemove();
+			//alertRemove();
 		},
 		
 		progressUpdated: function(i, file, progress) {
@@ -164,7 +186,18 @@ $(function(){
 			console.log(ext);
 			// e.target.result holds the DataURL which
 			// can be used as a source of the image:
-			var s = (ext.toLowerCase() == 'zip') ? '/images/Zip-File.png' : e.target.result;
+			if (ext.toLowerCase() === 'zip') {
+
+				var s = '/images/Zip-File.png';
+			}
+			else if (ext.toLowerCase() === 'pdf') {
+
+				var s = '/images/Pdf-File.png';
+			} 
+			else {
+
+				var s = e.target.result;
+			}
 			image.attr('src', s);
 		};
 		

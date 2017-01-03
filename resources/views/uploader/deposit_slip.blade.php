@@ -1,16 +1,16 @@
 @extends('index')
 
-@section('title', '- Upload Backup')
+@section('title', '- Uploader Backup')
 
-@section('body-class', 'backup-upload')
+@section('body-class', 'uploader-backup')
 
 @section('container-body')
 <div class="container-fluid">
 
   <ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
-    <li><a href="/backups">Backups</a></li>
-    <li class="active">Upload</li>
+    <li><a href="/uploader/backup">Uploader</a></li>
+    <li class="active">Backup</li>
   </ol>
 
   <div>
@@ -161,11 +161,13 @@
 
   <script type="text/javascript">
 
-  $('#attached').on('click', function(){
-    //console.log($('.lbl-file_upload'));
-    $('#file_upload').click();
-  });
   
+
+
+  $('#attached').on('click', function(){
+      //console.log($('.lbl-file_upload'));
+      $('#file_upload').click();
+    });
   $(document).ready(function(){
 
   $('.toggle-note').on('click', function(){

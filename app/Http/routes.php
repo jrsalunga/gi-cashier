@@ -41,6 +41,10 @@ Route::get('remittance/philhealth', ['uses'=>'RemittanceController@philhealthInd
 Route::post('remittance/upload', ['uses'=>'RemittanceController@postUpload']);
 Route::get('dl/{dl}', ['uses'=>'RemittanceController@dl']);
 
+Route::get('uploader', ['uses'=>'UploaderController@getIndex']);
+Route::get('uploader/backup', ['uses'=>'UploaderController@getBackupIndex']);
+Route::put('uploader/postfile', ['uses'=>'UploaderController@putFile']);
+Route::get('uploader/deposit-slip', ['uses'=>'UploaderController@getDepositIndex']);
 /******* start prefix:api     ********/
 Route::group(['prefix'=>'api'], function(){  /******* begin prefix:api ********/
 
@@ -64,6 +68,7 @@ Route::get('oauth2callback', 'Auth\AuthController@handleProviderCallback');
 
 get('test', function(){
 
+  return Carbon\Carbon::parse('- -');
   $c = Carbon\Carbon::parse('2016-05-26 06:00:00');
   $t = Carbon\Carbon::parse('2016-05-26 04:00:00');
 

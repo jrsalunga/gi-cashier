@@ -12,6 +12,8 @@ Homestead.json
 /logs
 /TEST_POS_BACKUP
 /TEST_FILES_BACKUP
+/BACKUP_PROCESSING_ERROR
+/UNKNOWN_BACKUP_FILES
 /storage/backup
 /storage/process
 

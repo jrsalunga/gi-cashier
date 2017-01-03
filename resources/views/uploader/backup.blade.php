@@ -1,16 +1,16 @@
 @extends('index')
 
-@section('title', '- Upload Backup')
+@section('title', '- Uploader Backup')
 
-@section('body-class', 'backup-upload')
+@section('body-class', 'uploader-backup')
 
 @section('container-body')
 <div class="container-fluid">
 
   <ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
-    <li><a href="/backups">Backups</a></li>
-    <li class="active">Upload</li>
+    <li><a href="/uploader/backup">Uploader</a></li>
+    <li class="active">Backup</li>
   </ol>
 
   <div>
@@ -158,14 +158,51 @@
   @parent
   <script src="/js/vendors/jquery.filedrop-0.1.0.js"></script>
   <script src="/js/filedrop.js"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjNiaRtUU5cE7G2IcIYVGm5vxyNDzh6ws&signed_in=true&callback=findMyGeo"></script>
 
   <script type="text/javascript">
 
+  var findMyGeo = function() {
+
+    var response = {};
+    var output = document.getElementsByClassName('geo-callback-message')[0];
+
+    if (!navigator.geolocation){
+      output.innerHTML = '<div class="alert alert-danger alert-important" role="alert">Geolocation is not supported by your browser. Please use Google Chrome</div>';
+      return;
+    }
+
+    function success(position) {
+      var latitude  = position.coords.latitude;
+      var longitude = position.coords.longitude;
+      $('#lat').val(latitude);
+      $('#lng').val(longitude);
+      //output.innerHTML = 'Latitude is ' + latitude + '° <br>Longitude is ' + longitude + '°';
+      //output.innerHTML = '<div class="alert alert-success alert-important" role="alert">Latitude is ' + latitude + '° <br>Longitude is ' + longitude + '°</div>';
+      output.innerHTML = '';
+    };
+
+    function error() {
+      //output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Unable to retrieve your location. Kindly refresh and allow the browser\'s location notification.</div>';
+    };
+
+    //output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Loading...</div>';                                  
+
+    var opt = {
+      //enableHighAccuracy: true,
+      //timeout: 5000,
+      //maximumAge: 0
+    }
+
+    navigator.geolocation.getCurrentPosition(success, error, opt);
+  }
+
+
+
   $('#attached').on('click', function(){
-    //console.log($('.lbl-file_upload'));
-    $('#file_upload').click();
-  });
-  
+      //console.log($('.lbl-file_upload'));
+      $('#file_upload').click();
+    });
   $(document).ready(function(){
 
   $('.toggle-note').on('click', function(){
