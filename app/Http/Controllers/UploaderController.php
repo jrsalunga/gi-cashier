@@ -299,8 +299,8 @@ class UploaderController extends Controller
 
 			$file = $this->createFileUpload($upload_path, $request);
 
-			return dd($this->files->exists($this->files->realFullPath($storage_path)));
 			return $this->files->realFullPath($storage_path);
+			return dd($this->files->exists($this->files->realFullPath($storage_path)));
 
 			try {
 	     	$this->files->moveFile($this->web->realFullPath($upload_path), $storage_path, true); // false = override file!
