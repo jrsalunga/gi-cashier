@@ -1038,6 +1038,7 @@ class PosUploadRepository extends Repository
         }
 
         dbase_close($db);
+        unset($ds);
         return $update;
       }
       return false;  
@@ -1047,7 +1048,7 @@ class PosUploadRepository extends Repository
 
     public function postCharges(Carbon $date, Backup $backup) {
 
-      $dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
+      //$dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
       
       // delete charges (branchid, date) if exist
       try {
@@ -1091,11 +1092,11 @@ class PosUploadRepository extends Repository
       // update dailysales
       try {
         $this->ds->firstOrNew($ds, ['date', 'branchid']);
-      } catch(Exception $e) {
-        dbase_close($db);
+        } catch(Exception $e) {
+        //dbase_close($db);
         throw new Exception('charges:ds: '.$e->getMessage());    
       }
-
+      //unset($ds);
       return false;
     }
 
@@ -1123,7 +1124,13 @@ class PosUploadRepository extends Repository
         for ($i=1; $i<=$record_numbers; $i++) {
           
           $row = dbase_get_record_with_names($db, $i);
-          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+
+          try {
+            $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+            } catch(Exception $e) {
+            continue;
+          }
+          
           
           if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
             $data = $this->charges->associateAttributes($row);
