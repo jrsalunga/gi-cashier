@@ -293,14 +293,14 @@ class UploaderController extends Controller
 
 			$filename = strtoupper($request->input('filename'));
 			if (!starts_with(strtoupper($filename), 'DEPSLP '.$br))
-				$filename = 'DEPSLP '.$br.' '.$date->format('Ymd').'.'.$ext;
+				$filename = 'DEPSLP_'.$br.'_'.$date->format('Ymd').'.'.$ext;
 			
 			$storage_path = 'DEPSLP'.DS.$br.DS.$date->format('Y').DS.$date->format('m').DS.$filename; 
 
 			$file = $this->createFileUpload($upload_path, $request);
 
-			return $this->files->realFullPath($storage_path);
-			return dd($this->files->exists($this->files->realFullPath($storage_path)));
+			//return $this->files->realFullPath($storage_path);
+			//return dd($this->files->exists($this->files->realFullPath($storage_path)));
 
 			try {
 	     	$this->files->moveFile($this->web->realFullPath($upload_path), $storage_path, true); // false = override file!
