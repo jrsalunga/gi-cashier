@@ -39,6 +39,7 @@ class UploaderController extends Controller
 
 		$this->path['temp'] = strtolower(session('user.branchcode')).DS.now('year').DS;
 		$this->path['web'] = config('gi-dtr.upload_path.web').session('user.branchcode').DS.now('year').DS;
+	
 	}
 
 
@@ -111,24 +112,82 @@ class UploaderController extends Controller
 
 					DB::beginTransaction();
 
+					// extract backup
 					if (!$this->extract($filepath)) {
-						$msg =  'Unable to extract '. $backup->filename.' but the backup file is already on server.';
-						$this->removeExtratedDir();
-						DB::rollBack();
+						$msg =  'Unable to extract '. $backup->filename;
+						$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
-
-						try {
-				     	$this->pos->moveFile($this->web->realFullPath($filepath), '..'.DS.'BACKUP_PROCESSING_ERROR'.DS.$storage_path, false); // false = override file!
-				    } catch (Exception $e) {
-							return redirect()->back()->withErrors(['error'=>'Error on moving file.']);
-				    }
+						$msg .= ' but the backup file is already on server. But try to generate another backup file and try to upload it again.';
+						if($res !== true)
+							return $res;
 						return redirect()->back()->with('alert-success', $msg)->with('alert-important', '');
 					}
 
 					
+					if($backup_date->gt(Carbon::parse('2012-12-31'))) { // dont verify branchco
+						try {
+							$this->verifyBackup($request);
+						} catch (Exception $e) {
+							$msg =  $e->getMessage();
+							$res = $this->movedErrorProcessing($filepath, $storage_path);
+							$this->updateBackupRemarks($backup, $msg);
+							//$this->logAction('error:verify:backup', $log_msg.$msg);
+							return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+						}
+						//$this->logAction('success:verify:backup', $log_msg.$msg);
+					}
 
 
+					/******* extract trasanctions data ***********/
 
+
+					if(!$this->processDailySales($backup)){
+						$msg = 'File: '.$request->input('filename').' unable to process daily sales!';
+						$res = $this->movedErrorProcessing($filepath, $storage_path);
+						$this->updateBackupRemarks($backup, $msg);
+						//$this->logAction('error:process:backup', $log_msg.$msg);
+						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+					}
+					//$this->logAction('success:process:backup', $log_msg.$msg);
+
+
+					try {
+						$this->processPurchased($backup->date);
+					} catch (Exception $e) {
+						$msg =  $e->getMessage();
+						$res = $this->movedErrorProcessing($filepath, $storage_path);
+						$this->updateBackupRemarks($backup, $msg);
+						//$this->logAction('error:process:purchased', $log_msg.$msg);
+						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+					}
+					//$this->logAction('success:process:purchased', $log_msg.$msg);
+
+
+					try {
+						$this->processSalesmtd($backup->date, $backup);
+					} catch (Exception $e) {
+						$msg =  $e->getMessage();
+						$res = $this->movedErrorProcessing($filepath, $storage_path);
+						$this->updateBackupRemarks($backup, $msg);
+						//$this->logAction('error:process:salesmtd', $log_msg.$msg);
+						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+					}
+					//$this->logAction('success:process:salesmtd', $log_msg.$msg);
+				
+				
+					try {
+						$this->processCharges($backup->date, $backup);
+					} catch (Exception $e) {
+						$msg =  $e->getMessage();
+						$res = $this->movedErrorProcessing($filepath, $storage_path);
+						$this->updateBackupRemarks($backup, $msg);
+						//$this->logAction('error:process:charges', $log_msg.$msg);
+						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+					}
+					//$this->logAction('success:process:charges', $log_msg.$msg);
+
+
+					/******* end: extract trasanctions data ***********/
 
 					try {
 			     	$this->pos->moveFile($this->web->realFullPath($filepath), $storage_path, false); // false = override file!
@@ -228,6 +287,20 @@ class UploaderController extends Controller
 		return $this->posUploadRepo->update(['remarks'=> $msg], $posupload->id);
   }
 
+  private function verifyBackup(Request $request) {
+  	try {
+  		$code = $this->posUploadRepo->getBackupCode(); 
+  	} catch (\Exception $e) {
+  		throw $e;
+  	}
+  	
+  	if(strtolower($code)===strtolower($request->user()->branch->code)) {
+  		return $code;
+  	} else {
+  		throw new Exception("Backup file is property of ". $code .' not '.$request->user()->branch->code);
+  	}
+  }
+
   private function createPosUpload($src, Request $request){
 
   	$d = $this->backupParseDate($request);
@@ -252,8 +325,47 @@ class UploaderController extends Controller
     return $this->posUploadRepo->create($data)?:NULL;
   }
 
+  private function movedErrorProcessing($filepath, $storage_path) {
+  	try {
+     	$this->pos->moveFile($this->web->realFullPath($filepath), '..'.DS.'BACKUP_PROCESSING_ERROR'.DS.$storage_path, false); // false = override file!
+    } catch (Exception $e) {
+			return redirect()->back()->withErrors(['error'=>'Error on moving file on BACKUP_PROCESSING_ERROR folder.']);
+    }
+    $this->removeExtratedDir();
+		DB::rollBack();
+    return true;
+  }
+
   private function processed(Backup $posupload){
   	return $this->posUploadRepo->update(['processed'=>1], $posupload->id);
+  }
+
+  public function processDailySales(Backup $posupload){
+  	return $this->posUploadRepo->postDailySales($posupload);
+  }
+
+  public function processPurchased($date){
+  	try {
+      $this->posUploadRepo->postPurchased($date);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+  public function processSalesmtd($date, Backup $backup){
+  	try {
+      $this->posUploadRepo->postSalesmtd($date, $backup);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+  public function processCharges($date, Backup $backup){
+  	try {
+      $this->posUploadRepo->postCharges($date, $backup);
+    } catch(Exception $e) {
+      throw $e;    
+    }
   }
 
 

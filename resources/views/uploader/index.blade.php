@@ -51,7 +51,7 @@
         <div class="btn-group pull-right" role="group">
           <a href="/backups/upload" class="btn btn-link">
             <span class="gly gly-retweet"></span>
-            <span class="hidden-xs hidden-sm">Switch to Old DropBox</span>
+            <span>Go to old DropBox</span>
           </a>
         </div>
       </div>
