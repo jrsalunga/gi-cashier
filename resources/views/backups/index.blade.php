@@ -59,8 +59,8 @@
           <th>Uploaded</th>
           <th class="">Cashier</th>
           <th class="">Processed</th>
-          <th class="hidden-xs hidden-sm">Remarks</th>
-          <th class="hidden-xs hidden-sm">IP Address</th>
+          <th>Remarks</th>
+          <th>IP Address</th>
         </tr>
       </thead>
       <tbody>
@@ -87,16 +87,16 @@
           <td>{{ $backup->cashier }} </td>
           <td class="text-center"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
           <?php  $x = explode(':', $backup->remarks) ?>
-          <td class="hidden-xs hidden-sm">
+          <td>
               @if($backup->lat == '1')
-                <span class="gly gly-certificate"></span>
+                <span class="gly gly-certificate" title="POS Backup"></span>
               @endif
 
               @if($backup->long == '1')
-                <span class="gly gly-address-book"></span>
+                <span class="gly gly-address-book" title="Payroll Backup"></span>
               @endif
             {{ $backup->remarks }} </td>
-          <td class="hidden-xs hidden-sm">
+          <td>
               {{ $backup->terminal }} 
 
             <!--
