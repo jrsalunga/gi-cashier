@@ -87,9 +87,7 @@
           <td>{{ $backup->cashier }} </td>
           <td class="text-center"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
           <?php  $x = explode(':', $backup->remarks) ?>
-          <td class="hidden-xs hidden-sm">{{ $backup->remarks }} </td>
           <td class="hidden-xs hidden-sm">
-              {{ $backup->terminal }} 
               @if($backup->lat == '1')
                 <span class="gly gly-certificate"></span>
               @endif
@@ -97,6 +95,10 @@
               @if($backup->long == '1')
                 <span class="gly gly-address-book"></span>
               @endif
+            {{ $backup->remarks }} </td>
+          <td class="hidden-xs hidden-sm">
+              {{ $backup->terminal }} 
+
             <!--
             <a href="https://www.google.com/maps/search/{{$backup->lat}},{{$backup->long}}/{{urldecode('%40')}}{{$backup->lat}},{{$backup->long}},18z" target="_blank">
             </a>
