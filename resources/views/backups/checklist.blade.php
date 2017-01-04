@@ -42,7 +42,7 @@
             -->
           </div> <!-- end btn-grp -->
           <div class="btn-group" role="group">
-            <a href="/backups/upload" class="btn btn-default">
+            <a href="/uploader" class="btn btn-default">
               <span class="glyphicon glyphicon-cloud-upload"></span> 
               <span class="hidden-xs hidden-sm">DropBox</span>
             </a>

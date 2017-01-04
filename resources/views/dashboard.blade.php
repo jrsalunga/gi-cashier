@@ -101,9 +101,8 @@
         </div>
         <div class="panel-body">
           <div class="list-group">
-            <a href="/backups/upload" class="list-group-item">DropBox 
-              
-            </a> 
+            {{-- <a href="/backups/upload" class="list-group-item">Backup</a> --}}
+            <a href="/uploader" class="list-group-item">DropBox</a> 
             <a href="/timelog/add" class="list-group-item">Timelog Manual Entry</a>
             {{-- <a href="/backups/upload" class="list-group-item">Upload Backup</a> --}}
           </div>

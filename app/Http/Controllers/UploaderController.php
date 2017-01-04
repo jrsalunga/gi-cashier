@@ -1,23 +1,21 @@
 <?php namespace App\Http\Controllers;
 use DB;
-use ZipArchive;
+use Mail;
 use Validator;
 use Exception;
+use ZipArchive;
 use Carbon\Carbon;
 use App\Models\Backup;
 use Illuminate\Http\Request;
-use Illuminate\Filesystem\Filesystem;
 use App\Http\Controllers\Controller;
+use Illuminate\Filesystem\Filesystem;
 use App\Repositories\StorageRepository;
+use Dflydev\ApacheMimeTypes\PhpRepository;
+use App\Repositories\DepslipRepository as DepslipRepo;
 use App\Repositories\PosUploadRepository as PosUploadRepo;
 use App\Repositories\FileUploadRepository as FileUploadRepo;
-use App\Repositories\DepslipRepository as DepslipRepo;
-use Dflydev\ApacheMimeTypes\PhpRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException as Http404;
-use Vinkla\Pusher\Facades\Pusher;
-use Vinkla\Pusher\PusherManager;
 use App\Events\Backup\ProcessSuccess;
-use Mail;
 
 class UploaderController extends Controller 
 {
@@ -198,6 +196,10 @@ class UploaderController extends Controller
 					DB::commit();
 					$this->processed($backup);
 					$this->removeExtratedDir();
+
+					//if (app()->environment()==='production')
+						event(new ProcessSuccess($backup, $request->user()));
+
 					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier))->with('alert-success', $backup->filename.' saved on server!');
 				
 				}
