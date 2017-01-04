@@ -197,7 +197,7 @@ class UploaderController extends Controller
 					$this->processed($backup);
 					$this->removeExtratedDir();
 
-					//if (app()->environment()==='production')
+					if (app()->environment()==='production')
 						event(new ProcessSuccess($backup, $request->user()));
 
 					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier))->with('alert-success', $backup->filename.' saved on server!');
@@ -315,8 +315,8 @@ class UploaderController extends Controller
     	'size' 			=> $this->web->fileSize($src),
     	'mimetype' 	=> $this->web->fileMimeType($src),
     	'terminal' 	=> clientIP(), //$request->ip(),
-    	'lat' 			=> round($request->input('lat'),7), 
-    	'long' 			=> round($request->input('lng'),7), 
+    	'lat' 			=> 1, 
+    	'long' 			=> 1, 
     	'remarks' 	=> $request->input('notes'),
     	'userid' 		=> $request->user()->id,
     	'filedate' 	=> $d->format('Y-m-d').' '.Carbon::now()->format('H:i:s'),
