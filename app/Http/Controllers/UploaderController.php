@@ -101,7 +101,9 @@ class UploaderController extends Controller
 			    } catch (Exception $e) {
 						return redirect()->back()->withErrors(['error'=>$e->getMessage()]);
 			    }
-			    $this->updateBackupRemarks($backup, 'Payroll backup and emailed to HR');
+			    //$this->updateBackupRemarks($backup, 'Payroll backup and emailed to HR');
+  				
+  				$this->posUploadRepo->update(['long'=>1], $backup->id);
 			    $this->web->deleteFile($filepath);
 			    $this->processed($backup);
 					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier))->with('alert-success', 'Payroll backup file: '.$backup->filename.' has been saved on server!');
@@ -194,6 +196,7 @@ class UploaderController extends Controller
 			    }
 
 					DB::commit();
+					$this->posUploadRepo->update(['lat'=>1], $backup->id);
 					$this->processed($backup);
 					$this->removeExtratedDir();
 
@@ -315,8 +318,8 @@ class UploaderController extends Controller
     	'size' 			=> $this->web->fileSize($src),
     	'mimetype' 	=> $this->web->fileMimeType($src),
     	'terminal' 	=> clientIP(), //$request->ip(),
-    	'lat' 			=> 1, 
-    	'long' 			=> 1, 
+    	'lat' 			=> 0, 
+    	'long' 			=> 0, 
     	'remarks' 	=> $request->input('notes'),
     	'userid' 		=> $request->user()->id,
     	'filedate' 	=> $d->format('Y-m-d').' '.Carbon::now()->format('H:i:s'),
