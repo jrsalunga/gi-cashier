@@ -252,13 +252,13 @@
             +'<div class="radio">'
               +'<label>'
                 +'<input type="radio" name="backup_type" id="backup_pos" value="pos" required>'
-                +'<strong>Daily POS Backup</strong> <small><em>(For Daily Transactions, EoD purposes)</em></small>'
+                +'<strong>Daily POS Backup</strong> <small><em>(for End of Day Backup purposes)</em></small>'
               +'</label>'
             +'</div>'
             +'<div class="radio">'
               +'<label>'
                 +'<input type="radio" name="backup_type" id="backup_payroll" value="payroll">'
-                +'<strong>Payroll Backup</strong> <small><em>(For Payroll purposes)</em></small>'
+                +'<strong>Payroll Backup</strong> <small><em>(for Payroll Backup purposes)</em></small>'
               +'</label>'
             +'</div></div>';
             

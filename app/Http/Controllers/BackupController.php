@@ -304,6 +304,7 @@ class BackupController extends Controller
 					event(new ProcessSuccess($backup, $request->user()));
 				
 				$this->removeExtratedDir();
+				$this->backup->update(['lat'=>1], $backup->id);
 				$this->logAction('end:submit:backup', $log_msg.'saved and processed daily sales');
 				
 				return redirect('/backups/upload?success='.strtolower($this->branch).'-'.strtolower($backup->cashier))->with('alert-success', $backup->filename.' saved and processed daily sales!');
@@ -419,8 +420,8 @@ class BackupController extends Controller
     	'size' => $this->web->fileSize($src),
     	'mimetype' => $this->web->fileMimeType($src),
     	'terminal' => clientIP(), //$request->ip(),
-    	'lat' => round($request->input('lat'),7), 
-    	'long' => round($request->input('lng'),7), 
+    	'lat' => 0, 
+    	'long' => 0, 
     	'remarks' => $request->input('notes'),
     	'userid' => $request->user()->id,
     	'filedate' => $d->format('Y-m-d').' '.Carbon::now()->format('H:i:s'),

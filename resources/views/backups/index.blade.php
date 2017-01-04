@@ -55,7 +55,8 @@
           @if($all)
             <th>Br Code</th>
           @endif
-          <th>Filename</th><th>Uploaded</th>
+          <th>Filename</th>
+          <th>Uploaded</th>
           <th class="">Cashier</th>
           <th class="">Processed</th>
           <th class="hidden-xs hidden-sm">Remarks</th>
@@ -89,6 +90,13 @@
           <td class="hidden-xs hidden-sm">{{ $backup->remarks }} </td>
           <td class="hidden-xs hidden-sm">
               {{ $backup->terminal }} 
+              @if($backup->lat == '1')
+                <span class="gly gly-certificate"></span>
+              @endif
+
+              @if($backup->long == '1')
+                <span class="gly gly-address-book"></span>
+              @endif
             <!--
             <a href="https://www.google.com/maps/search/{{$backup->lat}},{{$backup->long}}/{{urldecode('%40')}}{{$backup->lat}},{{$backup->long}},18z" target="_blank">
             </a>
