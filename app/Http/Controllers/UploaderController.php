@@ -416,9 +416,11 @@ class UploaderController extends Controller
 			$br = strtoupper(session('user.branchcode'));
 
 			$filename = strtoupper($request->input('filename'));
-			if (!starts_with(strtoupper($filename), 'DEPSLP '.$br))
-				$filename = 'DEPSLP '.$br.' '.$date->format('Ymd').'.'.$ext;
-			
+			if (!starts_with(strtoupper($filename), 'DEPSLP '.$br)) {
+				$cnt = $this->countFilenameByDate($date->format('Y-m-d'));
+				$filename = 'DEPSLP '.$br.' '.$date->format('Ymd').$cnt.'.'.$ext;
+			}
+
 			$storage_path = 'DEPSLP'.DS.$br.DS.$date->format('Y').DS.$date->format('m').DS.$filename; 
 
 			$file = $this->createFileUpload($upload_path, $request);
@@ -481,6 +483,15 @@ class UploaderController extends Controller
     ];
 
     return $this->depslip->create($data)?:NULL;
+  }
+
+  private function countFilenameByDate($date) {
+  	$d = $this->depslip->findWhere(['date'=>$date]);
+
+  	if ($d->count()>0)
+  		$d = $d->count()+1;
+			return '-'.$d;
+		return '';
   }
 
 
