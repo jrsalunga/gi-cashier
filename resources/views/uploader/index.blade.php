@@ -77,10 +77,10 @@
               <div class="col-lg-12">
                 <div class="input-group">
                   <span class="input-group-addon" id="basic-addon1">
-                    <span class="glyphicon glyphicon-file"></span> File Type
+                    <span class="glyphicon glyphicon-file"></span> Document Type
                   </span>
                   <select id="filetype" name="filetype" class="form-control" style="width: 100%; border-left: 1px solid #ccc;" required>
-                    <option value="">-- select file type --</option>
+                    <option value="">-- select document type --</option>
                     <option value="backup">Backup File</option>
                     <option value="depslp">Bank Depost Slip</option>
                   </select>

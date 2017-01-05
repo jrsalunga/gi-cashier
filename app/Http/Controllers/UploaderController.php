@@ -106,7 +106,7 @@ class UploaderController extends Controller
   				$this->posUploadRepo->update(['long'=>1], $backup->id);
 			    $this->web->deleteFile($filepath);
 			    $this->processed($backup);
-					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier))->with('alert-success', 'Payroll backup file: '.$backup->filename.' has been saved on server!');
+					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier).'&type=payroll')->with('alert-success', 'Payroll backup file: '.$backup->filename.' has been saved on server!');
 				
 				} else {
 
@@ -129,7 +129,13 @@ class UploaderController extends Controller
 							$this->verifyBackup($request);
 						} catch (Exception $e) {
 							$msg =  $e->getMessage();
-							$res = $this->movedErrorProcessing($filepath, $storage_path);
+							
+							//$res = $this->movedErrorProcessing($filepath, $storage_path);
+							$d = $this->web->deleteFile($filepath);
+							$msg .= $d ? ' & deleted':'';
+							$this->removeExtratedDir();
+							DB::rollBack();
+
 							$this->updateBackupRemarks($backup, $msg);
 							//$this->logAction('error:verify:backup', $log_msg.$msg);
 							return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
@@ -203,7 +209,8 @@ class UploaderController extends Controller
 					if (app()->environment()==='production')
 						event(new ProcessSuccess($backup, $request->user()));
 
-					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier))->with('alert-success', $backup->filename.' saved on server!');
+					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier).'&type=backup')
+									->with('backup-success', $backup->filename.' saved on server!');
 				
 				}
 
