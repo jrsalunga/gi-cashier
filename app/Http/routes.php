@@ -42,6 +42,7 @@ Route::post('remittance/upload', ['uses'=>'RemittanceController@postUpload']);
 Route::get('dl/{dl}', ['uses'=>'RemittanceController@dl']);
 
 Route::get('uploader', ['uses'=>'UploaderController@getIndex']);
+Route::get('{brcode}/uploader', ['uses'=>'UploaderController@getIndex']);
 Route::get('uploader/backup', ['uses'=>'UploaderController@getBackupIndex']);
 Route::put('uploader/postfile', ['uses'=>'UploaderController@putFile']);
 Route::get('uploader/deposit-slip', ['uses'=>'UploaderController@getDepositIndex']);

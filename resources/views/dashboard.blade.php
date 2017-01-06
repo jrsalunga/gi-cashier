@@ -10,7 +10,7 @@
       
     </a>
     <ul class="dropdown-menu">
-      <li><a href="/tk"><span class="glyphicon glyphicon-time"></span> Bundy Clock</a></li>
+      <li><a href="/tk?{{strtolower(session('user.branchcode'))}}"><span class="glyphicon glyphicon-time"></span> Bundy Clock</a></li>
       {{-- <li><a href="/backups/upload"><span class="glyphicon glyphicon-cloud-upload"></span> Upload Backup</a></li> --}}
     	<li><a href="/settings"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
       <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log Out</a></li>     
@@ -102,7 +102,7 @@
         <div class="panel-body">
           <div class="list-group">
             {{-- <a href="/backups/upload" class="list-group-item">Backup</a> --}}
-            <a href="/uploader" class="list-group-item">DropBox</a> 
+            <a href="/{{strtolower(session('user.branchcode'))}}/uploader" class="list-group-item">DropBox</a> 
             <a href="/timelog/add" class="list-group-item">Timelog Manual Entry</a>
             {{-- <a href="/backups/upload" class="list-group-item">Upload Backup</a> --}}
           </div>
