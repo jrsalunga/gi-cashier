@@ -350,7 +350,7 @@
 	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
-				<td>Iced Tea</td>
+				<td>Pep 500</td>
 			</tr>
 			@foreach($data[16] as $key => $purchase)
 			<tr>
@@ -369,9 +369,28 @@
 	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
 		<tbody>
 			<tr>
-				<td>Tea</td>
+				<td>Iced Tea</td>
 			</tr>
 			@foreach($data[17] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Tea</td>
+			</tr>
+			@foreach($data[18] as $key => $purchase)
 			<tr>
 				<td>
 				@if(is_null($purchase))
