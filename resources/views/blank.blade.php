@@ -271,5 +271,119 @@
 		</tbody>
 	</table>
 
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Pep Reg</td>
+			</tr>
+			@foreach($data[12] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Pep Max</td>
+			</tr>
+			@foreach($data[13] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Pep Light</td>
+			</tr>
+			@foreach($data[14] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Pep Zero</td>
+			</tr>
+			@foreach($data[15] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Iced Tea</td>
+			</tr>
+			@foreach($data[16] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="6" cellspacing="0" style="margin-right: 20px; float: left;">
+		<tbody>
+			<tr>
+				<td>Tea</td>
+			</tr>
+			@foreach($data[17] as $key => $purchase)
+			<tr>
+				<td>
+				@if(is_null($purchase))
+					&nbsp;
+				@else
+					{{ $purchase->qty }}
+				@endif
+			</td>
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
 </div>
 @endif
