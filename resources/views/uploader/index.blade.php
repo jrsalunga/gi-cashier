@@ -251,14 +251,14 @@
         html += '<div class="row" style="margin-top: 20px;">Choose Backup Type'
             +'<div class="radio">'
               +'<label>'
-                +'<input type="radio" name="backup_type" id="backup_pos" value="pos" required>'
-                +'<strong>Daily POS Backup</strong> <small><em>(for End of Day Backup purposes)</em></small>'
+                +'<input type="radio" name="backup_type" id="backup_payroll" value="payroll">'
+                +'<strong>Payroll Backup</strong> <small><em>(for Payroll Backup purposes)</em></small>'
               +'</label>'
             +'</div>'
             +'<div class="radio">'
               +'<label>'
-                +'<input type="radio" name="backup_type" id="backup_payroll" value="payroll">'
-                +'<strong>Payroll Backup</strong> <small><em>(for Payroll Backup purposes)</em></small>'
+                +'<input type="radio" name="backup_type" id="backup_pos" value="pos" required>'
+                +'<strong>Daily POS Backup</strong> <small><em>(for End of Day Backup purposes)</em></small>'
               +'</label>'
             +'</div></div>';
             
