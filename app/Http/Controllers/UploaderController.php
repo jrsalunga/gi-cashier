@@ -212,7 +212,7 @@ class UploaderController extends Controller
 						event(new ProcessSuccess($backup, $request->user()));
 
 					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier).'&type=backup')
-									->with('backup-success', $backup->filename.' saved on server!');
+									->with('backup-success', $backup->filename.' saved on server and processed!');
 				
 				}
 

@@ -56,7 +56,6 @@
         $url = 'https://goo.gl/OcbBKs';
       else
         $url = '/backups/checklist';
-
     ?>
     <b><span class="glyphicon glyphicon-alert"></span> Reminders:</b> Always check if you have complete End of Day POS Backup by checking on <a href="{{ $url }}" class="btn btn-default"><span class="fa fa-calendar-check-o"></span> Checklist</a>
   </div>
