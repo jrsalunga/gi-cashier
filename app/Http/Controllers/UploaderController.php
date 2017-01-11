@@ -107,7 +107,7 @@ class UploaderController extends Controller
 			    $this->web->deleteFile($filepath);
 			    //$this->processed($backup);
 					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier).'&type=payroll')
-										->with('alert-success', 'Payroll Backup: '.$backup->filename.' has been sent to HR but not processed as POS Backup!')
+										->with('alert-warning', 'Payroll Backup: '.$backup->filename.' has been sent to HR but not processed as POS Backup!')
 										->with('alert-important', '');
 				
 				} else {
