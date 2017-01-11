@@ -105,8 +105,10 @@ class UploaderController extends Controller
   				
   				$this->posUploadRepo->update(['long'=>1], $backup->id);
 			    $this->web->deleteFile($filepath);
-			    $this->processed($backup);
-					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier).'&type=payroll')->with('alert-success', 'Payroll backup file: '.$backup->filename.' has been saved on server!');
+			    //$this->processed($backup);
+					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier).'&type=payroll')
+										->with('alert-success', 'Payroll Backup: '.$backup->filename.' has been sent to HR but not processed as POS Backup!')
+										->with('alert-important', '');
 				
 				} else {
 

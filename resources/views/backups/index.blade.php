@@ -88,14 +88,27 @@
           <td class="text-center"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
           <?php  $x = explode(':', $backup->remarks) ?>
           <td>
-              @if($backup->lat == '1')
-                <span class="gly gly-certificate" title="POS Backup"></span>
-              @endif
+             
 
-              @if($backup->long == '1')
-                <span class="gly gly-address-book" title="Payroll Backup"></span>
+              @if($backup->remarks)
+                {{ $backup->remarks }} 
+              @else
+
+                 @if($backup->lat == '1')
+                  <span class="fa fa-file-archive-o" title="POS Backup"></span>
+                  POS Backup
+                @endif
+
+                @if($backup->long == '1')
+                  <span class="gly gly-address-book" title="Payroll Backup"></span>
+                  Payroll Backup
+                @endif
+              
               @endif
-            {{ $backup->remarks }} </td>
+          
+            
+
+          </td>
           <td>
               {{ $backup->terminal }} 
 
