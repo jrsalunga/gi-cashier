@@ -88,33 +88,27 @@
           <td class="text-center"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
           <?php  $x = explode(':', $backup->remarks) ?>
           <td>
-             
 
-              @if($backup->remarks)
-                {{ $backup->remarks }} 
-              @else
+            @if($backup->remarks)
+              {{ $backup->remarks }} 
+            @else
 
-                 @if($backup->lat == '1')
-                  <span class="fa fa-file-archive-o" title="POS Backup"></span>
-                  POS Backup
-                @endif
-
-                @if($backup->long == '1')
-                  <span class="gly gly-address-book" title="Payroll Backup"></span>
-                  Payroll Backup
-                @endif
-              
+              @if($backup->lat == '1')
+                <span class="fa fa-file-archive-o" title="POS Backup"></span>
+                POS Backup
               @endif
-          
-            
+
+              @if($backup->long == '1')
+                <span class="gly gly-address-book" title="Payroll Backup"></span>
+                Payroll Backup
+              @endif
+            @endif
 
           </td>
           <td>
-              {{ $backup->terminal }} 
-
+            {{ $backup->terminal }} 
             <!--
-            <a href="https://www.google.com/maps/search/{{$backup->lat}},{{$backup->long}}/{{urldecode('%40')}}{{$backup->lat}},{{$backup->long}},18z" target="_blank">
-            </a>
+            <a href="https://www.google.com/maps/search/{{$backup->lat}},{{$backup->long}}/{{urldecode('%40')}}{{$backup->lat}},{{$backup->long}},18z" target="_blank"></a>
             -->
           </td>
         </tr>
@@ -132,10 +126,5 @@
 
 @section('js-external')
   @parent
-  
-  <script>
-  
-    
- 
-  </script>
+
 @endsection

@@ -248,7 +248,7 @@
           +' Sample "<b>DEPSLP MOA 20170102.PDF</b>"</b> where <b>DEPSLP</b> - is the document type code, <b>MOA</b> - is the 3 char branch code and '
           +'<b>20170102</b> - is the Deposit Date in YYYYMMDD format.');
       } else if ($(this).val()==='backup') {
-        html += '<div class="row" style="margin-top: 20px;">Choose Backup Type'
+        html += '<div class="row" style="margin-top: 20px;"><span class="title">Choose Backup Type</span>'
             +'<div class="radio">'
               +'<label>'
                 +'<input type="radio" name="backup_type" id="backup_payroll" value="payroll">'
@@ -257,7 +257,7 @@
             +'</div>'
             +'<div class="radio">'
               +'<label>'
-                +'<input type="radio" name="backup_type" id="backup_pos" value="pos" required>'
+                +'<input type="radio" name="backup_type" id="backup_pos" value="pos">'
                 +'<strong>Daily POS Backup</strong> <small><em>(for End of Day Backup purposes)</em></small>'
               +'</label>'
             +'</div></div>';
@@ -276,13 +276,63 @@
       }
     });
 
+    var validateRadio = function() {
+      var radios = $('[name="backup_type"]');
+      var formValid = false;
+
+      var i = 0;
+      while (!formValid && i < radios.length) {
+          if (radios[i].checked) formValid = true;
+          i++;        
+      }
+      //if (!formValid) alert("Must check some option!");
+      return formValid;
+    }
+
+    $('.filetype-result').on('click', '[name="backup_type"]', function() {
+      $.inArray($(this).val(), ['pos', 'payroll'])
+        $('.filetype-result > div').removeClass('form-required');
+    });
+
+
     $('form#form-file').submit(function(e) { 
-      $('.process-btn-container').addClass('hide');
+
+      if ($('#filetype').val()==='backup') {
+        
+        if(!validateRadio()) {
+          $('.filetype-result > div').addClass('form-required');
+          return false;
+        } else {
+          $('.filetype-result > div').removeClass('form-required');
+        }
+      }
+
       $('.progress-container').removeClass('hide');
+      $('.process-btn-container').addClass('hide');
+
       loader();
+      //console.info('loader');
+      return true;
       //e.preventDefault(); 
     });
     
   });
   </script>
+
+  <style type="text/css">
+  .form-required {
+    border: 1px solid red;
+    border-radius: 4px;
+    padding: 10px;
+  }
+
+  .bg-danger {
+    border-radius: 4px;
+  }
+
+  .form-required .title{
+    color: red;
+    font-weight: bold;
+  }
+  </style>
 @endsection
