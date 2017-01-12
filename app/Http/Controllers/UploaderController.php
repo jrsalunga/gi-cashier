@@ -448,10 +448,17 @@ class UploaderController extends Controller
 	    if (!is_null($this->createDepslip($file, $filename)))
 	    	$this->fileUploadRepo->update(['processed'=>1], $file->id);
 
+
+
+	    return redirect()
+    					->route('uploader', ['brcode'=>strtolower($br),'u'=>strtolower($request->cashier),'type'=>'depslp'])
+    					->with('alert-success', $request->filename.' saved on server as '.$filename.'.')
+	    				->with('alert-important', '');
+	    /*
 	    return redirect('/uploader?success='.strtolower($br).'-'.strtolower($request->cashier))
 	    ->with('alert-success', $request->filename.' saved on server as '.$filename.'.')
 	    ->with('alert-important', '');
-
+			*/
 		}
 		return redirect()->back()->withErrors(['error'=>'File: '.$request->input('filename').' do not exist! Try to upload again..']);
 	}
