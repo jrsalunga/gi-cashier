@@ -32,6 +32,10 @@ Route::put('upload/postfile', ['as'=>'upload.putfile', 'uses'=>'BackupController
 Route::get('download/{param1?}/{param2?}/{param3?}/{param4?}/{param5?}', ['uses'=>'BackupController@getDownload']);
 
 
+Route::get('{brcode}/depslp/checklist', ['uses'=>'DepslpController@getChecklist']);
+Route::get('{brcode}/depslp/log', ['uses'=>'DepslpController@getHistory']);
+
+
 Route::get('timelog/{param1?}/{param2?}', ['uses'=>'TimelogController@getIndex'])
   ->where(['param1'=>'add', 
           'param2'=>'week|[0-9]+']);

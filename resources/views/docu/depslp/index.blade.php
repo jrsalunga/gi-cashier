@@ -1,15 +1,15 @@
 @extends('index')
 
-@section('title', '- Backups History')
+@section('title', '- Deposit Slip History')
 
-@section('body-class', 'generate-dtr')
+@section('body-class', 'depslp-dtr')
 
 @section('container-body')
 <div class="container-fluid">
 
   <ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
-    <li><a href="/backups">Backups</a></li>
+    <li><a href="/{{brcode()}}/depslp/log">Deposit Slip</a></li>
     <li class="active">Logs</li>
   </ol>
 
@@ -38,6 +38,7 @@
                 <li><a href="/{{brcode()}}/depslp/checklist"><span class="fa fa-bank"></span> Deposit Slip</a></li>
               </ul>
             </div>
+            
 
             <div class="btn-group">
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -53,7 +54,7 @@
             
           </div> <!-- end btn-grp -->
           <div class="btn-group" role="group">
-            <a href="/uploader" class="btn btn-default">
+            <a href="/{{brcode()}}/uploader" class="btn btn-default">
               <span class="glyphicon glyphicon-cloud-upload"></span>
               <span class="hidden-xs hidden-sm">DropBox</span>
             </a>
@@ -68,72 +69,49 @@
     <table class="table table-striped table-hover">
       <thead>
         <tr>
-          @if($all)
-            <th>Br Code</th>
-          @endif
+          
           <th>Filename</th>
-          <th>Uploaded</th>
-          <th class="">Cashier</th>
-          <th class="">Processed</th>
+          <th class="text-right">Amount</th>
+          <th class="text-center">Deposit Date</th>
+          <th>Cashier</th>
           <th>Remarks</th>
+          <th>Uploaded</th>
           <th>IP Address</th>
         </tr>
       </thead>
       <tbody>
-        @foreach($backups as $backup)
+        @foreach($depslips as $depslip)
         <tr>
-          @if($all)
-            <td title="{{ $backup->branch->descriptor }}">{{ $backup->branch->code }}</td>
-          @endif
-          <td>{{ $backup->filename }} </td>
+          <td>{{ $depslip->fileUpload->filename }}</td>
+          <td class="text-right">{{ number_format($depslip->amount,2) }}</td>
+          <td class="text-center">{{ $depslip->date->format('Y-m-d') }}</td>
+          <td>{{ $depslip->cashier }}</td>
+          <td>{{ $depslip->remarks }}</td>
           <td>
             <span class="hidden-xs">
-              @if($backup->uploaddate->format('Y-m-d')==now())
-                {{ $backup->uploaddate->format('h:i A') }}
+              @if($depslip->created_at->format('Y-m-d')==now())
+                {{ $depslip->created_at->format('h:i A') }}
               @else
-                {{ $backup->uploaddate->format('m/d/Y h:i A') }}
+                {{ $depslip->created_at->format('m/d/Y h:i A') }}
               @endif
             </span> 
             <em>
-              <small title="{{ $backup->uploaddate->format('m/d/Y h:i A') }}">
-              {{ diffForHumans($backup->uploaddate) }}
+              <small title="{{ $depslip->created_at->format('m/d/Y h:i A') }}">
+              {{ diffForHumans($depslip->created_at) }}
               </small>
             </em>
-          </td>
-          <td>{{ $backup->cashier }} </td>
-          <td class="text-center"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
-          <?php  $x = explode(':', $backup->remarks) ?>
-          <td>
-
-            @if($backup->remarks)
-              {{ $backup->remarks }} 
-            @else
-
-              @if($backup->lat == '1')
-                <span class="fa fa-file-archive-o" title="POS Backup"></span>
-                POS Backup
-              @endif
-
-              @if($backup->long == '1')
-                <span class="gly gly-address-book" title="Payroll Backup"></span>
-                Payroll Backup
-              @endif
-            @endif
+            
 
           </td>
-          <td>
-            {{ $backup->terminal }} 
-            <!--
-            <a href="https://www.google.com/maps/search/{{$backup->lat}},{{$backup->long}}/{{urldecode('%40')}}{{$backup->lat}},{{$backup->long}},18z" target="_blank"></a>
-            -->
-          </td>
+          <td>{{ $depslip->fileUpload->terminal }}</td>
+          
         </tr>
         @endforeach
       </tbody>
     </table>
     </div>
     
-    {!! $backups->render() !!}
+    {!! $depslips->render() !!}
      
   </div>
 </div><!-- end container-fluid -->

@@ -1,8 +1,8 @@
 @extends('index')
 
-@section('title', '- Backups History')
+@section('title', '- Backup Checklist')
 
-@section('body-class', 'generate-dtr')
+@section('body-class', 'backup-checklist')
 
 @section('container-body')
 <div class="container-fluid">
@@ -10,7 +10,8 @@
   <ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
     <li><a href="/backups">Backups</a></li>
-    <li class="active">Logs</li>
+    <li><a href="/backups/checklist">Checklist</a></li>
+    <li class="active">{{ $date->format('M Y') }}</li>
   </ol>
 
   <div>
@@ -26,8 +27,7 @@
               <span class="fa fa-archive"></span>
               <span class="hidden-xs hidden-sm">Filing System</span>
             </a>
-            
-            <div class="btn-group">
+           <div class="btn-group">
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="fa fa-calendar-check-o"></span>
                 <span class="hidden-xs">Checklist</span>
@@ -50,91 +50,47 @@
                 <li><a href="/{{brcode()}}/depslp/log"><span class="fa fa-bank"></span> Deposit Slip</a></li>
               </ul>
             </div>
-            
+            <!--
+            <a href="/backups" class="btn btn-default">
+              <span class="glyphicon glyphicon-cloud"></span>
+            </a>
+            -->
           </div> <!-- end btn-grp -->
           <div class="btn-group" role="group">
             <a href="/uploader" class="btn btn-default">
-              <span class="glyphicon glyphicon-cloud-upload"></span>
+              <span class="glyphicon glyphicon-cloud-upload"></span> 
               <span class="hidden-xs hidden-sm">DropBox</span>
             </a>
-          </div>
+          </div><!-- end btn-grp -->
+
+
+          <div class="btn-group pull-right clearfix" role="group">
+          <a href="/backups/checklist?date={{ $date->copy()->subMonth()->format('Y-m-d') }}" class="btn btn-default" title="{{ $date->copy()->subMonth()->format('Y-m-d') }}">
+            <span class="glyphicon glyphicon-chevron-left"></span>
+          </a>
+          <input type="text" class="btn btn-default" id="dp-date" value="{{ $date->format('m/Y') }}" style="max-width: 110px;" readonly>
+          <label class="btn btn-default" for="dp-date"><span class="glyphicon glyphicon-calendar"></span></label>
+          <a href="/backups/checklist?date={{ $date->copy()->addMonth()->format('Y-m-d') }}" class="btn btn-default" title="{{ $date->copy()->addMonth()->format('Y-m-d') }}">
+            <span class="glyphicon glyphicon-chevron-right"></span>
+          </a>
+        </div>
+
+
         </div>
       </div>
     </nav>
 
     @include('_partials.alerts')
 
-    <div class="table-responsive">
-    <table class="table table-striped table-hover">
-      <thead>
-        <tr>
-          @if($all)
-            <th>Br Code</th>
-          @endif
-          <th>Filename</th>
-          <th>Uploaded</th>
-          <th class="">Cashier</th>
-          <th class="">Processed</th>
-          <th>Remarks</th>
-          <th>IP Address</th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach($backups as $backup)
-        <tr>
-          @if($all)
-            <td title="{{ $backup->branch->descriptor }}">{{ $backup->branch->code }}</td>
-          @endif
-          <td>{{ $backup->filename }} </td>
-          <td>
-            <span class="hidden-xs">
-              @if($backup->uploaddate->format('Y-m-d')==now())
-                {{ $backup->uploaddate->format('h:i A') }}
-              @else
-                {{ $backup->uploaddate->format('m/d/Y h:i A') }}
-              @endif
-            </span> 
-            <em>
-              <small title="{{ $backup->uploaddate->format('m/d/Y h:i A') }}">
-              {{ diffForHumans($backup->uploaddate) }}
-              </small>
-            </em>
-          </td>
-          <td>{{ $backup->cashier }} </td>
-          <td class="text-center"><span class="glyphicon glyphicon-{{ $backup->processed == '1' ? 'ok':'remove' }}"></span></td>
-          <?php  $x = explode(':', $backup->remarks) ?>
-          <td>
 
-            @if($backup->remarks)
-              {{ $backup->remarks }} 
-            @else
 
-              @if($backup->lat == '1')
-                <span class="fa fa-file-archive-o" title="POS Backup"></span>
-                POS Backup
-              @endif
-
-              @if($backup->long == '1')
-                <span class="gly gly-address-book" title="Payroll Backup"></span>
-                Payroll Backup
-              @endif
-            @endif
-
-          </td>
-          <td>
-            {{ $backup->terminal }} 
-            <!--
-            <a href="https://www.google.com/maps/search/{{$backup->lat}},{{$backup->long}}/{{urldecode('%40')}}{{$backup->lat}},{{$backup->long}},18z" target="_blank"></a>
-            -->
-          </td>
-        </tr>
-        @endforeach
-      </tbody>
-    </table>
-    </div>
+  <h1>Under Constuction</h1>
     
-    {!! $backups->render() !!}
-     
+   
+
+    
+      
+  
   </div>
 </div><!-- end container-fluid -->
 @endsection
@@ -142,5 +98,26 @@
 
 @section('js-external')
   @parent
+  <script type="text/javascript">
 
+
+
+  $(document).ready(function(){
+
+
+    $('#dp-date').datetimepicker({
+      //defaultDate: "2016-06-01",
+      format: 'MM/YYYY',
+      showTodayButton: true,
+      ignoreReadonly: true,
+      viewMode: 'months'
+    }).on('dp.change', function(e){
+      var date = e.date.format('YYYY-MM-DD');
+      document.location.href = '/backups/checklist?date='+e.date.format('YYYY-MM-DD');
+      console.log(date);
+    });
+      
+  });
+  
+  </script>
 @endsection

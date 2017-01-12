@@ -40,20 +40,43 @@
           <h3 class="panel-title"><span class="fa fa-file-archive-o"></span> Last 7 Days Backup</h3>
         </div>
         <div class="panel-body">
-          <p class="text-right">
-            <a href="/timesheet?date={{date('Y-m-d')}}" class="btn btn-default">
-              <span class="glyphicon glyphicon-th-list"></span> 
-              <span class="hidden-xs">Timesheet</span>
-            </a>
-            <a href="/backups/checklist" class="btn btn-default">
-              <span class="fa fa-calendar-check-o"></span> 
-              <span class="hidden-xs">Backup Checklist</span>
-            </a> 
-            <a href="/backups/log" class="btn btn-default">
-              <span class="gly gly-folder-lock"></span> 
-              <span class="hidden-xs">Backup Logs</span>
-            </a>
-          </p> 
+          <div class="btn-toolbar" role="toolbar">
+            <div class="btn-group">
+              <a href="/timesheet?date={{date('Y-m-d')}}" class="btn btn-default">
+                <span class="gly gly-stopwatch"></span> 
+                <span class="hidden-xs">Timesheet</span>
+              </a>
+            </div>
+            <div class="btn-group">
+              <!--
+              <a href="/backups/checklist" class="btn btn-default">
+                <span class="fa fa-calendar-check-o"></span> 
+                <span class="hidden-xs">Backup Checklist</span>
+              </a> 
+              -->
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="fa fa-calendar-check-o"></span>
+                <span class="hidden-xs">Checklist</span>
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a href="/backups/checklist"><span class="fa fa-file-archive-o"></span> Backup</a></li>
+                <li><a href="/{{brcode()}}/depslp/checklist"><span class="fa fa-bank"></span> Deposit Slip</a></li>
+              </ul>
+            </div>
+
+            <div class="btn-group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="glyphicon glyphicon-th-list"></span>
+                <span class="hidden-xs">Logs</span>
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a href="/backups/log"><span class="fa fa-file-archive-o"></span> Backup</a></li>
+                <li><a href="/{{brcode()}}/depslp/log"><span class="fa fa-bank"></span> Deposit Slip</a></li>
+              </ul>
+            </div>
+          </div>
           <div class="table-responsive">
           <table class="table table table-hover table-striped">
             <thead>
@@ -102,7 +125,7 @@
         <div class="panel-body">
           <div class="list-group">
             {{-- <a href="/backups/upload" class="list-group-item">Backup</a> --}}
-            <a href="/{{strtolower(session('user.branchcode'))}}/uploader" class="list-group-item">DropBox</a> 
+            <a href="/{{brcode()}}/uploader" class="list-group-item">DropBox</a> 
             <a href="/timelog/add" class="list-group-item">Timelog Manual Entry</a>
             {{-- <a href="/backups/upload" class="list-group-item">Upload Backup</a> --}}
           </div>

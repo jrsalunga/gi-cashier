@@ -386,4 +386,10 @@ if (!function_exists('c')) {
     }
 }
 
+if (!function_exists('brcode')) {
+    function brcode() {
+        return strtolower(session('user.branchcode'));
+    }
+}
+
 

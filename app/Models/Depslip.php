@@ -8,7 +8,7 @@ class Depslip extends BaseModel {
 	const CREATED_AT = 'created_at';
 	
 	protected $table = 'depslip';
-  protected $dates = ['date'];
+  protected $dates = ['date', 'created_at'];
  	protected $fillable = ['branch_id', 'filename', 'date', 'amount', 'file_upload_id', 'cashier' ,'remarks', 'user_id', 'created_at'];
 	protected $guarded = ['id'];
 	protected $casts = [
