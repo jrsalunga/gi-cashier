@@ -258,7 +258,7 @@
             +'<div class="radio">'
               +'<label>'
                 +'<input type="radio" name="backup_type" id="backup_pos" value="pos">'
-                +'<strong>Daily POS Backup</strong> <small><em>(for End of Day Backup purposes)</em></small>'
+                +'<strong>POS Backup</strong> <small><em>(for End of Day Backup purposes)</em></small>'
               +'</label>'
             +'</div></div>';
             
