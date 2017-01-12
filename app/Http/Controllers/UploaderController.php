@@ -105,11 +105,9 @@ class UploaderController extends Controller
   				
   				$this->posUploadRepo->update(['long'=>1], $backup->id);
 			    $this->web->deleteFile($filepath);
-			    //$this->processed($backup);
-					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier).'&type=payroll')
-										->with('alert-warning', 'Payroll Backup: '.$backup->filename.' has been sent to HR but not processed as POS Backup!')
-										->with('alert-important', '');
-				
+			    return redirect()
+		    					->route('uploader', ['brcode'=>strtolower(session('user.branchcode')),'u'=>strtolower($backup->cashier),'type'=>'payroll'])
+		    					->with('payroll.success', $backup->filename);
 				} else {
 
 					DB::beginTransaction();
@@ -211,9 +209,13 @@ class UploaderController extends Controller
 					if (app()->environment()==='production')
 						event(new ProcessSuccess($backup, $request->user()));
 
+					return redirect()
+		    					->route('uploader', ['brcode'=>strtolower(session('user.branchcode')),'u'=>strtolower($backup->cashier),'type'=>'pos'])
+		    					->with('pos.success', $backup->filename);
+		    	/*
 					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier).'&type=backup')
 									->with('backup-success', $backup->filename.' saved on server and processed!');
-				
+					*/
 				}
 
 			}

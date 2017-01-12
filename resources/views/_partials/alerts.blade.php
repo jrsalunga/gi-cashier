@@ -41,9 +41,9 @@
   </div>
 @endif
 
-@if(session()->has('backup-success'))
+@if(session()->has('pos.success'))
   <div class="alert alert-success">
-    {{ session('backup-success') }} 
+    <b>POS Backup: </b>{{ session('pos.success') }} saved on server and processed!
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -57,6 +57,15 @@
       else
         $url = '/backups/checklist';
     ?>
-    <b><span class="glyphicon glyphicon-alert"></span> Reminders:</b> Always check if you have complete End of Day POS Backup by checking on <a href="{{ $url }}" class="btn btn-default"><span class="fa fa-calendar-check-o"></span> Checklist</a>
+    <b><span class="glyphicon glyphicon-alert"></span> Reminders:</b> Always check if you have complete <b>POS Backup</b> by checking on <a href="{{ $url }}" class="btn btn-default"><span class="fa fa-calendar-check-o"></span> Checklist</a>
+  </div>
+@endif
+
+@if(session()->has('payroll.success'))
+  <div class="alert alert-warning alert-important">
+    <b>Payroll Backup:</b> {{ session('payroll.success') }} has been sent to <b>HR</b> but not processed as <b>POS Backup</b>!'
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
   </div>
 @endif
