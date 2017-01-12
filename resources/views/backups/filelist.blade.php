@@ -38,17 +38,33 @@
               <span class="fa fa-archive"></span>
               <span class="hidden-xs hidden-sm">Filing System</span>
             </button>
-            <a href="/backups/checklist" class="btn btn-default">
-              <span class="fa fa-calendar-check-o"></span>
-              <span class="hidden-xs hidden-sm">Checklist</span>
-            </a>
-            <a href="/backups/log" class="btn btn-default">
-              <span class="glyphicon glyphicon-th-list"></span>
-              <span class="hidden-xs hidden-sm">Logs</span>
-            </a> 
+            
+            <div class="btn-group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="fa fa-calendar-check-o"></span>
+                <span class="hidden-xs">Checklist</span>
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a href="/backups/checklist"><span class="fa fa-file-archive-o"></span> Backup</a></li>
+                <li><a href="/{{brcode()}}/depslp/checklist"><span class="fa fa-bank"></span> Deposit Slip</a></li>
+              </ul>
+            </div>
+
+            <div class="btn-group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="glyphicon glyphicon-th-list"></span>
+                <span class="hidden-xs">Logs</span>
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a href="/backups/log"><span class="fa fa-file-archive-o"></span> Backup</a></li>
+                <li><a href="/{{brcode()}}/depslp/log"><span class="fa fa-bank"></span> Deposit Slip</a></li>
+              </ul>
+            </div>
           </div> <!-- end btn-grp -->
           <div class="btn-group" role="group">
-            <a href="/uploader" class="btn btn-default">
+            <a href="/{{brcode()}}/uploader" class="btn btn-default">
               <span class="glyphicon glyphicon-cloud-upload"></span> 
               <span class="hidden-xs hidden-sm">DropBox</span>
             </a>

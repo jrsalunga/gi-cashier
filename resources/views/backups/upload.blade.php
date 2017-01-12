@@ -47,7 +47,7 @@
             </button>
           </div>
           <div class="btn-group pull-right" role="group">
-            <a href="/uploader" class="btn btn-link">
+            <a href="/{{brcode()}}/uploader" class="btn btn-link">
               <span class="gly gly-retweet"></span>
               <span>Try new DropBox</span>
             </a>
