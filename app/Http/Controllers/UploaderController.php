@@ -123,6 +123,8 @@ class UploaderController extends Controller
 						return redirect()->back()->with('alert-success', $msg)->with('alert-important', '');
 					}
 
+					$file = $this->createFileUpload($filepath, $request, '87ADF8F1CCDA11E6A3D000FF18C615EC');
+
 					
 					if($backup_date->gt(Carbon::parse('2012-12-31'))) { // dont verify branchco
 						try {
@@ -203,6 +205,7 @@ class UploaderController extends Controller
 
 					DB::commit();
 					$this->posUploadRepo->update(['lat'=>1], $backup->id);
+					$this->fileUploadRepo->update(['processed'=>1], $file->id);
 					$this->processed($backup);
 					$this->removeExtratedDir();
 
@@ -421,19 +424,23 @@ class UploaderController extends Controller
 
 			$filename = strtoupper($request->input('filename'));
 			if (!starts_with(strtoupper($filename), 'DEPSLP '.$br)) {
+				
 				$cnt = $this->countFilenameByDate($date->format('Y-m-d'));
-				$filename = 'DEPSLP '.$br.' '.$date->format('Ymd').$cnt.'.'.$ext;
+				if ($cnt)
+					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd').'-'.$cnt.'.'.$ext;
+				else
+					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd').'.'.$ext;
+					
 			}
 
-			$storage_path = 'DEPSLP'.DS.$br.DS.$date->format('Y').DS.$date->format('m').DS.$filename; 
+			$storage_path = 'DEPSLP'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
 
-			$file = $this->createFileUpload($upload_path, $request);
+			$file = $this->createFileUpload($upload_path, $request, 'C1CCBE28CCDA11E6A3D000FF18C615EC');
 
 			try {
 	     	$this->files->moveFile($this->web->realFullPath($upload_path), $storage_path, true); // false = override file!
 	    } catch(Exception $e) {
 				return redirect()->back()
-				//->withErrors(['error'=>'Error on moving file. '.$e->getMessage()])
 				->with('alert-error', 'Error on moving file. '.$e->getMessage())
 				->with('alert-important', ' ');
 	    }
@@ -451,7 +458,7 @@ class UploaderController extends Controller
 
 	/************* for processBankSlip **************/
 
-	private function createFileUpload($src, Request $request){
+	private function createFileUpload($src, Request $request, $doctypeid){
 
   	$d = Carbon::parse($request->input('date').' '.c()->format('H:i:s'));
 
@@ -462,7 +469,7 @@ class UploaderController extends Controller
     	'month' 				=> $d->format('m'), //$request->input('month'),
     	'size' 					=> $this->web->fileSize($src),
     	'mimetype' 			=> $this->web->fileMimeType($src),
-    	'filetype_id'	=> 'C1CCBE28CCDA11E6A3D000FF18C615EC',
+    	'filetype_id'		=> $doctypeid,
     	'terminal' 			=> clientIP(), //$request->ip(),
     	'user_remarks' 	=> $request->input('notes'),
     	'user_id' 			=> $request->user()->id,
@@ -491,11 +498,13 @@ class UploaderController extends Controller
 
   private function countFilenameByDate($date) {
   	$d = $this->depslip->findWhere(['date'=>$date]);
-
-  	if ($d->count()>0)
-  		$d = $d->count()+1;
-			return '-'.$d;
-		return '';
+		 
+		$c = intval(count($d));
+		
+  	if ($c>0)
+			return $c+1;
+  		
+		return false;
   }
 
 
