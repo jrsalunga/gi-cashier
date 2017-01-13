@@ -393,10 +393,13 @@ class UploaderController extends Controller
 
 	public function processBankSlip(Request $request) {
 
+		//return $request->all();
+
 		$rules = [
 			'filename'		=> 'required',
 			'filetype'  	=> 'required',
 			'date'				=> 'required|date',
+			'time'				=> 'required',
 			'amount'			=> 'required|integer',
 			'cashier'			=> 'required',
 		];

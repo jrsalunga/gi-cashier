@@ -9,7 +9,7 @@ class Depslip extends BaseModel {
 	
 	protected $table = 'depslip';
   protected $dates = ['date', 'created_at'];
- 	protected $fillable = ['branch_id', 'filename', 'date', 'amount', 'file_upload_id', 'cashier' ,'remarks', 'user_id', 'created_at'];
+ 	protected $fillable = ['branch_id', 'filename', 'date', 'time', 'amount', 'file_upload_id', 'cashier' ,'remarks', 'user_id', 'created_at'];
 	protected $guarded = ['id'];
 	protected $casts = [
     'amount' => 'float',
