@@ -272,7 +272,9 @@
         alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> <ol><li>Before attaching the scanned Bank Deposit Slip please follow the standard file naming convention.'
           +' Sample "<b>DEPSLP MOA 20170102</b>"</b> where <b>DEPSLP</b> - is the document type code, <b>MOA</b> - is the 3 char branch code and '
           +'<b>20170102</b> - is the Deposit Date in YYYYMMDD format. For multiple deposit on the same day, the filename should be <b>DEPSLP MOA 20170102-2</b>,'
-          +' <b>DEPSLP MOA 20170102-3</b>, etc.</li><li> Make sure that the <b>Date/Time</b> encoded is the <b>Deposit Date/Time</b> on the Deposit Slip.</li></ol>');
+          +' <b>DEPSLP MOA 20170102-3</b>, etc.</li><li> Make sure that the <b>Date/Time</b> encoded is the <b>Deposit Date/Time</b> on the Deposit Slip.</li>'
+          +'<li>Please don\'t upload other documents like DCCR, etc. <b>Scanned Deposit Slip</b> only. =)</li></ol>'
+          +'<small><em class="text-muted">For more questions / clarifications email us at <a href="mailto:jefferson.salunga@gmail.com">jefferson.salunga@gmail.com</a></em></small>');
       } else if ($(this).val()==='backup') {
         html += '<div class="row" style="margin-top: 20px;"><span class="title">Choose Backup Type</span>'
             +'<div class="radio">'
