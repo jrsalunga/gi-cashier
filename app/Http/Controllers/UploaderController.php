@@ -423,7 +423,7 @@ class UploaderController extends Controller
 			$br = strtoupper(session('user.branchcode'));
 
 			$filename = strtoupper($request->input('filename'));
-			if (!starts_with(strtoupper($filename), 'DEPSLP '.$br)) {
+			//if (!starts_with(strtoupper($filename), 'DEPSLP '.$br)) {
 				
 				$cnt = $this->countFilenameByDate($date->format('Y-m-d'));
 				if ($cnt)
@@ -431,7 +431,7 @@ class UploaderController extends Controller
 				else
 					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd').'.'.$ext;
 					
-			}
+			//}
 
 			$storage_path = 'DEPSLP'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
 
@@ -492,6 +492,7 @@ class UploaderController extends Controller
 	 		'branch_id' 			=> session('user.branchid'),
     	'filename' 				=> $filename,
     	'date' 						=> request()->input('date'),
+    	'time' 						=> request()->input('time'),
     	'amount' 					=> request()->input('amount'),
     	'file_upload_id' 	=> $file->id,
     	'terminal' 				=> clientIP(), //$request->ip(),

@@ -244,11 +244,25 @@
       var html = '';
       if ($(this).val()==='depslp') {
         html += '<div class="row" style="margin-top: 20px;">'
-              +'<div class="input-group">'
+              +'<div class="input-group date-toggle">'
               +'<span class="input-group-addon" id="basic-addon1">'
-                +'<span class="glyphicon glyphicon-calendar"></span> Deposit Date</span>'
-              +'<input type="text" class="form-control" id="date" name="date" required placeholder="YYYY-MM-DD">'
-            +'</div></div>'
+                +'Deposit Date</span>'
+              +'<input type="text" class="form-control" id="date" name="date" required placeholder="YYYY-MM-DD" maxlength="8">'
+            +'<span class="input-group-addon">'
+            +'<span class="glyphicon glyphicon-calendar"></span>'
+            +'</span>'
+            +'</div>'
+            +'</div>'
+            +'<div class="row" style="margin-top: 20px;">'
+              +'<div class="input-group time-toogle">'
+              +'<span class="input-group-addon" id="basic-addon1">'
+                +'Deposit Time</span>'
+              +'<input type="text" class="form-control" id="time" name="time" required placeholder="HH:MM:SS" maxlength="8">'
+            +'<span class="input-group-addon">'
+            +'<span class="glyphicon glyphicon-time"></span>'
+            +'</span>'
+            +'</div>'
+            +'</div>'
             +'<div class="row" style="margin-top: 20px;">'
               +'<div class="input-group">'
               +'<span class="input-group-addon" id="basic-addon1">'
@@ -256,8 +270,8 @@
               +'<input type="text" class="form-control" id="amount" name="amount" required style="text-align: right;" placeholder="0.00">'
             +'</div></div>';
         alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> Before attaching the scanned Bank Deposit Slip please follow the standard file naming convention.'
-          +' Sample "<b>DEPSLP MOA 20170102.PDF</b>"</b> where <b>DEPSLP</b> - is the document type code, <b>MOA</b> - is the 3 char branch code and '
-          +'<b>20170102</b> - is the Deposit Date in YYYYMMDD format.');
+          +' Sample "<b>DEPSLP MOA 20170102</b>"</b> where <b>DEPSLP</b> - is the document type code, <b>MOA</b> - is the 3 char branch code and '
+          +'<b>20170102</b> - is the Deposit Date in YYYYMMDD format. For multiple deposit on the same day, the filename should be <b>DEPSLP MOA 20170102-2</b>, <b>DEPSLP MOA 20170102-3</b>, etc.');
       } else if ($(this).val()==='backup') {
         html += '<div class="row" style="margin-top: 20px;"><span class="title">Choose Backup Type</span>'
             +'<div class="radio">'
@@ -280,9 +294,16 @@
       $('.filetype-result').html(html);
 
       if ($('#date')[0]!==undefined) {
-        $('#date').datetimepicker({
+        $('.date-toggle').datetimepicker({
           format: 'YYYY-MM-DD',
           ignoreReadonly: true
+        });
+      }
+
+      if ($('#time')[0]!==undefined) {
+        $('.time-toogle').datetimepicker({
+          format: 'HH:mm:ss',
+          ignoreReadonly: true,
         });
       }
     });
