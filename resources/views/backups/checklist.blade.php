@@ -27,7 +27,8 @@
               <span class="fa fa-archive"></span>
               <span class="hidden-xs hidden-sm">Filing System</span>
             </a>
-           <div class="btn-group">
+           
+            <div class="btn-group">
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="fa fa-calendar-check-o"></span>
                 <span class="hidden-xs">Checklist</span>
@@ -111,7 +112,7 @@
         ?>
         <tr>
           <td {{ $class }}>{{ $b['date']->format('M j, D') }}</td>
-          @if(is_null($b['backup']))
+          @if(is_null($b['backup']) || !$b['exist'])
             <td {{ $class }}>-</td>
             <td {{ $class }}>-</td>
             <td {{ $class }}>-</td>

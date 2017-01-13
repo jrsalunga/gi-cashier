@@ -63,7 +63,7 @@
 
 @if(session()->has('payroll.success'))
   <div class="alert alert-warning alert-important">
-    <b>Payroll Backup:</b> {{ session('payroll.success') }} has been sent to <b>HR</b> but not processed as <b>POS Backup</b>!'
+    <b>Payroll Backup:</b> {{ session('payroll.success') }} has been sent to <b>HR</b> but not processed as <b>POS Backup</b>!
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>

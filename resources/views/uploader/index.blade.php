@@ -93,7 +93,7 @@
                   <select id="filetype" name="filetype" class="form-control" style="width: 100%; border-left: 1px solid #ccc;" required>
                     <option value="">-- select document type --</option>
                     <option value="backup">Backup File</option>
-                    <option value="depslp">Bank Depost Slip</option>
+                    <option value="depslp">Depost Slip</option>
                   </select>
                 </div><!-- /.col-lg-12 -->
               </div><!-- /.col-lg-12 -->

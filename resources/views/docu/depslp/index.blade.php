@@ -38,7 +38,6 @@
                 <li><a href="/{{brcode()}}/depslp/checklist"><span class="fa fa-bank"></span> Deposit Slip</a></li>
               </ul>
             </div>
-            
 
             <div class="btn-group">
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -72,7 +71,7 @@
           
           <th>Filename</th>
           <th class="text-right">Amount</th>
-          <th class="text-center">Deposit Date</th>
+          <th>Deposit Date/Time</th>
           <th>Cashier</th>
           <th>Remarks</th>
           <th>Uploaded</th>
@@ -84,7 +83,22 @@
         <tr>
           <td>{{ $depslip->fileUpload->filename }}</td>
           <td class="text-right">{{ number_format($depslip->amount,2) }}</td>
-          <td class="text-center">{{ $depslip->date->format('Y-m-d') }}</td>
+          <td title="{{ $depslip->deposit_date->format('D m/d/Y h:i A') }}">
+            
+            <span class="hidden-xs">
+              @if($depslip->deposit_date->format('Y-m-d')==now())
+                {{ $depslip->deposit_date->format('h:i A') }}
+              @else
+                {{ $depslip->deposit_date->format('D M j') }}
+              @endif
+            </span> 
+            <em>
+              <small class="text-muted">
+              {{ diffForHumans($depslip->deposit_date) }}
+              </small>
+            </em>
+
+          </td>
           <td>{{ $depslip->cashier }}</td>
           <td>{{ $depslip->remarks }}</td>
           <td>
@@ -96,12 +110,10 @@
               @endif
             </span> 
             <em>
-              <small title="{{ $depslip->created_at->format('m/d/Y h:i A') }}">
+              <small class="text-muted" title="{{ $depslip->created_at->format('m/d/Y h:i A') }}">
               {{ diffForHumans($depslip->created_at) }}
               </small>
             </em>
-            
-
           </td>
           <td>{{ $depslip->fileUpload->terminal }}</td>
           
