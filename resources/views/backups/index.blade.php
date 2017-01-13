@@ -95,7 +95,7 @@
               @endif
             </span> 
             <em>
-              <small>
+              <small class="text-muted">
               {{ diffForHumans($backup->uploaddate) }}
               </small>
             </em>

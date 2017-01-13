@@ -269,9 +269,10 @@
                 +'<span class="gly gly-money"></span> Amount</span>'
               +'<input type="text" class="form-control" id="amount" name="amount" required style="text-align: right;" placeholder="0.00">'
             +'</div></div>';
-        alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> Before attaching the scanned Bank Deposit Slip please follow the standard file naming convention.'
+        alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> <ol><li>Before attaching the scanned Bank Deposit Slip please follow the standard file naming convention.'
           +' Sample "<b>DEPSLP MOA 20170102</b>"</b> where <b>DEPSLP</b> - is the document type code, <b>MOA</b> - is the 3 char branch code and '
-          +'<b>20170102</b> - is the Deposit Date in YYYYMMDD format. For multiple deposit on the same day, the filename should be <b>DEPSLP MOA 20170102-2</b>, <b>DEPSLP MOA 20170102-3</b>, etc.');
+          +'<b>20170102</b> - is the Deposit Date in YYYYMMDD format. For multiple deposit on the same day, the filename should be <b>DEPSLP MOA 20170102-2</b>,'
+          +' <b>DEPSLP MOA 20170102-3</b>, etc.</li><li> Make sure that the <b>Date/Time</b> encoded is the <b>Deposit Date/Time</b> on the Deposit Slip.</li></ol>');
       } else if ($(this).val()==='backup') {
         html += '<div class="row" style="margin-top: 20px;"><span class="title">Choose Backup Type</span>'
             +'<div class="radio">'
