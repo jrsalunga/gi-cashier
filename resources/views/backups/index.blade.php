@@ -86,16 +86,16 @@
             <td title="{{ $backup->branch->descriptor }}">{{ $backup->branch->code }}</td>
           @endif
           <td>{{ $backup->filename }} </td>
-          <td>
+          <td title="{{ $backup->uploaddate->format('D m/d/Y h:i A') }}">
             <span class="hidden-xs">
               @if($backup->uploaddate->format('Y-m-d')==now())
                 {{ $backup->uploaddate->format('h:i A') }}
               @else
-                {{ $backup->uploaddate->format('m/d/Y h:i A') }}
+                {{ $backup->uploaddate->format('D M j') }}
               @endif
             </span> 
             <em>
-              <small title="{{ $backup->uploaddate->format('m/d/Y h:i A') }}">
+              <small>
               {{ diffForHumans($backup->uploaddate) }}
               </small>
             </em>

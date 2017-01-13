@@ -106,7 +106,7 @@
               @if($depslip->created_at->format('Y-m-d')==now())
                 {{ $depslip->created_at->format('h:i A') }}
               @else
-                {{ $depslip->created_at->format('m/d/Y h:i A') }}
+                {{ $depslip->created_at->format('D M j') }}
               @endif
             </span> 
             <em>
