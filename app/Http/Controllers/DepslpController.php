@@ -40,8 +40,21 @@ class DepslpController extends Controller {
 
 	public function getChecklist($brcode, Request $request) {
 		$date = carbonCheckorNow($request->input('date'));
-		return view('docu.depslp.checklist')->with('date', $date);
+
+
+
+		$depslips = $this->depslip->monthlyLogs($date);
+
+		return view('docu.depslp.checklist')->with('date', $date)->with('depslips', $depslips);
 	}
+
+
+
+
+
+
+
+	
 
 
 

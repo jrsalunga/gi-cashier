@@ -16,6 +16,7 @@ use App\Repositories\PosUploadRepository as PosUploadRepo;
 use App\Repositories\FileUploadRepository as FileUploadRepo;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException as Http404;
 use App\Events\Backup\ProcessSuccess;
+use App\Events\Upload\Depslp as DepslpUpload;
 
 
 class UploaderController extends Controller 
@@ -453,8 +454,8 @@ class UploaderController extends Controller
 	    if (!is_null($depslp))
 	    	$this->fileUploadRepo->update(['processed'=>1], $file->id);
 
-	    //if (app()->environment()==='production')
-				//event(new DepslpUpload($depslp));
+	    if (app()->environment()==='production')
+				event(new DepslpUpload($depslp));
 
 	    return redirect()
     					->route('uploader', ['brcode'=>strtolower($br),'u'=>strtolower($request->cashier),'type'=>'depslp'])

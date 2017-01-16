@@ -65,12 +65,12 @@
 
 
           <div class="btn-group pull-right clearfix" role="group">
-          <a href="/backups/checklist?date={{ $date->copy()->subMonth()->format('Y-m-d') }}" class="btn btn-default" title="{{ $date->copy()->subMonth()->format('Y-m-d') }}">
+          <a href="/{{brcode()}}/depslp/checklist?date={{ $date->copy()->subMonth()->format('Y-m-d') }}" class="btn btn-default" title="{{ $date->copy()->subMonth()->format('Y-m-d') }}">
             <span class="glyphicon glyphicon-chevron-left"></span>
           </a>
           <input type="text" class="btn btn-default" id="dp-date" value="{{ $date->format('m/Y') }}" style="max-width: 110px;" readonly>
           <label class="btn btn-default" for="dp-date"><span class="glyphicon glyphicon-calendar"></span></label>
-          <a href="/backups/checklist?date={{ $date->copy()->addMonth()->format('Y-m-d') }}" class="btn btn-default" title="{{ $date->copy()->addMonth()->format('Y-m-d') }}">
+          <a href="/{{brcode()}}/depslp/checklist?date={{ $date->copy()->addMonth()->format('Y-m-d') }}" class="btn btn-default" title="{{ $date->copy()->addMonth()->format('Y-m-d') }}">
             <span class="glyphicon glyphicon-chevron-right"></span>
           </a>
         </div>
@@ -84,7 +84,71 @@
 
 
 
-  <h1>Under Constuction</h1>
+    <div class="table-responsive">
+    <table class="table table-hover table-striped">
+      <thead>
+        <tr>
+          <th>Backup Date</th>
+          <th>Filename</th>
+          <th>
+            <span style="cursor: help;" title="Shows only the lastest uploader of the same backup.">
+              Cashier
+            </span>
+          </th>
+          <th>Upload Date</th>
+          <th>Log Count</th>
+          <th>
+            <span style="cursor: help;" title="Tells whether the actual physical backup file is in the server's file system.">
+              File in Server?
+            </span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($depslips as $key => $b) 
+        <?php
+          $class = c()->format('Y-m-d')==$b['date']->format('Y-m-d')
+            ?'class=bg-success'
+            :'';
+        ?>
+        <tr>
+          <td {{ $class }}>{{ $b['date']->format('M j, D') }}</td>
+          @if(is_null($b['backup']) || !$b['exist'])
+            <td {{ $class }}>-</td>
+            <td {{ $class }}>-</td>
+            <td {{ $class }}>-</td>
+            <td {{ $class }}>-</td>
+            <td {{ $class }}>-</td>
+          @else
+            <td {{ $class }}>
+              {{ $b['backup']->filename }}
+            </td>
+            <td title="Shows only the lastest uploader of the same backup." {{ $class }}>
+              {{ $b['backup']->cashier }}
+            </td>
+            <td {{ $class }}>
+              <small><em>
+              {{ $b['backup']->created_at->format('Y-m-d h:m:i A') }}
+              </em>
+              </small>
+            </td>
+            <td {{ $class }}>
+              <span class="badge">{{ $b['backup']->count }}</span>
+            </td>
+            <td {{ $class }}>
+              @if($b['exist'])
+                <span class="glyphicon glyphicon-ok text-success"></span>
+              @else
+                <span class="glyphicon glyphicon-remove text-danger"></span>
+              @endif
+            </td>
+          @endif
+          
+        </tr>
+        @endforeach
+      </tbody>
+    </table>
+    </div>
     
    
 
@@ -113,7 +177,7 @@
       viewMode: 'months'
     }).on('dp.change', function(e){
       var date = e.date.format('YYYY-MM-DD');
-      document.location.href = '/backups/checklist?date='+e.date.format('YYYY-MM-DD');
+      document.location.href = '/{{brcode()}}/depslp/checklist?date='+e.date.format('YYYY-MM-DD');
       console.log(date);
     });
       
