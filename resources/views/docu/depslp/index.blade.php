@@ -131,6 +131,12 @@
 
 
 
+
+
+
+@section('js-external')
+  @parent
+
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <!-- gi- -->
 <ins class="adsbygoogle"
@@ -141,9 +147,5 @@
 <script>
 (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-
-
-@section('js-external')
-  @parent
 
 @endsection
