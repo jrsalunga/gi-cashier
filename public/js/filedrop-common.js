@@ -89,7 +89,7 @@ $(function(){
 		},
 		//allowedfiletypes: ['image/jpg', 'image/jpeg','image/png','image/gif', 'application/zip'],   // filetypes allowed by Content-Type.  Empty array means no restrictions
     //allowedfileextensions: ['.ZIP','.zip'], // file extensions allowed. Empty array means no restrictions
-    allowedfileextensions: ['.ZIP','.zip','.PNG','.png','.JPG','.jpg', ,'.JPEG','.jpeg', '.PDF','.pdf'], // file extensions allowed. Empty array means no restrictions
+    allowedfileextensions: ['.ZIP','.zip','.PNG','.png','.JPG','.jpg', '.JPEG','.jpeg', '.PDF','.pdf'], // file extensions allowed. Empty array means no restrictions
     
 		// Called before each upload is started
 		beforeEach: function(file){
