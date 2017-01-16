@@ -297,7 +297,8 @@
       $('.filetype-result').html(html);
 
       if ($('#date')[0]!==undefined) {
-        $('.date-toggle').datetimepicker({
+        $('#date').datetimepicker({
+        //$('.date-toggle').datetimepicker({
           format: 'YYYY-MM-DD',
           ignoreReadonly: true
         });
@@ -340,6 +341,9 @@
         } else {
           $('.filetype-result > div').removeClass('form-required');
         }
+      } else {
+
+
       }
 
       $('.progress-container').removeClass('hide');
