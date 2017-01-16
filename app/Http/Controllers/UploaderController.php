@@ -252,7 +252,8 @@ class UploaderController extends Controller
 					'numfiles'		=> $z->numFiles,
 					'user'				=> session('user.fullname'),
 					'cashier'			=> $backup->cashier,
-					'filename'		=> $backup->filename
+					'filename'		=> $backup->filename,
+					'remarks'			=> $backup->remarks
 				];
 
 				$z->close();
@@ -262,7 +263,7 @@ class UploaderController extends Controller
 		        $message->from('no-reply@giligansrestaurant.com', 'GI App - '.$data['branchcode'].' Cashier');
 		        //$message->to('gi.efiles@gmail.com');
 		        $message->to('giligans.app@gmail.com');
-		        $message->to('gi.hrd01@gmail.com');
+		        //$message->to('gi.hrd01@gmail.com');
 		        //$message->to('freakyash02@gmail.com');
 		       	$message->attach($data['attachment']);
 		    });
