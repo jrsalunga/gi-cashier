@@ -127,7 +127,23 @@
             </td>
             <td {{ $class }}>
               <small><em>
-              {{ $b['backup']->uploaddate->format('Y-m-d h:m:i A') }}
+
+                <span class="hidden-xs">
+                  @if($b['backup']->uploaddate->format('Y-m-d')==now())
+                    {{ $b['backup']->uploaddate->format('h:i A') }}
+                  @else
+                    {{ $b['backup']->uploaddate->format('D M j') }}
+                  @endif
+                </span> 
+                <em>
+                  <small class="text-muted">
+                  {{ diffForHumans($b['backup']->uploaddate) }}
+                  </small>
+                </em>
+
+
+
+              
               </em>
               </small>
             </td>

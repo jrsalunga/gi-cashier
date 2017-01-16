@@ -88,7 +88,7 @@
     <table class="table table-hover table-striped">
       <thead>
         <tr>
-          <th>Backup Date</th>
+          <th>Deposit Date</th>
           <th>Filename</th>
           <th>
             <span style="cursor: help;" title="Shows only the lastest uploader of the same backup.">
@@ -128,7 +128,21 @@
             </td>
             <td {{ $class }}>
               <small><em>
-              {{ $b['backup']->created_at->format('Y-m-d h:m:i A') }}
+
+                <span class="hidden-xs">
+                  @if($b['backup']->created_at->format('Y-m-d')==now())
+                    {{ $b['backup']->created_at->format('h:i A') }}
+                  @else
+                    {{ $b['backup']->created_at->format('D M j') }}
+                  @endif
+                </span> 
+                <em>
+                  <small class="text-muted">
+                  {{ diffForHumans($b['backup']->created_at) }}
+                  </small>
+                </em>
+
+              
               </em>
               </small>
             </td>
