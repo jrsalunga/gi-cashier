@@ -302,11 +302,6 @@
           format: 'YYYY-MM-DD',
           ignoreReadonly: true
         });
-
-        $('.date-toggle').datetimepicker({
-          format: 'YYYY-MM-DD',
-          ignoreReadonly: true
-        });
       }
 
       if ($('#time')[0]!==undefined) {
