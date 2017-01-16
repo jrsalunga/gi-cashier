@@ -12,6 +12,7 @@ class Depslp extends Event implements ShouldBroadcast
   use SerializesModels;
   public $depslp;
   public $user;
+  public $msg;
 
   /**
    * Create a new event instance.
@@ -23,8 +24,11 @@ class Depslp extends Event implements ShouldBroadcast
     $this->depslp = $depslp;
     $this->user = request()->user();
     $this->status = $status;
-  }
 
+    $this->msg = $this->status 
+        ? 'Deposit Slip: ' .$this->depslp->filename.' uploaded with '.number_format($this->depslp->amount,2)
+        : 'Error on uploading Deposit Slip.';
+  }
   /**
    * Get the channels the event should be broadcast on.
    *
@@ -38,10 +42,8 @@ class Depslp extends Event implements ShouldBroadcast
   public function broadcastWith()
   {
     return [
-      'title'=>'Cashier\'s Module', 
-      'message'=> $this->status 
-        ? $this->user->name.' uploaded Deposit Slip: ' .$this->depslp->filename.' with '.number_format($this->depslp->amount,2).' - '.$this->depslp->cashier
-        : $this->user->name.' error on uploading Deposit Slip '.$this->depslp->cashier
+      'title'=> $this->user->name.': '. $this->depslp->cashier, 
+      'message'=> $this->msg
     ];
   }
 }

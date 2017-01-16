@@ -46,9 +46,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         GoogleUserLoggedFailed::class => [
             GoogleAuthLoginErrorEventHandler::class,
-        ],
-        Depslp::class => [
-            DepslpEventHandler::class,
         ]
     ];
     
