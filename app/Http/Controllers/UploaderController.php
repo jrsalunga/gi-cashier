@@ -260,7 +260,8 @@ class UploaderController extends Controller
 				Mail::send('emails.email_to_hrd', $data, function ($message) use ($data) {
 		        $message->subject($data['branchcode'].' '.$data['filename'].' PAYROLL BACKUP [payroll]');
 		        $message->from('no-reply@giligansrestaurant.com', 'GI App - '.$data['branchcode'].' Cashier');
-		        $message->to('gi.efiles@gmail.com');
+		        //$message->to('gi.efiles@gmail.com');
+		        $message->to('giligans.app@gmail.com');
 		        //$message->to('freakyash02@gmail.com');
 		       	$message->attach($data['attachment']);
 		    });
