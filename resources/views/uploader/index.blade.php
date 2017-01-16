@@ -203,6 +203,7 @@
         
       </div>
     </div><!-- end: .col-sm-7.col-md-6 -->
+    <div class="hidden-md hidden-lg" style="margin-bottom:20px;></div>
 
     
       
