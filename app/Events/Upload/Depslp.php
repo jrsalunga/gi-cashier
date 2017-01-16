@@ -32,7 +32,7 @@ class Depslp extends Event implements ShouldBroadcast
    */
   public function broadcastOn()
   {
-    return ['gi.backup'];
+    return ['gi.upload'];
   }
 
   public function broadcastWith()

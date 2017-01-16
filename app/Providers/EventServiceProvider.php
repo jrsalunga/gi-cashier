@@ -17,6 +17,8 @@ use App\Events\UserLoggedFailed;
 use App\Events\GoogleUserLoggedFailed;
 use App\Listeners\AuthLoginEventListener;
 use App\Listeners\BackupEventListener;
+use App\Events\Upload\Depslp;
+use App\Handlers\Events\Upload\DepslpEventHandler;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -44,6 +46,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         GoogleUserLoggedFailed::class => [
             GoogleAuthLoginErrorEventHandler::class,
+        ],
+        Depslp::class => [
+            DepslpEventHandler::class,
         ]
     ];
     

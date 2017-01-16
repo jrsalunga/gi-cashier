@@ -454,7 +454,7 @@ class UploaderController extends Controller
 	    if (!is_null($depslp))
 	    	$this->fileUploadRepo->update(['processed'=>1], $file->id);
 
-	    if (app()->environment()==='production')
+	    //if (app()->environment()==='production')
 				event(new DepslpUpload($depslp));
 
 	    return redirect()
