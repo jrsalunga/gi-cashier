@@ -1,6 +1,6 @@
 <?php namespace App\Events\Upload;
 
-use App\User;
+
 use App\Events\Event;
 use App\Models\Depslip;
 use Illuminate\Queue\SerializesModels;
@@ -32,7 +32,7 @@ class Depslp extends Event implements ShouldBroadcast
    */
   public function broadcastOn()
   {
-    return ['gi.upload'];
+    return ['gi.backup'];
   }
 
   public function broadcastWith()
