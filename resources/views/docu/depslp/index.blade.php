@@ -130,6 +130,19 @@
 @endsection
 
 
+
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- gi- -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9897737241100378"
+     data-ad-slot="4574225996"
+     data-ad-format="auto"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
 @section('js-external')
   @parent
 
