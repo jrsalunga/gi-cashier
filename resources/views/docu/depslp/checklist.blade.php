@@ -107,9 +107,7 @@
       <tbody>
         @foreach($depslips as $key => $b) 
         <?php
-          $class = c()->format('Y-m-d')==$b['date']->format('Y-m-d')
-            ?'class=bg-success'
-            :'';
+          $class = c()->format('Y-m-d')==$b['date']->format('Y-m-d') ? 'class=bg-success':'';
         ?>
         <tr>
           <td {{ $class }}>{{ $b['date']->format('M j, D') }}</td>
@@ -127,23 +125,21 @@
               {{ $b['backup']->cashier }}
             </td>
             <td {{ $class }}>
-              <small><em>
-
-                <span class="hidden-xs">
-                  @if($b['backup']->created_at->format('Y-m-d')==now())
-                    {{ $b['backup']->created_at->format('h:i A') }}
-                  @else
-                    {{ $b['backup']->created_at->format('D M j') }}
-                  @endif
-                </span> 
+              <small>
                 <em>
-                  <small class="text-muted">
-                  {{ diffForHumans($b['backup']->created_at) }}
-                  </small>
+                  <span class="hidden-xs">
+                    @if($b['backup']->created_at->format('Y-m-d')==now())
+                      {{ $b['backup']->created_at->format('h:i A') }}
+                    @else
+                      {{ $b['backup']->created_at->format('D M j') }}
+                    @endif
+                  </span> 
+                  <em>
+                    <small class="text-muted">
+                    {{ diffForHumans($b['backup']->created_at) }}
+                    </small>
+                  </em>
                 </em>
-
-              
-              </em>
               </small>
             </td>
             <td {{ $class }}>
@@ -177,11 +173,7 @@
 @section('js-external')
   @parent
   <script type="text/javascript">
-
-
-
   $(document).ready(function(){
-
 
     $('#dp-date').datetimepicker({
       //defaultDate: "2016-06-01",
@@ -194,8 +186,6 @@
       document.location.href = '/{{brcode()}}/depslp/checklist?date='+e.date.format('YYYY-MM-DD');
       console.log(date);
     });
-      
   });
-  
   </script>
 @endsection
