@@ -26,7 +26,7 @@ class Depslp extends Event implements ShouldBroadcast
     $this->status = $status;
 
     $this->msg = $this->status 
-        ? 'Deposit Slip: ' .$this->depslp->filename.' uploaded with &#8369;'.number_format($this->depslp->amount,2)
+        ? 'Deposit Slip: ' .$this->depslp->filename.' uploaded with ₱'.number_format($this->depslp->amount,2)
         : 'Error on uploading Deposit Slip.';
   }
   /**
