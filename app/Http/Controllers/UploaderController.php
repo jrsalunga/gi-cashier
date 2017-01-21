@@ -426,7 +426,7 @@ class UploaderController extends Controller
 			return redirect()->back()->withErrors(['error'=>$request->input('filename').': invalid file extension for Bank Deposit Slip.']);
 		}
 
-		$date = carbonCheckorNow($request->date);
+		$date = carbonCheckorNow($request->input('date').' '.$request->input('time'));
 		$upload_path = $this->path['temp'].$request->input('filename');
 
 		if ($this->web->exists($upload_path)) { //public/uploads/{branch_code}/{year}/{file}
@@ -435,11 +435,11 @@ class UploaderController extends Controller
 			$filename = strtoupper($request->input('filename'));
 			//if (!starts_with(strtoupper($filename), 'DEPSLP '.$br)) {
 				
-				$cnt = $this->countFilenameByDate($date->format('Y-m-d'));
+				$cnt = $this->countFilenameByDate($date->format('Y-m-d'), $date->format('H:i:s'));
 				if ($cnt)
-					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd').'-'.$cnt.'.'.$ext;
+					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').'-'.$cnt.'.'.$ext;
 				else
-					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd').'.'.$ext;
+					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').'.'.$ext;
 					
 			//}
 
@@ -517,8 +517,8 @@ class UploaderController extends Controller
     return $this->depslip->create($data)?:NULL;
   }
 
-  private function countFilenameByDate($date) {
-  	$d = $this->depslip->findWhere(['date'=>$date]);
+  private function countFilenameByDate($date, $time) {
+  	$d = $this->depslip->findWhere(['date'=>$date, 'time'=>$time]);
 		 
 		$c = intval(count($d));
 		
