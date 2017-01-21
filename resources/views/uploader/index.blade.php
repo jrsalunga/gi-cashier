@@ -281,13 +281,13 @@
             +'<div class="radio">'
               +'<label>'
                 +'<input type="radio" name="backup_type" id="backup_payroll" value="payroll">'
-                +'<strong><span class="gly gly-address-book"></span> Payroll Backup</strong> <small><em>(for Payroll Backup purposes)</em></small>'
+                +'<strong><span class="gly gly-address-book"></span> Payroll Backup</strong> <small><em>(This will be emailed to Mam Aque but will (<span class="glyphicon glyphicon-remove"></span>) not process.)</em></small>'
               +'</label>'
             +'</div>'
             +'<div class="radio">'
               +'<label>'
                 +'<input type="radio" name="backup_type" id="backup_pos" value="pos">'
-                +'<strong><span class="fa fa-file-archive-o"></span> POS Backup</strong> <small><em>(for End of Day Backup purposes)</em></small>'
+                +'<strong><span class="fa fa-file-archive-o"></span> POS Backup</strong> <small><em>(This will be saved on server and will (<span class="glyphicon glyphicon-ok"></span>) process.)</em></small>'
               +'</label>'
             +'</div></div>';
             
