@@ -468,7 +468,10 @@ class PosUploadRepository extends Repository
 
 
     public function removeExtratedDir() {
-      return $this->removeDir($this->extracted_path);
+      if (!is_null($this->extracted_path))
+        return $this->removeDir($this->extracted_path);
+      else
+        return false;
     }
 
     public function lastRecord() {

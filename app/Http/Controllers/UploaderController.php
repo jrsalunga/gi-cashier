@@ -115,11 +115,13 @@ class UploaderController extends Controller
 					DB::beginTransaction();
 
 					// extract backup
+					$this->logAction('start:extract:backup', '');
 					if (!$this->extract($filepath)) {
 						$msg =  'Unable to extract '. $backup->filename;
 						$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
-						$msg .= ' but the backup file is already on server. But try to generate another backup file and try to upload it again.';
+						$this->logAction('error:extract:backup', '');
+						$msg .= ', the backup maybe corupted. But try to generate another backup file and try to upload it again.';
 						if($res !== true)
 							return $res;
 						return redirect()->back()->with('alert-success', $msg)->with('alert-important', '');
@@ -261,9 +263,9 @@ class UploaderController extends Controller
 				Mail::send('emails.email_to_hrd', $data, function ($message) use ($data) {
 		        $message->subject($data['branchcode'].' '.$data['filename'].' PAYROLL BACKUP [payroll]');
 		        $message->from('no-reply@giligansrestaurant.com', 'GI App - '.$data['branchcode'].' Cashier');
-		        //$message->to('gi.efiles@gmail.com');
-		        $message->to('giligans.app@gmail.com');
-		        $message->to('gi.hrd01@gmail.com');
+		       	$message->to('gi.efiles@gmail.com');
+		        //$message->to('giligans.app@gmail.com');
+		        //$message->to('gi.hrd01@gmail.com');
 		        //$message->to('freakyash02@gmail.com');
 		       	$message->attach($data['attachment']);
 		    });
@@ -490,7 +492,8 @@ class UploaderController extends Controller
     	'terminal' 			=> clientIP(), //$request->ip(),
     	'user_remarks' 	=> $request->input('notes'),
     	'user_id' 			=> $request->user()->id,
-    	'cashier' 			=> $request->input('cashier')
+    	'cashier' 			=> $request->input('cashier'),
+    	'updated_at' 		=> c()
     ];
 
     return $this->fileUploadRepo->create($data)?:NULL;
@@ -540,6 +543,46 @@ class UploaderController extends Controller
     }
 		return redirect()->back()->withErrors(['error'=>'Uploaded. Unknown file type.']);
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	private function logAction($action, $log) {
+		$logfile = base_path().DS.'logs'.DS.brcode().DS.now().'-log.txt';
+
+		$dir = pathinfo($logfile, PATHINFO_DIRNAME);
+
+		if(!is_dir($dir))
+			mkdir($dir, 0775, true);
+
+		$new = file_exists($logfile) ? false : true;
+		if($new){
+			$handle = fopen($logfile, 'w+');
+			chmod($logfile, 0775);
+		} else
+			$handle = fopen($logfile, 'a');
+
+		$ip = clientIP();
+		$brw = $_SERVER['HTTP_USER_AGENT'];
+		$content = date('r')." | {$ip} | {$action} | {$log} \t {$brw}\n";
+    fwrite($handle, $content);
+    fclose($handle);
+	}	
 
 
 
