@@ -76,7 +76,7 @@
     <b><a href="/{{brcode()}}/depslp/{{session('depslp.success')->lid()}}">{{ session('depslp.success')->fileUpload->filename }}</a></b> 
     saved on server as 
     <b><a href="/{{brcode()}}/depslp/{{session('depslp.success')->lid()}}">{{ session('depslp.success')->filename }}</a></b>. 
-    <small class="label label-primary"><a href="/{{brcode()}}/depslp/log" style="color:#fff;">view logs</a></small>
+    <small class="label label-primary"><a href="/{{brcode()}}/depslp/log?rdr=alert" style="color:#fff;">view logs</a></small>
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
