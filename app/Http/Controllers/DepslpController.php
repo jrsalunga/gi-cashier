@@ -75,7 +75,11 @@ class DepslpController extends Controller {
 		$d = $this->depslip->find($id[0]);
 
 		//$path = 'DEPSLP'.DS.$d->date->format('Y').DS.session('user.branchcode').DS.$d->date->format('m').DS.$d->filename;
-		return $path = $this->getPath($d);
+		$path = $this->getPath($d);
+
+		return dd($this->files->exists($this->getPath($d)));
+
+		
 
 		if(!$this->files->exists($this->getPath($d)))
 			return abort(404);
