@@ -77,6 +77,7 @@ class DepslpController extends Controller {
 		//$path = 'DEPSLP'.DS.$d->date->format('Y').DS.session('user.branchcode').DS.$d->date->format('m').DS.$d->filename;
 		$path = $this->getPath($d);
 
+		return dd($this->files);
 		return dd($this->files->exists($this->getPath($d)));
 
 		
