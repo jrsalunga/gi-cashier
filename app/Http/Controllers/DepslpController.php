@@ -65,8 +65,6 @@ class DepslpController extends Controller {
 
 	public function getImage(Request $request, $brcode, $filename) {
 
-
-
 		$id = explode('.', $filename);
 
 		if(!is_uuid($id[0]) || $brcode!==strtolower(session('user.branchcode')))
@@ -74,11 +72,7 @@ class DepslpController extends Controller {
 
 		$d = $this->depslip->find($id[0]);
 
-		//$path = 'DEPSLP'.DS.$d->date->format('Y').DS.session('user.branchcode').DS.$d->date->format('m').DS.$d->filename;
 		$path = $this->getPath($d);
-
-		//return dd($this->files);
-		//return dd($this->files->exists($this->getPath($d)));
 
 		if(!$this->files->exists($this->getPath($d)))
 			return abort(404);

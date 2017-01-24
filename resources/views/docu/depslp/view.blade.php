@@ -146,7 +146,7 @@
         <h4 class="modal-title" id="myModalLabel"><span class="fa fa-trash"></span> Delete Deposit Slip</h4>
       </div>
       <div class="modal-body">
-        <p>Are you sure you want to delete <strong>{{ $depslp->fileUpload->filename }}</strong>. This this is irreversible transaction. </p>
+        <p>Are you sure you want to delete <strong>{{ $depslp->fileUpload->filename }}</strong>? This this is irreversible transaction. Please be careful on deleting records. </p>
       </div>
       <div class="modal-footer">
         <div class="pull-right">
