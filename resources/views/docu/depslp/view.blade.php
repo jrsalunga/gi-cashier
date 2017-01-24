@@ -99,7 +99,10 @@
           </div>
           <div class="panel-footer">
             @if($depslp->verified || $depslp->matched)
-              <a href="/{{brcode()}}/depslp/log" class="btn btn-link"><span class="gly gly-unshare"></span> Back</a>
+              <?php
+                $prev = !empty(URL::previous()) ? URL::previous():'/'.brcode().'/depslp/log?rdr=back';
+              ?>
+              <a href="{{$prev}}" class="btn btn-link"><span class="gly gly-unshare"></span> Back</a>
             @else
               <a href="/{{brcode()}}/depslp/{{$depslp->lid()}}/edit" class="btn btn-primary">Edit</a>
               <button class="btn btn-default" data-toggle="modal" data-target=".mdl-delete">Delete</button>
@@ -179,6 +182,8 @@
 (adsbygoogle = window.adsbygoogle || []).push({});
 
   $(document).ready(function(){
+
+  //{{URL::previous()}}
 
   @if($depslp->isDeletable())
     $('.peso').on('dblclick', function(e){

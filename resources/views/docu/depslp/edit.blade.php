@@ -204,7 +204,7 @@
 
   <script type="text/javascript">
 
-  //{{URL::previous()}}
+  
 
   $(document).ready(function(){
 
