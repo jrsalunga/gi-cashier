@@ -65,6 +65,8 @@ class DepslpController extends Controller {
 
 	public function getImage(Request $request, $brcode, $filename) {
 
+		return $brcode;
+
 		$id = explode('.', $filename);
 
 		if(!is_uuid($id[0]) || $brcode!==strtolower(session('user.branchcode')))
