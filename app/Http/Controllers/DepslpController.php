@@ -65,7 +65,7 @@ class DepslpController extends Controller {
 
 	public function getImage(Request $request, $brcode, $filename) {
 
-		return $brcode;
+		return $brcode.'-'.strtolower(session('user.branchcode'));
 
 		$id = explode('.', $filename);
 
