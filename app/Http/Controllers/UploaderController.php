@@ -115,16 +115,16 @@ class UploaderController extends Controller
 					DB::beginTransaction();
 
 					// extract backup
-					$this->logAction('start:extract:backup', '');
+					//$this->logAction('start:extract:backup', '');
 					if (!$this->extract($filepath)) {
 						$msg =  'Unable to extract '. $backup->filename;
 						$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
-						$this->logAction('error:extract:backup', '');
-						$msg .= ', the backup maybe corupted. But try to generate another backup file and try to upload it again.';
+						//$this->logAction('error:extract:backup', '');
+						$msg .= ', the backup maybe corrupted. Try to generate another backup file and try to re-upload.';
 						if($res !== true)
 							return $res;
-						return redirect()->back()->with('alert-success', $msg)->with('alert-important', '');
+						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
 					}
 
 					$file = $this->createFileUpload($filepath, $request, '87ADF8F1CCDA11E6A3D000FF18C615EC');
@@ -463,8 +463,8 @@ class UploaderController extends Controller
 				event(new DepslpUpload($depslp));
 
 	    return redirect()
-    					->route('uploader', ['brcode'=>strtolower($br),'u'=>strtolower($request->cashier),'type'=>'depslp'])
-    					->with('alert-success', $request->filename.' saved on server as '.$filename.'.')
+    					->route('uploader', ['brcode'=>brcode(),'u'=>strtolower($request->cashier),'type'=>'depslp'])
+    					->with('depslp.success', $depslp)
 	    				->with('alert-important', '');
 	    /*
 	    return redirect('/uploader?success='.strtolower($br).'-'.strtolower($request->cashier))

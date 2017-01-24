@@ -32,8 +32,12 @@ Route::put('upload/postfile', ['as'=>'upload.putfile', 'uses'=>'BackupController
 Route::get('download/{param1?}/{param2?}/{param3?}/{param4?}/{param5?}', ['uses'=>'BackupController@getDownload']);
 
 
-Route::get('{brcode}/depslp/checklist', ['uses'=>'DepslpController@getChecklist']);
-Route::get('{brcode}/depslp/log', ['uses'=>'DepslpController@getHistory']);
+Route::get('{brcode?}/depslp/log', ['uses'=>'DepslpController@getHistory']);
+Route::get('{brcode?}/depslp/checklist', ['uses'=>'DepslpController@getChecklist']);
+Route::get('{brcode?}/depslp/{id?}/{action?}', ['uses'=>'DepslpController@getAction']);
+Route::get('{brcode?}/images/depslp/{id?}', ['uses'=>'DepslpController@getImage']);
+Route::put('put/depslp', ['uses'=>'DepslpController@put']);
+Route::post('delete/depslp', ['uses'=>'DepslpController@delete']);
 
 
 Route::get('timelog/{param1?}/{param2?}', ['uses'=>'TimelogController@getIndex'])
@@ -50,6 +54,7 @@ Route::get('{brcode}/uploader', ['as'=>'uploader' ,'uses'=>'UploaderController@g
 Route::get('uploader/backup', ['uses'=>'UploaderController@getBackupIndex']);
 Route::put('uploader/postfile', ['uses'=>'UploaderController@putFile']);
 Route::get('uploader/deposit-slip', ['uses'=>'UploaderController@getDepositIndex']);
+
 /******* start prefix:api     ********/
 Route::group(['prefix'=>'api'], function(){  /******* begin prefix:api ********/
 

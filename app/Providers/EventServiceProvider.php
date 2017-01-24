@@ -17,6 +17,7 @@ use App\Events\UserLoggedFailed;
 use App\Events\GoogleUserLoggedFailed;
 use App\Listeners\AuthLoginEventListener;
 use App\Listeners\BackupEventListener;
+use App\Listeners\DepslpEventListener;
 use App\Events\Upload\Depslp;
 use App\Handlers\Events\Upload\DepslpEventHandler;
 
@@ -52,6 +53,7 @@ class EventServiceProvider extends ServiceProvider
     protected $subscribe = [
         //AuthLoginEventListener::class,
         BackupEventListener::class,
+        DepslpEventListener::class,
     ];
     
     /**

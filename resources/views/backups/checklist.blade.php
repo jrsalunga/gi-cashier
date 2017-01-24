@@ -31,7 +31,7 @@
             <div class="btn-group">
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="fa fa-calendar-check-o"></span>
-                <span class="hidden-xs">Checklist</span>
+                <span class="hidden-xs hidden-sm">Checklist</span>
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu">
@@ -43,7 +43,7 @@
             <div class="btn-group">
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="glyphicon glyphicon-th-list"></span>
-                <span class="hidden-xs">Logs</span>
+                <span class="hidden-xs hidden-sm">Logs</span>
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu">
