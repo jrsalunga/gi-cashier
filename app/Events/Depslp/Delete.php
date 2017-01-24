@@ -1,6 +1,5 @@
 <?php namespace App\Events\Depslp;
 
-
 use App\Events\Event;
 use App\Models\Depslip;
 use Illuminate\Queue\SerializesModels;

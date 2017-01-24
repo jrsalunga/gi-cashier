@@ -51,8 +51,38 @@ class DepslpController extends Controller {
 			return $this->viewDepslp($id);
 	}
 
+
+	private function verify($id, $userid, $matched=0) {
+		return $this->depslip->update([
+			'verified' 	=> 1,
+			'matched'		=> $matched,
+			'user_id'		=> $userid,
+			'updated_at' 	=> c()
+		], $id);
+	}
+
+	private function checkVerify($id) {
+
+		if(request()->has('user_id') && is_uuid(request()->input('user_id')))
+			$userid = strtoupper(request()->input('user_id'));
+		else
+			$userid = strtoupper(request()->user()->id);
+
+		if(request()->has('verified') && request()->input('verified')==true)
+			return $this->verify($id, '41F0FB56DFA811E69815D19988DDBE1E', 1);
+		else if(request()->has('verify') && request()->input('verify')==true)
+			return $this->verify($id, $userid);
+		else
+			return false;
+	}
+
+
+
 	private function viewDepslp($id) {
 		$depslp = $this->depslip->find($id);
+		if(!$depslp->verified)
+			if($this->checkVerify($depslp->id))
+				return $this->viewDepslp($id);
 		return view('docu.depslp.view', compact('depslp'));
 	}
 
