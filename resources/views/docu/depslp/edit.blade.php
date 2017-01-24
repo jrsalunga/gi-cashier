@@ -150,7 +150,7 @@
           <div class="panel-footer">
             @if($depslp->verified || $depslp->matched)
               <?php
-                $prev = !empty(URL::previous()) ? URL::previous():'/'.brcode().'/depslp/log';
+                $prev = !empty(URL::previous()) ? URL::previous():'/'.brcode().'/depslp/log?rdr=back';
               ?>
               <a href="{{$prev}}" class="btn btn-link"><span class="gly gly-unshare"></span> Back</a>
             @else
@@ -203,6 +203,8 @@
 
 
   <script type="text/javascript">
+
+  //{{URL::previous()}}
 
   $(document).ready(function(){
 
