@@ -69,7 +69,7 @@ class DepslpController extends Controller {
 			$userid = strtoupper(request()->user()->id);
 
 		if(request()->has('verified') && request()->input('verified')==true)
-			return $this->verify($id, '41F0FB56DFA811E69815D19988DDBE1E', 1);
+			return $this->verify($id, '41F0FB56DFA811E69815D19988DDBE1E');
 		else if(request()->has('verify') && request()->input('verify')==true)
 			return $this->verify($id, $userid);
 		else
