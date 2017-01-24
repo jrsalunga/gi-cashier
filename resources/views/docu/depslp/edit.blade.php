@@ -149,10 +149,7 @@
           </div>
           <div class="panel-footer">
             @if($depslp->verified || $depslp->matched)
-              <?php
-                $prev = !empty(URL::previous()) ? URL::previous():'/'.brcode().'/depslp/log?rdr=back';
-              ?>
-              <a href="{{$prev}}" class="btn btn-link"><span class="gly gly-unshare"></span> Back</a>
+              <a href="/{{brcode()}}/depslp/log" class="btn btn-link"><span class="gly gly-unshare"></span> Back</a>
             @else
               <input type="hidden" name="id" value="{{$depslp->id}}">
               <button type="submit" id="btn-save" data-loading-text="Saving..." class="btn btn-primary" autocomplete="off">Save</button>
@@ -203,8 +200,6 @@
 
 
   <script type="text/javascript">
-
-  
 
   $(document).ready(function(){
 
