@@ -72,10 +72,10 @@ class DepslpController extends Controller {
 		if(!is_uuid($id[0]) || $brcode!==strtolower(session('user.branchcode')))
 			return abort(404);
 
-		return $d = $this->depslip->find($id[0]);
+		$d = $this->depslip->find($id[0]);
 
 		//$path = 'DEPSLP'.DS.$d->date->format('Y').DS.session('user.branchcode').DS.$d->date->format('m').DS.$d->filename;
-		$path = $this->getPath($d);
+		return $path = $this->getPath($d);
 
 		if(!$this->files->exists($this->getPath($d)))
 			return abort(404);
