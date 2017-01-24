@@ -23,7 +23,7 @@ class DepslpController extends Controller {
 	public function getHistory($brcode, Request $request) {
 		
 		$depslips = $this->depslip
-			//->skipCache()
+			->skipCache()
 			->with(['fileUpload'=>function($query){
         $query->select(['filename', 'terminal', 'id']);
       }])
