@@ -59,7 +59,7 @@ class SalesmtdController extends Controller
 		$row['prodcat'] 			= trim($r['CATNAME']);
 		$row['orddate'] 			= $vfpdate->format('Y-m-d');
 		//$row['ordtime'] 			= $vfpdate->format('H:i:s');
-		$row['ordtime'] 			= $cut->gt($vfpdate) ? $vfpdate->addDay() : $vfpdate;
+		$row['ordtime'] 			= $cut->gt($vfpdate) ? $vfpdate->addDay()->format('Y-m-d H:i:s') : $vfpdate->format('Y-m-d H:i:s');
 		$row['recno'] 				= trim($r['RECORD']);
 		$row['cslipno'] 			= trim($r['CSLIPNO']);
 		if($cuscount < 300) 
