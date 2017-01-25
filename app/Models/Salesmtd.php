@@ -10,7 +10,7 @@ class Salesmtd extends BaseModel {
                         'disc', 'netamt', 'orddate', 'ordtime', 'recno', 'cslipno', 'custcount', 'paxloc', 
                         'group', 'remarks', 'cashier', 'branch_id'];
 	//protected $guarded = ['id'];
-  protected $appends = ['transdate'];
+  //protected $appends = ['transdate'];
   //protected $dates = ['transdate'];
 	protected $casts = [
     'qty' => 'float',
@@ -33,9 +33,11 @@ class Salesmtd extends BaseModel {
     return $this->belongsTo('App\Models\Product');
   }
 
+  /*
   public function getTransdateAttribute(){
     return Carbon::parse($this->orddate.' '.$this->ordtime);
   }
+  */
 
 
 
