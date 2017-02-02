@@ -265,7 +265,8 @@ class UploaderController extends Controller
 		        $message->from('no-reply@giligansrestaurant.com', 'GI App - '.$data['branchcode'].' Cashier');
 		       	$message->to('gi.efiles@gmail.com');
 		        //$message->to('giligans.app@gmail.com');
-		        $message->to('gi.hrd01@gmail.com');
+		        if (app()->environment()==='production')
+		        	$message->to('gi.hrd01@gmail.com');
 		        //$message->to('freakyash02@gmail.com');
 		       	$message->attach($data['attachment']);
 		    });

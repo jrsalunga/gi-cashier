@@ -68,6 +68,7 @@ class SalesmtdController extends Controller
 			$row['custcount'] 	= 0;
 		$row['paxloc']				= substr(trim($r['CUSNO']), -2);
 		$row['group'] 				= trim($r['COMP2']);
+		$row['group_cnt'] 		= trim($r['COMP3']);
 		$row['remarks'] 			= trim($r['COMP1']);
 		$row['cashier'] 			= trim($r['CUSNAME']);
 		$row['menucat'] 			= trim($r['COMPUNIT2']).trim($r['COMPUNIT3']);
