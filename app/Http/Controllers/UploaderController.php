@@ -43,7 +43,6 @@ class UploaderController extends Controller
 	}
 
 
-
 	public function getIndex(Request $request) {  
 		return view('uploader.index');
 	}
@@ -51,9 +50,6 @@ class UploaderController extends Controller
 	public function getBackupIndex(Request $request) {  
 		return view('uploader.backup');
 	}
-
-	
-
 
 
 	public function putFile(Request $request) {  
@@ -71,7 +67,7 @@ class UploaderController extends Controller
 			'filename'		=> 'required',
 			'filetype'  	=> 'required',
 			'backup_type'	=> 'required',
-			'cashier'			=> 'required',
+			'cashier'		=> 'required',
 		];
 
 		$messages = [];
