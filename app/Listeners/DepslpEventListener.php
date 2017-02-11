@@ -75,7 +75,7 @@ class DepslpEventListener
       'amount'        => number_format($event->depslp['amount'],2),
       'cashier'       => $event->depslp['cashier'],
       'deposit_date'  => $event->depslp['deposit_date']->format('D M j h:i:s A'),
-      'remarks'       => $event->depslp['remarks']
+      'remarks'       => request()->input('reason')
     ];
     
     $this->mailer->queue('docu.depslp.mail-del-notifier', $data, function ($message) {

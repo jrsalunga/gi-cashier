@@ -185,7 +185,7 @@ class DepslpController extends Controller {
 			if ($this->files->exists($this->getPath($depslp)))
 				$this->files->deleteFile($this->getPath($depslp));
 
-			if (app()->environment()==='production')
+			//if (app()->environment()==='production')
 				event(new DepslpDelete($depslp->toArray()));
 
 			return redirect(brcode().'/depslp/log')

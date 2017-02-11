@@ -139,6 +139,7 @@
 
 
 <div class="modal fade mdl-delete" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
+  {!! Form::open(['method'=>'POST', 'url'=>'delete/depslp', 'id'=>'form-file', 'class'=>'form-horizontal', 'enctype'=>'multipart/form-data']) !!}
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -147,19 +148,23 @@
       </div>
       <div class="modal-body">
         <p>Are you sure you want to delete <strong>{{ $depslp->fileUpload->filename }}</strong>? This this is irreversible transaction. Please be careful on deleting records. </p>
+        <p></p>
+        <p class="text-muted"><small>Reasons for deletion:</small></p>
+        <p>
+          <textarea name="reason" required style="min-width: 100%; max-width: 100%;"></textarea>
+        </p>
       </div>
       <div class="modal-footer">
         <div class="pull-right">
-          {!! Form::open(['method'=>'POST', 'url'=>'delete/depslp', 'id'=>'form-file', 'class'=>'form-horizontal', 'enctype'=>'multipart/form-data']) !!}
         
           <button type="submit" class="btn btn-primary">Yes</button>
           <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
           <input type="hidden" name="id" value="{{ $depslp->id }}">
-          {!! Form::close() !!}
         </div>
       </div>
     </div><!-- end: .modal-content  -->
   </div>
+  {!! Form::close() !!}
 </div>
 @endsection
 
