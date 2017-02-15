@@ -47,12 +47,12 @@ class DepslpController extends Controller {
 
 		if (strtolower($action)==='edit')
 			return $this->editDepslp($id);
-		elseif (is_uuid($id) && is_null($action) && is_null($p))
+		elseif (is_uuid($id) && is_null($action))
 			return $this->viewDepslp($id);
 
-		if (strtolower($action)==='edit' && is_uuid($id) && is_null($p))
+		if (strtolower($action)==='edit' && is_uuid($id))
 			return $this->editDepslp($id);
-		elseif (is_uuid($id) && is_null($action) && is_null($p))
+		elseif (is_uuid($id) && is_null($action))
 			return $this->viewDepslp($id);
 		else
 			return $this->getDepslpFileSystem($brcode, $id, $action);
