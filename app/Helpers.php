@@ -43,6 +43,9 @@ function now($val=null){
 	
 }
 
+
+
+
 function pad($val, $len=2, $char='0', $direction=STR_PAD_LEFT){
 	return str_pad($val, $len, $char, $direction);
 }

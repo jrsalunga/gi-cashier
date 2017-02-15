@@ -42,13 +42,69 @@ class DepslpController extends Controller {
 	}
 
 	public function getAction($brcode, $id=null, $action=null) {
-		if(!is_uuid($id) || $brcode!==strtolower(session('user.branchcode')))
+		if($brcode!==strtolower(session('user.branchcode')))
 			return redirect($brcode.'/depslp/log');
 
 		if (strtolower($action)==='edit')
 			return $this->editDepslp($id);
-		else
+		elseif (is_uuid($id) && is_null($action) && is_null($p))
 			return $this->viewDepslp($id);
+
+		if (strtolower($action)==='edit' && is_uuid($id) && is_null($p))
+			return $this->editDepslp($id);
+		elseif (is_uuid($id) && is_null($action) && is_null($p))
+			return $this->viewDepslp($id);
+		else
+			return $this->getDepslpFileSystem($brcode, $id, $action);
+	}
+
+
+	private function getDepslpFileSystem($brcode, $id, $action) { // $id = yr, $action = month
+
+		$paths = [];
+
+		$r = $this->files->folderInfo2('DEPSLP');
+		foreach ($r['subfolders'] as $path => $folder) {
+			if ($this->files->exists('DEPSLP'.DS.$path.DS.strtoupper($brcode)));
+				$paths[$path.'/'.strtoupper($brcode)] = $folder;
+		}
+		
+		//return $paths;
+		$y = $this->files->folderInfo2(array_search($id, $paths));
+
+		if (in_array($id, $paths) && is_null($action))  {
+			$data = [
+					'folder' 			=> "/DEPSLP/".$id,
+					'folderName'  => $id,
+					'breadcrumbs' => [
+						'/' 				=> "Storage",
+						'/DEPSLP'   => "DEPSLP",
+					],
+					'subfolders' 	=> $y['subfolders'],
+					'files' 			=> $y['files']
+				];
+		} elseif (in_array($id, $paths) && in_array($action, $y['subfolders']))  {
+			$m = $this->files->folderInfo2(array_search($action, $y['subfolders']));
+			$data = [
+					'folder' 			=> "/DEPSLP/".$id.'/'.$action,
+					'folderName'  => $action,
+					'breadcrumbs' => [
+						'/' 				=> "Storage",
+						'/DEPSLP'   => "DEPSLP",
+						'/DEPSLP/'.$id   => $id,
+					],
+					'subfolders' 	=> $m['subfolders'],
+					'files' 			=> $m['files']
+				];
+		} elseif (is_null($id) && is_null($action))  {
+			$data = $r;
+		} else 
+			return abort('404');
+	
+		
+		return view('docu.depslp.filelist')->with('data', $data);
+
+
 	}
 
 

@@ -74,6 +74,36 @@ class StorageRepository {
     );
   }
 
+
+  public function folderInfo2($folder)
+  {
+    $folder = $this->cleanFolder($folder);
+
+    $breadcrumbs = $this->breadcrumbs($folder);
+    $slice = array_slice($breadcrumbs, -1);
+    $folderName = current($slice);
+    $breadcrumbs = array_slice($breadcrumbs, 0, -1);
+
+
+    $subfolders = [];
+    foreach (array_unique($this->disk->directories($folder)) as $subfolder) {
+      $subfolders["/$subfolder"] = basename($subfolder);
+    }
+
+    $files = [];
+    foreach ($this->disk->files($folder) as $path) {
+        $files[] = $this->fileDetails($path);
+    }
+
+    return compact(
+      'folder',
+      'folderName',
+      'breadcrumbs',
+      'subfolders',
+      'files'
+    );
+  }
+
   public function changeRoot($folder){
     return session('user.branchcode').$folder;
   }
@@ -205,6 +235,10 @@ class StorageRepository {
     }
 
     return $this->disk->makeDirectory($folder);
+  }
+
+  public function directories($folder) {
+    return $this->disk->directories($folder);
   }
 
   /**
