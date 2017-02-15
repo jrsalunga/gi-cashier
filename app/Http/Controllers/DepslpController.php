@@ -97,7 +97,16 @@ class DepslpController extends Controller {
 					'files' 			=> $m['files']
 				];
 		} elseif (is_null($id) && is_null($action))  {
-			$data = $r;
+			//$data = $r;
+			$data = [
+					'folder' 			=> "/DEPSLP",
+					'folderName'  => "DEPSLP",
+					'breadcrumbs' => [
+						'/' 				=> "Storage",
+					],
+					'subfolders' 	=> $r['subfolders'],
+					'files' 			=> []
+				];
 		} else 
 			return abort('404');
 	
