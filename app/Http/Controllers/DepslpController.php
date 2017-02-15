@@ -64,12 +64,12 @@ class DepslpController extends Controller {
 		$paths = [];
 
 		$r = $this->files->folderInfo2('DEPSLP');
+
 		foreach ($r['subfolders'] as $path => $folder) {
-			if ($this->files->exists('DEPSLP'.DS.$path.DS.strtoupper($brcode)));
+			if ($this->files->exists($path.DS.strtoupper($brcode)))
 				$paths[$path.'/'.strtoupper($brcode)] = $folder;
 		}
 		
-		//return $paths;
 		$y = $this->files->folderInfo2(array_search($id, $paths));
 
 		if (in_array($id, $paths) && is_null($action))  {
@@ -104,7 +104,7 @@ class DepslpController extends Controller {
 					'breadcrumbs' => [
 						'/' 				=> "Storage",
 					],
-					'subfolders' 	=> $r['subfolders'],
+					'subfolders' 	=> $paths,
 					'files' 			=> []
 				];
 		} else 
