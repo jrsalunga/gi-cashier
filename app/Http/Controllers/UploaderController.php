@@ -329,7 +329,7 @@ class UploaderController extends Controller
   	$d = $this->backupParseDate($request);
 
 	 	$data = [
-	 		'branchid' 	=> session('user.branchid'),
+	 	'branchid' 	=> session('user.branchid'),
     	'filename' 	=> $request->input('filename'),
     	'year' 			=> $d->format('Y'), //$request->input('year'),
     	'month' 		=> $d->format('m'), //$request->input('month'),
@@ -445,12 +445,12 @@ class UploaderController extends Controller
 			$file = $this->createFileUpload($upload_path, $request, 'C1CCBE28CCDA11E6A3D000FF18C615EC');
 
 			try {
-	     	$this->files->moveFile($this->web->realFullPath($upload_path), $storage_path, true); // false = override file!
-	    } catch(Exception $e) {
-				return redirect()->back()
-				->with('alert-error', 'Error on moving file. '.$e->getMessage())
-				->with('alert-important', ' ');
-	    }
+	     		$this->files->moveFile($this->web->realFullPath($upload_path), $storage_path, true); // false = override file!
+		    } catch(Exception $e) {
+					return redirect()->back()
+					->with('alert-error', 'Error on moving file. '.$e->getMessage())
+					->with('alert-important', ' ');
+		    }
 
 	    $depslp = $this->createDepslip($file, $filename);
 	    if (!is_null($depslp))
@@ -499,12 +499,12 @@ class UploaderController extends Controller
 	private function createDepslip($file, $filename){
 
 	 	$data = [
-	 		'branch_id' 			=> session('user.branchid'),
+	 	'branch_id' 			=> session('user.branchid'),
     	'filename' 				=> $filename,
-    	'date' 						=> request()->input('date'),
-    	'time' 						=> request()->input('time'),
-    	'amount' 					=> str_replace(",", "", request()->input('amount')),
-    	'file_upload_id' 	=> $file->id,
+    	'date' 					=> request()->input('date'),
+    	'time' 					=> request()->input('time'),
+    	'amount' 				=> str_replace(",", "", request()->input('amount')),
+    	'file_upload_id' 		=> $file->id,
     	'terminal' 				=> clientIP(), //$request->ip(),
     	'remarks' 				=> request()->input('notes'),
     	'user_id' 				=> request()->user()->id,

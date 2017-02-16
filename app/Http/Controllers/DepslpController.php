@@ -14,6 +14,7 @@ use App\Events\Depslp\Delete as DepslpDelete;
 class DepslpController extends Controller { 
 
 	protected $depslip;
+	protected $files;
 
 	public function __construct(DepslpRepo $depslip) {
 		$this->depslip = $depslip;
@@ -183,8 +184,46 @@ class DepslpController extends Controller {
 
 	}
 
-	public function put(Request $request) {
+	private function countFilenameByDate($date, $time) {
+  	$d = $this->depslip->findWhere(['date'=>$date, 'time'=>$time]);
+		$c = intval(count($d));
+  	if ($c>1)
+			return $c+1;
+		return false;
+  }
 
+  private function moveUpdatedFile($o, $n) {
+  	if ($o->date!=$n->date || $o->time!=$n->time) {
+			
+			$old_path = 'DEPSLP'.DS.$o->date->format('Y').DS.session('user.branchcode').DS.$o->date->format('m').DS.$o->filename;
+			$ext = strtolower(pathinfo($o->filename, PATHINFO_EXTENSION));
+			$br = strtoupper(session('user.branchcode'));
+			
+			if ($this->files->exists($old_path)) {
+				$date = carbonCheckorNow($n->date->format('Y-m-d').' '.$n->time);
+
+				$cnt = $this->countFilenameByDate($date->format('Y-m-d'), $date->format('H:i:s'));
+				if ($cnt)
+					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').'-'.$cnt.'.'.$ext;
+				else
+					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').'.'.$ext;
+
+				$new_path = 'DEPSLP'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
+
+				try {
+	     		$this->files->moveFile($this->files->realFullPath($old_path), $new_path, true); // false = override file!
+		    } catch(Exception $e) {
+					return false;
+		    }
+				return $filename;
+			}
+			return false;
+		} else
+			return false;
+  }
+
+	public function put(Request $request) {
+		
 		$rules = [
 			'date'				=> 'required|date',
 			'time'				=> 'required',
@@ -198,8 +237,8 @@ class DepslpController extends Controller {
 		if ($validator->fails()) 
 			return redirect()->back()->withErrors($validator);
 		
-		$old_depslip = $this->depslip->find($request->input('id'));
-		if(!is_null($old_depslip)) {
+		$o = $this->depslip->find($request->input('id'));
+		if(!is_null($o)) {
 			
 			$d = $this->depslip->update([
 				'date' 				=> request()->input('date'),
@@ -208,14 +247,22 @@ class DepslpController extends Controller {
 	    	'cashier' 		=> $request->input('cashier'),
 	    	'remarks' 		=> $request->input('notes'),
 	    	'updated_at' 	=> c()
-			], $request->input('id'));
+			], $o->id);
 
-			//Event::fire('depslp.changed', ['new'=>$old_depslip]);
-			$arr = array_diff($old_depslip->toArray(), $d->toArray());
+
+			$filename = $this->moveUpdatedFile($o, $d);
+			if ($filename!==false) {
+				$d = $this->depslip->update([
+					'filename'		=> $filename,
+		    	'updated_at' 	=> c()
+				], $o->id);
+			}
+
+			$arr = array_diff($o->toArray(), $d->toArray());
 			array_forget($arr, 'updated_at');
 			
 			if (app()->environment()==='production')
-				event(new DepslpChange($old_depslip, $d, $arr));
+				event(new DepslpChange($o, $d, $arr));
 
 			return redirect(brcode().'/depslp/'.$d->lid())
 							->with('alert-success', 'Deposit slip is updated!');
