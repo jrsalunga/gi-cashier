@@ -229,7 +229,7 @@ class DepslpController extends Controller {
 			'time'				=> 'required',
 			'amount'			=> 'required',
 			'cashier'			=> 'required',
-			'id'					=> 'required',
+			'id'				=> 'required',
 		];
 
 		$validator = app('validator')->make($request->all(), $rules);
@@ -241,9 +241,9 @@ class DepslpController extends Controller {
 		if(!is_null($o)) {
 			
 			$d = $this->depslip->update([
-				'date' 				=> request()->input('date'),
-	    	'time' 				=> request()->input('time'),
-	    	'amount' 			=> str_replace(",", "", request()->input('amount')),
+			'date' 			=> request()->input('date'),
+	    	'time' 			=> request()->input('time'),
+	    	'amount' 		=> str_replace(",", "", request()->input('amount')),
 	    	'cashier' 		=> $request->input('cashier'),
 	    	'remarks' 		=> $request->input('notes'),
 	    	'updated_at' 	=> c()

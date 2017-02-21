@@ -282,7 +282,7 @@
           +'<b>20170102</b> - is the Deposit Date in YYYYMMDD format. For multiple deposit on the same day, the filename should be <b>DEPSLP MOA 20170102-2</b>,'
           +' <b>DEPSLP MOA 20170102-3</b>, etc.</li><li> Make sure that the <b>Date/Time</b> encoded is the <b>Deposit Date/Time</b> on the Deposit Slip.</li>'
           +'<li>Please don\'t upload other documents like DCCR, etc. <b>Scanned Deposit Slip</b> only. =)</li>'
-          +'<li>For <b>multiple deposit slip</b> on <b>one scanned file</b>, sample <b>Cash and Check Deposit</b>, kindly sum the <b>Amount (27,052.94)</b> and break it down on <b>Notes</b> sample <b>Cash: 25,000.00, Check: 2,052.94</b></li>'
+          +'<li>For <b>multiple deposit slip</b> on <b>one scanned/attached file</b>, for example the <b>Cash and Check Deposit</b>are on one attachment, kindly sum the <b>Amount (27,052.94)</b> and break it down on the <b>Notes</b>. sample <b>Cash: 25,000.00, Check: 2,052.94</b></li>'
           +'</ol>'
           +'<small><em class="text-muted">For more questions / clarifications email us at <a href="mailto:jefferson.salunga@gmail.com">jefferson.salunga@gmail.com</a></em></small>');
       } else if ($(this).val()==='backup') {
