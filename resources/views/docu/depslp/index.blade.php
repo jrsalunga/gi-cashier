@@ -199,6 +199,12 @@
 @section('js-external')
   @parent
 
+   <script type="text/javascript">
+     $(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+   </script>
+
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <!-- gi- -->
 
