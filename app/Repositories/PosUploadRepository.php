@@ -1000,6 +1000,7 @@ class PosUploadRepository extends Repository
           throw new Exception($e->getMessage());    
         }
 
+        $ctr = 0;
         $ds = [];
         $ds['slsmtd_totgrs'] = 0;
         $ds['date']       = $date->format('Y-m-d');
@@ -1015,9 +1016,20 @@ class PosUploadRepository extends Repository
             $vfpdate = $date->copy()->subDay();
           }
 
-          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) { // if salesmtd date == backup date
             $data = $this->salesmtdCtrl->associateAttributes($row);
             $data['branch_id'] = $backup->branchid;
+
+            if ($ctr==0) {
+              $ds['opened_at'] = $data['ordtime'];
+              $ds['closed_at'] = $data['ordtime'];
+            }
+
+            if (c($ds['opened_at'])->gt(c($data['ordtime'])))
+              $ds['opened_at'] = $data['ordtime'];
+
+            if (c($ds['closed_at'])->lt(c($data['ordtime'])))
+              $ds['closed_at'] = $data['ordtime'];
 
             try {
               //$this->logAction($data['orddate'], ' create:salesmtd');
@@ -1029,6 +1041,8 @@ class PosUploadRepository extends Repository
               return false;   
             }
             $ds['slsmtd_totgrs'] += $data['grsamt'];
+
+            $ctr++;
           }
         }
 
