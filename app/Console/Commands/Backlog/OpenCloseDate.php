@@ -78,7 +78,7 @@ class OpenCloseDate extends Command
 
     foreach ($dss as $key => $ds) {
 
-      $this->comment('Tying to update '.$ds->branch->code.' - '. $ds->date->format('Y-m-d'));
+      $this->info('Tying to update '.$ds->branch->code.' - '. $ds->date->format('Y-m-d'));
       
 
       $first_sales = $this->sales->skipCache()->orderBy('ordtime')->findWhere(['branch_id'=>$ds->branchid, 'orddate'=>$ds->date->format('Y-m-d')]);
