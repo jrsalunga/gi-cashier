@@ -18,3 +18,5 @@ Homestead.json
 /storage/process
 
 .env.example
+bower_components
+composer.lock
