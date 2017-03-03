@@ -45,13 +45,17 @@ class OpenCloseDate extends Command
   
     if (!is_iso_date($date)) {
       
-      if ($date!=='all') {
+      if ($date==='all') {
+          $this->comment('Will proccess all DailySales.');
+          $dss = DailySales::all();
+      } else if (is_year(explode('-',$date)[0]) && is_month(explode('-',$date)[1])) {
+          $d = c($date.'-01');
+          $this->comment('Will proccess by year month of '. $date.'-01 - '.$d->copy()->endOfMonth()->format('Y-m-d'));
+          $dss = DailySales::whereBetween('date', [$date.'-01', $d->copy()->endOfMonth()->format('Y-m-d')])->get();
+      } else {
           $this->comment('Invalid date format.');
           exit;
       }
-
-      $dss = DailySales::all();
-      $this->comment('Will proccess all DailySales.');
       
     } else {
         $dss = DailySales::where('date', $date)->get();
