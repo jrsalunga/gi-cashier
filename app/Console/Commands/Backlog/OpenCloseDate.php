@@ -64,9 +64,6 @@ class OpenCloseDate extends Command
 
     
 
-
-
-
     if ($dss->isEmpty()) {
       $this->comment('No report found on this date.');
       exit;
