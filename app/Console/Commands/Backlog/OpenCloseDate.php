@@ -57,7 +57,7 @@ class OpenCloseDate extends Command
             $query->select(['code', 'descriptor', 'id']);
           }])->whereBetween('date', [$date.'-01', $d->copy()->endOfMonth()->format('Y-m-d')])->get();
       } else {
-          $this->comment('Invalid date format.');
+          $this->info('Invalid date format.');
           exit;
       }
       
@@ -71,7 +71,7 @@ class OpenCloseDate extends Command
     
 
     if ($dss->isEmpty()) {
-      $this->comment('No report found on this date.');
+      $this->info('No report found on this date.');
       exit;
     }
 
@@ -86,7 +86,7 @@ class OpenCloseDate extends Command
       $last_sales = $this->sales->skipCache()->orderBy('ordtime', 'desc')->findWhere(['branch_id'=>$ds->branchid, 'orddate'=>$ds->date->format('Y-m-d')]);
 
       if ($first_sales->isEmpty() || $last_sales->isEmpty()) {
-        $this->comment('Skipping update');
+        $this->info('Skipping update');
         $this->comment('--------------------------------------');
         continue;
       }
@@ -102,9 +102,9 @@ class OpenCloseDate extends Command
 
      
       if ($d)
-        $this->comment('Updated!');
+        $this->info('Updated!');
       else
-        $this->comment('No Update!');
+        $this->info('No Update!');
 
       $this->comment('--------------------------------------');
     } 
