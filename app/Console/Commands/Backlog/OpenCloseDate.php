@@ -47,18 +47,24 @@ class OpenCloseDate extends Command
       
       if ($date==='all') {
           $this->comment('Will proccess all DailySales.');
-          $dss = DailySales::all();
+          $dss = DailySales::with(['branch'=>function($query){
+            $query->select(['code', 'descriptor', 'id']);
+          }])->all();
       } else if (is_year(explode('-',$date)[0]) && is_month(explode('-',$date)[1])) {
           $d = c($date.'-01');
           $this->comment('Will proccess by year month of '. $date.'-01 - '.$d->copy()->endOfMonth()->format('Y-m-d'));
-          $dss = DailySales::whereBetween('date', [$date.'-01', $d->copy()->endOfMonth()->format('Y-m-d')])->get();
+          $dss = DailySales::with(['branch'=>function($query){
+            $query->select(['code', 'descriptor', 'id']);
+          }])->whereBetween('date', [$date.'-01', $d->copy()->endOfMonth()->format('Y-m-d')])->get();
       } else {
           $this->comment('Invalid date format.');
           exit;
       }
       
     } else {
-        $dss = DailySales::where('date', $date)->get();
+        $dss = DailySales::with(['branch'=>function($query){
+            $query->select(['code', 'descriptor', 'id']);
+          }])->where('date', $date)->get();
       $this->comment($date .' will proccess all DailySales.');
     }
 
@@ -72,7 +78,7 @@ class OpenCloseDate extends Command
 
     foreach ($dss as $key => $ds) {
 
-      $this->comment('Tying to update '.$ds->branchid.' - '. $ds->date->format('Y-m-d'));
+      $this->comment('Tying to update '.$ds->branch->code.' - '. $ds->date->format('Y-m-d'));
       
 
       $first_sales = $this->sales->skipCache()->orderBy('ordtime')->findWhere(['branch_id'=>$ds->branchid, 'orddate'=>$ds->date->format('Y-m-d')]);
