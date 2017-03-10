@@ -65,7 +65,7 @@ class PosUploadRepository extends Repository
         if(!is_null($pwd))
           $zip->setPassword($pwd);
         
-        $path = storage_path().DS.'backup'.DS.pathinfo($src, PATHINFO_FILENAME);
+        $path = storage_path().DS.'backup'.DS.session('user.branchcode').DS.pathinfo($src, PATHINFO_FILENAME);
         
         if(is_dir($path)) {
           $this->removeDir($path);
