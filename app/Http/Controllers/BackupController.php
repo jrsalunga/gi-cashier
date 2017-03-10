@@ -359,7 +359,7 @@ class BackupController extends Controller
 	public function postfile(Request $request) {
 
 		
-		$this->logAction('start:upload:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
+		//$this->logAction('start:upload:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 		if($request->file('pic')->isValid()) {
 
 			$filename = rawurldecode($request->file('pic')->getClientOriginalName());
@@ -375,7 +375,7 @@ class BackupController extends Controller
 
 
 			if($res===true){
-				$this->logAction('success:upload:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
+				//$this->logAction('success:upload:backup', 'user:'.$request->user()->username.' '.$request->input('filename'));
 				return json_encode(['status'=>'success', 
 													'code'=>'200', 
 													'message'=>$res, 

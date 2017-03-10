@@ -81,9 +81,15 @@ class OpenCloseDate extends Command
       $this->info('Tying to update '.$ds->branch->code.' - '. $ds->date->format('Y-m-d'));
       
 
-      $first_sales = $this->sales->skipCache()->orderBy('ordtime')->findWhere(['branch_id'=>$ds->branchid, 'orddate'=>$ds->date->format('Y-m-d')]);
+      $first_sales = $this->sales
+                          ->skipCache()
+                          ->orderBy('ordtime')
+                          ->findWhere(['branch_id'=>$ds->branchid, 'orddate'=>$ds->date->format('Y-m-d')]);
      
-      $last_sales = $this->sales->skipCache()->orderBy('ordtime', 'desc')->findWhere(['branch_id'=>$ds->branchid, 'orddate'=>$ds->date->format('Y-m-d')]);
+      $last_sales = $this->sales
+                          ->skipCache()
+                          ->orderBy('ordtime', 'desc')
+                          ->findWhere(['branch_id'=>$ds->branchid, 'orddate'=>$ds->date->format('Y-m-d')]);
 
       if ($first_sales->isEmpty() || $last_sales->isEmpty()) {
         $this->info('Skipping update');
