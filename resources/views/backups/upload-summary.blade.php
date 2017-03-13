@@ -109,13 +109,17 @@
     </div><!-- end: .row-->
     <div class="row">
     <p>&nbsp;</p>
-      <div class="col-md-6">
+      <div class="col-md-3">
         <ul class="list-group">
           <li class="list-group-item"><span class="badge">{{ $ds->crew_din }}</span> Dining Crew</li>
           <li class="list-group-item"><span class="badge">{{ $ds->crew_kit }}</span> Kitchen Crew</li>
         </ul>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-3">
+        <ul class="list-group">
+          <li class="list-group-item">Customers <span class="pull-right">{{ number_format($ds->custcount, 0) }}</span></li>
+          <li class="list-group-item">Tips <span class="pull-right">{{ number_format($ds->tips, 2) }}</span></li>
+        </ul>
       <!--
         <div class="panel panel-success">
           <div class="panel-body">
