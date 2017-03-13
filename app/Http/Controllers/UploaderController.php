@@ -14,6 +14,7 @@ use Dflydev\ApacheMimeTypes\PhpRepository;
 use App\Repositories\DepslipRepository as DepslipRepo;
 use App\Repositories\PosUploadRepository as PosUploadRepo;
 use App\Repositories\FileUploadRepository as FileUploadRepo;
+use App\Repositories\DailySalesRepository as DSRepo;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException as Http404;
 use App\Events\Backup\ProcessSuccess;
 use App\Events\Upload\Depslp as DepslpUpload;
@@ -28,11 +29,13 @@ class UploaderController extends Controller
 	protected $pos;
 	protected $web;
 	protected $backupCtrl;
+	protected $ds;
 
-	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip) {
+	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, DSRepo $ds) {
 		$this->posUploadRepo = $posUploadRepo;
 		$this->fileUploadRepo = $fileUploadRepo;
 		$this->depslip = $depslip;
+		$this->ds = $ds;
 		$this->files = new StorageRepository(new PhpRepository, 'files.'.app()->environment());
 		$this->pos = new StorageRepository(new PhpRepository, 'pos.'.app()->environment());
 		$this->web = new StorageRepository(new PhpRepository, 'web');
@@ -213,7 +216,12 @@ class UploaderController extends Controller
 						event(new ProcessSuccess($backup, $request->user()));
 
 					return redirect()
-		    					->route('uploader', ['brcode'=>strtolower(session('user.branchcode')),'u'=>strtolower($backup->cashier),'type'=>'pos'])
+		    					//->route('uploader', ['brcode'=>strtolower(session('user.branchcode')),'u'=>strtolower($backup->cashier),'type'=>'pos'])
+		    					->route('upload-summary', 
+		    					[ 'brcode'=>strtolower(session('user.branchcode')),
+		    						'u'=>strtolower($backup->cashier),'type'=>'pos', 
+		    						'date'=>$backup->date->format('Y-m-d')
+		    					])
 		    					->with('pos.success', $backup->filename);
 		    	/*
 					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier).'&type=backup')
@@ -539,6 +547,21 @@ class UploaderController extends Controller
 			return redirect()->back()->withErrors(['error'=>'Error on moving file.'.$e->getMessage()]);
     }
 		return redirect()->back()->withErrors(['error'=>'Uploaded. Unknown file type.']);
+	}
+
+
+
+	public function getUploadSummary($brcode, Request $request) {
+
+		$ds = null;
+		$date = null;
+		if ($request->has('date')  && is_iso_date($request->input('date'))) {
+			$date = c($request->input('date'));
+
+			$ds = $this->ds->findWhere(['date'=>$request->input('date')])->first();
+		}
+
+		return view('backups.upload-summary', compact('date'))->with('ds', $ds);
 	}
 
 

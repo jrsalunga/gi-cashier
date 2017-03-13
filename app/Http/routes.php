@@ -54,6 +54,7 @@ Route::get('{brcode}/uploader', ['as'=>'uploader' ,'uses'=>'UploaderController@g
 Route::get('uploader/backup', ['uses'=>'UploaderController@getBackupIndex']);
 Route::put('uploader/postfile', ['uses'=>'UploaderController@putFile']);
 Route::get('uploader/deposit-slip', ['uses'=>'UploaderController@getDepositIndex']);
+Route::get('{brcode}/upload/summary', ['as'=>'upload-summary', 'uses'=>'UploaderController@getUploadSummary']);
 
 /******* start prefix:api     ********/
 Route::group(['prefix'=>'api'], function(){  /******* begin prefix:api ********/

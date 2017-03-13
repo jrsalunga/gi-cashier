@@ -10,6 +10,9 @@ $(function(){
 	var resetForm =  function () {
 		$('#form-file').trigger("reset");
 		$('#btn-upload').prop('disabled', true);
+		$('#dropbox').html('<span class="message">You can \'Drag and Drop\' or \'Click\' here to attach your file.  <br>'
+                +'<i>(they will only be visible to you)</i>'
+                +'</span>');
 	}
 
 	var backupVerifyFilename = function(filename){
@@ -35,7 +38,7 @@ $(function(){
 			'month': $('#month')[0].value,
 		},
 		maxfiles: 5,
-    maxfilesize: 32, // max file size in MBs
+    	maxfilesize: 32, // max file size in MBs
 		url: '/upload/postfile',
 		withCredentials: true, 
 		headers: {          // Send additional request headers
@@ -53,7 +56,20 @@ $(function(){
 				$('#btn-upload')[0].disabled = false;
 			} else {
 				//$('#filename').val('Ooops! something went wrong while uploading....');
-				alertMessage($('#nav-action'), 'danger', '<b>Ooops!</b> Something went wrong while uploading. Try refreshing your browser.');
+				//alertMessage($('#nav-action'), 'danger', '<b>Ooops!</b> Something went wrong while uploading. Try refreshing your browser.');
+				swal({
+				  title: "Ooops! Something went wrong.",
+				  text: "Try refreshing your browser.",
+				  type: "error",
+				  confirmButtonText: "Refresh Now!",
+				  closeOnConfirm: false,
+				},
+				function(isConfirm){
+				  if (isConfirm) {
+				    //swal("Deleted!", "Your imaginary file has been deleted.", "success");
+				    window.location.href='/uploader';
+				  } 
+				});
 			}
 		},
   	
@@ -116,13 +132,14 @@ $(function(){
 				// file to be rejected
 
 				if(!backupVerifyFilename(file.name)) {
-					alertMessage($('#nav-action'), 'danger', '<b>Ooops! '+ file.name +'</b> invalid backup! Kindly check the file.');
+					swal("Ooops! Invalid backup file!", "Kindly check the file "+ file.name +".", "error");
+					//alertMessage($('#nav-action'), 'danger', '<b>Ooops! '+ file.name +'</b> invalid backup! ');
 					$('#filename').val(file.name);
 					console.log($(this));
 					console.log(dropbox);
-					$('#dropbox').html('<span class="message">You can \'Drag and Drop\' or \'Click\' here to attach your file.  <br>'
-                +'<i>(they will only be visible to you)</i>'
-                +'</span>');
+					//$('#dropbox').html('<span class="message">You can \'Drag and Drop\' or \'Click\' here to attach your file.  <br>'
+          //      +'<i>(they will only be visible to you)</i>'
+          //      +'</span>');
 					resetForm();
 					return false;
 				} else {
@@ -130,6 +147,13 @@ $(function(){
 					$('#filetype').val('backup').trigger('change');
 					return true;
 				}
+			}
+
+			//console.log(parseInt(file.size)>2097152);
+			if(parseInt(file.size)>2097152)  {
+				swal("File Too Large!", "Please upload less than 2MB scanned deposit slip file.", "error");
+				resetForm();
+				return false;
 			}
 			
 			console.log('Continue on pics');

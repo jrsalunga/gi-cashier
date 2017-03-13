@@ -156,6 +156,8 @@ class PosUploadRepository extends Repository
       $row['managerid'] = session('user.id'); // cashierid actually
       $row['date']      = $vfpdate->format('Y-m-d');
       $row['sales']     = number_format($sales, 2, '.', ''); 
+      $row['crew_din']  = $din;
+      $row['crew_kit']  = $kit;
       $row['empcount']  = $empcount;
       $row['tips']      = $tips;
       $row['custcount'] = $custcount;

@@ -65,13 +65,14 @@
             <span class="hidden-xs hidden-sm">DropBox</span>
           </button>
         </div>
-
+        <!--    
         <div class="btn-group pull-right" role="group">
           <a href="/backups/upload" class="btn btn-link">
             <span class="gly gly-retweet"></span>
             <span>Go to old DropBox</span>
           </a>
         </div>
+        -->
       </div>
     </div>
   </nav>
@@ -222,8 +223,11 @@
 
 @section('js-external')
   @parent
+  <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
   <script src="/js/vendors/jquery.filedrop-0.1.0.js"></script>
   <script src="/js/filedrop-common.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+
 
   <script type="text/javascript">
 
