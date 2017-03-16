@@ -92,11 +92,11 @@
     <div class="row">
       <div class="col-md-3">
         Backup Date:
-        <h3>{{ $date->format('D M d, Y') }}</h3>
+        <h3 class="text-primary">{{ $date->format('D M d, Y') }}</h3>
       </div><!-- end: .col-md-3-->
       <div class="col-md-3">
         Gross Sales:
-        <h3>{{ number_format($ds->slsmtd_totgrs, 2) }}</h3>
+        <h3 class="text-success">{{ number_format($ds->slsmtd_totgrs, 2) }}</h3>
       </div><!-- end: .col-md-3-->
       <div class="col-md-3">
         Net Sales:
@@ -104,21 +104,21 @@
       </div><!-- end: .col-md-3-->
       <div class="col-md-3">
         Total Purchased Cost:
-        <h3>{{ number_format($ds->purchcost, 2) }}</h3>
+        <h3 class="text-danger">{{ number_format($ds->purchcost, 2) }}</h3>
       </div><!-- end: .col-md-3-->
     </div><!-- end: .row-->
     <div class="row">
     <p>&nbsp;</p>
       <div class="col-md-3">
         <ul class="list-group">
-          <li class="list-group-item"><span class="badge">{{ $ds->crew_din }}</span> Dining Crew</li>
-          <li class="list-group-item"><span class="badge">{{ $ds->crew_kit }}</span> Kitchen Crew</li>
+          <li class="list-group-item"><span class="pull-right"><strong>{{ $ds->crew_din }}</strong></span> Dining Crew</li>
+          <li class="list-group-item"><span class="pull-right"><strong>{{ $ds->crew_kit }}</strong></span> Kitchen Crew</li>
         </ul>
       </div>
       <div class="col-md-3">
         <ul class="list-group">
-          <li class="list-group-item">Customers <span class="pull-right">{{ number_format($ds->custcount, 0) }}</span></li>
-          <li class="list-group-item">Tips <span class="pull-right">{{ number_format($ds->tips, 2) }}</span></li>
+          <li class="list-group-item">Customers <span class="pull-right"><strong>{{ number_format($ds->custcount, 0) }}</strong></span></li>
+          <li class="list-group-item">Tips <span class="pull-right"><strong>{{ number_format($ds->tips, 2) }}</strong></span></li>
         </ul>
       <!--
         <div class="panel panel-success">
@@ -147,7 +147,7 @@
 
     <div class="row">
       <div class="col-md-12">
-        
+        <p>&nbsp;</p>
         <div class="alert alert-important text-primary" style="margin: -25px 0 -5px 0;">
           <?php
             if(strpos(request()->url(), '.com'))

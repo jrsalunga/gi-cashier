@@ -98,7 +98,7 @@
       <input type="hidden" name="lng" id="lng">
       <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
       <div class="text-center"><strong>or</strong></div>
-      <a class="btn btn-lg btn-danger btn-block" href="http://cashier.giligans.net/auth/google">Sign in with Google</a>
+      <a class="btn btn-lg btn-danger btn-block" href="http://cashier.giligansrestaurant.com/auth/google">Sign in with Google</a>
       {!! Form::close() !!}
   </div>
 
