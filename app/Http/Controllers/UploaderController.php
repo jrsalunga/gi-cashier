@@ -118,7 +118,7 @@ class UploaderController extends Controller
 		    		return redirect()->back()->withErrors(['error'=>$request->input('filename'). ' is not a GI PAY Backup.']);
 
 		    	try {
-						$this->emailPayrollBackup($backup, $filepath);
+						$this->emailPayrollBackup($backup, $storage_path);
 			    } catch (Exception $e) {
 						return redirect()->back()->withErrors(['error'=>$e->getMessage()]);
 			    }
@@ -278,7 +278,7 @@ class UploaderController extends Controller
 		
 		$data = [
 			'branchcode' 	=> session('user.branchcode'),
-			'attachment' 	=> $this->web->realFullPath($filepath),
+			'attachment' 	=> $this->payroll->realFullPath($filepath),
 			'user'				=> session('user.fullname'),
 			'cashier'			=> $backup->cashier,
 			'filename'		=> $backup->filename,
