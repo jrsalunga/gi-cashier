@@ -99,14 +99,16 @@ class UploaderController extends Controller
 				// check file type 
 				if ($request->input('backup_type')==='hr') {
 
+  				$this->posUploadRepo->update(['long'=>1], $backup->id);
 					try {
 						$this->emailToHRD($backup, $filepath);
 			    } catch (Exception $e) {
+			    	$this->web->deleteFile($filepath);
 						return redirect()->back()->withErrors(['error'=>$e->getMessage()]);
 			    }
 			    //$this->updateBackupRemarks($backup, 'Payroll backup and emailed to HR');
   				
-  				$this->posUploadRepo->update(['long'=>1], $backup->id);
+  				$this->posUploadRepo->update(['processed'=>2], $backup->id);
 			    $this->web->deleteFile($filepath);
 			    return redirect()
 		    					->route('uploader', ['brcode'=>strtolower(session('user.branchcode')),'u'=>strtolower($backup->cashier),'type'=>'hr'])
@@ -114,27 +116,32 @@ class UploaderController extends Controller
 
 		    } elseif ($request->input('backup_type')==='payroll') {
 
-		    	if (!is_payroll_backup($request->input('filename')))
+  				$this->posUploadRepo->update(['long'=>2], $backup->id);
+		    	if (!is_payroll_backup($request->input('filename'))) {
+			    	$this->web->deleteFile($filepath);
 		    		return redirect()->back()
 		    							->with('alert-error', $request->input('filename'). ' is not a GI PAY Payroll Backup. example: PR031517.ZIP')
 		    							->with('alert-important', '');
+		    	}
 
 		    	try {
 						$this->emailPayrollBackup($backup, $storage_path);
 			    } catch (Exception $e) {
+			    	$this->web->deleteFile($filepath);
 						return redirect()->back()->withErrors(['error'=>$e->getMessage()]);
 			    }
 
 			    try {
 			     	$this->payroll->moveFile($this->web->realFullPath($filepath), $storage_path, false); // false = override file!
 			    } catch(Exception $e) {
+			    	$this->web->deleteFile($filepath);
 						return redirect()->back()->withErrors(['error'=>'Error on moving file.']);
 			    }
 
 			    if (app()->environment()==='production')
 						event(new ProcessSuccess($backup, $request->user()));
   				
-  				$this->posUploadRepo->update(['long'=>2, 'processed'=>1], $backup->id);
+  				$this->posUploadRepo->update(['processed'=>1], $backup->id);
 			    $this->web->deleteFile($filepath);
 			    return redirect()
 		    					->route('uploader', ['brcode'=>strtolower(session('user.branchcode')),'u'=>strtolower($backup->cashier),'type'=>'payroll'])
