@@ -115,7 +115,9 @@ class UploaderController extends Controller
 		    } elseif ($request->input('backup_type')==='payroll') {
 
 		    	if (!is_payroll_backup($request->input('filename')))
-		    		return redirect()->back()->withErrors(['error'=>$request->input('filename'). ' is not a GI PAY Backup.']);
+		    		return redirect()->back()
+		    							->with('alert-error', $request->input('filename'). ' is not a GI PAY Payroll Backup. example: PR031517.ZIP')
+		    							->with('alert-important', '');
 
 		    	try {
 						$this->emailPayrollBackup($backup, $storage_path);
