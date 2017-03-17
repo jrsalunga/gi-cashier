@@ -16,14 +16,20 @@ $(function(){
 	}
 
 	var backupVerifyFilename = function(filename){
+		var res = false
 		if(filename.length!==12) {
-			return false;
+			return res;
 		}
 		var re = /\b(GC)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(\d\d)(\.ZIP)/gi; 
-		if(!filename.match(re)) {
-			return false;
+		if(filename.match(re)) {
+			res = true;
 		} 
-		return true;
+
+		var pr = /\b(PR)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(\d\d)(\.ZIP)/gi; 
+		if(filename.match(pr)) {
+			res = true;
+		}
+		return res;
 	}
 
 	var dropbox = $('#dropbox'),

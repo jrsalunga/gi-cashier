@@ -24,6 +24,10 @@ return [
 		'files' => [
 			'local' => base_path().DIRECTORY_SEPARATOR.'TEST_FILES_BACKUP'.DIRECTORY_SEPARATOR,
 			'production' => '/home/server-admin/Public/maindepot/TEST_FILES_BACKUP/'
+		],
+		'payroll' => [
+			'local' => base_path().DIRECTORY_SEPARATOR.'TEST_PAYROLL_BACKUP'.DIRECTORY_SEPARATOR,
+			'production' => '/home/server-admin/Public/maindepot/GI_PAYROLL_BACKUP/'
 		]
 	]
 

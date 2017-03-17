@@ -134,25 +134,7 @@
             
 
             <div class="filetype-result" style="margin: 0 15px;">
-            <!--
-            <div class="row" style="margin-top: 20px;">
-              <div class="col-lg-12">
-                Choose Backup Type
-                <div class="radio">
-                  <label>
-                    <input type="radio" name="backup_type" id="backup_pos" value="pos" required>
-                    <strong>Regular</strong> <small><em>(For Daily Transactions, EoD purposes)</em></small>
-                  </label>
-                </div>
-                <div class="radio">
-                  <label>
-                    <input type="radio" name="backup_type" id="backup_payroll" value="payroll">
-                    <strong>Payroll</strong> <small><em>(For Payroll purposes)</em></small>
-                  </label>
-                </div>
-              </div>
-            </div>
-            -->
+            
             </div><!-- end: .filetype-result -->
 
             <div class="row" style="margin-top: 20px;">
@@ -225,7 +207,7 @@
   @parent
   <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
   <script src="/js/vendors/jquery.filedrop-0.1.0.js"></script>
-  <script src="/js/filedrop-common.js"></script>
+  <script src="/js/filedrop-common.js?v=1"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 
 
@@ -293,7 +275,7 @@
         html += '<div class="row" style="margin-top: 20px;"><span class="title">Choose Backup Type</span>'
             +'<div class="radio">'
               +'<label>'
-                +'<input type="radio" name="backup_type" id="backup_payroll" value="payroll">'
+                +'<input type="radio" name="backup_type" id="backup_hr" value="hr">'
                 +'<strong><span class="gly gly-address-book"></span> Payroll Backup</strong> <small><em>(This will be emailed to Mam Aque but will (<span class="glyphicon glyphicon-remove"></span>) not process.)</em></small>'
               +'</label>'
             +'</div>'
@@ -301,6 +283,12 @@
               +'<label>'
                 +'<input type="radio" name="backup_type" id="backup_pos" value="pos">'
                 +'<strong><span class="fa fa-file-archive-o"></span> POS Backup</strong> <small><em>(This will be saved on server and will (<span class="glyphicon glyphicon-ok"></span>) process.)</em></small>'
+              +'</label>'
+            +'</div>'
+            +'<div class="radio">'
+              +'<label>'
+                +'<input type="radio" name="backup_type" id="backup_payroll" value="payroll">'
+                +'<strong><span class="fa fa-file-powerpoint-o"></span> GI PAY Payroll Backup</strong> <small><em>(Backup generated from GI PAY. e.g. PR031517.ZIP)</em></small>'
               +'</label>'
             +'</div></div>';
             

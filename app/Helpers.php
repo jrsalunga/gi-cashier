@@ -396,3 +396,25 @@ if (!function_exists('brcode')) {
 }
 
 
+if (!function_exists('is_payroll_backup')) {
+    function is_payroll_backup($name) {
+        $re = '/\b(PR)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(\d\d)(\.ZIP)/';
+        return preg_match_all($re, $name, $matches, PREG_SET_ORDER, 0);
+    }
+}
+
+
+
+if (!function_exists('is_pos_backup')) {
+    function is_pos_backup($name) {
+        $re = '/\b(GC)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(\d\d)(\.ZIP)/';
+        return preg_match_all($re, $name, $matches, PREG_SET_ORDER, 0);
+    }
+}
+
+
+
+
+
+
+

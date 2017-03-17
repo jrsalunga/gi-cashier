@@ -68,6 +68,16 @@ return [
                 'root'   => '/home/server-admin/Public/maindepot/GI_FILES_BACKUP/'
             ]
         ],
+        'payroll'=>[
+            'local'=>[
+                'driver' => 'local',
+                'root'   => base_path('TEST_PAYROLL_BACKUP')
+            ],
+            'production'=>[
+                'driver' => 'local',
+                'root'   => '/home/server-admin/Public/maindepot/GI_PAYROLL_BACKUP/'
+            ]
+        ],
         'local' => [
             'pos'=>[
                 'driver' => 'local',

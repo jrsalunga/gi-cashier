@@ -27,6 +27,7 @@ class UploaderController extends Controller
 	protected $depslip;
 	protected $files;
 	protected $pos;
+	protected $payroll;
 	protected $web;
 	protected $backupCtrl;
 	protected $ds;
@@ -38,6 +39,7 @@ class UploaderController extends Controller
 		$this->ds = $ds;
 		$this->files = new StorageRepository(new PhpRepository, 'files.'.app()->environment());
 		$this->pos = new StorageRepository(new PhpRepository, 'pos.'.app()->environment());
+		$this->payroll = new StorageRepository(new PhpRepository, 'payroll.'.app()->environment());
 		$this->web = new StorageRepository(new PhpRepository, 'web');
 
 		$this->path['temp'] = strtolower(session('user.branchcode')).DS.now('year').DS;
@@ -95,7 +97,7 @@ class UploaderController extends Controller
 				$backup->date = $backup_date;
 
 				// check file type 
-				if ($request->input('backup_type')==='payroll') {
+				if ($request->input('backup_type')==='hr') {
 
 					try {
 						$this->emailToHRD($backup, $filepath);
@@ -107,9 +109,40 @@ class UploaderController extends Controller
   				$this->posUploadRepo->update(['long'=>1], $backup->id);
 			    $this->web->deleteFile($filepath);
 			    return redirect()
+		    					->route('uploader', ['brcode'=>strtolower(session('user.branchcode')),'u'=>strtolower($backup->cashier),'type'=>'hr'])
+		    					->with('hr.success', $backup->filename);
+
+		    } elseif ($request->input('backup_type')==='payroll') {
+
+		    	if (!is_payroll_backup($request->input('filename')))
+		    		return redirect()->back()->withErrors(['error'=>$request->input('filename'). ' is not a GI PAY Backup.']);
+
+		    	try {
+						$this->emailPayrollBackup($backup, $filepath);
+			    } catch (Exception $e) {
+						return redirect()->back()->withErrors(['error'=>$e->getMessage()]);
+			    }
+
+			    try {
+			     	$this->payroll->moveFile($this->web->realFullPath($filepath), $storage_path, false); // false = override file!
+			    } catch(Exception $e) {
+						return redirect()->back()->withErrors(['error'=>'Error on moving file.']);
+			    }
+
+			    if (app()->environment()==='production')
+						event(new ProcessSuccess($backup, $request->user()));
+  				
+  				$this->posUploadRepo->update(['long'=>2, 'processed'=>1], $backup->id);
+			    $this->web->deleteFile($filepath);
+			    return redirect()
 		    					->route('uploader', ['brcode'=>strtolower(session('user.branchcode')),'u'=>strtolower($backup->cashier),'type'=>'payroll'])
 		    					->with('payroll.success', $backup->filename);
-				} else {
+
+
+				} elseif ($request->input('backup_type')==='pos') {
+
+					if (!is_pos_backup($request->input('filename')))
+		    		return redirect()->back()->withErrors(['error'=>$request->input('filename'). ' is not a POS Backup.']);
 
 					DB::beginTransaction();
 
@@ -227,7 +260,8 @@ class UploaderController extends Controller
 					return redirect('/uploader?success='.strtolower(session('user.branchcode')).'-'.strtolower($backup->cashier).'&type=backup')
 									->with('backup-success', $backup->filename.' saved on server and processed!');
 					*/
-				}
+				} else
+					return redirect()->back()->withErrors(['error'=>'Unknown file!']);
 
 			}
 			return redirect()->back()->withErrors(['error'=>'File: '.$request->input('filename').' do not exist! Try to upload again..']);
@@ -239,6 +273,40 @@ class UploaderController extends Controller
 
 
 	/************* for processBackup **************/
+
+	private function emailPayrollBackup($backup, $filepath) {
+		
+		$data = [
+			'branchcode' 	=> session('user.branchcode'),
+			'attachment' 	=> $this->web->realFullPath($filepath),
+			'user'				=> session('user.fullname'),
+			'cashier'			=> $backup->cashier,
+			'filename'		=> $backup->filename,
+			'remarks'			=> $backup->remarks,
+			'email'				=> request()->user()->email
+		];
+		
+		try {
+
+			Mail::queue('emails.email_to_hrd', $data, function ($message) use ($data) {
+	        $message->subject($data['branchcode'].' '.$data['filename'].' GI PAY BACKUP [gi_pay]');
+	        $message->from('no-reply@giligansrestaurant.com', 'GI App - '.$data['branchcode'].' Cashier');
+	       	$message->to('gi.efiles@gmail.com');
+	       	$message->replyTo($data['email'], $data['user']);
+	       	//$message->cc($data['email']);
+	        //$message->to('giligans.app@gmail.com');
+	        if (app()->environment()==='production')
+	        	$message->to('gi.hrd01@gmail.com');
+	        //$message->to('freakyash02@gmail.com');
+	       	$message->attach($data['attachment']);
+	    });
+
+		} catch (Exception $e) {
+			throw $e;
+			return false;
+		}
+		return true;
+	}
 
 	private function emailToHRD($backup, $filepath) {
 
@@ -259,7 +327,8 @@ class UploaderController extends Controller
 					'user'				=> session('user.fullname'),
 					'cashier'			=> $backup->cashier,
 					'filename'		=> $backup->filename,
-					'remarks'			=> $backup->remarks
+					'remarks'			=> $backup->remarks,
+					'email'				=> request()->user()->email
 				];
 
 				$z->close();
@@ -268,6 +337,8 @@ class UploaderController extends Controller
 		        $message->subject($data['branchcode'].' '.$data['filename'].' PAYROLL BACKUP [payroll]');
 		        $message->from('no-reply@giligansrestaurant.com', 'GI App - '.$data['branchcode'].' Cashier');
 		       	$message->to('gi.efiles@gmail.com');
+		       	$message->replyTo($data['email'], $data['user']);
+		       	//$message->cc($data['email']);
 		        //$message->to('giligans.app@gmail.com');
 		        if (app()->environment()==='production')
 		        	$message->to('gi.hrd01@gmail.com');

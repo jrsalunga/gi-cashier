@@ -125,6 +125,11 @@
                 <span class="gly gly-address-book" title="Payroll Backup"></span>
                 Payroll Backup
               @endif
+
+              @if($backup->long == '2')
+                <span class="fa fa-file-powerpoint-o" title="GI PAY Payroll Backup"></span>
+                GI PAY Payroll Backup
+              @endif
             @endif
 
           </td>
