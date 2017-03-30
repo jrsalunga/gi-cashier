@@ -66,6 +66,23 @@ abstract class BaseModel extends Model {
 	public static function get_uid(){
 		$id = \DB::select('SELECT UUID() as id');
 		$id = array_shift($id);
+		$uid = $id->id;
+		# $uid = '7ec394d3-1507-11e7-9eff-1c1b0d85a7e0' 
+		# SUBSTR($uid, 0, 8) - SUBSTR($uid, 9, 4) - SUBSTR($uid, 14, 4) - SUBSTR($uid, 19, 4) - SUBSTR($uid, 24)
+		return strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 9, 4).SUBSTR($uid, 19, 4).SUBSTR($uid, 24).SUBSTR($uid, 0, 8));
+		//$uid = strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 10, 4).SUBSTR($uid, 1, 8).SUBSTR($uid, 20, 4).SUBSTR($uid, 24));
+		//return str_replace("-", "", $uid);
+	}
+
+	public static function get_uid2(){
+		$id = \DB::select('SELECT CONCAT(SUBSTR(uuid(), 15, 4),SUBSTR(uuid(), 10, 4),SUBSTR(uuid(), 1, 8),SUBSTR(uuid(), 20, 4),SUBSTR(uuid(), 25)) as id');
+		$id = array_shift($id);
+		return strtoupper($id->id);
+	}
+
+	public static function get_uid_old(){
+		$id = \DB::select('SELECT UUID() as id');
+		$id = array_shift($id);
 		return strtoupper(str_replace("-", "", $id->id));
 	}
 
