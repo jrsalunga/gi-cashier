@@ -19,12 +19,12 @@ class BackupRepository extends BaseRepository
 
   public function boot(){
     $this->pushCriteria(new ByBranch(request()));
+    $this->locator = new Locator('pos');
   }
 
   public function __construct() {
     parent::__construct(app());
 
-    $this->locator = new Locator('pos');
       
   }
 
