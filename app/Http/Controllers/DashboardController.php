@@ -12,20 +12,19 @@ use DB;
 class DashboardController extends Controller 
 {
 	public $timelog;
-  private $backup;
-	private $inadequates;
+	private $backup;
 
 	public function __construct(Timelog $timelog, BackupRepo $backup){
 
 		$this->timelog = $timelog;
 		$this->backup = $backup;
-    $this->inadequates = $this->backup->inadequateBackups();
-    
-  }
+		
+	}
 
-  public function getIndex(Request $request) {
+	public function getIndex(Request $request) {
 
-    $backups = $this->backup->dailyLogs(7);
+		$backups = $this->backup->dailyLogs(7);
+    $inadequates = $this->backup->inadequateBackups();
 		/*
 		$backup = Backup::where('branchid', $request->user()->branchid)
 											->orderBy('uploaddate', 'DESC')
@@ -33,7 +32,7 @@ class DashboardController extends Controller
 											*/
 		//return $backup->uploaddate->diffForHumans(Carbon::now());
 
-		return view('dashboard')->with('backups', $backups)->with('inadequates', $this->inadequates);
+		return view('dashboard')->with('backups', $backups)->with('inadequates', $inadequates);
 	}
 
 
