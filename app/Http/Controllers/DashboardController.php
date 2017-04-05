@@ -24,6 +24,7 @@ class DashboardController extends Controller
 	public function getIndex(Request $request) {
 
 		$backups = $this->backup->dailyLogs(7);
+    $inadequates = $this->backup->inadequateBackups();
 		/*
 		$backup = Backup::where('branchid', $request->user()->branchid)
 											->orderBy('uploaddate', 'DESC')
@@ -31,7 +32,7 @@ class DashboardController extends Controller
 											*/
 		//return $backup->uploaddate->diffForHumans(Carbon::now());
 
-		return view('dashboard')->with('backups', $backups);
+		return view('dashboard')->with('backups', $backups)->with('inadequates', $inadequates);
 	}
 
 
