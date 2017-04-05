@@ -12,7 +12,7 @@ use DB;
 class DashboardController extends Controller 
 {
 	public $timelog;
-	private $backup;
+	protected $backup;
 
 	public function __construct(Timelog $timelog, BackupRepo $backup){
 
@@ -24,7 +24,8 @@ class DashboardController extends Controller
 	public function getIndex(Request $request) {
 
 		$backups = $this->backup->dailyLogs(7);
-    $inadequates = $this->backup->inadequateBackups();
+    //$inadequates = $this->backup->inadequateBackups();
+    $inadequates = null;
 		/*
 		$backup = Backup::where('branchid', $request->user()->branchid)
 											->orderBy('uploaddate', 'DESC')
