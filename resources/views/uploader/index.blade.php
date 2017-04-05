@@ -200,6 +200,14 @@
   
   </div><!-- end: .row -->
 </div><!-- end container-fluid -->
+
+ @if(app()->environment()==='production')
+ <div class="row" style="margin-top: 10px;">
+  <div class="col-sm-6">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9897737241100378" data-ad-slot="4574225996" data-ad-format="auto"></ins>
+  </div>
+ </div>
+@endif
 @endsection
 
 
@@ -378,4 +386,9 @@
     font-weight: bold;
   }
   </style>
+
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
 @endsection
