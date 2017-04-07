@@ -7,7 +7,7 @@ use Prettus\Repository\Eloquent\BaseRepository;
 use App\Repositories\Criterias\ByBranch;
 use Prettus\Repository\Traits\CacheableRepository;
 use Prettus\Repository\Contracts\CacheableInterface;
-use App\Models\Branch;
+
 
 //class BackupRepository extends BaseRepository implements CacheableInterface
 class BackupRepository extends BaseRepository 
@@ -150,12 +150,12 @@ class BackupRepository extends BaseRepository
       return false;
 
 
-    $branch = Branch::where('code', strtoupper(substr(request()->user()->name, 0, 3)))->first();
+
     $arr = [];
     $o = $fr->copy();
     do {
       $path = strtoupper(substr(request()->user()->name, 0, 3)).DS.$o->format('Y').DS.$o->format('m').DS.'GC'.$o->format('mdy').'.ZIP';
-      if (!$this->locator->exists($path) && Carbon::parse(now())->gt($o) && Carbon::parse($branch->opendate)->gt($o))
+      if (!$this->locator->exists($path) && Carbon::parse(now())->gt($o))
         array_push($arr, Carbon::parse($o->format('Y-m-d').' 00:00:00'));
     } while ($o->addDay() <= $to);
    
