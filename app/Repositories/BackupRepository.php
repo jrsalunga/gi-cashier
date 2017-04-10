@@ -154,7 +154,7 @@ class BackupRepository extends BaseRepository
     $arr = [];
     $o = $fr->copy();
     do {
-      $path = strtoupper(substr(request()->user()->name, 0, 3)).DS.$o->format('Y').DS.$o->format('m').DS.'GC'.$o->format('mdy').'.ZIP';
+      $path = strtoupper($branch->code).DS.$o->format('Y').DS.$o->format('m').DS.'GC'.$o->format('mdy').'.ZIP';
       if (!$this->locator->exists($path) && Carbon::parse(now())->gt($o) && Carbon::parse($branch->opendate)->lt($o))
         array_push($arr, Carbon::parse($o->format('Y-m-d').' 00:00:00'));
     } while ($o->addDay() <= $to);

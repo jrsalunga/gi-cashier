@@ -41,6 +41,7 @@ class Purchase2Repository extends BaseRepository
       'ucost' => $data['ucost'],
       'tcost' => $data['tcost'],
       'terms' => $data['terms'],
+      'supprefno' => $data['supprefno'],
       'vat' => $data['vat'],
       'supplierid' => $supplier->id,
       'branchid' => $data['branchid']

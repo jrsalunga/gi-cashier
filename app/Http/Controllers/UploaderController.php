@@ -208,7 +208,7 @@ class UploaderController extends Controller
 						$this->processPurchased($backup->date);
 					} catch (Exception $e) {
 						$msg =  $e->getMessage();
-						$res = $this->movedErrorProcessing($filepath, $storage_path);
+						//$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
 						//$this->logAction('error:process:purchased', $log_msg.$msg);
 						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');

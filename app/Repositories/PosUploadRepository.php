@@ -349,7 +349,7 @@ class PosUploadRepository extends Repository
           //$this->logAction($date->format('Y-m-d'), 'delete:purchased');
           $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
         } catch(Exception $e) {
-          throw new Exception($e->getMessage());    
+          throw $e;    
         }
 
 
@@ -357,12 +357,12 @@ class PosUploadRepository extends Repository
           //$this->logAction($date->format('Y-m-d'), 'delete:purchased2');
           $this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
         } catch(Exception $e) {
-          throw new Exception($e->getMessage());    
+          throw $e;    
         }
 
 
         //$this->logAction($date->format('Y-m-d'), 'start:loop:purchased');
-        for ($i = 1; $i <= $record_numbers; $i++) {
+        for ($i=1; $i<=$record_numbers; $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
           $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
@@ -391,14 +391,15 @@ class PosUploadRepository extends Repository
             try {
               $this->purchase->create($attrs);
             } catch(Exception $e) {
-              throw new Exception($e->getMessage());    
+              throw $e;    
             }
 
+            $attrs['supprefno'] = trim($row['FILLER1']);
             try {
               //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
               $this->purchase2->verifyAndCreate($attrs);
             } catch(Exception $e) {
-              throw new Exception($e->getMessage());    
+              throw $e;    
             }
             
             //\DB::rollBack();
@@ -415,7 +416,7 @@ class PosUploadRepository extends Repository
                               'purchcost'=>$tot_purchase],
                               ['date', 'branchid']);
         } catch(Exception $e) {
-          throw new Exception($e->getMessage());    
+          throw $e;    
         }
 
         
