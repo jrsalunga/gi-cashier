@@ -21,4 +21,8 @@ class Locator
 	public function exists($filepath) {
 		return $this->storage->exists($filepath);
 	}
+
+	public function realFullPath($path) {
+		return $this->storage->realFullPath($path);
+	}
 }

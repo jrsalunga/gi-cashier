@@ -412,6 +412,22 @@ if (!function_exists('is_pos_backup')) {
     }
 }
 
+if (!function_exists('backup_to_carbon_date')) {
+    function backup_to_carbon_date($name) {
+        if (!is_pos_backup($name))
+            return false;
+
+        $m = substr($name, 2, 2);
+        $d = substr($name, 4, 2);
+        $y = '20'.substr($name, 6, 2);
+        
+        if(is_iso_date($y.'-'.$m.'-'.$d))
+            return c($y.'-'.$m.'-'.$d);
+        else 
+            return false;
+    }
+}
+
 
 
 

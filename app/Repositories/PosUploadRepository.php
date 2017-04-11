@@ -54,9 +54,10 @@ class PosUploadRepository extends Repository
         return 'App\Models\Backup';
     }
 
-    public function extract($src, $pwd=NULL){
+    public function extract($src, $pwd=NULL, $d=true, $brcode='ALL'){
      
-      $dir = $this->realFullPath($src);
+      $dir = $d ? $this->realFullPath($src) : $src;
+
       $zip = new ZipArchive();
       $zip_status = $zip->open($dir);
 
@@ -65,7 +66,10 @@ class PosUploadRepository extends Repository
         if(!is_null($pwd))
           $zip->setPassword($pwd);
         
-        $path = storage_path().DS.'backup'.DS.session('user.branchcode').DS.pathinfo($src, PATHINFO_FILENAME);
+        if (session('user.branchcode'))
+          $path = storage_path().DS.'backup'.DS.session('user.branchcode').DS.pathinfo($src, PATHINFO_FILENAME);
+        else
+          $path = storage_path().DS.'backup'.DS.$brcode.DS.pathinfo($src, PATHINFO_FILENAME);
         
         if(is_dir($path)) {
           $this->removeDir($path);
@@ -947,6 +951,7 @@ class PosUploadRepository extends Repository
             }
 
             //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
+            $attrs['supprefno'] = trim($row['FILLER1']);
             try {
               $this->purchase2->verifyAndCreate($attrs);
             } catch(Exception $e) {

@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\LoadBackup::class,
         \App\Console\Commands\ProcessBackupFiledate::class,
         \App\Console\Commands\Backlog\OpenCloseDate::class,
+        \App\Console\Commands\Backlog\DailySales::class,
         
     ];
 

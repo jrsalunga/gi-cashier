@@ -139,7 +139,8 @@ class RemittanceController extends Controller
 				$excel->sheet($fname, function($sheet) use ($data)  {
 						//array_shift($data);
 		        //$sheet->fromArray($data);
-						$sheet->fromArray($data, null, 'A1', false, false); // Won't auto generate heading columns
+						//$sheet->fromArray($data, null, 'A1', false, false); // Won't auto generate heading columns
+						$sheet->fromArray([], null, 'A1', false, false); // Won't auto generate heading columns
 		    });
 			})->store('csv', public_path('downloads'.DS.'remittance'));
 
