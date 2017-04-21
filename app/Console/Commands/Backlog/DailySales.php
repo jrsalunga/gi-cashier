@@ -1,14 +1,14 @@
 <?php namespace App\Console\Commands\Backlog;
 
+use DB;
+use Carbon\Carbon;
+use App\Models\Branch;
+use App\Helpers\Locator;
+use App\Models\DailySales as DS;
 use Illuminate\Console\Command;
 use App\Repositories\DailySalesRepository as DSRepo;
 use App\Repositories\SalesmtdRepository as SalesRepo;
 use App\Repositories\PosUploadRepository as PosUploadRepo;
-use App\Models\DailySales as DS;
-use App\Models\Branch;
-use Carbon\Carbon;
-use App\Helpers\Locator;
-use DB;
 
 class DailySales extends Command
 {
