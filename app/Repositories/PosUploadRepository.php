@@ -1273,6 +1273,58 @@ class PosUploadRepository extends Repository
       return false;
     }
 
+
+
+    public function updateDailySalesManpower(Carbon $date, Backup $backup) {
+
+      $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+
+      if (file_exists($dbf_file)) {
+        $db = dbase_open($dbf_file, 0);
+        
+        $header = dbase_get_header_info($db);
+        $record_numbers = dbase_numrecords($db);
+        $update = 0;
+
+        for ($i=1; $i<=$record_numbers; $i++) {
+          $r = dbase_get_record_with_names($db, $i);
+
+          try {
+            //$vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+            $vfpdate = vfpdate_to_carbon(trim($r['TRANDATE']));
+          } catch(Exception $e) {
+            $vfpdate = $date->copy()->subDay();
+          }
+
+          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+
+            $ds = [
+              'date'      => $date->format('Y-m-d'),
+              'branchid'  => $backup->branchid,
+              'crew_kit'  => isset($r['CREW_KIT']) ? trim($r['CREW_KIT']):0,
+              'crew_din'  => isset($r['CREW_DIN']) ? trim($r['CREW_DIN']):0
+            ];
+
+            try {
+              $this->ds->firstOrNew($ds, ['date', 'branchid']);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw new Exception('updateDailySalesManpower: '.$e->getMessage());    
+              return false;   
+            }
+
+
+          }
+        } // end: for
+
+       
+        dbase_close($db);
+        unset($ds);
+        return $update;
+      }
+      return false;  
+    }
+
   
 
 

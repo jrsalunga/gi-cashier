@@ -163,6 +163,20 @@ class SalesProcessMatcher extends Command
         exit;
       }
 
+      $this->info(' updating manpower...');
+      try {
+        $this->updateManpower($proc->filedate, $bckup);
+      } catch (Exception $e) {
+        $msg = $e->getMessage();
+        $proc->note = $msg;
+        $proc->processed = 2;
+        $proc->save();
+        $this->info($msg);
+        $this->removeExtratedDir();
+        DB::rollback();
+        exit;
+      }
+
       //DB::rollback();
       DB::commit();
         
@@ -217,6 +231,14 @@ class SalesProcessMatcher extends Command
   public function processCharges($date, $backup){
     try {
       $this->posUploadRepo->postCharges($date, $backup);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+  public function updateManpower($date, $backup){
+    try {
+      $this->posUploadRepo->updateDailySalesManpower($date, $backup);
     } catch(Exception $e) {
       throw $e;    
     }
