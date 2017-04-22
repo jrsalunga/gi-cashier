@@ -21,6 +21,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Backlog\OpenCloseDate::class,
         \App\Console\Commands\Backlog\DailySales::class,
         \App\Console\Commands\Backlog\SalesMatcher::class,
+        \App\Console\Commands\Backlog\SalesProcessMatcher::class,
     ];
 
     /**

@@ -19,7 +19,7 @@ class SalesMatcher extends Command
    *
    * @var string
    */
-  protected $description = 'Process dailysales backlog';
+  protected $description = 'match';
 
   /**
    * Create a new command instance.
@@ -55,7 +55,8 @@ class SalesMatcher extends Command
     $rs = DB::table('dailysales')
           ->select(DB::raw('branch.code, dailysales.date, dailysales.sales, dailysales.chrg_total'))
           ->leftJoin('hr.branch', 'hr.branch.id', '=', 'dailysales.branchid')
-          ->where('dailysales.date', '>=', '2017-01-01')
+          ->where('dailysales.date', '>=', '2017-04-01')
+          //->where('dailysales.date', '>=', '2017-01-01')
           ->where('dailysales.sales', '<>', DB::raw('dailysales.chrg_total'))
           ->where('dailysales.chrg_total', '>', 0) // or >=0
           ->orderBy('branch.code')
