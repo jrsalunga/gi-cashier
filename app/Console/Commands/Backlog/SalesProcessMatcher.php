@@ -52,7 +52,7 @@ class SalesProcessMatcher extends Command
 
     $this->info(' starting...');
 
-    $proc = Process::where('filedate', '>=', '2017-01-01')
+    $proc = Process::where('filedate', '>=', '2016-12-01')
                 ->where('processed', 0)
                 ->orderBy('code')
                 ->orderBy('filedate')
