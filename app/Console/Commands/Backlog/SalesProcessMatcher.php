@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use App\Repositories\DailySalesRepository as DSRepo;
 use App\Repositories\SalesmtdRepository as SalesRepo;
 use App\Repositories\PosUploadRepository as PosUploadRepo;
+use Illuminate\Contracts\Mail\Mailer;
 
 class SalesProcessMatcher extends Command
 {
@@ -36,12 +37,13 @@ class SalesProcessMatcher extends Command
   protected $ds;
   protected $posUploadRepo;
 
-  public function __construct(DSRepo $ds, SalesRepo $sales, PosUploadRepo $posUploadRepo)
+  public function __construct(DSRepo $ds, SalesRepo $sales, PosUploadRepo $posUploadRepo, Mailer $mailer)
   {
     parent::__construct();
     $this->sales = $sales;
     $this->ds = $ds;
     $this->posUploadRepo = $posUploadRepo;
+    $this->mailer = $mailer;
   }
 
   public function handle() {
@@ -187,6 +189,21 @@ class SalesProcessMatcher extends Command
       $proc->save();  
       $this->removeExtratedDir();
       $this->info(' done');
+
+
+      $data = [
+        'user'      => 'root',
+        'cashier'   => 'bot',
+        'filename'  => $proc->filename,
+        'subject'   => $proc->code ."'s ".$proc->filedate->format('Y-m-d').' on '. $proc->filename
+      ];
+
+      $this->mailer->queue('emails.backup-processsuccess', $data, function ($message) use ($data){
+        $message->subject($data['subject']);
+        $message->from('server-admin@server01');
+        $message->to('giligans.app@gmail.com');
+      });
+
       exit;
 
 
