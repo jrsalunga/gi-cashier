@@ -127,13 +127,13 @@ class SalesProcessMatcher extends Command
       try {
         $this->processPurchased($proc->filedate, $bckup);
       } catch (Exception $e) {
+        DB::rollback();
         $msg = $e->getMessage();
         $proc->note = $msg;
         $proc->processed = 2;
         $proc->save();
         $this->info($msg);
         $this->removeExtratedDir();
-        DB::rollback();
         exit;
       }
 
@@ -141,13 +141,13 @@ class SalesProcessMatcher extends Command
       try {
         $this->processSalesmtd($proc->filedate, $bckup);
       } catch (Exception $e) {
+        DB::rollback();
         $msg = $e->getMessage();
         $proc->note = $msg;
         $proc->processed = 2;
         $proc->save();
         $this->info($msg);
         $this->removeExtratedDir();
-        DB::rollback();
         exit;
       }
 
@@ -155,13 +155,13 @@ class SalesProcessMatcher extends Command
       try {
         $this->processCharges($proc->filedate, $bckup);
       } catch (Exception $e) {
+        DB::rollback();
         $msg = $e->getMessage();
         $proc->note = $msg;
         $proc->processed = 2;
         $proc->save();
         $this->info($msg);
         $this->removeExtratedDir();
-        DB::rollback();
         exit;
       }
 
@@ -169,13 +169,13 @@ class SalesProcessMatcher extends Command
       try {
         $this->updateManpower($proc->filedate, $bckup);
       } catch (Exception $e) {
+        DB::rollback();
         $msg = $e->getMessage();
         $proc->note = $msg;
         $proc->processed = 2;
         $proc->save();
         $this->info($msg);
         $this->removeExtratedDir();
-        DB::rollback();
         exit;
       }
 
