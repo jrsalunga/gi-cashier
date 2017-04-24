@@ -117,9 +117,9 @@ class SalesProcessMatcher extends Command
         exit;
       }
       
-      
 
       $this->info(' start processing '. $proc->code ."'s ".$proc->filedate->format('Y-m-d').' on '. $proc->filename);
+
 
       DB::beginTransaction();
 
@@ -144,13 +144,14 @@ class SalesProcessMatcher extends Command
         DB::rollback();
 
         $msg = $e->getMessage();
-        $proc->note = $msg;
-        $proc->processed = 2;
-        $proc->save();
+        //$proc->note = $msg;
+        //$proc->processed = 2;
+        //$proc->save();
 
-        Process::where('id', $proc->id)
-          ->update(['processed' => 2, 'note'=> $msg]);
-
+        if (Process::where('id', $proc->id)->update(['processed' => 2, 'note'=> $msg]))
+          $this->info('process updated');
+        else
+          $this->info('process not updated');
 
         $this->info($msg);
         $this->removeExtratedDir();
@@ -190,7 +191,7 @@ class SalesProcessMatcher extends Command
         
       
 
-      $proc->note = 'success';
+      //$proc->note = 'success';
       $proc->processed = 1;
       $proc->save();  
       $this->removeExtratedDir();
