@@ -1217,17 +1217,8 @@ class PosUploadRepository extends Repository
 
         for ($i=1; $i<=$record_numbers; $i++) {
           
-          try {
-            $row = dbase_get_record_with_names($db, $i);
-          } catch(Exception $e) {
-            continue;
-          }
-
-          try {
-            $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
-          } catch(Exception $e) {
-            continue;
-          }
+          $row = dbase_get_record_with_names($db, $i);
+          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
           
           if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
             $data = $this->charges->associateAttributes($row);
