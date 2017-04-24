@@ -144,15 +144,9 @@ class SalesProcessMatcher extends Command
         DB::rollback();
 
         $msg = $e->getMessage();
-        //$proc->note = $msg;
-        //$proc->processed = 2;
-        //$proc->save();
-
-        if (Process::where('id', $proc->id)->update(['processed' => 2, 'note'=> $msg]))
-          $this->info('process updated');
-        else
-          $this->info('process not updated');
-
+        $proc->note = $msg;
+        $proc->processed = 2;
+        $proc->save();
         $this->info($msg);
         $this->removeExtratedDir();
         exit;
@@ -164,9 +158,15 @@ class SalesProcessMatcher extends Command
       } catch (Exception $e) {
         DB::rollback();
         $msg = $e->getMessage();
-        $proc->note = $msg;
-        $proc->processed = 2;
-        $proc->save();
+        //$proc->note = $msg;
+        //$proc->processed = 2;
+        //$proc->save();
+
+        if (Process::where('id', $proc->id)->update(['processed' => 2, 'note'=> $msg]))
+          $this->info('process updated');
+        else
+          $this->info('process not updated');
+
         $this->info($msg);
         $this->removeExtratedDir();
         exit;
