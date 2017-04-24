@@ -1217,7 +1217,11 @@ class PosUploadRepository extends Repository
 
         for ($i=1; $i<=$record_numbers; $i++) {
           
-          $row = dbase_get_record_with_names($db, $i);
+          try {
+            $row = dbase_get_record_with_names($db, $i);
+          } catch(Exception $e) {
+            continue;
+          }
 
           try {
             $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
