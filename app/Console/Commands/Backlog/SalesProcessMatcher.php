@@ -142,10 +142,16 @@ class SalesProcessMatcher extends Command
         $this->processSalesmtd($proc->filedate, $bckup);
       } catch (Exception $e) {
         DB::rollback();
+
         $msg = $e->getMessage();
         $proc->note = $msg;
         $proc->processed = 2;
         $proc->save();
+
+        Process::where('id', $proc->id)
+          ->update(['processed' => 2, 'note'=> $msg]);
+
+
         $this->info($msg);
         $this->removeExtratedDir();
         exit;
