@@ -1097,13 +1097,13 @@ class PosUploadRepository extends Repository
       try {
         $c = $this->postRawCharges($date, $backup);
         } catch(Exception $e) {
-        throw new Exception('charges: '.$e->getMessage());    
+        throw new Exception('postCharges:charges: '.$e->getMessage());    
       }
 
       try {
         $s = $this->postRawSigned($date, $backup);
         } catch(Exception $e) {
-        throw new Exception('signed: '.$e->getMessage());    
+        throw new Exception('postCharges:signed: '.$e->getMessage());    
       }
 
 
@@ -1230,7 +1230,7 @@ class PosUploadRepository extends Repository
               $update++;
               } catch(Exception $e) {
               dbase_close($db);
-              throw new Exception('signed: '.$e->getMessage());  
+              throw new Exception('postRawSigned: '.$e->getMessage());  
               return false;  
             }
 
