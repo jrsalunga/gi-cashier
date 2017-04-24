@@ -1102,7 +1102,7 @@ class PosUploadRepository extends Repository
 
       try {
         $s = $this->postRawSigned($date, $backup);
-        } catch(Exception $e) {
+      } catch(Exception $e) {
         throw new Exception('postCharges:signed: '.$e->getMessage());    
       }
 
@@ -1218,7 +1218,12 @@ class PosUploadRepository extends Repository
         for ($i=1; $i<=$record_numbers; $i++) {
           
           $row = dbase_get_record_with_names($db, $i);
-          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+
+          try {
+            $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+          } catch(Exception $e) {
+            continue;
+          }
           
           if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
             $data = $this->charges->associateAttributes($row);
