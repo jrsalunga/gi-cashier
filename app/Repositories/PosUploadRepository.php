@@ -369,7 +369,15 @@ class PosUploadRepository extends Repository
         for ($i=1; $i<=$record_numbers; $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
-          $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+
+          try {
+            //$vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+            //$vfpdate = vfpdate_to_carbon(trim($r['TRANDATE']));
+            $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+          } catch(Exception $e) {
+            $vfpdate = $date->copy()->subDay();
+          }
+          
 
           if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
             //$this->logAction($vfpdate->format('Y-m-d'), trim($row['COMP']), base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
@@ -920,7 +928,14 @@ class PosUploadRepository extends Repository
         for ($i = 1; $i <= $record_numbers; $i++) {
 
           $row = dbase_get_record_with_names($db, $i);
-          $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+
+          try {
+            //$vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+            //$vfpdate = vfpdate_to_carbon(trim($r['TRANDATE']));
+            $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+          } catch(Exception $e) {
+            $vfpdate = $date->copy()->subDay();
+          }
 
           if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
             //$this->logAction($vfpdate->format('Y-m-d'), trim($row['COMP']), base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
@@ -1152,7 +1167,7 @@ class PosUploadRepository extends Repository
 
           try {
             $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
-            } catch(Exception $e) {
+          } catch(Exception $e) {
             continue;
           }
           
