@@ -45,7 +45,9 @@ class Timelog extends Event implements ShouldBroadcast
       ? 'http://cashier.giligansrestaurant.com/images/employees/'.$this->employee->code.'.jpg'
       : 'http://cashier.giligansrestaurant.com/images/login-avatar.png';
 
-    $message = $this->employee->firstname.' ('.$this->employee->position->descriptor.')'; 
+    $message = '('.$this->employee->position->descriptor.') '; 
+    $message .= $this->timelog->entrytype=='1' ? '':'manually'; 
+    $message .= ' '.$this->timelog->getTxnCode().' @ '.$this->brcode; 
 
     return [
       'title'=>$title, 
