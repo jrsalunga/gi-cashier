@@ -20,7 +20,7 @@ class TimesheetController extends Controller
 	}
 
 
-	public function getRoute(Request $request, $param1=null) {
+	public function getRoute($brcode=null, Request $request, $param1=null) {
 		if(!is_null($param1) && $param1=='print')
 			return $this->getPrintIndex($request);
 		else if(!is_null($param1) && is_uuid($param1))
