@@ -142,7 +142,7 @@
               >
                 <td>
                   {{-- $timesheet['date']->format('Y-m-d') --}}
-                  <a href="/timesheet?date={{$timesheet['date']->format('Y-m-d')}}">
+                  <a href="/{{brcode()}}/timesheet?date={{$timesheet['date']->format('Y-m-d')}}">
                   {{ $timesheet['date']->format("D, M j") }}
                   </a>
                 </td>
