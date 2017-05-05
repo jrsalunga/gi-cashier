@@ -21,7 +21,7 @@ Route::get('settings/{param1?}/{param2?}', ['uses'=>'SettingsController@getIndex
 Route::post('/settings/password',  ['uses'=>'SettingsController@changePassword']);
 Route::post('/settings/rfid',  ['uses'=>'SettingsController@changeRfid']);
 
-Route::get('timesheet/{param1?}', ['uses'=>'TimesheetController@getRoute']);
+//Route::get('timesheet/{param1?}', ['uses'=>'TimesheetController@getRoute']);
 Route::get('{brcode?}/timesheet/{param1?}', ['uses'=>'TimesheetController@getRoute']);
 
 Route::get('backups/upload', ['uses'=>'BackupController@getUploadIndex']);
