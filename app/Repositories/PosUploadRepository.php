@@ -891,114 +891,112 @@ class PosUploadRepository extends Repository
       }
 
       return false;
-    }
+  }
 
-    public function postPurchased2(Carbon $date, Backup $backup) {
-      
-      $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
+  public function postPurchased2(Carbon $date, Backup $backup) {
+    
+    $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
 
-      //$this->logAction($date->format('Y-m-d'),'post:purchased:file_exists');
-      if (file_exists($dbf_file)) {
-        $db = dbase_open($dbf_file, 0);
-        $header = dbase_get_header_info($db);
-        $record_numbers = dbase_numrecords($db);
-        $tot_purchase = 0;
-        $update = 0;
+    //$this->logAction($date->format('Y-m-d'),'post:purchased:file_exists');
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $tot_purchase = 0;
+      $update = 0;
 
-        // delete if exist
-        try {
-          //$this->logAction($date->format('Y-m-d'), 'delete:purchased');
-          $this->purchase->deleteWhere(['branchid'=>$backup->branchid, 'date'=>$date->format('Y-m-d')]);
-        } catch(Exception $e) {
-          dbase_close($db);
-          throw new Exception($e->getMessage());    
-        }
-
-
-        try {
-          //$this->logAction($date->format('Y-m-d'), 'delete:purchased2');
-          $this->purchase2->deleteWhere(['branchid'=>$backup->branchid, 'date'=>$date->format('Y-m-d')]);
-        } catch(Exception $e) {
-          dbase_close($db);
-          throw new Exception($e->getMessage());    
-        }
-
-
-        //$this->logAction($date->format('Y-m-d'), 'start:loop:purchased');
-        for ($i = 1; $i <= $record_numbers; $i++) {
-
-          $row = dbase_get_record_with_names($db, $i);
-
-          try {
-            //$vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
-            //$vfpdate = vfpdate_to_carbon(trim($r['TRANDATE']));
-            $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
-          } catch(Exception $e) {
-            $vfpdate = $date->copy()->subDay();
-          }
-
-          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
-            //$this->logAction($vfpdate->format('Y-m-d'), trim($row['COMP']), base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
-            $tcost = trim($row['TCOST']);
-
-            $attrs = [
-              'comp'      => trim($row['COMP']),
-              'unit'      => trim($row['UNIT']),
-              'qty'       => trim($row['QTY']),
-              'ucost'     => trim($row['UCOST']),
-              'tcost'     => $tcost,
-              'date'      => $vfpdate->format('Y-m-d'),
-              'supno'     => trim($row['SUPNO']),
-              'supname'   => trim($row['SUPNAME']),
-              'catname'   => trim($row['CATNAME']),
-              'vat'       => trim($row['VAT']),
-              'terms'     => trim($row['TERMS']),
-              'branchid'  => $backup->branchid
-            ];
-            
-            //\DB::beginTransaction();
-            //$this->logAction($date->format('Y-m-d'), 'create:purchased');
-            try {
-              $this->purchase->create($attrs);
-            } catch(Exception $e) {
-              dbase_close($db);
-              throw new Exception($e->getMessage());    
-            }
-
-            //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
-            $attrs['supprefno'] = trim($row['FILLER1']);
-            try {
-              $this->purchase2->verifyAndCreate($attrs);
-            } catch(Exception $e) {
-              dbase_close($db);
-              throw new Exception($e->getMessage());    
-            }
-            
-            //\DB::rollBack();
-            $tot_purchase += $tcost;
-            $update++;
-          }
-        }
-        //$this->logAction($date->format('Y-m-d'), 'end:loop:purchased');
-
-        try {
-          //$this->logAction($date->format('Y-m-d'), 'update:ds');
-          $this->ds->firstOrNew(['branchid'=>$backup->branchid, 
-                              'date'=>$date->format('Y-m-d'),
-                              'purchcost'=>$tot_purchase],
-                              ['date', 'branchid']);
-        } catch(Exception $e) {
-          dbase_close($db);
-          throw new Exception($e->getMessage());    
-        }
-
-        
-
+      // delete if exist
+      try {
+        //$this->logAction($date->format('Y-m-d'), 'delete:purchased');
+        $this->purchase->deleteWhere(['branchid'=>$backup->branchid, 'date'=>$date->format('Y-m-d')]);
+      } catch(Exception $e) {
         dbase_close($db);
-        return count($update>0) ? true:false;
+        throw new Exception($e->getMessage());    
       }
-      return false;
+
+
+      try {
+        //$this->logAction($date->format('Y-m-d'), 'delete:purchased2');
+        $this->purchase2->deleteWhere(['branchid'=>$backup->branchid, 'date'=>$date->format('Y-m-d')]);
+      } catch(Exception $e) {
+        dbase_close($db);
+        throw new Exception($e->getMessage());    
+      }
+
+
+      //$this->logAction($date->format('Y-m-d'), 'start:loop:purchased');
+      for ($i = 1; $i <= $record_numbers; $i++) {
+
+        $row = dbase_get_record_with_names($db, $i);
+
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+        } catch(Exception $e) {
+          $vfpdate = $date->copy()->subDay();
+        }
+
+        if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+
+          $tcost = trim($row['TCOST']);
+
+          $attrs = [
+            'comp'      => trim($row['COMP']),
+            'unit'      => trim($row['UNIT']),
+            'qty'       => trim($row['QTY']),
+            'ucost'     => trim($row['UCOST']),
+            'tcost'     => $tcost,
+            'date'      => $vfpdate->format('Y-m-d'),
+            'supno'     => trim($row['SUPNO']),
+            'supname'   => trim($row['SUPNAME']),
+            'catname'   => trim($row['CATNAME']),
+            'vat'       => trim($row['VAT']),
+            'terms'     => trim($row['TERMS']),
+            'branchid'  => $backup->branchid
+          ];
+          
+          //\DB::beginTransaction();
+          //$this->logAction($date->format('Y-m-d'), 'create:purchased');
+          try {
+            $this->purchase->create($attrs);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
+
+          //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
+          $attrs['supprefno'] = trim($row['FILLER1']);
+          try {
+            $this->purchase2->verifyAndCreate($attrs);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
+          
+          //\DB::rollBack();
+          $tot_purchase += $tcost;
+          $update++;
+        }
+      }
+      //$this->logAction($date->format('Y-m-d'), 'end:loop:purchased');
+
+      try {
+        //$this->logAction($date->format('Y-m-d'), 'update:ds');
+        $this->ds->firstOrNew(['branchid'=>$backup->branchid, 
+                            'date'=>$date->format('Y-m-d'),
+                            'purchcost'=>$tot_purchase],
+                            ['date', 'branchid']);
+      } catch(Exception $e) {
+        dbase_close($db);
+        throw $e;    
+      }
+
+      
+
+      dbase_close($db);
+      return count($update>0) ? true:false;
     }
+    return false;
+  }
 
 
 

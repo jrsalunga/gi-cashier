@@ -9,7 +9,7 @@
 	<ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/dashboard">{{ $branch }}</a></li>
     <li>Timesheet</li>
-    <li class="active">{{ $dr->date->format('D, M j, Y') }}</li>
+    <li class="active">{{ $dr->date->format('D, M j, Y') }} </li>
   </ol>
 
   <div>
@@ -37,12 +37,12 @@
             </a> 
           </div>
           <div class="btn-group pull-right clearfix" role="group">
-            <a href="/timesheet?date={{ $dr->date->copy()->subDay()->format('Y-m-d') }}" class="btn btn-default" title="{{ $dr->date->copy()->subDay()->format('Y-m-d') }}">
+            <a href="{{ request()->url() }}?date={{ $dr->date->copy()->subDay()->format('Y-m-d') }}" class="btn btn-default" title="{{ $dr->date->copy()->subDay()->format('Y-m-d') }}">
               <span class="glyphicon glyphicon-chevron-left"></span>
             </a>
             <input type="text" class="btn btn-default" id="dp-date" value="{{ $dr->date->format('m/d/Y') }}" style="max-width: 110px;" readonly>
             <label class="btn btn-default" for="dp-date"><span class="glyphicon glyphicon-calendar"></span></label>
-            <a href="/timesheet?date={{ $dr->date->copy()->addDay()->format('Y-m-d') }}" class="btn btn-default" title="{{ $dr->date->copy()->addDay()->format('Y-m-d') }}">
+            <a href="{{ request()->url() }}?date={{ $dr->date->copy()->addDay()->format('Y-m-d') }}" class="btn btn-default" title="{{ $dr->date->copy()->addDay()->format('Y-m-d') }}">
               <span class="glyphicon glyphicon-chevron-right"></span>
             </a>
           </div>
@@ -90,7 +90,7 @@
           <td <?=$e['onbr']?'':'class="bg-danger"'?> >
             {{ $key+1}}. 
 
-            <a href="/timesheet/{{$e['employee']->lid()}}?fr={{$dr->date->copy()->startOfMonth()->format('Y-m-d')}}&amp;to={{$dr->date->copy()->endOfMonth()->format('Y-m-d')}}">
+            <a href="/{{brcode()}}/timesheet/{{$e['employee']->lid()}}?fr={{$dr->date->copy()->startOfMonth()->format('Y-m-d')}}&amp;to={{$dr->date->copy()->endOfMonth()->format('Y-m-d')}}">
               {{ $e['employee']->lastname or '-' }}, {{ $e['employee']->firstname or '-' }}
             </a>
             <span class="label label-default pull-right" title="{{ $e['employee']->position->descriptor or '-' }}">{{ $e['employee']->position->code or '-' }}</span>

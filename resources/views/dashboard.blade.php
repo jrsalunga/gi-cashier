@@ -53,7 +53,7 @@
         <div class="panel-body">
           <div class="btn-toolbar" role="toolbar">
             <div class="btn-group">
-              <a href="/timesheet?date={{date('Y-m-d')}}" class="btn btn-default">
+              <a href="/{{brcode()}}/timesheet?date={{date('Y-m-d')}}" class="btn btn-default">
                 <span class="gly gly-stopwatch"></span> 
                 <span class="hidden-xs">Timesheet</span>
               </a>
