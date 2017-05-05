@@ -98,6 +98,10 @@ class TimelogController extends Controller {
 			return redirect('/timelog/add')->withErrors(
 				['message' => 'Unable to save timelog.']);
 		} else {
+
+			if (app()->environment()==='production')
+				event(new TimelogEvent($timelog, $employee));
+			
 			$uri = is_null(request()->input('ref')) ? '/timelog/add':'/timesheet';
 			return redirect($uri)->with('alert-success', 'Timelog saved!');
 		}
