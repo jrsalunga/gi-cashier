@@ -179,7 +179,7 @@
       //var date = e.date.format('YYYY-MM-DD');
       //console.log(date);
       //document.location.href = '/timesheet?date='+e.date.format('YYYY-MM-DD');
-      document.location.replace('/timesheet?date='+e.date.format('YYYY-MM-DD'));
+      document.location.replace('/{{brcode()}}/timesheet?date='+e.date.format('YYYY-MM-DD'));
     });
 
 
