@@ -12,6 +12,7 @@ class Timelog extends Event implements ShouldBroadcast
   use SerializesModels;
   public $timelog;
   public $employee;
+  public $brcode;
 
   /**
    * Create a new event instance.
@@ -23,6 +24,7 @@ class Timelog extends Event implements ShouldBroadcast
   {
     $this->timelog = $timelog;
     $this->employee = $employee;
+    $this->brcode = session('user.branchcode');
   }
 
   /**
@@ -37,11 +39,18 @@ class Timelog extends Event implements ShouldBroadcast
 
   public function broadcastWith()
   {
-    $title = session('branchcode');
+
+    $title = $this->employee->lastname.', '.$this->employee->firstname;
+    $icon = $this->employee->hasPhoto() 
+      ? 'http://cashier.giligansrestaurant.com/images/employees/'.$this->employee->code.'.jpg'
+      : 'http://cashier.giligansrestaurant.com/images/login-avatar.png';
+
+    $message = $this->employee->firstname.' ('.$this->employee->position->descriptor.')'; 
 
     return [
       'title'=>$title, 
-      'message'=> 'test'
+      'message'=> $message,
+      'icon'=> $icon
     ];
   }
 }

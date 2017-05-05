@@ -48,6 +48,12 @@ class Employee extends BaseModel {
 
 
 
+  public function hasPhoto(){
+    return file_exists(public_path().'/images/employees/'.$this->code.'.jpg');
+  }
+
+
+
 
    /**
      * Query Scope.
