@@ -19,7 +19,7 @@ class Timelog extends Event implements ShouldBroadcast
    * @return void
    */
   //public function __construct($timelog=null, $employee=null)
-  public function __construct(Timelog $timelog, Employee $employee)
+  public function __construct(TimelogModel $timelog, Employee $employee)
   {
     $this->timelog = $timelog;
     $this->employee = $employee;

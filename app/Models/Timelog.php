@@ -21,7 +21,7 @@ class Timelog extends BaseModel {
     if (app()->environment()==='production')
       $this->setConnection('mysql-tk');
       
-    $this->setConnection('tk-live');
+    //$this->setConnection('tk-live');
   }
 
 	public function employee() {
