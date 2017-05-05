@@ -8,6 +8,7 @@ use App\Models\Timelog;
 use App\Models\Employee;
 use App\Repositories\TimelogRepository;
 use Carbon\Carbon;
+use App\Events\Timelog\Timelog as TimelogEvent;
 
 class TimelogController extends Controller {
 
@@ -180,6 +181,9 @@ class TimelogController extends Controller {
 						'branch' 		=> $employee->branch->code,
 						'timelogid' => $timelog->id,
 					);
+
+					if (app()->environment()==='production')
+						event(new TimelogEvent($timelog, $employee));
 				
 					$respone['data'] = $data;
 

@@ -9,6 +9,7 @@ use Illuminate\Http\Response;
 use App\Repositories\DateRange;
 use App\Http\Controllers\Controller;
 use App\Repositories\TimelogRepository as Timelog;
+use App\Events\Timelog\Timelog as TimelogEvent;
 
 class TimesheetController extends Controller 
 { 
@@ -21,6 +22,7 @@ class TimesheetController extends Controller
 
 
 	public function getRoute($brcode=null, Request $request, $param1=null) {
+		//event(new TimelogEvent('fasd', 'fasdfa'));
 		if(!is_null($param1) && $param1=='print')
 			return $this->getPrintIndex($request);
 		else if(!is_null($param1) && is_uuid($param1))
