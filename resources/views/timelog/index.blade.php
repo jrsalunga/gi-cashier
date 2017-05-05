@@ -52,7 +52,7 @@
       </thead>
       <tbody>
         @foreach($timelogs as $timelog)
-        <tr>
+        <tr class="{{ $timelog->entrytype=='2'?'bg-warning':'' }}">
           <td>{{ $timelog->datetime->format('m/d/Y') }} </td>
           <td>{{ $timelog->datetime->format('h:i A') }} </td>
           <td>{{ $timelog->getTxnCode() }} </td>
