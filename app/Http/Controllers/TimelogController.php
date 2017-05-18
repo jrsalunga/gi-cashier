@@ -99,7 +99,7 @@ class TimelogController extends Controller {
 				['message' => 'Unable to save timelog.']);
 		} else {
 
-			//if (app()->environment()==='production')
+			if (app()->environment()==='production')
 				event(new TimelogEvent($timelog, $employee));
 			
 			$uri = is_null(request()->input('ref')) ? '/timelog/add':'/timesheet';
