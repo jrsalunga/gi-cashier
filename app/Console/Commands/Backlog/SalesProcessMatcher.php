@@ -123,6 +123,16 @@ class SalesProcessMatcher extends Command
 
       DB::beginTransaction();
 
+      $this->info('extracting cash audit...');
+      try {
+        $r = $this->processCashAudit($to, $bckup);
+      } catch (Exception $e) {
+        $this->info($e->getMessage());
+        $this->removeExtratedDir();
+        DB::rollback();
+        exit;
+      }
+
       $this->info(' extracting purchased...');
       try {
         $this->processPurchased($proc->filedate, $bckup);
@@ -136,6 +146,8 @@ class SalesProcessMatcher extends Command
         $this->removeExtratedDir();
         exit;
       }
+
+      $this->info(' extracting cash audit...');
 
       $this->info(' extracting salesmtd...');
       try {
@@ -234,6 +246,14 @@ class SalesProcessMatcher extends Command
 
   private function removeExtratedDir() {
     return $this->posUploadRepo->removeExtratedDir();
+  }
+
+  public function processCashAudit($date, $backup){
+    try {
+      return $this->posUploadRepo->postCashAudit($date, $backup);
+    } catch(Exception $e) {
+      throw $e;    
+    }
   }
 
   public function processPurchased($date, $backup){

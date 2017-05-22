@@ -102,6 +102,16 @@ class DailySales extends Command
 
 		DB::beginTransaction();
 
+    $this->info('extracting cash audit...');
+    try {
+      $r = $this->processCashAudit($to, $bckup);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    }
+    //$this->info($r);
 		
     $this->info('extracting purchased...');
 		try {
@@ -153,6 +163,14 @@ class DailySales extends Command
 
   private function removeExtratedDir() {
   	return $this->posUploadRepo->removeExtratedDir();
+  }
+
+  public function processCashAudit($date, $backup){
+    try {
+      return $this->posUploadRepo->postCashAudit($date, $backup);
+    } catch(Exception $e) {
+      throw $e;    
+    }
   }
 
   public function processSalesmtd($date, $backup){

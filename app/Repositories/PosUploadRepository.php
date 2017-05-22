@@ -999,6 +999,50 @@ class PosUploadRepository extends Repository
   }
 
 
+  public function postCashAudit(Carbon $date, Backup $backup){
+
+    $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);        
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $update = 0;
+
+      $data = [];
+      
+
+      for ($i=1; $i<=$record_numbers; $i++) {
+        $row = dbase_get_record_with_names($db, $i);
+
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
+        } catch(Exception $e) {
+          $vfpdate = $date->copy()->subDay();
+        }
+
+        if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) { // if salesmtd date == backup date
+          $data = $this->getDailySalesDbfRowData($row);
+          $data['date']       = $date->format('Y-m-d');
+          $data['branchid']   = $backup->branchid;
+          
+          
+          if ($this->ds->firstOrNew(array_only($data, 
+                    ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din']
+                  ), ['date', 'branchid'])) {
+            $update++;
+
+          }
+        }
+      }
+      dbase_close($db);
+      unset($data);
+      return $update;
+    }
+    return false;
+  }
+
+
 
     public function postSalesmtd(Carbon $date, Backup $backup) {
 
@@ -1342,6 +1386,11 @@ class PosUploadRepository extends Repository
       }
       return false;  
     }
+
+
+
+
+    
 
   
 
