@@ -103,7 +103,7 @@ class TimelogController extends Controller {
 			if (app()->environment()==='production')
 				event(new TimelogEvent($timelog, $employee));
 			
-			$uri = is_null(request()->input('ref')) ? '/'.brcode().'/timelog/add':'/'.brcode().'/timesheet';
+			$uri = is_null(request()->input('ref')) ? '/timelog/add':'/'.brcode().'/timesheet';
 			return redirect($uri)->with('alert-success', 'Timelog saved!');
 		}
 
