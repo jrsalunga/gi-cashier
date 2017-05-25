@@ -86,7 +86,7 @@ class TimelogController extends Controller {
 		$attributes = [
 			'employeeid' 	=> $employee->id,
 			'branchid' 		=> $this->_branchid,
-			'datetime' 		=> $datetime->format('Y-m-d H:i').':00',
+			'datetime' 		=> $datetime->format('Y-m-d H:i').':'.c()->format('s'),
 			'txncode' 		=> $request->input('txncode'),
 			'entrytype' 	=> 2,
 			'terminalid'	=> clientIP()

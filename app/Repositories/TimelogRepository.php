@@ -177,6 +177,7 @@ class TimelogRepository extends BaseRepository
 
       return $this->scopeQuery(function($query) use ($employeeid, $fr, $to) {
         return $query->where('employeeid', $employeeid)
+                    ->where('ignore', 0)
                     ->whereBetween('datetime', [
                       $fr->copy()->format('Y-m-d').' 06:00:00',          // '2015-11-13 06:00:00'
                       $to->copy()->addDay()->format('Y-m-d').' 05:59:59'
