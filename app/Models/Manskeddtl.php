@@ -12,14 +12,6 @@ class Manskeddtl extends BaseModel {
  	//public static $header = ['code', 'descriptor'];
 
 
-  public function __construct(array $attributes = [])
-  {
-    parent::__construct($attributes);
-    if (app()->environment()==='production')
-      $this->setConnection('mysql');
-    else  
-      $this->setConnection('tk-live');
-  }
  
 
 	public function manskedday() {
