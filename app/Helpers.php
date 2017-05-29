@@ -429,6 +429,67 @@ if (!function_exists('backup_to_carbon_date')) {
 }
 
 
+if (!function_exists('dayDesc')) {
+    function dayDesc($x=1, $short=false) {
+        
+      switch ($x) {
+        case '0':
+            if ($short)
+                echo 'O';
+            else    
+            echo 'Day Off';
+          break;
+         case '1':
+            if ($short)
+                echo 'D';
+            else    
+            echo 'With Duty';
+          break;
+        case '2':
+            if ($short)
+                echo 'L';
+            else    
+            echo 'On Leave';
+          break;
+        case '3':
+            if ($short)
+                echo 'S';
+            else    
+            echo 'Suspended';
+          break;
+        case '4':
+            if ($short)
+                echo 'B';
+            else    
+            echo 'Backup';
+          break;
+        case '5':
+            if ($short)
+                echo 'R';
+            else    
+            echo 'Resigned';
+          break;
+        case '6':
+            if ($short)
+                echo 'X';
+            else    
+            echo 'Others';
+          break;
+        default:
+          echo '-';
+          break;
+      }
+                        
+    }
+}
+
+if (!function_exists('stl')) {
+    function stl($str) {
+        return strtolower($str);
+    }
+}
+
+
 
 
 

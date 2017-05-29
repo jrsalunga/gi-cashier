@@ -4,6 +4,7 @@
 
 @section('css-external')
 	<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.24/daterangepicker.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet">
 @endsection
 
 @section('body-class', 'timesheet-employee')
@@ -70,13 +71,14 @@
         <table>
           <tr>
             <td>
-              <img class="img-responsive" src="/images/employees/{{ $employee->code }}.jpg" style="margin-right: 5px; width: 100px;">
+              <img src="http://cashier.giligansrestaurant.com/images/{{$employee->photo?'employees/'.$employee->code.'.jpg':'login-avatar.png'}}" style="margin-right: 5px; width: 100px;" class="img-responsive">
             </td>
             <td>
               <h3>
                 {{ $employee->lastname }}, {{ $employee->firstname }}
                 <small>{{ $employee->code }}</small>
               </h3>
+              <p>{{ $employee->position->descriptor or '' }}</p>
               <p>
                 <em>Timesheet for {{ $dr->fr->format("D M j, Y") }} - {{ $dr->to->format("D M j, Y") }}</em>
               </p>
@@ -105,7 +107,7 @@
           </div>
           <div class="panel-body text-right">
             <h3>
-              0
+              {{ $header->totalTardyHours }}
               <span class="small"> Hrs</span>
             </h3>
           </div>
@@ -116,10 +118,12 @@
     <div class="row">
       <div class="col-sm-12">
         <div class="table-responsive">
-          <table class="table table-hover table-condensed">
+          <table class="table table-hover table-condensed" style="font-family: 'Source Code Pro', monospace;">
             <thead>
               <tr>
                 <th>Day(s)</th>
+                <th>Day Type</th>
+                <th class="text-right">Time Start</th>
                 <th class="text-right">Rendered Hours</th>
                 <th class="text-right">Tardy Hours</th>
                 <th class="text-right">OT Hours</th>
@@ -130,6 +134,9 @@
               </tr>
             </thead>
             <tbody>
+            <?php
+              $tot_tardy = 0;
+            ?>
             @foreach($timesheets as $timesheet)
               <tr 
                 @if($timesheet['date']->isToday())
@@ -142,48 +149,104 @@
               >
                 <td>
                   {{-- $timesheet['date']->format('Y-m-d') --}}
-                  <a href="/{{brcode()}}/timesheet?date={{$timesheet['date']->format('Y-m-d')}}">
+                  <a href="/{{brcode()}}/timelog/employee/{{$employee->lid()}}?date={{$timesheet['date']->format('Y-m-d')}}">
                   {{ $timesheet['date']->format("D, M j") }}
                   </a>
                 </td>
-                <td class="text-right">
-                  @if($timesheet['timelog']->workHours->format('H:i')!=='00:00')
-                    <small><em>({{$timesheet['timelog']->workHours->format('H:i')}})</em></small>
+                <td>
+                  @if($timesheet['mandtl'])
+                    {{ dayDesc($timesheet['mandtl']->daytype) }}
+                  @else
+                    <span style="color: #bbb;">No Mansked</span>
                   @endif
-                  {{ $timesheet['timelog']->workedHours or '' }}
                 </td>
-                 <td class="text-right">
-                  
+                <td class="text-right">
+                  @if($timesheet['mandtl'])
+                  {{ empty($timesheet['mandtl']->timestart) || $timesheet['mandtl']->timestart=='off' ? '':date('g A', strtotime($timesheet['mandtl']->timestart)) }}
+                  @else
+                    
+                  @endif
+                </td>
+                <td class="text-right">
+                  <!--
+                  @if($timesheet['timelog']->workHours->format('H:i')!=='00:00')
+                    <small><em style="color: #aaa;">({{$timesheet['timelog']->workHours->format('H:i')}})</em></small>
+                  @endif
+                  -->
+                  <strong class="help" data-toggle="tooltip" title="{{$timesheet['timelog']->workHours->format('H')}} Hour(s) and {{$timesheet['timelog']->workHours->format('i')}} Minute(s)">
+                    {{ $timesheet['timelog']->workedHours or '' }}
+                  </strong>
+                </td>
+                <td class="text-right">
+                  @if($timesheet['tardy']>0)
+                    {{ $timesheet['tardy'] }}
+                  @endif 
                 </td>
                  <td class="text-right">
                   {{ $timesheet['timelog']->otedHours or '' }}
                 </td>
                 <td class="text-right">
                   @if(!empty($timesheet['timelog']->timein))
-                    {{ $timesheet['timelog']->timein->timelog->datetime->format('h:i A') }}
+                    <span data-toggle="tooltip" title="{{ $timesheet['timelog']->timein->timelog->datetime->format('h:i:s A') }}"
+                      @if(!$timesheet['timelog']->is_timein())
+                       style="color: #ccc;">
+                      @elseif($timesheet['timelog']->timein->timelog->entrytype=='2')
+                         class="text-danger">
+                      @else
+                        >
+                      @endif
+                      {{ $timesheet['timelog']->timein->timelog->datetime->format('h:i A') }}
+                      </span>
                   @else
-                    -
+                    
                   @endif
                 </td>
                 <td class="text-right">
                   @if(!empty($timesheet['timelog']->breakin))
-                    {{ $timesheet['timelog']->breakin->timelog->datetime->format('h:i A') }}
+                    <span data-toggle="tooltip" title="{{ $timesheet['timelog']->breakin->timelog->datetime->format('h:i:s A') }}"
+                      @if(!$timesheet['timelog']->is_breakin())
+                       style="color: #ccc;">
+                      @elseif($timesheet['timelog']->breakin->timelog->entrytype=='2')
+                         class="text-danger">
+                      @else
+                        >
+                      @endif
+                      {{ $timesheet['timelog']->breakin->timelog->datetime->format('h:i A') }}
+                      </span>
                   @else
-                    -
+                    
                   @endif
                 </td>
                 <td class="text-right">
                   @if(!empty($timesheet['timelog']->breakout))
+                    <span data-toggle="tooltip" title="{{ $timesheet['timelog']->breakout->timelog->datetime->format('h:i:s A') }}" 
+                    @if(!$timesheet['timelog']->is_breakout())
+                       style="color: #ccc;">
+                    @elseif($timesheet['timelog']->breakout->timelog->entrytype=='2')
+                       class="text-danger">
+                    @else
+                      >
+                    @endif
                     {{ $timesheet['timelog']->breakout->timelog->datetime->format('h:i A') }}
+                    </span>
                   @else
-                    -
+                    
                   @endif
                 </td>
                 <td class="text-right">
                   @if(!empty($timesheet['timelog']->timeout))
-                    {{ $timesheet['timelog']->timeout->timelog->datetime->format('h:i A') }}
+                    <span data-toggle="tooltip" title="{{ $timesheet['timelog']->timeout->timelog->datetime->format('h:i:s A') }}" 
+                      @if(!$timesheet['timelog']->is_timeout())
+                       style="color: #ccc;">
+                      @elseif($timesheet['timelog']->timeout->timelog->entrytype=='2')
+                        <span class="text-danger">
+                      @else
+                        <span>
+                      @endif
+                      {{ $timesheet['timelog']->timeout->timelog->datetime->format('h:i A') }}
+                    </span>
                   @else
-                    -
+                    
                   @endif
                 </td>
               </tr>

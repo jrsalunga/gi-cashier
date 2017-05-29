@@ -20,6 +20,10 @@ class Timesheet
 	public $otHours;
 	public $otedHours;
 	private $workingHours = 10;
+  private $is_timein = false;
+  private $is_breakin = false;
+  private $is_breakout = false;
+  private $is_timeout = false;
 	
 
 	public function __construct() {
@@ -110,15 +114,23 @@ class Timesheet
     if(!is_null($this->timein) && !is_null($this->timeout) && 
     (is_null($this->breakin) || is_null($this->breakout))) {
 
+      $this->is_timein = true;
+      $this->is_breakin = false;
+      $this->is_breakout = false;
+      $this->is_timeout = true;
     	$wh->addMinutes($this->getMinDiff($this->timein->timelog->datetime, $this->timeout->timelog->datetime)); 
     } else {
 
     	if(!is_null($this->timein) && !is_null($this->breakin))  // meaning may laman ti at bi
         $wh->addMinutes($this->getMinDiff($this->timein->timelog->datetime, $this->breakin->timelog->datetime));
-        
+        $this->is_timein = true;
+        $this->is_breakin = true;
+
       // if there is a pair of breakout and timeout
       if(!is_null($this->breakout) && !is_null($this->timeout)) // meaning may laman bo at to
         $wh->addMinutes($this->getMinDiff($this->breakout->timelog->datetime, $this->timeout->timelog->datetime));
+        $this->is_breakout = true;
+        $this->is_timeout = true;
     }
 
     $worked = $wh->diffInMinutes($this->workHours)/60;
@@ -157,6 +169,22 @@ class Timesheet
       return true;
     else
       return false;
+  }
+
+  public function is_timein() {
+    return $this->is_timein;
+  }
+
+  public function is_breakin() {
+    return $this->is_breakin;
+  }
+
+  public function is_breakout() {
+    return $this->is_breakout;
+  }
+
+  public function is_timeout() {
+    return $this->is_timeout;
   }
 
 
