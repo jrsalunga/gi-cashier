@@ -17,6 +17,7 @@ class TimesheetController extends Controller
 { 
 	public $timelog;
 	public $mandtl;
+	public $dr;
 
 	public function __construct(DateRange $dr, Timelog $timelog, MandtlRepo $mandtl) {
 		$this->timelog = $timelog;
@@ -141,7 +142,7 @@ class TimesheetController extends Controller
 		foreach ($this->dr->dateInterval() as $key => $date) {
 			
 			$timesheets[$key]['date'] = $date;
-			/*
+			
 			$timelogs = $this->timelog
 			->skipCriteria()
 			->getRawEmployeeTimelog($employeeid, $date, $date)
@@ -174,7 +175,7 @@ class TimesheetController extends Controller
           $tot_tardy+=$tardy;
         }
 
-			}*/
+			}
       $timesheets[$key]['tardy'] = $tardy;
 		}
 
@@ -189,7 +190,6 @@ class TimesheetController extends Controller
 							->with('timesheets', $timesheets)
 							->with('employee', $employee)
 							->with('header', $header)
-							->with('dr', $this->dr)
 						);
 	}
 

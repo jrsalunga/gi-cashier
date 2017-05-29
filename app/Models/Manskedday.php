@@ -21,7 +21,14 @@ class Manskedday extends BaseModel {
     'underload' => 'float'
   ];
 
-  
+  public function __construct(array $attributes = [])
+  {
+    parent::__construct($attributes);
+    if (app()->environment()==='production')
+      $this->setConnection('mysql-tk');
+    else  
+      $this->setConnection('tk-live');
+  }
 
  	/***************** relations *****************************************************/
 	public function manskedhdr() {
