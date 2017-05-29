@@ -135,7 +135,7 @@ class TimesheetController extends Controller
 
 	private function getEmployeeDtr(Request $request, $employeeid) {
 
-		$employee = Employee::with('position')->findOrFail($employeeid);
+		return $employee = Employee::with('position')->findOrFail($employeeid);
 
 		$tot_tardy = 0;
 		foreach ($this->dr->dateInterval() as $key => $date) {
