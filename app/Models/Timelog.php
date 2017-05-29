@@ -12,7 +12,8 @@ class Timelog extends BaseModel {
 	protected $guarded = ['id'];
 		protected $casts = [
     'txncode' => 'integer',
-    'entrytype' => 'integer'
+    'entrytype' => 'integer',
+    'ignore' => 'integer'
   ];
 
 	public function __construct(array $attributes = [])
