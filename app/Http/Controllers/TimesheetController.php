@@ -178,7 +178,7 @@ class TimesheetController extends Controller
       $timesheets[$key]['tardy'] = $tardy;
 		}
 
-		//return $timesheets;
+		return $timesheets;
 
 		$header = new StdClass;
 		$header->totalWorkedHours = collect($timesheets)->pluck('timelog')->sum('workedHours');
