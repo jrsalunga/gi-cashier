@@ -118,7 +118,7 @@
     <div class="row">
       <div class="col-sm-12">
         <div class="table-responsive">
-          <table class="table table-hover table-condensed" style="font-family: 'Source Code Pro', monospace;">
+          <table class="table table-hover table-condensed" style="font-family: 'Source Code Pro', monospace; margin-top: 0px;">
             <thead>
               <tr>
                 <th>Day(s)</th>
@@ -298,7 +298,7 @@ $(function() {
   }, cb)
   .on('apply.daterangepicker', function(ev, picker) {
   	//console.log(ev);
-  	var url = "/timesheet/{{$employee->lid()}}?fr="+ picker.startDate.format('YYYY-MM-DD') +"&to="+ picker.endDate.format('YYYY-MM-DD');
+  	var url = "/{{brcode()}}/timesheet/{{$employee->lid()}}?fr="+ picker.startDate.format('YYYY-MM-DD') +"&to="+ picker.endDate.format('YYYY-MM-DD');
   	window.location.replace(url)
   	console.log(picker.startDate.format('MM/DD/YYYY'));
   	console.log(picker.endDate.format('MM/DD/YYYY'));
