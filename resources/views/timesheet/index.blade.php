@@ -90,7 +90,7 @@
           <td <?=$e['onbr']?'':'class="bg-danger"'?> >
             {{ $key+1}}. 
 
-            <a href="/{{brcode()}}/timesheet/{{$e['employee']->lid()}}?fr={{$dr->date->copy()->startOfMonth()->format('Y-m-d')}}&amp;to={{$dr->date->copy()->endOfMonth()->format('Y-m-d')}}">
+            <a href="/{{brcode()}}/timelog/employee/{{$e['employee']->lid()}}?date={{$dr->date->format('Y-m-d')}}">
               {{ $e['employee']->lastname or '-' }}, {{ $e['employee']->firstname or '-' }}
             </a>
             <span class="label label-default pull-right" title="{{ $e['employee']->position->descriptor or '-' }}">{{ $e['employee']->position->code or '-' }}</span>
@@ -121,9 +121,19 @@
               <td class="text-right">-</td>
             @else
               <td class="text-right {{ $t['entrytype']=='2'?'bg-warning':'bg-success' }}" 
-              title="{{ $t['datetime']->format('D, M j, Y h:i:s A') }} @ {{ $t['createdate']->format('D, M j, Y h:i:s A') }}">
-                {{ $t['datetime']->format('h:i A') }}
-              </td>
+                title="{{ $t['datetime']->format('D, M j, Y h:i:s A') }} @ {{ $t['createdate']->format('D, M j, Y h:i:s A') }}">
+                  
+                  @if($e['counts'][$key]>1)
+
+                    <a href="/{{brcode()}}/timelog/employee/{{$e['employee']->lid()}}?date={{$dr->date->format('Y-m-d')}}&txncode={{$t['txncode']}}" class="text-danger">
+                    <span class="label label-danger pull-left" style="font-size: 9px;">{{ $e['counts'][$key] }}</span>
+                    </a>
+                      {{ $t['datetime']->format('h:i A') }}
+                  @else
+                    {{ $t['datetime']->format('h:i A') }}
+                  @endif
+
+                </td>
             @endif
           @endforeach
 

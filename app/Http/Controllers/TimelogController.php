@@ -7,21 +7,28 @@ use Illuminate\Http\Response;
 use App\Models\Timelog;
 use App\Models\Employee;
 use App\Repositories\TimelogRepository;
+use App\Repositories\EmployeeRepository as EmployeeRepo;
 use Carbon\Carbon;
 use App\Events\Timelog\Timelog as TimelogEvent;
+use App\Repositories\ManskeddtlRepository as MandtlRepo;
 
 class TimelogController extends Controller {
 
 	private $repository;
 	private $_branchid;
+	protected $emprepo;
+	protected $mandtl;
 
-	public function __construct(TimelogRepository $repo, Request $request){
+	public function __construct(TimelogRepository $repo, Request $request, EmployeeRepo $emprepo, MandtlRepo $mandtl){
 		$this->repository = $repo;
 
 		if(is_null(session('user.branchid')) && is_null($request->cookie('branchid')))
 			return redirect()->route('auth.getlogin');
 		else
 			$this->_branchid = is_null(session('user.branchid')) ? $request->cookie('branchid') : session('user.branchid');
+
+		$this->emprepo = $emprepo;
+		$this->mandtl = $mandtl;
 	
 	}
 
@@ -246,6 +253,52 @@ class TimelogController extends Controller {
 		return $response;
 
     //return view('tk.index', compact($timelogs));//->with('timelogs', $timelogs);		
+	}
+
+
+
+
+
+
+	public function employeeTimelog(Request $request, $brcode, $employeeid) {
+		$employee = $this->emprepo
+										//->skipCache()
+									->with(['branch'=>function($query){
+        						return $query->select(['code', 'descriptor', 'id']);
+        					}])
+        					->with(['position'=>function($query){
+        						return $query->select(['code', 'descriptor', 'id']);
+        					}])
+									->find($employeeid, ['code', 'lastname', 'firstname', 'branchid', 'positionid', 'id']);
+									
+		if (!$employee)
+		//if (!$employee || $employee->branch->code!=session('user.branchcode'))
+			return abort('404');
+
+		$mandtl = $this->mandtl
+									->skipCache()
+									->whereHas('manskedday', function ($query) use ($request) {
+										$query->where('date', $request->input('date'));
+									})
+									->with('manskedday.manskedhdr')
+									->findWhere(['employeeid'=>$employeeid])
+									->first();
+
+		$date = ($request->has('date') || is_iso_date($request->input('date')))
+			? c($request->input('date'))
+			: c();
+
+		$timelogs = $this->repository->employeeTimelogs($employee, $date);
+
+		$ts = new \App\Helpers\Timesheet;
+		$timesheet = $ts->generate($employee->id, $date, $timelogs);
+		//return dd($timesheet);
+		return view('timelog.employee')
+								->with('date', $date)
+								->with('mandtl', $mandtl)
+								->with('employee', $employee)
+								->with('timesheet', $timesheet)
+								->with('timelogs', $timelogs);
 	}
 
 

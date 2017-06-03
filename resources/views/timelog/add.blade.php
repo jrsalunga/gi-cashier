@@ -98,8 +98,8 @@
                 <label for="search-employee" class="control-label">Type</label>
                 <select class="form-control" name="txncode" id="txncode"> 
                   <option value="1">Time In</option>
-                  <option value="2">Break In</option>
-                  <option value="3">Break Out</option>
+                  <option value="2">Break Start</option>
+                  <option value="3">Break End</option>
                   <option value="4">Time Out</option>
                 </select>
               </div>

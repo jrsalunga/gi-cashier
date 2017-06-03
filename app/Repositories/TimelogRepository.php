@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use App\Models\Timelog;
+use App\Models\Employee;
 use App\Repositories\Criterias\EmployeeByBranch;
 use App\Repositories\Criterias\ByBranchCriteria;
 
@@ -113,10 +114,13 @@ class TimelogRepository extends BaseRepository
       $arr[0][$key]['onbr'] = in_array($emp['id'], $br_empids) ? true : false; // on branch??
 
       for ($i=1; $i < 5; $i++) { 
-        $arr[0][$key]['timelogs'][$i] = $col->where('employeeid', $emp['id'])
+        $c = $col->where('employeeid', $emp['id'])
                                             ->where('txncode', $i)
-                                            ->sortBy('datetime')
-                                            ->first();
+                                            ->sortBy('datetime');
+                                            //->first();
+
+        $arr[0][$key]['counts'][$i] = count($c);
+        $arr[0][$key]['timelogs'][$i] = $c->first();
       }
       
       $raw = $raw_timelogs->where('employeeid', $e->id)->sortBy('datetime');
@@ -170,6 +174,27 @@ class TimelogRepository extends BaseRepository
                 ? $item : null;
     */
   }
+
+
+
+  /**
+     * Get all the timelog for an employee on the day.
+     *
+     * @param  Employee $employee, Carbon $date ('Y-m-d')
+     * @return Collection of timelog
+     */
+    public function employeeTimelogs(Employee $employee, $date)
+    {
+        $res = Timelog::where('employeeid', $employee->id)
+                  ->whereBetween('datetime', [
+                      $date->copy()->format('Y-m-d').' 06:00:00',          // '2015-11-13 06:00:00'
+                      $date->copy()->addDay()->format('Y-m-d').' 05:59:59' // '2015-11-14 05:59:59'
+                    ])
+                  ->orderBy('datetime', 'ASC')
+                  ->orderBy('txncode', 'ASC')
+                  ->get();
+        return count($res)>0 ? $res:false;
+    }
 
 
 

@@ -45,6 +45,7 @@ Route::get('timelog/{param1?}/{param2?}', ['uses'=>'TimelogController@getIndex']
   ->where(['param1'=>'add', 
           'param2'=>'week|[0-9]+']);
 Route::post('timelog', ['uses'=>'TimelogController@manualPost']);
+Route::get('{brcode}/timelog/employee/{employeeid}', ['uses'=>'TimelogController@employeeTimelog']);
 
 Route::get('remittance/philhealth', ['uses'=>'RemittanceController@philhealthIndex']);
 Route::post('remittance/upload', ['uses'=>'RemittanceController@postUpload']);
