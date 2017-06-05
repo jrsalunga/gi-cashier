@@ -65,7 +65,7 @@ class Purchase extends Command
       $month = true;
       $date = c($date.'-01');
       $this->dr->date = $date->format('Y-m-d');
-    } elseif ($date==='all')
+    } elseif ($date==='all') {
       $this->info('all');
       $year = true;
       $date = c('2017-01-01');
