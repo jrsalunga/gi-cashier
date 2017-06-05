@@ -142,15 +142,15 @@ class Purchase extends Command
     $d->cos = $food_cost;
     $d->cospct = $cospct;
 
-    DB::beginTransaction();
-    try {
+    //DB::beginTransaction();
+    //try {
       $res = $d->save();
-    } catch (Exception $e) {
-      DB::rollback();
-      return false;
-    }
+    //} catch (Exception $e) {
+     // DB::rollback();
+     // return false;
+    //}
 
-    DB::commit();
+    //DB::commit();
 
     return $res;
 
