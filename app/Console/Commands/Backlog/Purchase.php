@@ -48,6 +48,7 @@ class Purchase extends Command
   public function handle() {
 
     $month = false;
+    $year = false;
   	$br = Branch::where('code', strtoupper($this->argument('brcode')))->first();
   	if (!$br) {
       $this->info('Invalid Branch Code.');
@@ -64,6 +65,10 @@ class Purchase extends Command
       $month = true;
       $date = c($date.'-01');
       $this->dr->date = $date->format('Y-m-d');
+    } elseif ($date==='all')
+      $this->info('all');
+      $year = true;
+      $date = c('2017-01-01');
     } else {
       $this->info('Invalid date');
       exit;
@@ -78,6 +83,11 @@ class Purchase extends Command
       $eom = $date->copy();
       do {
         //$this->info($date);
+        $this->saveFoodCost($date, $br);        
+      } while ($date->addDay() < $eom->endOfMonth());
+    } elseif ($year) {
+      $eom = c('2017-06-04');
+      do {
         $this->saveFoodCost($date, $br);        
       } while ($date->addDay() < $eom->endOfMonth());
     } else {
@@ -120,18 +130,19 @@ class Purchase extends Command
 
   private function setFoodCost(Carbon $date, $branchid, $food_cost) {
 
-    DB::beginTransaction();
 
     //$d =  $this->ds->findWhere(['branchid'=>$branchid, 
     $d =  DS::where(['branchid'=>$branchid, 
                                 'date'=>$date->format('Y-m-d')],
                                 ['sales'])->first();
+
     $cospct = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($food_cost/$d->sales)*100;
 
 
     $d->cos = $food_cost;
     $d->cospct = $cospct;
 
+    DB::beginTransaction();
     try {
       $res = $d->save();
     } catch (Exception $e) {
