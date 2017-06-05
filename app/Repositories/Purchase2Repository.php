@@ -1,5 +1,5 @@
 <?php namespace App\Repositories;
-
+use DB;
 use Carbon\Carbon;
 use App\Repositories\SupplierRepository as SupplierRepo;
 use App\Repositories\ComponentRepository as CompRepo;
@@ -74,6 +74,19 @@ class Purchase2Repository extends BaseRepository
   public function deleteWhere(array $where){
   	return $this->model->where($where)->delete();
   }
+
+  public function getFoodCost(Carbon $dr, $branchid) {
+    return $this->scopeQuery(function($query) use ($dr, $branchid) {
+      return $query->where('purchase.date', $dr->format('Y-m-d'))
+                    ->where('purchase.branchid', $branchid)
+                    ->where('expense.expscatid', '7208AA3F5CF111E5ADBC00FF59FBB323')
+                    ->leftJoin('component', 'component.id', '=', 'purchase.componentid')
+                    ->leftJoin('compcat', 'compcat.id', '=', 'component.compcatid')
+                    ->leftJoin('expense', 'expense.id', '=', 'compcat.expenseid')
+                    ->select(DB::raw('purchase.date, sum(purchase.qty) as qty, sum(purchase.tcost) as tcost'));
+    });
+  }
+
 
 
 

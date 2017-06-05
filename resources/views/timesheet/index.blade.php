@@ -76,8 +76,8 @@
           <th>Employee</th>
           <th class="text-right">Work Hours</th>
           <th class="text-right">Time In</th>
-          <th class="text-right">Break In</th>
-          <th class="text-right">Break Out</th>
+          <th class="text-right">Break Start</th>
+          <th class="text-right">Break End</th>
           <th class="text-right">Time Out</th>
           <!--
           <th class="text-right">Txn Count</th>

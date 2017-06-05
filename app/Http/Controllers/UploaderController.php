@@ -205,18 +205,6 @@ class UploaderController extends Controller
 
 
 					try {
-						$this->processPurchased($backup->date);
-					} catch (Exception $e) {
-						$msg =  $e->getMessage();
-						//$res = $this->movedErrorProcessing($filepath, $storage_path);
-						$this->updateBackupRemarks($backup, $msg);
-						//$this->logAction('error:process:purchased', $log_msg.$msg);
-						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
-					}
-					//$this->logAction('success:process:purchased', $log_msg.$msg);
-
-
-					try {
 						$this->processSalesmtd($backup->date, $backup);
 					} catch (Exception $e) {
 						$msg =  $e->getMessage();
@@ -238,6 +226,20 @@ class UploaderController extends Controller
 						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
 					}
 					//$this->logAction('success:process:charges', $log_msg.$msg);
+
+
+					try {
+						$this->processPurchased($backup->date);
+					} catch (Exception $e) {
+						$msg =  $e->getMessage();
+						//$res = $this->movedErrorProcessing($filepath, $storage_path);
+						$this->updateBackupRemarks($backup, $msg);
+						//$this->logAction('error:process:purchased', $log_msg.$msg);
+						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+					}
+					//$this->logAction('success:process:purchased', $log_msg.$msg);
+
+
 
 
 					/******* end: extract trasanctions data ***********/

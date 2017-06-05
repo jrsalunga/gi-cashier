@@ -31,6 +31,7 @@ class PosUploadRepository extends Repository
     public $charges;
     private $sysinfo = null;
     protected $salesmtdCtrl;
+    protected $expense_array = [];
 
     
 
@@ -48,7 +49,14 @@ class PosUploadRepository extends Repository
         $this->purchase2  = $purchaserepo;
         $this->salesmtdCtrl = $salesmtdCtrl;
         $this->charges = $charges;
+
+        $this->get_foodcost();
     }
+
+  private function get_foodcost() {
+    $expense = new \App\Repositories\ExpenseRepository;
+    $this->expense_array =  $expense->findWhere(['expscatid'=> '7208AA3F5CF111E5ADBC00FF59FBB323'], ['code'])->pluck('code')->toArray();
+  }
 
     public function model() {
         return 'App\Models\Backup';
@@ -347,6 +355,7 @@ class PosUploadRepository extends Repository
         $record_numbers = dbase_numrecords($db);
         $tot_purchase = 0;
         $update = 0;
+        $food_cost = 0;
 
         // delete if exist
         try {
@@ -413,6 +422,9 @@ class PosUploadRepository extends Repository
             } catch(Exception $e) {
               throw $e;    
             }
+
+            if (in_array(substr($attrs['supno'], 0, 2), $this->expense_array))
+              $food_cost += $tcost;
             
             //\DB::rollBack();
             $tot_purchase += $tcost;
@@ -423,8 +435,16 @@ class PosUploadRepository extends Repository
 
         try {
           //$this->logAction($date->format('Y-m-d'), 'update:ds');
+          $d =  $this->ds->findWhere(['branchid'=>session('user.branchid'), 
+                              'date'=>$date->format('Y-m-d')],
+                              ['sales'])->first();
+          
+          $cospct = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($food_cost/$d->sales)*100;
+
           $this->ds->firstOrNew(['branchid'=>session('user.branchid'), 
                               'date'=>$date->format('Y-m-d'),
+                              'cos'=> $food_cost,
+                              'cospct'=> $cospct,
                               'purchcost'=>$tot_purchase],
                               ['date', 'branchid']);
         } catch(Exception $e) {
@@ -893,6 +913,9 @@ class PosUploadRepository extends Repository
       return false;
   }
 
+
+
+
   public function postPurchased2(Carbon $date, Backup $backup) {
     
     $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
@@ -904,6 +927,7 @@ class PosUploadRepository extends Repository
       $record_numbers = dbase_numrecords($db);
       $tot_purchase = 0;
       $update = 0;
+      $food_cost = 0;
 
       // delete if exist
       try {
@@ -971,6 +995,9 @@ class PosUploadRepository extends Repository
             dbase_close($db);
             throw $e;    
           }
+
+          if (in_array(substr($attrs['supno'], 0, 2), $this->expense_array))
+            $food_cost += $tcost;
           
           //\DB::rollBack();
           $tot_purchase += $tcost;
@@ -981,8 +1008,16 @@ class PosUploadRepository extends Repository
 
       try {
         //$this->logAction($date->format('Y-m-d'), 'update:ds');
-        $this->ds->firstOrNew(['branchid'=>$backup->branchid, 
+        $d =  $this->ds->findWhere(['branchid'=>session('user.branchid'), 
+                              'date'=>$date->format('Y-m-d')],
+                              ['sales'])->first();
+          
+        $cospct = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($food_cost/$d->sales)*100;
+
+        $this->ds->firstOrNew(['branchid'=>session('user.branchid'), 
                             'date'=>$date->format('Y-m-d'),
+                            'cos'=> $food_cost,
+                            'cospct'=> $cospct,
                             'purchcost'=>$tot_purchase],
                             ['date', 'branchid']);
       } catch(Exception $e) {
@@ -1044,348 +1079,348 @@ class PosUploadRepository extends Repository
 
 
 
-    public function postSalesmtd(Carbon $date, Backup $backup) {
+  public function postSalesmtd(Carbon $date, Backup $backup) {
 
-      $dbf_file = $this->extracted_path.DS.'SALESMTD.DBF';
+    $dbf_file = $this->extracted_path.DS.'SALESMTD.DBF';
 
-      if (file_exists($dbf_file)) {
-        //$this->logAction('posting', 'post:salesmtd');
-        $db = dbase_open($dbf_file, 0);
-        
-        $header = dbase_get_header_info($db);
-        $record_numbers = dbase_numrecords($db);
-        $update = 0;
-
-        // delete salesmtd (branchid, date) if exist
-        try {
-          //$this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
-          $this->salesmtdCtrl->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
-        } catch(Exception $e) {
-          dbase_close($db);
-          throw new Exception($e->getMessage());    
-        }
-
-        $ctr = 0;
-        $ds = [];
-        $ds['slsmtd_totgrs'] = 0;
-        $ds['date']       = $date->format('Y-m-d');
-        $ds['branchid']   = $backup->branchid;
-        
-        for ($i=1; $i<=$record_numbers; $i++) {
-          $row = dbase_get_record_with_names($db, $i);
-          //$this->logAction('-', $row['ORDDATE']);
-
-          try {
-            $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
-          } catch(Exception $e) {
-            $vfpdate = $date->copy()->subDay();
-          }
-
-          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) { // if salesmtd date == backup date
-            $data = $this->salesmtdCtrl->associateAttributes($row);
-            $data['branch_id'] = $backup->branchid;
-
-            if ($ctr==0) {
-              $ds['opened_at'] = $data['ordtime'];
-              $ds['closed_at'] = $data['ordtime'];
-            }
-
-            if (c($ds['opened_at'])->gt(c($data['ordtime'])))
-              $ds['opened_at'] = $data['ordtime'];
-
-            if (c($ds['closed_at'])->lt(c($data['ordtime'])))
-              $ds['closed_at'] = $data['ordtime'];
-
-            try {
-              //$this->logAction($data['orddate'], ' create:salesmtd');
-              $this->salesmtdCtrl->create($data);
-              $update++;
-            } catch(Exception $e) {
-              dbase_close($db);
-              throw new Exception('salesmtd: '.$e->getMessage());   
-              return false;   
-            }
-            $ds['slsmtd_totgrs'] += $data['grsamt'];
-
-            $ctr++;
-          }
-        }
-
-        // update dailysales
-        try {
-          $this->ds->firstOrNew($ds, ['date', 'branchid']);
-        } catch(Exception $e) {
-          dbase_close($db);
-          throw new Exception('salesmtd:ds: '.$e->getMessage());    
-        }
-
-        dbase_close($db);
-        unset($ds);
-        return $update;
-      }
-      return false;  
-    }
-
-
-
-    public function postCharges(Carbon $date, Backup $backup) {
-
-      //$dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
+    if (file_exists($dbf_file)) {
+      //$this->logAction('posting', 'post:salesmtd');
+      $db = dbase_open($dbf_file, 0);
       
-      // delete charges (branchid, date) if exist
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $update = 0;
+
+      // delete salesmtd (branchid, date) if exist
       try {
         //$this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
-        $this->charges->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
-        } catch(Exception $e) {
-        throw new Exception('charges: '.$e->getMessage());    
-      }
-
-      $ds = [];
-      $ds['bank_totchrg'] = 0;
-      $ds['chrg_total']   = 0;
-      $ds['chrg_csh']     = 0;
-      $ds['chrg_chrg']    = 0;
-      $ds['chrg_othr']    = 0;
-      $ds['disc_totamt']  = 0;
-      $ds['date']         = $date->format('Y-m-d');
-      $ds['branchid']     = $backup->branchid;
-        
-
-      try {
-        $c = $this->postRawCharges($date, $backup);
-        } catch(Exception $e) {
-        throw new Exception('postCharges:charges: '.$e->getMessage());    
-      }
-
-      try {
-        $s = $this->postRawSigned($date, $backup);
+        $this->salesmtdCtrl->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
       } catch(Exception $e) {
-        throw new Exception('postCharges:signed: '.$e->getMessage());    
+        dbase_close($db);
+        throw new Exception($e->getMessage());    
       }
 
+      $ctr = 0;
+      $ds = [];
+      $ds['slsmtd_totgrs'] = 0;
+      $ds['date']       = $date->format('Y-m-d');
+      $ds['branchid']   = $backup->branchid;
+      
+      for ($i=1; $i<=$record_numbers; $i++) {
+        $row = dbase_get_record_with_names($db, $i);
+        //$this->logAction('-', $row['ORDDATE']);
 
-      $ds['bank_totchrg'] = $c['bank_totchrg'] + $s['bank_totchrg'];
-      $ds['chrg_total']   = $c['chrg_total'] + $s['chrg_total'];
-      $ds['chrg_csh']     = $c['chrg_csh'] + $s['chrg_csh'];
-      $ds['chrg_chrg']    = $c['chrg_chrg'] + $s['chrg_chrg'];
-      $ds['chrg_othr']    = $c['chrg_othr'] + $s['chrg_othr'];
-      $ds['disc_totamt']  = $c['disc_totamt'] + $s['disc_totamt'];
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+        } catch(Exception $e) {
+          $vfpdate = $date->copy()->subDay();
+        }
+
+        if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) { // if salesmtd date == backup date
+          $data = $this->salesmtdCtrl->associateAttributes($row);
+          $data['branch_id'] = $backup->branchid;
+
+          if ($ctr==0) {
+            $ds['opened_at'] = $data['ordtime'];
+            $ds['closed_at'] = $data['ordtime'];
+          }
+
+          if (c($ds['opened_at'])->gt(c($data['ordtime'])))
+            $ds['opened_at'] = $data['ordtime'];
+
+          if (c($ds['closed_at'])->lt(c($data['ordtime'])))
+            $ds['closed_at'] = $data['ordtime'];
+
+          try {
+            //$this->logAction($data['orddate'], ' create:salesmtd');
+            $this->salesmtdCtrl->create($data);
+            $update++;
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw new Exception('salesmtd: '.$e->getMessage());   
+            return false;   
+          }
+          $ds['slsmtd_totgrs'] += $data['grsamt'];
+
+          $ctr++;
+        }
+      }
 
       // update dailysales
       try {
         $this->ds->firstOrNew($ds, ['date', 'branchid']);
+      } catch(Exception $e) {
+        dbase_close($db);
+        throw new Exception('salesmtd:ds: '.$e->getMessage());    
+      }
+
+      dbase_close($db);
+      unset($ds);
+      return $update;
+    }
+    return false;  
+  }
+
+
+
+  public function postCharges(Carbon $date, Backup $backup) {
+
+    //$dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
+    
+    // delete charges (branchid, date) if exist
+    try {
+      //$this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
+      $this->charges->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
+      } catch(Exception $e) {
+      throw new Exception('charges: '.$e->getMessage());    
+    }
+
+    $ds = [];
+    $ds['bank_totchrg'] = 0;
+    $ds['chrg_total']   = 0;
+    $ds['chrg_csh']     = 0;
+    $ds['chrg_chrg']    = 0;
+    $ds['chrg_othr']    = 0;
+    $ds['disc_totamt']  = 0;
+    $ds['date']         = $date->format('Y-m-d');
+    $ds['branchid']     = $backup->branchid;
+      
+
+    try {
+      $c = $this->postRawCharges($date, $backup);
+      } catch(Exception $e) {
+      throw new Exception('postCharges:charges: '.$e->getMessage());    
+    }
+
+    try {
+      $s = $this->postRawSigned($date, $backup);
+    } catch(Exception $e) {
+      throw new Exception('postCharges:signed: '.$e->getMessage());    
+    }
+
+
+    $ds['bank_totchrg'] = $c['bank_totchrg'] + $s['bank_totchrg'];
+    $ds['chrg_total']   = $c['chrg_total'] + $s['chrg_total'];
+    $ds['chrg_csh']     = $c['chrg_csh'] + $s['chrg_csh'];
+    $ds['chrg_chrg']    = $c['chrg_chrg'] + $s['chrg_chrg'];
+    $ds['chrg_othr']    = $c['chrg_othr'] + $s['chrg_othr'];
+    $ds['disc_totamt']  = $c['disc_totamt'] + $s['disc_totamt'];
+
+    // update dailysales
+    try {
+      $this->ds->firstOrNew($ds, ['date', 'branchid']);
+      } catch(Exception $e) {
+      //dbase_close($db);
+      throw new Exception('charges:ds: '.$e->getMessage());    
+    }
+    //unset($ds);
+    return false;
+  }
+
+
+  public function postRawCharges(Carbon $date, Backup $backup) {
+
+    $dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
+
+    if (file_exists($dbf_file)) {
+      //$this->logAction('posting', 'post:charges');
+      $db = dbase_open($dbf_file, 0);
+      
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $update = 0;
+      
+      $ds = [];
+      $ds['bank_totchrg'] = 0;
+      $ds['chrg_total'] = 0;
+      $ds['chrg_csh']   = 0;
+      $ds['chrg_chrg']  = 0;
+      $ds['chrg_othr']  = 0;
+      $ds['disc_totamt']  = 0;
+
+      for ($i=1; $i<=$record_numbers; $i++) {
+        
+        $row = dbase_get_record_with_names($db, $i);
+
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
         } catch(Exception $e) {
-        //dbase_close($db);
-        throw new Exception('charges:ds: '.$e->getMessage());    
-      }
-      //unset($ds);
-      return false;
-    }
-
-
-    public function postRawCharges(Carbon $date, Backup $backup) {
-
-      $dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
-
-      if (file_exists($dbf_file)) {
-        //$this->logAction('posting', 'post:charges');
-        $db = dbase_open($dbf_file, 0);
-        
-        $header = dbase_get_header_info($db);
-        $record_numbers = dbase_numrecords($db);
-        $update = 0;
-        
-        $ds = [];
-        $ds['bank_totchrg'] = 0;
-        $ds['chrg_total'] = 0;
-        $ds['chrg_csh']   = 0;
-        $ds['chrg_chrg']  = 0;
-        $ds['chrg_othr']  = 0;
-        $ds['disc_totamt']  = 0;
-
-        for ($i=1; $i<=$record_numbers; $i++) {
-          
-          $row = dbase_get_record_with_names($db, $i);
-
-          try {
-            $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
-          } catch(Exception $e) {
-            continue;
-          }
-          
-          
-          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
-            $data = $this->charges->associateAttributes($row);
-            $data['branch_id'] = $backup->branchid;
-
-            try {
-              //$this->logAction($data['orddate'], ' create:charges');
-              $this->charges->create($data);
-              $update++;
-              } catch(Exception $e) {
-              dbase_close($db);
-              throw new Exception('charges: '.$e->getMessage());  
-              return false;  
-            }
-
-            switch (strtolower($data['terms'])) {
-              case 'cash':
-                $ds['chrg_csh'] += $data['tot_chrg'];
-                break;
-              case 'charge':
-                $ds['chrg_chrg'] += $data['tot_chrg'];
-                break;
-              default:
-                $ds['chrg_othr'] += $data['tot_chrg'];
-                break;
-            }
-            $ds['chrg_total'] += $data['tot_chrg'];
-            $ds['bank_totchrg'] += $data['bank_chrg'];
-            $ds['disc_totamt']  += $data['disc_amt'];
-
-          }
+          continue;
         }
         
-        dbase_close($db);
-      }
-      return $ds;
-    }
-
-
-    public function postRawSigned(Carbon $date, Backup $backup) {
-
-      $dbf_file = $this->extracted_path.DS.'SIGNED.DBF';
-
-      if (file_exists($dbf_file)) {
-        //$this->logAction('posting', 'post:charges');
-        $db = dbase_open($dbf_file, 0);
         
-        $header = dbase_get_header_info($db);
-        $record_numbers = dbase_numrecords($db);
-        $update = 0;
-        
-        $ds = [];
-        $ds['bank_totchrg'] = 0;
-        $ds['chrg_total'] = 0;
-        $ds['chrg_csh']   = 0;
-        $ds['chrg_chrg']  = 0;
-        $ds['chrg_othr']  = 0;
-        $ds['disc_totamt']  = 0;
-
-        for ($i=1; $i<=$record_numbers; $i++) {
-          
-          $row = dbase_get_record_with_names($db, $i);
+        if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+          $data = $this->charges->associateAttributes($row);
+          $data['branch_id'] = $backup->branchid;
 
           try {
-            $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
-          } catch(Exception $e) {
-            $vfpdate = $date->copy()->subDay();
-          }
-          
-          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
-            $data = $this->charges->associateAttributes($row);
-            $data['branch_id'] = $backup->branchid;
-
-            try {
-              //$this->logAction($data['orddate'], ' create:charges');
-              $this->charges->create($data);
-              $update++;
-              } catch(Exception $e) {
-              dbase_close($db);
-              throw new Exception('postRawSigned: '.$e->getMessage());  
-              return false;  
-            }
-
-            switch (strtolower($data['terms'])) {
-              case 'cash':
-                $ds['chrg_csh'] += $data['tot_chrg'];
-                break;
-              case 'charge':
-                $ds['chrg_chrg'] += $data['tot_chrg'];
-                break;
-              default:
-                $ds['chrg_othr'] += $data['tot_chrg'];
-                break;
-            }
-            $ds['chrg_total'] += $data['tot_chrg'];
-            $ds['bank_totchrg'] += $data['bank_chrg'];
-            $ds['disc_totamt']  += $data['disc_amt'];
-
-          }
-        }
-
-        dbase_close($db);
-      }
-      return $ds;
-    }
-
-   
-
-    // prototype
-    public function dbase($dbf) {
-      $obj = new StdClass;
-      $obj->filepath = $this->extracted_path.DS.$dbf;
-      if (file_exists($obj->filepath)) {
-        $obj->dbf = dbase_open($obj->filepath, 0);
-        $obj->headers = dbase_get_header_info($obj->dbf);
-        $obj->numrecords = dbase_numrecords($obj->dbf);
-        dbase_close($obj->filepath);
-        return $obj;
-      }
-      return false;
-    }
-
-
-
-    public function updateDailySalesManpower(Carbon $date, Backup $backup) {
-
-      $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
-
-      if (file_exists($dbf_file)) {
-        $db = dbase_open($dbf_file, 0);
-        
-        $header = dbase_get_header_info($db);
-        $record_numbers = dbase_numrecords($db);
-        $update = 0;
-
-        for ($i=1; $i<=$record_numbers; $i++) {
-          $r = dbase_get_record_with_names($db, $i);
-
-          try {
-            //$vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
-            $vfpdate = vfpdate_to_carbon(trim($r['TRANDATE']));
-          } catch(Exception $e) {
-            $vfpdate = $date->copy()->subDay();
-          }
-
-          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
-
-            $ds = [
-              'date'      => $date->format('Y-m-d'),
-              'branchid'  => $backup->branchid,
-              'crew_kit'  => isset($r['CREW_KIT']) ? trim($r['CREW_KIT']):0,
-              'crew_din'  => isset($r['CREW_DIN']) ? trim($r['CREW_DIN']):0
-            ];
-
-            try {
-              $this->ds->firstOrNew($ds, ['date', 'branchid']);
+            //$this->logAction($data['orddate'], ' create:charges');
+            $this->charges->create($data);
+            $update++;
             } catch(Exception $e) {
-              dbase_close($db);
-              throw new Exception('updateDailySalesManpower: '.$e->getMessage());    
-              return false;   
-            }
-
-
+            dbase_close($db);
+            throw new Exception('charges: '.$e->getMessage());  
+            return false;  
           }
-        } // end: for
 
-       
-        dbase_close($db);
-        unset($ds);
-        return $update;
+          switch (strtolower($data['terms'])) {
+            case 'cash':
+              $ds['chrg_csh'] += $data['tot_chrg'];
+              break;
+            case 'charge':
+              $ds['chrg_chrg'] += $data['tot_chrg'];
+              break;
+            default:
+              $ds['chrg_othr'] += $data['tot_chrg'];
+              break;
+          }
+          $ds['chrg_total'] += $data['tot_chrg'];
+          $ds['bank_totchrg'] += $data['bank_chrg'];
+          $ds['disc_totamt']  += $data['disc_amt'];
+
+        }
       }
-      return false;  
+      
+      dbase_close($db);
     }
+    return $ds;
+  }
+
+
+  public function postRawSigned(Carbon $date, Backup $backup) {
+
+    $dbf_file = $this->extracted_path.DS.'SIGNED.DBF';
+
+    if (file_exists($dbf_file)) {
+      //$this->logAction('posting', 'post:charges');
+      $db = dbase_open($dbf_file, 0);
+      
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $update = 0;
+      
+      $ds = [];
+      $ds['bank_totchrg'] = 0;
+      $ds['chrg_total'] = 0;
+      $ds['chrg_csh']   = 0;
+      $ds['chrg_chrg']  = 0;
+      $ds['chrg_othr']  = 0;
+      $ds['disc_totamt']  = 0;
+
+      for ($i=1; $i<=$record_numbers; $i++) {
+        
+        $row = dbase_get_record_with_names($db, $i);
+
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+        } catch(Exception $e) {
+          $vfpdate = $date->copy()->subDay();
+        }
+        
+        if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+          $data = $this->charges->associateAttributes($row);
+          $data['branch_id'] = $backup->branchid;
+
+          try {
+            //$this->logAction($data['orddate'], ' create:charges');
+            $this->charges->create($data);
+            $update++;
+            } catch(Exception $e) {
+            dbase_close($db);
+            throw new Exception('postRawSigned: '.$e->getMessage());  
+            return false;  
+          }
+
+          switch (strtolower($data['terms'])) {
+            case 'cash':
+              $ds['chrg_csh'] += $data['tot_chrg'];
+              break;
+            case 'charge':
+              $ds['chrg_chrg'] += $data['tot_chrg'];
+              break;
+            default:
+              $ds['chrg_othr'] += $data['tot_chrg'];
+              break;
+          }
+          $ds['chrg_total'] += $data['tot_chrg'];
+          $ds['bank_totchrg'] += $data['bank_chrg'];
+          $ds['disc_totamt']  += $data['disc_amt'];
+
+        }
+      }
+
+      dbase_close($db);
+    }
+    return $ds;
+  }
+
+ 
+
+  // prototype
+  public function dbase($dbf) {
+    $obj = new StdClass;
+    $obj->filepath = $this->extracted_path.DS.$dbf;
+    if (file_exists($obj->filepath)) {
+      $obj->dbf = dbase_open($obj->filepath, 0);
+      $obj->headers = dbase_get_header_info($obj->dbf);
+      $obj->numrecords = dbase_numrecords($obj->dbf);
+      dbase_close($obj->filepath);
+      return $obj;
+    }
+    return false;
+  }
+
+
+
+  public function updateDailySalesManpower(Carbon $date, Backup $backup) {
+
+    $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $update = 0;
+
+      for ($i=1; $i<=$record_numbers; $i++) {
+        $r = dbase_get_record_with_names($db, $i);
+
+        try {
+          //$vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+          $vfpdate = vfpdate_to_carbon(trim($r['TRANDATE']));
+        } catch(Exception $e) {
+          $vfpdate = $date->copy()->subDay();
+        }
+
+        if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+
+          $ds = [
+            'date'      => $date->format('Y-m-d'),
+            'branchid'  => $backup->branchid,
+            'crew_kit'  => isset($r['CREW_KIT']) ? trim($r['CREW_KIT']):0,
+            'crew_din'  => isset($r['CREW_DIN']) ? trim($r['CREW_DIN']):0
+          ];
+
+          try {
+            $this->ds->firstOrNew($ds, ['date', 'branchid']);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw new Exception('updateDailySalesManpower: '.$e->getMessage());    
+            return false;   
+          }
+
+
+        }
+      } // end: for
+
+     
+      dbase_close($db);
+      unset($ds);
+      return $update;
+    }
+    return false;  
+  }
 
 
 
