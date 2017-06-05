@@ -85,6 +85,9 @@ class Purchase extends Command
     }
 
 
+    exit;
+
+
   }
 
   private function saveFoodCost(Carbon $date, $br) {
@@ -117,6 +120,8 @@ class Purchase extends Command
 
   private function setFoodCost(Carbon $date, $branchid, $food_cost) {
 
+    DB::beginTransaction();
+
     //$d =  $this->ds->findWhere(['branchid'=>$branchid, 
     $d =  DS::where(['branchid'=>$branchid, 
                                 'date'=>$date->format('Y-m-d')],
@@ -127,7 +132,16 @@ class Purchase extends Command
     $d->cos = $food_cost;
     $d->cospct = $cospct;
 
-    return $d->save();
+    try {
+      $res = $d->save();
+    } catch (Exception $e) {
+      DB::rollback();
+      return false;
+    }
+
+    DB::commit();
+
+    return $res;
 
 
     /*
