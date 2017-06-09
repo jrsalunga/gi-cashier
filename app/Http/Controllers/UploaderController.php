@@ -240,6 +240,18 @@ class UploaderController extends Controller
 					//$this->logAction('success:process:purchased', $log_msg.$msg);
 
 
+					// added 2017-06-09 to backlog DS trans_cnt, man_pay, man_hrs
+					if($backup_date->eq(Carbon::parse('2017-06-09'))) { 
+						try {
+							$this->backlogTransCount($backup->date, $backup);
+						} catch (Exception $e) {
+							$msg =  $e->getMessage();
+							//$res = $this->movedErrorProcessing($filepath, $storage_path);
+							$this->updateBackupRemarks($backup, $msg);
+							//$this->logAction('error:process:purchased', $log_msg.$msg);
+							//return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+						}
+					}
 
 
 					/******* end: extract trasanctions data ***********/
@@ -476,6 +488,15 @@ class UploaderController extends Controller
   public function processCharges($date, Backup $backup){
   	try {
       $this->posUploadRepo->postCharges($date, $backup);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+
+  public function backlogTransCount($date, Backup $backup){
+  	try {
+      $this->posUploadRepo->updateDailySalesTransCount($date, $backup);
     } catch(Exception $e) {
       throw $e;    
     }

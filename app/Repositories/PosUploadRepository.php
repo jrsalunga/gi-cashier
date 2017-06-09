@@ -35,23 +35,23 @@ class PosUploadRepository extends Repository
 
     
 
-    /**
-     * @param App $app
-     * @param Collection $collection
-     * @throws \App\Repositories\Exceptions\RepositoryException
-     */
-    public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, 
-      Purchase $purchase, PurchaseRepo $purchaserepo, SalesmtdCtrl $salesmtdCtrl, ChargesRepo $charges) {
-        parent::__construct($app, $collection);
+  /**
+   * @param App $app
+   * @param Collection $collection
+   * @throws \App\Repositories\Exceptions\RepositoryException
+   */
+  public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, 
+    Purchase $purchase, PurchaseRepo $purchaserepo, SalesmtdCtrl $salesmtdCtrl, ChargesRepo $charges) {
+      parent::__construct($app, $collection);
 
-        $this->ds = $dailysales;
-        $this->purchase   = $purchase;
-        $this->purchase2  = $purchaserepo;
-        $this->salesmtdCtrl = $salesmtdCtrl;
-        $this->charges = $charges;
+      $this->ds = $dailysales;
+      $this->purchase   = $purchase;
+      $this->purchase2  = $purchaserepo;
+      $this->salesmtdCtrl = $salesmtdCtrl;
+      $this->charges = $charges;
 
-        $this->get_foodcost();
-    }
+      $this->get_foodcost();
+  }
 
   private function get_foodcost() {
     $expense = new \App\Repositories\ExpenseRepository;
@@ -143,6 +143,9 @@ class PosUploadRepository extends Repository
       $kit = isset($r['CREW_KIT']) ? $r['CREW_KIT']:0;
       $din = isset($r['CREW_DIN']) ? $r['CREW_DIN']:0;
       $tip = isset($r['TIP']) ? $r['TIP']:0;
+      $trans_cnt = isset($r['TRAN_CNT']) ? $r['TRAN_CNT']:0;
+      $man_hrs = isset($r['MAN_HRS']) ? $r['MAN_HRS']:0;
+      $man_pay = isset($r['MAN_PAY']) ? $r['MAN_PAY']:0;
       $cuscnt = isset($r['CUST_CNT']) ? $r['CUST_CNT']:0;
       $mcost = (isset($r['MAN_COST']) && !empty($r['MAN_COST'])) 
         ? $r['MAN_COST']
@@ -178,7 +181,10 @@ class PosUploadRepository extends Repository
       $row['mancost']   = number_format($mancost, 2, '.', '');
       $row['mancostpct']= number_format($mancostpct, 2, '.', '');
       $row['salesemp']  = number_format($salesemp, 2, '.', '');
-      $row['cospct']    = number_format(0, 2, '.', '');
+      $row['trans_cnt'] = $trans_cnt;
+      $row['man_hrs']   = number_format($man_hrs, 2, '.', '');
+      $row['man_pay']   = number_format($man_pay, 2, '.', '');
+      //$row['cospct']    = number_format(0, 2, '.', '');
       return $row;
     }
 
@@ -292,7 +298,7 @@ class PosUploadRepository extends Repository
 
                   
 
-                if( isset($this->sysinfo->posupdate) 
+                if (isset($this->sysinfo->posupdate) 
                 && vfpdate_to_carbon($this->sysinfo->posupdate)->lt(Carbon::parse('2016-07-06')))  // before sysinfo.update
                 {
                   if ($this->ds->firstOrNew(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid'])) {
@@ -301,9 +307,13 @@ class PosUploadRepository extends Repository
                 } else {
                  
                   
-                  if ($this->ds->firstOrNew(array_only($data, 
-                    ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din']
-                  ), ['date', 'branchid'])) {
+                  if ($vfpdate->gt(Carbon::parse('2017-01-01')))
+                    $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay'];
+                  else
+                    $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din'];
+                    
+
+                  if ($this->ds->firstOrNew(array_only($data, $fields), ['date', 'branchid'])) {
                     $update++;
                   }
                 }
@@ -839,7 +849,11 @@ class PosUploadRepository extends Repository
   }
 
 
-
+  /*
+  *  postDailySales2 dont use session('user.branchid')
+  *  and for Command Line
+  * 
+  */
   public function postDailySales2(Backup $backup){
 
       //$this->logAction('function:postDailySales', '');
@@ -914,8 +928,11 @@ class PosUploadRepository extends Repository
   }
 
 
-
-
+  /*
+  *  postPurchased2 dont use session('user.branchid')
+  *  and for Command Line
+  * 
+  */
   public function postPurchased2(Carbon $date, Backup $backup) {
     
     $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
@@ -948,7 +965,6 @@ class PosUploadRepository extends Repository
       }
 
 
-      //$this->logAction($date->format('Y-m-d'), 'start:loop:purchased');
       for ($i = 1; $i <= $record_numbers; $i++) {
 
         $row = dbase_get_record_with_names($db, $i);
@@ -978,8 +994,6 @@ class PosUploadRepository extends Repository
             'branchid'  => $backup->branchid
           ];
           
-          //\DB::beginTransaction();
-          //$this->logAction($date->format('Y-m-d'), 'create:purchased');
           try {
             $this->purchase->create($attrs);
           } catch(Exception $e) {
@@ -987,7 +1001,6 @@ class PosUploadRepository extends Repository
             throw $e;    
           }
 
-          //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
           $attrs['supprefno'] = trim($row['FILLER1']);
           try {
             $this->purchase2->verifyAndCreate($attrs);
@@ -995,6 +1008,7 @@ class PosUploadRepository extends Repository
             dbase_close($db);
             throw $e;    
           }
+
 
           if (in_array(substr($attrs['supno'], 0, 2), $this->expense_array))
             $food_cost += $tcost;
@@ -1004,17 +1018,17 @@ class PosUploadRepository extends Repository
           $update++;
         }
       }
-      //$this->logAction($date->format('Y-m-d'), 'end:loop:purchased');
 
       try {
-        //$this->logAction($date->format('Y-m-d'), 'update:ds');
-        $d =  $this->ds->findWhere(['branchid'=>session('user.branchid'), 
+        
+        // $this->ds->skipFilters()  // added bec no session('user.branchid')
+        $d =  $this->ds->skipFilters()->findWhere(['branchid'=>$backup->branchid, 
                               'date'=>$date->format('Y-m-d')],
                               ['sales'])->first();
           
         $cospct = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($food_cost/$d->sales)*100;
 
-        $this->ds->firstOrNew(['branchid'=>session('user.branchid'), 
+        $this->ds->firstOrNew(['branchid'=>$backup->branchid, 
                             'date'=>$date->format('Y-m-d'),
                             'cos'=> $food_cost,
                             'cospct'=> $cospct,
@@ -1421,6 +1435,63 @@ class PosUploadRepository extends Repository
     }
     return false;  
   }
+
+
+
+  public function updateDailySalesTransCount(Carbon $date, Backup $backup) {
+
+    $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $update = 0;
+
+      for ($i=1; $i<=$record_numbers; $i++) {
+        $r = dbase_get_record_with_names($db, $i);
+
+        try {
+          //$vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+          $vfpdate = vfpdate_to_carbon(trim($r['TRANDATE']));
+        } catch(Exception $e) {
+          $vfpdate = $date->copy()->subDay();
+        }
+
+        //if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+        if ($vfpdate->gt(Carbon::parse('2017-01-31'))) {
+
+          $ds = [
+            'date'      => $vfpdate->format('Y-m-d'),
+            'branchid'  => $backup->branchid,
+            'trans_cnt' => isset($r['TRAN_CNT']) ? trim($r['TRAN_CNT']):0,
+            'man_hrs'   => isset($r['MAN_HRS']) ? trim($r['MAN_HRS']):0,
+            'man_pay'   => isset($r['MAN_PAY']) ? trim($r['MAN_PAY']):0
+          ];
+
+          try {
+            $this->ds->firstOrNew($ds, ['date', 'branchid']);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw new Exception('updateDailySalesTransCount: '.$e->getMessage());    
+            return false;   
+          }
+
+
+        }
+      } // end: for
+
+     
+      dbase_close($db);
+      unset($ds);
+      return $update;
+    }
+    return false;  
+  }
+
+
+  
 
 
 

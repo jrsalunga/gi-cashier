@@ -114,14 +114,15 @@ class DailySales extends Command
     //$this->info($r);
 		
     $this->info('extracting purchased...');
-		try {
-			$this->processPurchased($to, $bckup);
-		} catch (Exception $e) {
-			$this->info($e->getMessage());
-    	$this->removeExtratedDir();
-    	DB::rollback();
-    	exit;
-		}
+    try {
+      $this->processPurchased($to, $bckup);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    }
+    $this->info('success purchased...');
 		
     $this->info('extracting salesmtd...');
 		try {
