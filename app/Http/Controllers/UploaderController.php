@@ -241,7 +241,7 @@ class UploaderController extends Controller
 
 
 					// added 2017-06-09 to backlog DS trans_cnt, man_pay, man_hrs
-					if($backup_date->eq(Carbon::parse('2017-06-09'))) { 
+					if($backup_date->eq(Carbon::parse('2017-06-08'))) { 
 						try {
 							$this->backlogTransCount($backup->date, $backup);
 						} catch (Exception $e) {
