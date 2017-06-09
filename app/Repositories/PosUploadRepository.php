@@ -1460,15 +1460,20 @@ class PosUploadRepository extends Repository
         }
 
         //if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
-        if ($vfpdate->gt(Carbon::parse('2017-01-31'))) {
+        if ($vfpdate->gt(Carbon::parse('2016-11-30'))) {
 
+          // update trans_cnt date > 2016-11-30
           $ds = [
             'date'      => $vfpdate->format('Y-m-d'),
             'branchid'  => $backup->branchid,
-            'trans_cnt' => isset($r['TRAN_CNT']) ? trim($r['TRAN_CNT']):0,
-            'man_hrs'   => isset($r['MAN_HRS']) ? trim($r['MAN_HRS']):0,
-            'man_pay'   => isset($r['MAN_PAY']) ? trim($r['MAN_PAY']):0
+            'trans_cnt' => isset($r['TRAN_CNT']) ? trim($r['TRAN_CNT']):0
           ];
+
+          // include update trans_cnt date > 2017-01-31
+          if ($vfpdate->gt(Carbon::parse('2017-01-31'))) {
+            $ds['man_hrs'] = isset($r['MAN_HRS']) ? trim($r['MAN_HRS']):0;
+            $ds['man_pay'] = isset($r['MAN_PAY']) ? trim($r['MAN_PAY']):0;
+          }
 
           try {
             $this->ds->firstOrNew($ds, ['date', 'branchid']);
