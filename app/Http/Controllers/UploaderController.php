@@ -190,7 +190,6 @@ class UploaderController extends Controller
 						//$this->logAction('success:verify:backup', $log_msg.$msg);
 					}
 
-
 					/******* extract trasanctions data ***********/
 
 
