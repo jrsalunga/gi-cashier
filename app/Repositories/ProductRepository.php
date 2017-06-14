@@ -53,7 +53,7 @@ class ProductRepository extends BaseRepository implements CacheableInterface
   public function importAndCreate($data) {
 
     $prodcat = $this->prodcat->verifyAndCreate(array_only($data, ['prodcat']));
-    //$menucat = $this->menucat->verifyAndCreate(array_only($data, ['menucat']));
+    $menucat = $this->menucat->verifyAndCreate(array_only($data, ['menucat']));
     
     $attr = [
       'code'        => $data['productcode'],
@@ -61,7 +61,7 @@ class ProductRepository extends BaseRepository implements CacheableInterface
       'ucost'       => $data['ucost'],
       'uprice'      => $data['uprice'],
       'prodcat_id'  => $prodcat->id,
-      //'menucat_id'  => $menucat->id
+      'menucat_id'  => $menucat->id
     ];
 
     try {

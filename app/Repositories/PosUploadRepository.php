@@ -1518,7 +1518,7 @@ class PosUploadRepository extends Repository
           'product'     => isset($r['PRODNAME']) ? trim($r['PRODNAME']):'',
           'productcode' => isset($r['PRODNO']) ? trim($r['PRODNO']):'',
           'prodcat'     => isset($r['CATNAME']) ? trim($r['CATNAME']):'',
-         // 'menucat'     => '',
+          'menucat'     => isset($r['RACHEL']) ? trim($r['RACHEL']):'',
           'ucost'       => isset($r['UCOST']) ? trim($r['UCOST']):0,
           'uprice'      => isset($r['UPRICE']) ? trim($r['UPRICE']):0,
         ];
