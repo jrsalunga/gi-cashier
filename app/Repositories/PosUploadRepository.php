@@ -1496,6 +1496,51 @@ class PosUploadRepository extends Repository
   }
 
 
+
+
+
+
+  public function updateProductsTable() {
+
+    $dbf_file = $this->extracted_path.DS.'PRODUCTS.DBF';
+
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $update = 0;
+
+      for ($i=1; $i<=$record_numbers; $i++) {
+        $r = dbase_get_record_with_names($db, $i);
+
+        $attrs = [
+          'product'     => isset($r['PRODNAME']) ? trim($r['PRODNAME']):'',
+          'productcode' => isset($r['PRODNO']) ? trim($r['PRODNO']):'',
+          'prodcat'     => isset($r['CATNAME']) ? trim($r['CATNAME']):'',
+          'menucat'     => '',
+          'ucost'       => isset($r['UCOST']) ? trim($r['UCOST']):0,
+          'uprice'      => isset($r['UPRICE']) ? trim($r['UPRICE']):0,
+        ];
+
+        try {
+          $product = $this->salesmtdCtrl->importProduct($attrs);
+          $update++;
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw new Exception('updateProductsTable: '.$e->getMessage());    
+          return false;   
+        }
+      } // end: for
+     
+      dbase_close($db);
+      unset($ds);
+      return $update;
+    }
+    return false;  
+  }
+
+
   
 
 

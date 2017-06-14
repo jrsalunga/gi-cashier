@@ -6,7 +6,7 @@ class Product extends BaseModel {
 
   protected $table = 'product';
 	//protected $guarded = ['id'];
-	protected $fillable = ['code', 'descriptor', 'prodcat_id', 'menucat_id'];
+	protected $fillable = ['code', 'descriptor', 'prodcat_id', 'menucat_id', 'ucost', 'uprice'];
 
   public function prodcat() {
     return $this->belongsTo('App\Models\Prodcat');

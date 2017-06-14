@@ -38,6 +38,28 @@ trait Repository {
 
     return !is_null($obj) ? $obj : $this->create($attributes);
   }
+
+
+
+  public function firstOrNew($attributes, $field) {
+      
+    $attr_idx = [];
+    
+    if (is_array($field)) 
+      foreach ($field as $value) 
+        $attr_idx[$value] = array_pull($attributes, $value);
+    else 
+      $attr_idx[$field] = array_pull($attributes, $field);
+    
+
+    $m = $this->model();
+    $model = $m::firstOrNew($attr_idx);
+    
+    foreach ($attributes as $key => $value) 
+      $model->{$key} = $value;
+    
+    return $model->save() ? $model : false;
+  }
   
 
   public function deleteWhere(array $where){

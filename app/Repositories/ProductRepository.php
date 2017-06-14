@@ -48,6 +48,29 @@ class ProductRepository extends BaseRepository implements CacheableInterface
     }
   }
 
+
+  public function importAndCreate($data) {
+
+    $prodcat = $this->prodcat->verifyAndCreate(array_only($data, ['prodcat']));
+    $menucat = $this->menucat->verifyAndCreate(array_only($data, ['menucat']));
+    
+    $attr = [
+      'code'        => $data['productcode'],
+      'descriptor'  => $data['product'],
+      'ucost'       => $data['ucost'],
+      'uprice'      => $data['uprice'],
+      'prodcat_id'  => $prodcat->id,
+      'menucat_id'  => $menucat->id
+    ];
+
+    try {
+      //return $this->findOrNew($attr, ['code', 'descriptor', 'ucost', 'uprice']);
+      return $this->firstOrNew($attr, ['code', 'descriptor']);
+    } catch(Exception $e) {
+      throw new Exception('product:import '.$e->getMessage());
+    }
+  }
+
   
 
 }

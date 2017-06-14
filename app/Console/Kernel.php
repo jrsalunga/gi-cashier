@@ -23,6 +23,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Backlog\Purchase::class,
         \App\Console\Commands\Backlog\SalesMatcher::class,
         \App\Console\Commands\Backlog\SalesProcessMatcher::class,
+        \App\Console\Commands\Import\Product::class,
     ];
 
     /**

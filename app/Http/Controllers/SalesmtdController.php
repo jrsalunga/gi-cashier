@@ -37,6 +37,11 @@ class SalesmtdController extends Controller
 
 	}
 
+	// for PosUploadRepository->updateProuductsTable
+	public function importProduct(array $attributes) {
+		return $this->product->importAndCreate(array_only($attributes, ['product', 'productcode', 'prodcat', 'menucat', 'ucost', 'uprice']));
+	}
+
 
 	public function associateAttributes($r) {
 		$row = [];
