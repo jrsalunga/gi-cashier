@@ -232,10 +232,13 @@ class TimelogController extends Controller {
 														
 												}])
 											->select('timelog.*')
+											/*
 											->join('hr.employee', function($join) use ($request) {
                             $join->on('timelog.employeeid', '=', 'employee.id')
                                 ->where('employee.branchid', '=', $this->_branchid);
                             })
+                      */
+                      ->where('branchid', $this->_branchid)
 											->orderBy('datetime', 'DESC')
 											->take(20)
 											->get();
