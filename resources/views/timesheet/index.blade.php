@@ -175,7 +175,7 @@
     @else
       No data
     @endif
-    <p>&nsbp;</p>
+    <p>&nbsp;</p>
 
 </div><!-- end .container-fluid -->
 @endsection
