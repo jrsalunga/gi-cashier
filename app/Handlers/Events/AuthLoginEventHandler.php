@@ -30,11 +30,11 @@ class AuthLoginEventHandler
     public function handle(UserLoggedIn $event)
     {
         $data = [
-            'ip' => clientIP(),
-            'user' => $event->request['username'],
-            'lat' => $event->request['lat'],
-            'lng' => $event->request['lng'],
-            'browser' => $_SERVER ['HTTP_USER_AGENT']
+            'ip'        => clientIP(),
+            'user'      => $event->request['username'],
+            'lat'       => $event->request['lat'],
+            'lng'       => $event->request['lng'],
+            'browser'   => $_SERVER ['HTTP_USER_AGENT']
         ];
         /*
         app('pusher')->trigger('gi.cashier', 'auth', [

@@ -128,5 +128,11 @@ class SettingsController extends Controller {
 
 
 
+	public function empImport(Request $request) {
+		
+	}
+
+
+
 	
 }

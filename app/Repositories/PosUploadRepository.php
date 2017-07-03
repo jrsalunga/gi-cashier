@@ -1196,6 +1196,7 @@ class PosUploadRepository extends Repository
     $ds['chrg_chrg']    = 0;
     $ds['chrg_othr']    = 0;
     $ds['disc_totamt']  = 0;
+    $ds['custcount']    = 0;
     $ds['date']         = $date->format('Y-m-d');
     $ds['branchid']     = $backup->branchid;
       
@@ -1219,6 +1220,12 @@ class PosUploadRepository extends Repository
     $ds['chrg_chrg']    = $c['chrg_chrg'] + $s['chrg_chrg'];
     $ds['chrg_othr']    = $c['chrg_othr'] + $s['chrg_othr'];
     $ds['disc_totamt']  = $c['disc_totamt'] + $s['disc_totamt'];
+
+    if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) {
+      $ds['custcount']  = $c['custcount'] + $s['custcount'];
+      $ds['trans_cnt']  = $c['ctr'] + $s['ctr'];
+    }
+
 
     // update dailysales
     try {
@@ -1251,6 +1258,7 @@ class PosUploadRepository extends Repository
       $ds['chrg_chrg']  = 0;
       $ds['chrg_othr']  = 0;
       $ds['disc_totamt']  = 0;
+      $ds['custcount']  = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
         
@@ -1288,12 +1296,16 @@ class PosUploadRepository extends Repository
               $ds['chrg_othr'] += $data['tot_chrg'];
               break;
           }
-          $ds['chrg_total'] += $data['tot_chrg'];
+          
+          $ds['chrg_total']   += $data['tot_chrg'];
           $ds['bank_totchrg'] += $data['bank_chrg'];
           $ds['disc_totamt']  += $data['disc_amt'];
+          $ds['custcount']    += $data['custcount'];
+
 
         }
       }
+      $ds['ctr'] = $update;
       
       dbase_close($db);
     }
@@ -1320,6 +1332,7 @@ class PosUploadRepository extends Repository
       $ds['chrg_chrg']  = 0;
       $ds['chrg_othr']  = 0;
       $ds['disc_totamt']  = 0;
+      $ds['custcount']  = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
         
@@ -1359,9 +1372,11 @@ class PosUploadRepository extends Repository
           $ds['chrg_total'] += $data['tot_chrg'];
           $ds['bank_totchrg'] += $data['bank_chrg'];
           $ds['disc_totamt']  += $data['disc_amt'];
+          $ds['custcount']    += $data['custcount'];
 
         }
       }
+      $ds['ctr'] = $update;
 
       dbase_close($db);
     }
