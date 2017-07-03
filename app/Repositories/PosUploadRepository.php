@@ -1223,7 +1223,7 @@ class PosUploadRepository extends Repository
 
     if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) {
       $ds['custcount']  = $c['custcount'] + $s['custcount'];
-      $ds['headspend']  = $ds['chrg_total'] / $ds['headspend'];
+      $ds['headspend']  = $ds['chrg_total'] / $ds['custcount'];
       $ds['trans_cnt']  = $c['ctr'] + $s['ctr'];
     }
 
