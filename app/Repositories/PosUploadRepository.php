@@ -1077,7 +1077,7 @@ class PosUploadRepository extends Repository
           
           
           if ($this->ds->firstOrNew(array_only($data, 
-                    ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din']
+                    ['date', 'branchid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din']
                   ), ['date', 'branchid'])) {
             $update++;
 
