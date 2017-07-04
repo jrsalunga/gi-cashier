@@ -310,7 +310,7 @@ class PosUploadRepository extends Repository
                   if ($vfpdate->gt(Carbon::parse('2017-01-01')))
                     $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay'];
                   else
-                    $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din'];
+                    $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt'];
                     
 
                   if ($this->ds->firstOrNew(array_only($data, $fields), ['date', 'branchid'])) {
@@ -1203,7 +1203,7 @@ class PosUploadRepository extends Repository
 
     try {
       $c = $this->postRawCharges($date, $backup);
-      } catch(Exception $e) {
+    } catch(Exception $e) {
       throw new Exception('postCharges:charges: '.$e->getMessage());    
     }
 
@@ -1223,7 +1223,7 @@ class PosUploadRepository extends Repository
 
     if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) {
       $ds['custcount']  = $c['custcount'] + $s['custcount'];
-      $ds['headspend']  = $ds['chrg_total'] / $ds['custcount'];
+      $ds['headspend']  = ($ds['custcount'] > 0) ? $ds['chrg_total'] / $ds['custcount'] : 0 ;
       $ds['trans_cnt']  = $c['ctr'] + $s['ctr'];
     }
 
