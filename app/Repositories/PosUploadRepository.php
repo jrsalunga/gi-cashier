@@ -148,7 +148,7 @@ class PosUploadRepository extends Repository
       $man_pay = isset($r['MAN_PAY']) ? trim($r['MAN_PAY']):0;
       $cuscnt = isset($r['CUST_CNT']) ? trim($r['CUST_CNT']):0;
       $mcost = (isset($r['MAN_COST']) && !empty($r['MAN_COST'])) 
-        ? $r['MAN_COST']
+        ? trim($r['MAN_COST'])
         : 0;
       $mcost = ($mcost+0)==0 ? session('user.branchmancost'):$mcost;
 
@@ -1200,7 +1200,7 @@ class PosUploadRepository extends Repository
     $ds['branchid']     = $backup->branchid;
     
     if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) // same sas line 1226
-      $ds['custcount']    = 0;
+      $ds['custcount'] = 0;
       
 
     try {
