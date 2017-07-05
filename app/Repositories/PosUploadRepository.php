@@ -140,13 +140,13 @@ class PosUploadRepository extends Repository
     private function getDailySalesDbfRowData($r){
       $row = [];
 
-      $kit = isset($r['CREW_KIT']) ? $r['CREW_KIT']:0;
-      $din = isset($r['CREW_DIN']) ? $r['CREW_DIN']:0;
-      $tip = isset($r['TIP']) ? $r['TIP']:0;
-      $trans_cnt = isset($r['TRAN_CNT']) ? $r['TRAN_CNT']:0;
-      $man_hrs = isset($r['MAN_HRS']) ? $r['MAN_HRS']:0;
-      $man_pay = isset($r['MAN_PAY']) ? $r['MAN_PAY']:0;
-      $cuscnt = isset($r['CUST_CNT']) ? $r['CUST_CNT']:0;
+      $kit = isset($r['CREW_KIT']) ? trim($r['CREW_KIT']):0;
+      $din = isset($r['CREW_DIN']) ? trim($r['CREW_DIN']):0;
+      $tip = isset($r['TIP']) ? trim($r['TIP']):0;
+      $trans_cnt = isset($r['TRAN_CNT']) ? trim($r['TRAN_CNT']):0;
+      $man_hrs = isset($r['MAN_HRS']) ? trim($r['MAN_HRS']):0;
+      $man_pay = isset($r['MAN_PAY']) ? trim($r['MAN_PAY']):0;
+      $cuscnt = isset($r['CUST_CNT']) ? trim($r['CUST_CNT']):0;
       $mcost = (isset($r['MAN_COST']) && !empty($r['MAN_COST'])) 
         ? $r['MAN_COST']
         : 0;
@@ -296,7 +296,6 @@ class PosUploadRepository extends Repository
             
               if($i==$record_numbers) {
 
-                  
 
                 if (isset($this->sysinfo->posupdate) 
                 && vfpdate_to_carbon($this->sysinfo->posupdate)->lt(Carbon::parse('2016-07-06')))  // before sysinfo.update
@@ -315,6 +314,7 @@ class PosUploadRepository extends Repository
 
                   if ($this->ds->firstOrNew(array_only($data, $fields), ['date', 'branchid'])) {
                     $update++;
+                    //test_log('last: '. $vfpdate->format('Y-m-d').' '.$data['custcount']);
                   }
                 }
               } else {
@@ -332,9 +332,9 @@ class PosUploadRepository extends Repository
               //if ($data['custcount']=='0')
                // $data['custcount'] = $this->parseCustomerCount($vfpdate);
 
-              //test_log('last: '. $vfpdate->format('Y-m-d'));
+              //test_log('last: '. $vfpdate->format('Y-m-d').' '.$data['custcount']);
               if ($this->ds->firstOrNew(array_only($data, 
-                  ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend']
+                  ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt']
                 ), ['date', 'branchid'])) {
                   $update++;
                 }
@@ -1196,9 +1196,11 @@ class PosUploadRepository extends Repository
     $ds['chrg_chrg']    = 0;
     $ds['chrg_othr']    = 0;
     $ds['disc_totamt']  = 0;
-    $ds['custcount']    = 0;
     $ds['date']         = $date->format('Y-m-d');
     $ds['branchid']     = $backup->branchid;
+    
+    if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) // same sas line 1226
+      $ds['custcount']    = 0;
       
 
     try {

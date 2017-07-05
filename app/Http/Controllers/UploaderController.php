@@ -240,6 +240,7 @@ class UploaderController extends Controller
 
 
 					// added 2017-06-09 to backlog DS trans_cnt, man_pay, man_hrs
+					// one time trasaction
 					if($backup_date->eq(Carbon::parse('2017-06-09'))) { 
 						try {
 							$this->backlogTransCount($backup->date, $backup);
@@ -247,8 +248,6 @@ class UploaderController extends Controller
 							$msg =  $e->getMessage();
 							//$res = $this->movedErrorProcessing($filepath, $storage_path);
 							$this->updateBackupRemarks($backup, $msg);
-							//$this->logAction('error:process:purchased', $log_msg.$msg);
-							//return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
 						}
 					}
 
