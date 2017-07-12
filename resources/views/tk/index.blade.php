@@ -159,7 +159,7 @@
                 {{ $timelog->getTxnCode() }}   
               </td>
               <td>
-                {{ $timelog->employee->branch->code }}
+                {{ $timelog->employee->branch->code or '' }}
               </td>
             </tr>
             @endforeach
