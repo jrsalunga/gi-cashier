@@ -89,7 +89,6 @@ class TimelogController extends Controller {
 		}
 
 
-
 		$attributes = [
 			'employeeid' 	=> $employee->id,
 			'branchid' 		=> $this->_branchid,
@@ -114,15 +113,11 @@ class TimelogController extends Controller {
 			return redirect($uri)->with('alert-success', 'Timelog saved!');
 		}
 
-
-
-
 		return $timelog;
   }
 
 
   public function post(Request $request){
-		
 
 		$rules = array(
 			//'employeeid'	=> 'required',
@@ -257,10 +252,6 @@ class TimelogController extends Controller {
 
     //return view('tk.index', compact($timelogs));//->with('timelogs', $timelogs);		
 	}
-
-
-
-
 
 
 	public function employeeTimelog(Request $request, $brcode, $employeeid) {

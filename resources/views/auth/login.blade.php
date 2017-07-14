@@ -57,10 +57,12 @@
   <div class="geo-callback-message">
   </div>
   <div style="padding:10px;">
+  <!--
     <div class="alert alert-info alert-important" role="alert">
       You can now Sign In alternatively without putting <strong>username</strong> and <strong>password</strong>,
       just click on Sign In with Google and select the corresponding Cashier's Google Account. 
     </div>
+  -->
   </div>
   <div style="height: 100px;" class="hidden-xs hidden-sm"></div>
   <div class="div-signin" style="margin-top: 0;">
@@ -69,8 +71,6 @@
     </div>
     
       {!! Form::open(['url' => 'auth/login', 'accept-charset'=>'utf-8', 'class'=>'form-signin']) !!}
-    
-
 
       <label class="sr-only" for="inputEmail">Username</label>
       <input id="inputEmail" class="form-control" type="text" 

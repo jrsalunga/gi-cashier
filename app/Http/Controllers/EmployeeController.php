@@ -17,14 +17,10 @@ class EmployeeController extends Controller
 	}
 	
 
-
-	
-
-
 	public function search(Request $request, $param1=null) {
 
     $limit = empty($request->input('maxRows')) ? 10:$request->input('maxRows'); 
-    $res = Employee::where('branchid', $request->user()->branchid)
+    $res = Employee::whereIn('branchid', [$request->user()->branchid, '971077BCA54611E5955600FF59FBB323'])
     				->where(function ($query) use ($request) {
               $query->orWhere('code', 'like', '%'.$request->input('q').'%')
           			->orWhere('lastname', 'like',  '%'.$request->input('q').'%')
