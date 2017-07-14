@@ -21,6 +21,8 @@ class EmployeeController extends Controller
 
     $limit = empty($request->input('maxRows')) ? 10:$request->input('maxRows'); 
     $res = Employee::whereIn('branchid', [$request->user()->branchid, '971077BCA54611E5955600FF59FBB323'])
+    				->where('empstatus', '<>', '4')
+    				->where('empstatus', '<>', '5')
     				->where(function ($query) use ($request) {
               $query->orWhere('code', 'like', '%'.$request->input('q').'%')
           			->orWhere('lastname', 'like',  '%'.$request->input('q').'%')
