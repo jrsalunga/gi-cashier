@@ -153,7 +153,7 @@ class BackupRepository extends BaseRepository
     $branch = Branch::where('code', strtoupper(substr(request()->user()->name, 0, 3)))->first();
     $arr = [];
     $o = $fr->copy();
-    if ($branch) {
+    if ($branch && $branch->code!='GHO') {
       do {
         $path = strtoupper($branch->code).DS.$o->format('Y').DS.$o->format('m').DS.'GC'.$o->format('mdy').'.ZIP';
         if (!$this->locator->exists($path) && Carbon::parse(now())->gt($o) && Carbon::parse($branch->opendate)->lt($o))
