@@ -80,7 +80,7 @@ class TimelogController extends Controller {
 		}
 
 		$employee = Employee::where('id', $request->input('employeeid'))
-												->where('branchid', $request->user()->branchid)
+												//->where('branchid', $request->user()->branchid)
 												->first();
 
 		if(is_null($employee)) {
