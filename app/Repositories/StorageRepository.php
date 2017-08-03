@@ -197,6 +197,12 @@ class StorageRepository {
       strtolower(pathinfo($path, PATHINFO_EXTENSION))==='jpeg' || 
       strtolower(pathinfo($path, PATHINFO_EXTENSION))==='gif')
       return 'img';
+    if(strtolower(pathinfo($path, PATHINFO_EXTENSION))==='dbf' || 
+      strtolower(pathinfo($path, PATHINFO_EXTENSION))==='fpt')
+      return 'dbf';
+    if(strtolower(pathinfo($path, PATHINFO_EXTENSION))==='xls' || 
+      strtolower(pathinfo($path, PATHINFO_EXTENSION))==='xlsx')
+      return 'xls';
     return 'file';
   }
 

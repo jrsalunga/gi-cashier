@@ -40,6 +40,9 @@ Route::get('{brcode?}/images/depslp/{id?}', ['uses'=>'DepslpController@getImage'
 Route::put('put/depslp', ['uses'=>'DepslpController@put']);
 Route::post('delete/depslp', ['uses'=>'DepslpController@delete']);
 
+Route::get('{brcode?}/ap/log', ['uses'=>'ApController@getHistory']);
+Route::get('{brcode?}/ap/{id?}/{action?}/{day?}', ['uses'=>'ApController@getAction']);
+Route::get('dl/ap/{p1}/{p2}/{p3}/{p4}/{p5}/{p6}', ['uses'=>'ApController@getDownload']);
 
 Route::get('timelog/{param1?}/{param2?}', ['uses'=>'TimelogController@getIndex'])
   ->where(['param1'=>'add', 

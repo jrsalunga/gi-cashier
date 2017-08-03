@@ -152,7 +152,15 @@ class PosUploadRepository extends Repository
         : 0;
       $mcost = ($mcost+0)==0 ? session('user.branchmancost'):$mcost;
 
-      $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
+
+      //$vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
+      try {
+        $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
+      } catch(Exception $e) {
+        $vfpdate = Carbon::now()->subDay();
+      }
+
+
       $sales      = ($r['CSH_SALE'] + $r['CHG_SALE'] + $r['SIG_SALE']) + 0;
       $empcount   = ($kit + $din);
       //$tips       = empty(trim($r['TIP'])) ? 0: trim($r['TIP']);

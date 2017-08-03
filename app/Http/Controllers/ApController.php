@@ -7,31 +7,32 @@ use App\Repositories\DateRange;
 use App\Http\Controllers\Controller;
 use App\Repositories\StorageRepository;
 use Dflydev\ApacheMimeTypes\PhpRepository;
-use App\Repositories\DepslipRepository as DepslpRepo;
-use App\Events\Depslp\Change as DepslpChange;
-use App\Events\Depslp\Delete as DepslpDelete;
+use App\Repositories\FileUploadRepository as FileUploadRepo;
 
-class DepslpController extends Controller { 
 
-	protected $depslip;
+class ApController extends Controller { 
+
+	protected $fileUpload;
 	protected $files;
+	protected $filetype_id = '11E775BF8F29696AD5F13842A0DEEA4D'; // ap
+	protected $user_id = '11E775C18F29696AD5F13842AC687868'; // fmarquez
 
-	public function __construct(DepslpRepo $depslip) {
-		$this->depslip = $depslip;
+	public function __construct(FileUploadRepo $fileUpload) {
+		$this->fileUpload = $fileUpload;
 		$this->files = new StorageRepository(new PhpRepository, 'files.'.app()->environment());
 	}
 
 	public function getHistory($brcode, Request $request) {
 		
-		$depslips = $this->depslip
-			//->skipCache()
-			->with(['fileUpload'=>function($query){
-        $query->select(['filename', 'terminal', 'id']);
-      }])
-      ->orderBy('created_at', 'DESC')
+		$aps = $this->fileUpload
+			->skipCache()
+     	->scopeQuery(function($query){
+			    return $query->where('filetype_id', '11E775BF8F29696AD5F13842A0DEEA4D');
+			})
+			->orderBy('uploaddate', 'desc')
       ->paginate(10);
 				
-		return view('docu.depslp.index')->with('depslips', $depslips);
+		return view('docu.ap.index')->with('aps', $aps);
 	}
 
 	public function getChecklist($brcode, Request $request) {
@@ -39,34 +40,32 @@ class DepslpController extends Controller {
 		$date = carbonCheckorNow($request->input('date'));
 		$depslips = $this->depslip->monthlyLogs($date);
 
-		return view('docu.depslp.checklist')->with('date', $date)->with('depslips', $depslips);
+		return view('docu.AP.checklist')->with('date', $date)->with('depslips', $depslips);
 	}
 
-	public function getAction($brcode, $id=null, $action=null) {
+	public function getAction($brcode, $id=null, $action=null, $day=null) {
 		if($brcode!==strtolower(session('user.branchcode')))
-			return redirect($brcode.'/depslp/log');
+			return redirect($brcode.'/ap/log');
 
 		if (strtolower($action)==='edit')
-			return $this->editDepslp($id);
+			return $this->editAP($id);
 		elseif (is_uuid($id) && is_null($action))
-			return $this->viewDepslp($id);
+			return $this->viewAP($id);
 
 		if (strtolower($action)==='edit' && is_uuid($id))
-			return $this->editDepslp($id);
+			return $this->editAP($id);
 		elseif (is_uuid($id) && is_null($action))
-			return $this->viewDepslp($id);
+			return $this->viewAP($id);
 		else
-			return $this->getDepslpFileSystem($brcode, $id, $action);
+			return $this->getApFileSystem($brcode, $id, $action, $day);
 	}
 
 
-	private function getDepslpFileSystem($brcode, $id, $action) { // $id = yr, $action = month
+	private function getApFileSystem($brcode, $id, $action, $day) { // $id = yr, $action = month, $day
 
 		$paths = [];
 
-		$r = $this->files->folderInfo2('DEPSLP');
-
-		return dd($r);
+		$r = $this->files->folderInfo2('AP');
 
 		foreach ($r['subfolders'] as $path => $folder) {
 			if ($this->files->exists($path.DS.strtoupper($brcode)))
@@ -75,35 +74,54 @@ class DepslpController extends Controller {
 		
 		$y = $this->files->folderInfo2(array_search($id, $paths));
 
-		if (in_array($id, $paths) && is_null($action))  {
+		if (in_array($id, $paths) && is_null($action) && is_null($day))  {
 			$data = [
-					'folder' 			=> "/DEPSLP/".$id,
+					'folder' 			=> "/AP/".$id,
 					'folderName'  => $id,
 					'breadcrumbs' => [
 						'/' 				=> "Storage",
-						'/DEPSLP'   => "DEPSLP",
+						'/AP'   		=> "Payables",
 					],
 					'subfolders' 	=> $y['subfolders'],
 					'files' 			=> $y['files']
 				];
 		} elseif (in_array($id, $paths) && in_array($action, $y['subfolders']))  {
 			$m = $this->files->folderInfo2(array_search($action, $y['subfolders']));
-			$data = [
-					'folder' 			=> "/DEPSLP/".$id.'/'.$action,
+
+			if (is_null($day)) {
+
+				$data = [
+					'folder' 			=> "/AP/".$id.'/'.$action,
 					'folderName'  => $action,
 					'breadcrumbs' => [
 						'/' 				=> "Storage",
-						'/DEPSLP'   => "DEPSLP",
-						'/DEPSLP/'.$id   => $id,
+						'/AP'   		=> "Payables",
+						'/AP/'.$id  => $id,
 					],
 					'subfolders' 	=> $m['subfolders'],
 					'files' 			=> $m['files']
 				];
-		} elseif (is_null($id) && is_null($action))  {
+			} else {
+				$d = $this->files->folderInfo2(array_search($day, $m['subfolders']));
+				$data = [
+					'folder' 			=> "/AP/".$id.'/'.$action.'/'.$day,
+					'folderName'  => $day,
+					'breadcrumbs' => [
+						'/' 				=> "Storage",
+						'/AP'   		=> "Payables",
+						'/AP/'.$id  => $id,
+						'/AP/'.$id.'/'.$action   => $action,
+					],
+					'subfolders' 	=> $d['subfolders'],
+					'files' 			=> $d['files']
+				];
+			}
+
+		} elseif (is_null($id) && is_null($action) && is_null($action))  {
 			//$data = $r;
 			$data = [
-					'folder' 			=> "/DEPSLP",
-					'folderName'  => "DEPSLP",
+					'folder' 			=> "/AP",
+					'folderName'  => "Payables",
 					'breadcrumbs' => [
 						'/' 				=> "Storage",
 					],
@@ -112,11 +130,9 @@ class DepslpController extends Controller {
 				];
 		} else 
 			return abort('404');
-	
 		
-		return view('docu.depslp.filelist')->with('data', $data);
-
-
+		//return $data;
+		return view('docu.ap.filelist')->with('data', $data);
 	}
 
 
@@ -146,19 +162,19 @@ class DepslpController extends Controller {
 
 
 
-	private function viewDepslp($id) {
-		$depslp = $this->depslip->find($id);
-		if(!$depslp->verified)
-			if($this->checkVerify($depslp->id))
-				return $this->viewDepslp($id);
-		return view('docu.depslp.view', compact('depslp'));
+	private function viewAP($id) {
+		$AP = $this->depslip->find($id);
+		if(!$AP->verified)
+			if($this->checkVerify($AP->id))
+				return $this->viewAP($id);
+		return view('docu.AP.view', compact('AP'));
 	}
 
-	private function editDepslp($id) {
-		$depslp = $this->depslip->find($id);
-		if($depslp->verified || $depslp->matched)
-			return $this->viewDepslp($id);
-		return view('docu.depslp.edit', compact('depslp'));
+	private function editAP($id) {
+		$AP = $this->depslip->find($id);
+		if($AP->verified || $AP->matched)
+			return $this->viewAP($id);
+		return view('docu.AP.edit', compact('AP'));
 	}
 
 	public function getImage(Request $request, $brcode, $filename) {
@@ -197,7 +213,7 @@ class DepslpController extends Controller {
   private function moveUpdatedFile($o, $n) {
   	if ($o->date!=$n->date || $o->time!=$n->time) {
 			
-			$old_path = 'DEPSLP'.DS.$o->date->format('Y').DS.session('user.branchcode').DS.$o->date->format('m').DS.$o->filename;
+			$old_path = 'AP'.DS.$o->date->format('Y').DS.session('user.branchcode').DS.$o->date->format('m').DS.$o->filename;
 			$ext = strtolower(pathinfo($o->filename, PATHINFO_EXTENSION));
 			$br = strtoupper(session('user.branchcode'));
 			
@@ -206,11 +222,11 @@ class DepslpController extends Controller {
 
 				$cnt = $this->countFilenameByDate($date->format('Y-m-d'), $date->format('H:i:s'));
 				if ($cnt)
-					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').'-'.$cnt.'.'.$ext;
+					$filename = 'AP '.$br.' '.$date->format('Ymd His').'-'.$cnt.'.'.$ext;
 				else
-					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').'.'.$ext;
+					$filename = 'AP '.$br.' '.$date->format('Ymd His').'.'.$ext;
 
-				$new_path = 'DEPSLP'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
+				$new_path = 'AP'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
 
 				try {
 	     		$this->files->moveFile($this->files->realFullPath($old_path), $new_path, true); // false = override file!
@@ -264,9 +280,9 @@ class DepslpController extends Controller {
 			array_forget($arr, 'updated_at');
 			
 			if (app()->environment()==='production')
-				event(new DepslpChange($o, $d, $arr));
+				event(new APChange($o, $d, $arr));
 
-			return redirect(brcode().'/depslp/'.$d->lid())
+			return redirect(brcode().'/AP/'.$d->lid())
 							->with('alert-success', 'Deposit slip is updated!');
 		}
 
@@ -276,7 +292,7 @@ class DepslpController extends Controller {
 
 
 	private function getPath($d) {
-		return 'DEPSLP'.DS.$d->date->format('Y').DS.session('user.branchcode').DS.$d->date->format('m').DS.$d->filename;
+		return 'AP'.DS.$d->date->format('Y').DS.session('user.branchcode').DS.$d->date->format('m').DS.$d->filename;
 	}
 
 	public function delete(Request $request) {
@@ -286,27 +302,61 @@ class DepslpController extends Controller {
 		if ($validator->fails()) 
 			return redirect()->back()->withErrors($validator);
 
-		$depslp = $this->depslip->find($request->input('id'));
+		$AP = $this->depslip->find($request->input('id'));
 
-		if (is_null($depslp))
+		if (is_null($AP))
 			return redirect()->back()->withErrors('Deposit slip not found!');
 
-		if (!$depslp->isDeletable())
-			return redirect()->back()->withErrors($depslp->fileUpload->filename.' deposit slip is not deletable, already verified!');
+		if (!$AP->isDeletable())
+			return redirect()->back()->withErrors($AP->fileUpload->filename.' deposit slip is not deletable, already verified!');
 
-		if ($this->depslip->delete($depslp->id)) {
+		if ($this->depslip->delete($AP->id)) {
 			
-			if ($this->files->exists($this->getPath($depslp)))
-				$this->files->deleteFile($this->getPath($depslp));
+			if ($this->files->exists($this->getPath($AP)))
+				$this->files->deleteFile($this->getPath($AP));
 
 			//if (app()->environment()==='production')
-				event(new DepslpDelete($depslp->toArray()));
+				event(new APDelete($AP->toArray()));
 
-			return redirect(brcode().'/depslp/log')
-							->with('depslp.delete', $depslp)
+			return redirect(brcode().'/AP/log')
+							->with('AP.delete', $AP)
 							->with('alert-important', true);
 		}
 		return redirect()->back()->withErrors('Error while deleting record!');
+	}
+
+	
+
+	public function getDownload(Request $request, $p1=null, $p2=null, $p3=null, $p4=null, $p5=null, $p6=null) {
+
+		if(is_null($p2) || is_null($p2) || is_null($p3) || is_null($p4) || is_null($p5) || is_null($p6))
+    	return abort('404');
+
+    $path = $p1.'/'.$p2.'/'.$p3.'/'.$p4.'/'.$p5.'/'.$p6;
+
+    if ($request->has('m'))
+    	$m = 'log';
+    else
+    	$m = 'fs';
+
+    //if (!in_array($request->user()->username, ['jrsalunga', 'admin']))
+			logAction('ap:download', 'user:'.$request->user()->username.' | '.$p6.' | '.$m.' | ');
+
+		try {
+		
+			$file = $this->files->get($path);
+			$mimetype = $this->files->fileMimeType($path);
+
+	    $response = \Response::make($file, 200);
+		 	$response->header('Content-Type', $mimetype);
+	  	
+	  	//if ($request->has('download') && $request->input('download')=='true')
+	  	$response->header('Content-Disposition', 'attachment; filename="'.$p6.'"');
+
+		  return $response;
+		} catch (\Exception $e) {
+			return abort('404');
+		}
 	}
 
 

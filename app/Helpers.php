@@ -170,7 +170,7 @@ function diffForHumans(Carbon\Carbon $time) {
 function logAction($action, $log, $logfile=NULL) {
 	$logfile = !is_null($logfile) 
 		? $logfile
-		: base_path().DS.'logs'.DS.now().'-log.txt';
+		: storage_path().DS.'logs'.DS.now().'-log.txt';
 
 	$dir = pathinfo($logfile, PATHINFO_DIRNAME);
 
