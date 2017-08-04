@@ -41,7 +41,13 @@
   </ol>
 
   <div>
-    @include('_partials.menu.logs')
+    <nav id="nav-action" class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-form">
+          @include('_partials.menu.logs')
+        </div>
+      </div>
+    </nav>
     
     @include('_partials.alerts')
 

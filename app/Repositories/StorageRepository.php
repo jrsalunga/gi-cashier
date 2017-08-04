@@ -338,6 +338,10 @@ class StorageRepository {
     return file_get_contents($this->realFullPath($path));
   }
 
+  public function fileCount($dir) {
+    return iterator_count(new \FilesystemIterator($dir, \FilesystemIterator::SKIP_DOTS));
+  }
+
   
 
 

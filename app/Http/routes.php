@@ -41,6 +41,7 @@ Route::put('put/depslp', ['uses'=>'DepslpController@put']);
 Route::post('delete/depslp', ['uses'=>'DepslpController@delete']);
 
 Route::get('{brcode?}/ap/log', ['uses'=>'ApController@getHistory']);
+Route::get('{brcode?}/ap/checklist', ['uses'=>'ApController@getChecklist']);
 Route::get('{brcode?}/ap/{id?}/{action?}/{day?}', ['uses'=>'ApController@getAction']);
 Route::get('dl/ap/{p1}/{p2}/{p3}/{p4}/{p5}/{p6}', ['uses'=>'ApController@getDownload']);
 

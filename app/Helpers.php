@@ -490,6 +490,35 @@ if (!function_exists('stl')) {
 }
 
 
+if (!function_exists('dateInterval')) {
+
+  function dateInterval($fr, $to) {
+
+    try {
+      $fr = Carbon\Carbon::parse($fr);
+    } catch (\Exception $e) {
+      throw $e;
+      return false;
+    }
+
+    try {
+      $to = Carbon\Carbon::parse($to);
+    } catch (\Exception $e) {
+      throw $e;
+      return false;
+    }
+
+    $fr = $fr->copy();
+    $arr = [];
+    do {
+      array_push($arr, Carbon\Carbon::parse($fr->format('Y-m-d').' 00:00:00'));
+    } while ($fr->addDay() <= $to);
+    return $arr;
+  }
+
+}
+
+
 
 
 

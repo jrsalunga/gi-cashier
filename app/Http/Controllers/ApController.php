@@ -37,10 +37,33 @@ class ApController extends Controller {
 
 	public function getChecklist($brcode, Request $request) {
 
+		$data = [];
 		$date = carbonCheckorNow($request->input('date'));
-		$depslips = $this->depslip->monthlyLogs($date);
+  	$fr = $date->firstOfMonth();
+  	$to = $date->copy()->lastOfMonth();
 
-		return view('docu.AP.checklist')->with('date', $date)->with('depslips', $depslips);
+  	foreach (dateInterval($fr->format('Y-m-d'), $to->format('Y-m-d')) as $key => $d) {
+
+  		$dir = 'AP'.DS.$d->format('Y').DS.session('user.branchcode').DS.$d->format('m').DS.$d->format('d');
+
+  		//$arr[$key]['dir'] = $dir;
+  		$data[$key]['date'] = $d;
+
+  		if ($this->files->exists($dir)) {
+  			$data[$key]['exist'] = true;
+  			$data[$key]['file_count'] = $this->files->fileCount($this->files->realFullPath($dir));  			
+  			$data[$key]['uri'] = '/'.brcode().'/ap/'.$d->format('Y/m/d');
+  		} else {
+  			$data[$key]['exist'] = false;
+  		}
+  		
+  		//$this->files->exists($this->getPath($AP));
+
+  	};
+
+  	//return $data;
+
+		return view('docu.ap.checklist')->with('date', $date)->with('data', $data);
 	}
 
 	public function getAction($brcode, $id=null, $action=null, $day=null) {
