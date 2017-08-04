@@ -66,8 +66,6 @@ class DepslpController extends Controller {
 
 		$r = $this->files->folderInfo2('DEPSLP');
 
-		return dd($r);
-
 		foreach ($r['subfolders'] as $path => $folder) {
 			if ($this->files->exists($path.DS.strtoupper($brcode)))
 				$paths[$path.'/'.strtoupper($brcode)] = $folder;

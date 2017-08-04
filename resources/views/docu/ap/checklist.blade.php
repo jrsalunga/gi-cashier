@@ -9,7 +9,7 @@
 
   <ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
-    <li><a href="/{{brcode()}}/ap/log">Deposit Slip</a></li>
+    <li><a href="/{{brcode()}}/ap/log">Payables</a></li>
     <li><a href="/{{brcode()}}/ap/checklist">Checklist</a></li>
     <li class="active">{{ $date->format('M Y') }}</li>
   </ol>
