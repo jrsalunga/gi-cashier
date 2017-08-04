@@ -1,8 +1,8 @@
 @extends('index')
 
-@section('title', '- Backup Checklist')
+@section('title', '- Payables Checklist')
 
-@section('body-class', 'backup-checklist')
+@section('body-class', 'ap-checklist')
 
 @section('container-body')
 <div class="container-fluid">

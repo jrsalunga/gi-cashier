@@ -20,6 +20,7 @@ use App\Listeners\BackupEventListener;
 use App\Listeners\DepslpEventListener;
 use App\Events\Upload\Depslp;
 use App\Handlers\Events\Upload\DepslpEventHandler;
+use App\Listeners\NotifierEventListener;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -54,6 +55,7 @@ class EventServiceProvider extends ServiceProvider
         //AuthLoginEventListener::class,
         BackupEventListener::class,
         DepslpEventListener::class,
+        NotifierEventListener::class,
     ];
     
     /**

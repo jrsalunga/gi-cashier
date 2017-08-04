@@ -1,6 +1,6 @@
 @extends('index')
 
-@section('title', '- AP Logs')
+@section('title', '- Payables Logs')
 
 @section('body-class', 'ap-logs')
 

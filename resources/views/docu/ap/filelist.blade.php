@@ -1,8 +1,8 @@
 @extends('master')
 
-@section('title', '- Depslip Storage')
+@section('title', '- Payables Storage')
 
-@section('body-class', 'depslp-storage')
+@section('body-class', 'ap-storage')
 
 @section('navbar-2')
 <ul class="nav navbar-nav navbar-right"> 

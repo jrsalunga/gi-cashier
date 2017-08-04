@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\StorageRepository;
 use Dflydev\ApacheMimeTypes\PhpRepository;
 use App\Repositories\FileUploadRepository as FileUploadRepo;
-
+use App\Events\Notifier;
 
 class ApController extends Controller { 
 
@@ -31,6 +31,9 @@ class ApController extends Controller {
 			})
 			->orderBy('uploaddate', 'desc')
       ->paginate(10);
+
+    if (app()->environment()==='production')
+    	event(new Notifier(session('user.fullname').' accessed Payables Log'));
 				
 		return view('docu.ap.index')->with('aps', $aps);
 	}
@@ -56,12 +59,10 @@ class ApController extends Controller {
   		} else {
   			$data[$key]['exist'] = false;
   		}
-  		
-  		//$this->files->exists($this->getPath($AP));
-
   	};
 
-  	//return $data;
+  	if (app()->environment()==='production')
+    	event(new Notifier(session('user.fullname').' accessed Payables Checklist'));
 
 		return view('docu.ap.checklist')->with('date', $date)->with('data', $data);
 	}
@@ -153,6 +154,10 @@ class ApController extends Controller {
 				];
 		} else 
 			return abort('404');
+
+
+		if (app()->environment()==='production')
+    	event(new Notifier(session('user.fullname').' accessed Payables Storage'));
 		
 		//return $data;
 		return view('docu.ap.filelist')->with('data', $data);
