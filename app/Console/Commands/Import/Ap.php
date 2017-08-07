@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use App\Repositories\StorageRepository;
 use Dflydev\ApacheMimeTypes\PhpRepository;
 use App\Repositories\FileUploadRepository as FileUploadRepo;
+use App\Events\Notifier;
 
 class Ap extends Command
 {
@@ -107,7 +108,11 @@ class Ap extends Command
               $fu->cashier = 'mam poyeng';
               $fu->system_remarks = $remarks;
               $fu->user_id = $this->user_id;
-              $fu->save();
+              
+              if($fu->save()) {
+                if (app()->environment()==='production')
+                  event(new Notifier($branch->code.' '. $fu->filename . ' uploaded on Cashiers Module' ));
+              }
 
 
             }
