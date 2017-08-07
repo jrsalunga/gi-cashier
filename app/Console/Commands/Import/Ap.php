@@ -111,7 +111,7 @@ class Ap extends Command
               
               if($fu->save()) {
                 if (app()->environment()==='production')
-                  event(new Notifier($branch->code.' '. $fu->filename . ' uploaded on Cashiers Module' ));
+                  event(new Notifier($branch->code.' AP '. $fu->filename . ' uploaded on Cashiers Module' ));
               }
 
 
