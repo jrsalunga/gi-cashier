@@ -75,7 +75,7 @@ class Ap extends Command
 
         if ($this->storage->exists($dir)) {
           
-          $this->info(' '. $day->format('Y-m-d') .' Exist! ');
+          $this->line(' '. $day->format('Y-m-d') .' Exist! ');
 
          
           $f = $this->fileUpload->where('branch_id', $branch->id)->where('uploaddate',$day->format('Y-m-d'))->first();
@@ -93,7 +93,7 @@ class Ap extends Command
                 $r[$key] = substr($file['name'], 6);
               }
               $remarks = join(',', $r);
-              $this->info(' '. $remarks .' ');
+              $this->comment(' '. $remarks .' ');
 
               $fu = new FileUpload;
               $fu->branch_id = $branch->id;
