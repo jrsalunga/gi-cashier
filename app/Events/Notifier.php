@@ -35,7 +35,7 @@ class Notifier extends Event implements ShouldBroadcast
   public function broadcastWith()
   {
     return [
-      'title'=>'Notifier', 
+      'title'=>'Notification:', 
       'message'=> $this->message
     ];
   }

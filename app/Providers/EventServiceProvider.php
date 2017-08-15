@@ -21,6 +21,7 @@ use App\Listeners\DepslpEventListener;
 use App\Events\Upload\Depslp;
 use App\Handlers\Events\Upload\DepslpEventHandler;
 use App\Listeners\NotifierEventListener;
+use App\Listeners\ApEventListener;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -56,6 +57,7 @@ class EventServiceProvider extends ServiceProvider
         BackupEventListener::class,
         DepslpEventListener::class,
         NotifierEventListener::class,
+        ApEventListener::class,
     ];
     
     /**

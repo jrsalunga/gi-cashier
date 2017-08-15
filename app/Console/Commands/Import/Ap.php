@@ -10,6 +10,7 @@ use App\Repositories\StorageRepository;
 use Dflydev\ApacheMimeTypes\PhpRepository;
 use App\Repositories\FileUploadRepository as FileUploadRepo;
 use App\Events\Notifier;
+use App\Events\Upload\Ap as ApUpload;
 
 class Ap extends Command
 {
@@ -110,6 +111,9 @@ class Ap extends Command
               $fu->user_id = $this->user_id;
               
               if($fu->save()) {
+                
+                event(new ApUpload($fu, $branch));
+                
                 if (app()->environment()==='production')
                   event(new Notifier($branch->code.' AP '. $fu->filename . ' uploaded on Cashiers Module' ));
               }

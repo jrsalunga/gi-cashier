@@ -156,8 +156,11 @@ class ApController extends Controller {
 			return abort('404');
 
 
-		if (app()->environment()==='production')
-    	event(new Notifier(session('user.fullname').' accessed Payables Storage'));
+		#if (app()->environment()==='production')
+			if (request()->input('src')=='email')
+    		event(new Notifier(session('user.fullname').' accessed Payables Storage via Email'));
+    	else
+    		event(new Notifier(session('user.fullname').' accessed Payables Storage'));
 		
 		//return $data;
 		return view('docu.ap.filelist')->with('data', $data);
