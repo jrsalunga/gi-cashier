@@ -22,7 +22,7 @@ class ApEventListener
       'cc'      => 'giligans.app@gmail.com',
       'btn'     => '/AP/'.$event->fileUpload->uploaddate->format('Y/m'),
       'link'    => '/'.strtolower($event->branch->code).'/ap/'.$event->fileUpload->uploaddate->format('Y/m/d').'?src=email',
-      'body'    => $event->branch->code.' AP '. $event->fileUpload->filename .' has been uploaded on Cashiers Module'
+      'body'    => $event->branch->code.' AP '. $event->fileUpload->filename .' has been uploaded on Cashier\'s Module'
     ];
 
     try {
