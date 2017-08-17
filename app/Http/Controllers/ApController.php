@@ -156,7 +156,7 @@ class ApController extends Controller {
 			return abort('404');
 
 
-		#if (app()->environment()==='production')
+		if (app()->environment()==='production')
 			if (request()->input('src')=='email')
     		event(new Notifier(session('user.fullname').' accessed Payables Storage via Email'));
     	else
@@ -371,7 +371,7 @@ class ApController extends Controller {
     	$m = 'fs';
 
     //if (!in_array($request->user()->username, ['jrsalunga', 'admin']))
-			logAction('ap:download', 'user:'.$request->user()->username.' | '.$p6.' | '.$m.' | ');
+			logAction($p6, 'user:'.$request->user()->username.' | ap:dl | '.$m.' | ');
 
 		try {
 		
