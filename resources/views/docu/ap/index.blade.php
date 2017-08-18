@@ -39,7 +39,7 @@
           <td>
             {{ $ap->uploaddate->format('D M j, Y') }}
           </td>
-          <td style="min-width: 5%;">
+          <td>
             
             <div class="btn-group">
               <a href="/{{brcode()}}/ap/{{$ap->uploaddate->format('Y/m/d')}}">
