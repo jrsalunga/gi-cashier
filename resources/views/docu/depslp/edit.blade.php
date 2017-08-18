@@ -111,6 +111,19 @@
               </div>
             </div>
 
+            <div class="row" style="margin-top: 20px;">
+              <div class="col-lg-12">
+              <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1">Deposit Type</span>
+                 <select id="type" name="type" class="form-control" style="width: 100%; border-left: 1px solid #ccc;" required>
+                  <option value="" disabled selected>-- select deposit type --</option>
+                  <option value="1">Cash</option>
+                  <option value="2">Cheque</option>
+                </select>
+              </div>
+              </div>
+            </div>
+
             <div class="row" style="margin-top: 15px;">
               <div class="col-lg-12">
                 <div class="input-group date-toggle">
@@ -219,7 +232,7 @@
     }
 
     if ($('#time')[0]!==undefined) {
-      $('.time-toogle').datetimepicker({
+      $('#time').datetimepicker({
         format: 'HH:mm:ss',
         ignoreReadonly: true,
       });

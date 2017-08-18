@@ -191,7 +191,18 @@
       alertRemove();
       var html = '';
       if ($(this).val()==='depslp') {
-        html += '<div class="row" style="margin-top: 20px;">'
+          html += '<div class="row" style="margin-top: 20px;">'
+              +'<div class="input-group">'
+                +'<span class="input-group-addon" id="basic-addon1">'
+                +'Deposit Type</span>'
+                +'<select id="type" name="type" class="form-control" style="width: 100%; border-left: 1px solid #ccc;" required>'
+                  +'<option value="" disabled selected>-- select deposit type --</option>'
+                  +'<option value="1">Cash</option>'
+                  +'<option value="2">Cheque</option>'
+                +'</select>'
+              +'</div>'
+            +'</div>'
+            +'<div class="row" style="margin-top: 20px;">'
               +'<div class="input-group date-toggle">'
               +'<span class="input-group-addon" id="basic-addon1">'
                 +'Deposit Date</span>'
@@ -219,12 +230,17 @@
             +'</div></div>';
         alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> <ol><li>Before attaching the scanned Bank Deposit Slip please follow the standard file naming convention.'
           +' Sample "<b>DEPSLP MOA 20170102</b>"</b> where <b>DEPSLP</b> - is the document type code, <b>MOA</b> - is the 3 char branch code and '
-          +'<b>20170102</b> - is the Deposit Date in YYYYMMDD format. For multiple deposit on the same day, the filename should be <b>DEPSLP MOA 20170102-2</b>,'
-          +' <b>DEPSLP MOA 20170102-3</b>, etc.</li><li> Make sure that the <b>Date/Time</b> encoded is the <b>Deposit Date/Time</b> on the Deposit Slip.</li>'
+          +'<b>20170102</b> - is the Deposit Date in YYYYMMDD format. '
+          +'</li><li> Make sure that the <b>Date/Time</b> encoded is the <b>Deposit Date/Time</b> on the Deposit Slip.</li>'
+          +'<li><div style="text-decoration: line-through;">For <b>multiple deposit slip</b> on <b>one scanned/attached file</b>, for example the <b>Cash and Check Deposit</b> are on one attachment, kindly sum the <b>Amount (27,052.94)</b> and break it down on the <b>Notes</b>. sample <b>Cash: 25,000.00, Check: 2,052.94</b>'
+          +'</div><div style="color:red; font-size: 1.2em;">Please be reminded that from now on the <b>Deposit Slip</b> should be <b>one is to one (1:1)</b>. One scanned deposit slip for every upload.</div>'
+          +'</li>'
+          +'<li>'
+          +'For branch that has multiple deposit on the same day, the filename should be <b>DEPSLP MOA 20170102 Cash</b>, <b>DEPSLP MOA 20170102 Check</b>, <b>DEPSLP MOA 20170102 Cash_2</b>, etc.'
+          +'</li>'
           +'<li>Please don\'t upload other documents like DCCR, etc. <b>Scanned Deposit Slip</b> only. =)</li>'
-          +'<li>For <b>multiple deposit slip</b> on <b>one scanned/attached file</b>, for example the <b>Cash and Check Deposit</b> are on one attachment, kindly sum the <b>Amount (27,052.94)</b> and break it down on the <b>Notes</b>. sample <b>Cash: 25,000.00, Check: 2,052.94</b></li>'
           +'</ol>'
-          +'<small><em class="text-muted">For more questions / clarifications email us at <a href="mailto:jefferson.salunga@gmail.com">jefferson.salunga@gmail.com</a></em></small>');
+          +'<small><em class="text-muted">For more questions / clarifications / need assistance you can email us at <a href="mailto:giligans.helpdesk@gmail.com">giligans.helpdesk@gmail.com</a></em></small>');
       } else if ($(this).val()==='backup') {
         html += '<div class="row" style="margin-top: 20px;"><span class="title">Choose Backup Type</span>'
             +'<div class="radio">'
@@ -261,11 +277,15 @@
       }
 
       if ($('#time')[0]!==undefined) {
-        $('.time-toogle').datetimepicker({
-          format: 'HH:mm:ss',
+       //$('.time-toogle').datetimepicker({
+        $('#time').datetimepicker({
+          format: 'hh:mm:ss A',
           ignoreReadonly: true,
         }).on('dp.show', function(e) {
-          $('#time').val(moment().format('hh:mm:ss'));
+          $('#time').val(e.date.format('hh:mm:ss'));
+        })
+        .on('dp.hide', function(e) {
+          $('#time').val(e.date.format('HH:mm:ss'));
         });
       }
     });

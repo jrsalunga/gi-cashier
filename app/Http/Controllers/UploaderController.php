@@ -613,6 +613,7 @@ class UploaderController extends Controller
     	'date' 					=> request()->input('date'),
     	'time' 					=> request()->input('time'),
     	'amount' 				=> str_replace(",", "", request()->input('amount')),
+    	'type'					=> request()->input('type'),
     	'file_upload_id' 		=> $file->id,
     	'terminal' 				=> clientIP(), //$request->ip(),
     	'remarks' 				=> request()->input('notes'),

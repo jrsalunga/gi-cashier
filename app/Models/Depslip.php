@@ -11,7 +11,7 @@ class Depslip extends BaseModel {
 	protected $table = 'depslip';
   protected $appends = ['deposit_date'];
   protected $dates = ['date', 'created_at', 'updated_at'];
- 	protected $fillable = ['branch_id', 'filename', 'date', 'time', 'amount', 'file_upload_id', 'cashier',
+ 	protected $fillable = ['branch_id', 'filename', 'date', 'type', 'time', 'amount', 'file_upload_id', 'cashier',
                 'remarks', 'user_id', 'verified', 'matched', 'created_at', 'updated_at'];
 	protected $guarded = ['id'];
 	protected $casts = [

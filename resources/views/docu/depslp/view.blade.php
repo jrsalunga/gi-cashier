@@ -97,7 +97,18 @@
               <small><small>(uploaded filename)</small></small>
             </h4>
             <h4><span class="gly gly-cloud"></span> <small>{{ $depslp->filename }} <small>(filename on server)</small></small> </h4>
-            <h4><span class="peso">₱</span> {{ number_format($depslp->amount,2) }}</h4>
+            <h4>
+              <span class="peso">₱</span> {{ number_format($depslp->amount,2) }}  
+              <small>
+              @if($depslp->type==1)
+                (Cash)
+              @elseif($depslp->type==2)
+                (Cheque)
+              @else
+                (?)
+              @endif
+              </small>
+            </h4>
             <h5><span class="gly gly-history"></span> {{ $depslp->deposit_date->format('D M j h:i:s A') }} <small>{{ diffForHumans($depslp->deposit_date) }}</small></h5>
             <h5><span class="gly gly-user"></span> {{ $depslp->cashier }}</h5>
             <h6><span class="gly gly-pencil"></span> {{ $depslp->remarks }}</h6>

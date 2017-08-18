@@ -53,6 +53,7 @@
           <th>Uploaded Filename</th>
           <th></th>
           <th class="text-right">Amount</th>
+          <th></th>
           <th>Deposit Date/Time</th>
           <th>Cashier</th>
           <th>Remarks</th>
@@ -87,6 +88,15 @@
             @endif
           </td>
           <td class="text-right">{{ number_format($depslip->amount,2) }}</td>
+          <td>
+            @if($depslip->type==1)
+              <span class="label label-success" title="Cash" style="cursor: help;"><small>C</small></span>
+            @elseif($depslip->type==2)
+              <span class="label label-info" title="Cheque" style="cursor: help;"><small>K</small></span>
+            @else
+
+            @endif
+          </td>
           <td>
             
             <span class="hidden-xs" data-toggle="tooltip" title="{{ $depslip->deposit_date->format('D m/d/Y h:i A') }}">

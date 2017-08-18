@@ -102,7 +102,7 @@ class DateRange {
   public function dateInterval(){
     $fr = $this->fr->copy();
     $arr = [];
-     do {
+    do {
       array_push($arr, Carbon::parse($fr->format('Y-m-d').' 00:00:00'));
     } while ($fr->addDay() <= $this->to);
     return $arr;
