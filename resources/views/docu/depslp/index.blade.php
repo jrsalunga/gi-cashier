@@ -41,7 +41,7 @@
             </li>
             <li>You can also <b>Edit</b> and <b>Delete</b> the Deposit Slip if you have errors on your previous uploads, as long as it's not verified <span class="gly gly-ok"></span>.</li>
           </ul>
-          <small><em class="text-muted">For more questions / clarifications email us at <a href="mailto:jefferson.salunga@gmail.com">jefferson.salunga@gmail.com</a></em></small>
+          <small><em class="text-muted">For more questions / clarifications email us at <a href="mailto:giligans.helpdesk@gmail.com">giligans.helpdesk@gmail.com</a></em></small>
       </div>
     @endif
 
