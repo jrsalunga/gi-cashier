@@ -512,6 +512,7 @@ class UploaderController extends Controller
 			'filename'		=> 'required',
 			'filetype'  	=> 'required',
 			'date'				=> 'required|date',
+			'type'				=> 'required',
 			'time'				=> 'required',
 			'amount'			=> 'required',
 			'cashier'			=> 'required',
@@ -540,12 +541,24 @@ class UploaderController extends Controller
 
 			$filename = strtoupper($request->input('filename'));
 			//if (!starts_with(strtoupper($filename), 'DEPSLP '.$br)) {
+
+				switch ($request->input('type')) {
+					case 1:
+						$type = 'C';
+						break;
+					case 2:
+						$type = 'K';
+						break;				
+					default:
+						$type = 'U';
+						break;
+				}
 				
-				$cnt = $this->countFilenameByDate($date->format('Y-m-d'), $date->format('H:i:s'));
+				$cnt = $this->countFilenameByDate($date->format('Y-m-d'), $date->format('H:i:s'), $request->input('type'));
 				if ($cnt)
-					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').'-'.$cnt.'.'.$ext;
+					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').' '.$type.'-'.$cnt.'.'.$ext;
 				else
-					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').'.'.$ext;
+					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').' '.$type.'.'.$ext;
 					
 			//}
 
@@ -624,8 +637,8 @@ class UploaderController extends Controller
     return $this->depslip->create($data)?:NULL;
   }
 
-  private function countFilenameByDate($date, $time) {
-  	$d = $this->depslip->findWhere(['date'=>$date, 'time'=>$time]);
+  private function countFilenameByDate($date, $time, $type) {
+  	$d = $this->depslip->findWhere(['date'=>$date, 'time'=>$time, 'type'=>$type]);
 		 
 		$c = intval(count($d));
 		

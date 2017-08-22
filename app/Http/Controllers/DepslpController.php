@@ -184,29 +184,40 @@ class DepslpController extends Controller {
 
 	}
 
-	private function countFilenameByDate($date, $time) {
-  	$d = $this->depslip->findWhere(['date'=>$date, 'time'=>$time]);
+	private function countFilenameByDate($date, $time, $type) {
+  	$d = $this->depslip->findWhere(['date'=>$date, 'time'=>$time, 'type'=>$type]);
 		$c = intval(count($d));
   	if ($c>1)
-			return $c+1;
+			return $c;
 		return false;
   }
 
   private function moveUpdatedFile($o, $n) {
-  	if ($o->date!=$n->date || $o->time!=$n->time) {
+  	if ($o->date!=$n->date || $o->time!=$n->time || $o->type!=$n->type) {
 			
 			$old_path = 'DEPSLP'.DS.$o->date->format('Y').DS.session('user.branchcode').DS.$o->date->format('m').DS.$o->filename;
 			$ext = strtolower(pathinfo($o->filename, PATHINFO_EXTENSION));
 			$br = strtoupper(session('user.branchcode'));
+			switch ($n->type) {
+				case 1:
+					$type = 'C';
+					break;
+				case 2:
+					$type = 'K';
+					break;				
+				default:
+					$type = 'U';
+					break;
+			}
 			
 			if ($this->files->exists($old_path)) {
 				$date = carbonCheckorNow($n->date->format('Y-m-d').' '.$n->time);
 
-				$cnt = $this->countFilenameByDate($date->format('Y-m-d'), $date->format('H:i:s'));
+				$cnt = $this->countFilenameByDate($date->format('Y-m-d'), $date->format('H:i:s'), $n->type);
 				if ($cnt)
-					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').'-'.$cnt.'.'.$ext;
+					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').' '.$type.'-'.$cnt.'.'.$ext;
 				else
-					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').'.'.$ext;
+					$filename = 'DEPSLP '.$br.' '.$date->format('Ymd His').' '.$type.'.'.$ext;
 
 				$new_path = 'DEPSLP'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
 
@@ -225,11 +236,11 @@ class DepslpController extends Controller {
 	public function put(Request $request) {
 		
 		$rules = [
-			'date'				=> 'required|date',
-			'time'				=> 'required',
-			'amount'			=> 'required',
-			'cashier'			=> 'required',
-			'id'				=> 'required',
+			'date'		=> 'required|date',
+			'time'		=> 'required',
+			'amount'	=> 'required',
+			'cashier'	=> 'required',
+			'id'			=> 'required',
 		];
 
 		$validator = app('validator')->make($request->all(), $rules);
