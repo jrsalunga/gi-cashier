@@ -240,10 +240,22 @@ class UploaderController extends Controller
 
 
 					// added 2017-06-09 to backlog DS trans_cnt, man_pay, man_hrs
-					// one time trasaction
+					// one time transaction
 					if($backup_date->eq(Carbon::parse('2017-06-09'))) { 
 						try {
 							$this->backlogTransCount($backup->date, $backup);
+						} catch (Exception $e) {
+							$msg =  $e->getMessage();
+							//$res = $this->movedErrorProcessing($filepath, $storage_path);
+							$this->updateBackupRemarks($backup, $msg);
+						}
+					}
+
+					// added 2017-08-22 to backlog DS depo_cash, depo_check
+					// one time transaction
+					if($backup_date->eq(Carbon::parse('2017-08-21'))) { 
+						try {
+							$this->backlogDeposits($backup->date, $backup);
 						} catch (Exception $e) {
 							$msg =  $e->getMessage();
 							//$res = $this->movedErrorProcessing($filepath, $storage_path);
@@ -500,6 +512,16 @@ class UploaderController extends Controller
     }
   }
 
+  public function backlogDeposits($date, Backup $backup){
+  	try {
+      $this->posUploadRepo->updateDeposits($date, $backup);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+
+
 
 	/************* end: processBackup **************/
 
@@ -639,7 +661,6 @@ class UploaderController extends Controller
 
   private function countFilenameByDate($date, $time, $type) {
   	$d = $this->depslip->findWhere(['date'=>$date, 'time'=>$time, 'type'=>$type]);
-		 
 		$c = intval(count($d));
 		
   	if ($c>0)

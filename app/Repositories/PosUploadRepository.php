@@ -146,6 +146,8 @@ class PosUploadRepository extends Repository
       $trans_cnt = isset($r['TRAN_CNT']) ? trim($r['TRAN_CNT']):0;
       $man_hrs = isset($r['MAN_HRS']) ? trim($r['MAN_HRS']):0;
       $man_pay = isset($r['MAN_PAY']) ? trim($r['MAN_PAY']):0;
+      $depo_cash = isset($r['DEPOSIT']) ? trim($r['DEPOSIT']):0;
+      $depo_check = isset($r['DEPOSITK']) ? trim($r['DEPOSITK']):0;
       $cuscnt = isset($r['CUST_CNT']) ? trim($r['CUST_CNT']):0;
       $mcost = (isset($r['MAN_COST']) && !empty($r['MAN_COST'])) 
         ? trim($r['MAN_COST'])
@@ -194,6 +196,8 @@ class PosUploadRepository extends Repository
       $row['trans_cnt'] = $trans_cnt;
       $row['man_hrs']   = number_format($man_hrs, 2, '.', '');
       $row['man_pay']   = number_format($man_pay, 2, '.', '');
+      $row['depo_cash'] = number_format($depo_cash, 2, '.', '');
+      $row['depo_check']= number_format($depo_check, 2, '.', '');
       //$row['cospct']    = number_format(0, 2, '.', '');
       return $row;
     }
@@ -317,7 +321,7 @@ class PosUploadRepository extends Repository
                  
                   
                   if ($vfpdate->gt(Carbon::parse('2017-01-01')))
-                    $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay'];
+                    $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check'];
                   else
                     $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt'];
                     
@@ -1513,6 +1517,56 @@ class PosUploadRepository extends Repository
 
 
         }
+      } // end: for
+
+     
+      dbase_close($db);
+      unset($ds);
+      return $update;
+    }
+    return false;  
+  }
+
+  public function updateDeposits(Carbon $date, Backup $backup) {
+
+    $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $update = 0;
+
+      for ($i=1; $i<=$record_numbers; $i++) {
+        $r = dbase_get_record_with_names($db, $i);
+
+        try {
+          //$vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+          $vfpdate = vfpdate_to_carbon(trim($r['TRANDATE']));
+        } catch(Exception $e) {
+          $vfpdate = $date->copy()->subDay();
+        }
+
+        
+        $ds = [
+          'date'      => $vfpdate->format('Y-m-d'),
+          'branchid'  => $backup->branchid,
+          'depo_cash' => isset($r['DEPOSIT']) ? trim($r['DEPOSIT']):0,
+          'depo_check'=> isset($r['DEPOSITK']) ? trim($r['DEPOSITK']):0,
+        ];
+
+
+        try {
+          $this->ds->firstOrNew($ds, ['date', 'branchid']);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw new Exception('updateDailySalesTransCount: '.$e->getMessage());    
+          return false;   
+        }
+
+
+        
       } // end: for
 
      
