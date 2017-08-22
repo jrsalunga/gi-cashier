@@ -253,7 +253,7 @@ class UploaderController extends Controller
 
 					// added 2017-08-22 to backlog DS depo_cash, depo_check
 					// one time transaction
-					if($backup_date->eq(Carbon::parse('2017-08-21'))) { 
+					if($backup_date->eq(Carbon::parse('2017-08-22'))) { 
 						try {
 							$this->backlogDeposits($backup->date, $backup);
 						} catch (Exception $e) {
