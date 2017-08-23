@@ -17,7 +17,7 @@ class ApEventListener
   public function onUpload($event) {
 
     $data = [
-      'subject' => $event->branch->code.' AP '. $event->fileUpload->filename,
+      'subject' => $event->branch->code.' AP '. $event->fileUpload->filename .' [ap.upload]',
       'to'      => app()->environment()=='production' ? $event->branch->email : 'gi.efiles@gmail.com',
       'cc'      => 'giligans.app@gmail.com',
       'btn'     => '/AP/'.$event->fileUpload->uploaddate->format('Y/m'),
