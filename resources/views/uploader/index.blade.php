@@ -93,6 +93,7 @@
                     placeholder="Anna (cashier's name only, required)"  
                     maxlength="20"                         
                     title="Please put cashiers name only"
+                    <?=app()->environment()==='local'?'value="Jeff"':''?>
                   >
                   <!--
                   pattern="[a-zA-Z\s-().]+"

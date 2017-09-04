@@ -32,8 +32,8 @@ class ApController extends Controller {
 			->orderBy('uploaddate', 'desc')
       ->paginate(10);
 
-    if (app()->environment()==='production')
-    	event(new Notifier(session('user.fullname').' accessed Payables Log'));
+    #if (app()->environment()==='production')
+    #	event(new Notifier(session('user.fullname').' accessed Payables Log'));
 				
 		return view('docu.ap.index')->with('aps', $aps);
 	}
@@ -61,8 +61,8 @@ class ApController extends Controller {
   		}
   	};
 
-  	if (app()->environment()==='production')
-    	event(new Notifier(session('user.fullname').' accessed Payables Checklist'));
+  	#if (app()->environment()==='production')
+    #	event(new Notifier(session('user.fullname').' accessed Payables Checklist'));
 
 		return view('docu.ap.checklist')->with('date', $date)->with('data', $data);
 	}
@@ -159,8 +159,8 @@ class ApController extends Controller {
 		if (app()->environment()==='production')
 			if (request()->input('src')=='email')
     		event(new Notifier(session('user.fullname').' accessed Payables Storage via Email'));
-    	else
-    		event(new Notifier(session('user.fullname').' accessed Payables Storage'));
+    	#else
+    	#	event(new Notifier(session('user.fullname').' accessed Payables Storage'));
 		
 		//return $data;
 		return view('docu.ap.filelist')->with('data', $data);
