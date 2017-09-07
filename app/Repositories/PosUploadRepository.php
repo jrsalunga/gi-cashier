@@ -1724,7 +1724,8 @@ class PosUploadRepository extends Repository
       $ds['slsmtd_totgrs'] = 0;
       $ds['branchid']   = $branchid;
 
-      for ($i=$recno; $i>0; $i--) {
+      for ($i=1; $i<=$recno; $i++) {
+      //for ($i=$recno; $i>0; $i--) {
         $row = dbase_get_record_with_names($db, $i);
 
         try {

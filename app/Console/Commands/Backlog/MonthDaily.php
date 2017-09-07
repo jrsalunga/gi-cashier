@@ -89,7 +89,9 @@ class MonthDaily extends Command
     }
 
    
+    $this->info('start processing...');
 
+    DB::beginTransaction();
 
     
     $this->info('extracting cash audit...');
@@ -113,7 +115,7 @@ class MonthDaily extends Command
       exit;
     }
     
-
+    DB::commit();
 
 
     $this->info('done');
