@@ -1751,7 +1751,7 @@ class PosUploadRepository extends Repository
             throw $e;    
           }
           
-          sleep(1);
+          //sleep(1);
         }
 
         if ($vfpdate->gte($from) && $vfpdate->lte($to)) {
@@ -1806,7 +1806,7 @@ class PosUploadRepository extends Repository
               throw $e;    
             }
             
-            sleep(1);
+            //sleep(1);
           }
 
           //$c->info($trans.' '.$curr_slipno.' '.$data['cslipno']);
@@ -1818,7 +1818,7 @@ class PosUploadRepository extends Repository
             throw new Exception('salesmtd: '.$e->getMessage());   
             return false;   
           }
-          $c->info($i.' '.$vfpdate->format('Y-m-d').'  '.$curr_date->format('Y-m-d').'  '.$data['grsamt'].'  '.$ds['slsmtd_totgrs'].' '.$data['ordtime']);
+          //$c->info($i.' '.$vfpdate->format('Y-m-d').'  '.$curr_date->format('Y-m-d').'  '.$data['grsamt'].'  '.$ds['slsmtd_totgrs'].' '.$data['ordtime']);
 
 
           
