@@ -137,6 +137,13 @@ class PosUploadRepository extends Repository
     }
 
 
+    private function getManCost() {
+      $this->getBackupCode();
+      return ($this->sysinfo->man_cost < 1 || empty($this->sysinfo->man_cost)) 
+      ? 650
+      : (int) trim($this->sysinfo->man_cost);
+    }
+
     private function getDailySalesDbfRowData($r){
       $row = [];
 
@@ -148,12 +155,14 @@ class PosUploadRepository extends Repository
       $man_pay = isset($r['MAN_PAY']) ? trim($r['MAN_PAY']):0;
       $depo_cash = isset($r['DEPOSIT']) ? trim($r['DEPOSIT']):0;
       $depo_check = isset($r['DEPOSITK']) ? trim($r['DEPOSITK']):0;
+      $sale_csh = isset($r['CSH_SALE']) ? trim($r['CSH_SALE']):0;
+      $sale_chg = isset($r['CHG_SALE']) ? trim($r['CHG_SALE']):0;
+      $sale_sig = isset($r['SIG_SALE']) ? trim($r['SIG_SALE']):0;
       $cuscnt = isset($r['CUST_CNT']) ? trim($r['CUST_CNT']):0;
-      $mcost = (isset($r['MAN_COST']) && !empty($r['MAN_COST'])) 
-        ? trim($r['MAN_COST'])
-        : 0;
+      $mcost = (isset($r['MAN_COST']) && (trim($r['MAN_COST']>0)))
+        ? trim($r['MAN_COST']) // mancost frm CHS_AUDT
+        : $this->getManCost(); // Mancosr frm SYSINFO
       $mcost = ($mcost+0)==0 ? session('user.branchmancost'):$mcost;
-
 
       $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
       /*
@@ -198,6 +207,9 @@ class PosUploadRepository extends Repository
       $row['man_pay']   = number_format($man_pay, 2, '.', '');
       $row['depo_cash'] = number_format($depo_cash, 2, '.', '');
       $row['depo_check']= number_format($depo_check, 2, '.', '');
+      $row['sale_csh']  = number_format($sale_csh, 2, '.', '');
+      $row['sale_chg']  = number_format($sale_chg, 2, '.', '');
+      $row['sale_sig']  = number_format($sale_sig, 2, '.', '');
       //$row['cospct']    = number_format(0, 2, '.', '');
       return $row;
     }
@@ -1621,6 +1633,299 @@ class PosUploadRepository extends Repository
     }
     return false;  
   }
+
+
+
+
+
+  ###################################################################################################################################
+  ############## for App\Command\Backlog\MonthDaily #################################################################################
+  ###################################################################################################################################
+
+
+  public function backlogDailySales($branchid, Carbon $from, Carbon $to, $c) {
+
+      //$this->logAction('function:postDailySales', '');
+      $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+
+      if (file_exists($dbf_file)) {
+        $db = dbase_open($dbf_file, 0);
+        $header = dbase_get_header_info($db);
+        $recno = dbase_numrecords($db);
+        $update = 0;
+
+
+        #for ($i = 1; $i <= $record_numbers; $i++) {
+        for ($i=$recno; $i>0; $i--) {
+          $row = dbase_get_record_with_names($db, $i);
+          $data = $this->getDailySalesDbfRowData($row);
+          $vfpdate = Carbon::parse($data['date']);
+
+          $data['branchid'] = $branchid;
+
+          // add day to include last month's EoD
+          if ($vfpdate->copy()->addDay()->gte($from) && $vfpdate->lte($to)) {
+            $c->info($data['date'].' '.$data['sales'].' '.$data['custcount'].' '.$data['trans_cnt'].' '.$data['empcount'].' '.$data['mancost'].' '.$data['mancostpct']);
+
+            $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig'];
+
+            if ($this->ds->firstOrNew(array_only($data, $fields), ['date', 'branchid']))
+              $update++;
+          
+          } else {
+            $c->info($update);
+            dbase_close($db);
+            unset($db);
+            return count($update>0) ? true:false;
+          }
+        }
+      
+        $c->info($update);
+        //$this->logAction('end:loop:ds', '');
+        dbase_close($db);
+        unset($db);
+        return count($update>0) ? true:false;
+      }
+
+      return false;
+  }
+
+  private function checkSalesmtdDS($data, $branchid, $date, $c) {
+    $d = \App\Models\DailySales::where(['date'=>$date->format('Y-m-d'), 'branchid'=>$branchid])->first();
+    //$c->info($d->date->format('Y-m-d').' '.$d->custcount.' '.$d->trans_cnt);
+    $arr = [];
+    foreach ($data as $key => $value) {
+      $x = $d->{$key};
+      if ($x=='0' || is_null($x) || empty($x)) {
+        #$c->info($d->{$key});
+        $c->info($value);
+        $arr[$key]=$value;
+      }
+
+      if ($d->mancostpct=='0' || is_null($d->mancostpct) || empty($d->mancostpct)) 
+        $arr['mancostpct'] = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($d->mancost/$d->sales)*100;
+    }
+    return empty($arr) ? false: $arr;
+  }
+
+
+  public function backlogSalesmtd($branchid, Carbon $from, Carbon $to, $c) {
+
+    $dbf_file = $this->extracted_path.DS.'SALESMTD.DBF';
+
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);      
+      $header = dbase_get_header_info($db);
+      $recno = dbase_numrecords($db);
+      $curr_date = null; 
+      $update = 0;
+      $ds = [];
+
+      $ds['slsmtd_totgrs'] = 0;
+      $ds['branchid']   = $branchid;
+
+      for ($i=$recno; $i>0; $i--) {
+        $row = dbase_get_record_with_names($db, $i);
+
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+        } catch(Exception $e) {
+          // log on error
+          continue;
+        }
+
+        $data = $this->salesmtdCtrl->associateAttributes($row);
+
+        if (is_null($curr_date)) {
+          $curr_date = $vfpdate;
+          $ds['opened_at'] = $data['ordtime'];
+          $ds['closed_at'] = $data['ordtime'];
+          $trans = 1;
+          $curr_slipno = $data['cslipno'];
+          $c->info('delete: '.$curr_date->format('Y-m-d'));
+          
+          try {
+            $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
+          
+          sleep(1);
+        }
+
+        if ($vfpdate->gte($from) && $vfpdate->lte($to)) {
+
+          if ($vfpdate->eq($curr_date)) {
+            $ds['slsmtd_totgrs'] += $data['grsamt'];
+
+            if (c($ds['opened_at'])->gt(c($data['ordtime'])))
+              $ds['opened_at'] = $data['ordtime'];
+
+            if (c($ds['closed_at'])->lt(c($data['ordtime'])))
+              $ds['closed_at'] = $data['ordtime'];
+
+            if ($i==1) {
+              //$c->info('save');
+              $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans], $branchid, $vfpdate, $c);
+              if ($x)
+                $ds = array_merge($ds, $x);              
+              
+              $c->info($vfpdate->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
+              $ds['date'] = $vfpdate->format('Y-m-d');
+              $this->ds->firstOrNew($ds, ['date', 'branchid']);
+            }
+
+            if ($curr_slipno!=$data['cslipno']) {
+              $trans++;
+              $curr_slipno=$data['cslipno'];
+            }
+            
+
+          } else {
+
+            $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans], $branchid, $curr_date, $c);
+            if ($x)
+              $ds = array_merge($ds, $x);
+            
+            $c->info($curr_date->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
+            $ds['date'] = $curr_date->format('Y-m-d');
+            $this->ds->firstOrNew($ds, ['date', 'branchid']);
+
+            $ds['slsmtd_totgrs'] = $data['grsamt'];
+            $curr_date = $vfpdate;
+            $trans=0;
+            $ds['opened_at'] = $data['ordtime'];
+            $ds['closed_at'] = $data['ordtime'];
+            $c->info('delete: '.$curr_date->format('Y-m-d'));
+            
+            try {
+              $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw $e;    
+            }
+            
+            sleep(1);
+          }
+
+          //$c->info($trans.' '.$curr_slipno.' '.$data['cslipno']);
+          $data['branch_id'] = $branchid;
+          try {
+            $this->salesmtdCtrl->create($data);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw new Exception('salesmtd: '.$e->getMessage());   
+            return false;   
+          }
+          $c->info($i.' '.$vfpdate->format('Y-m-d').'  '.$curr_date->format('Y-m-d').'  '.$data['grsamt'].'  '.$ds['slsmtd_totgrs'].' '.$data['ordtime']);
+
+
+          
+
+          $update++;
+        } else {
+          $c->info($recno);
+          
+          $c->info($update);
+          dbase_close($db);
+          unset($db);
+          return count($update>0) ? true:false;
+        }
+      }
+
+
+      /*    
+
+      // delete salesmtd (branchid, date) if exist
+      try {
+        //$this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
+        $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$date->format('Y-m-d')]);
+      } catch(Exception $e) {
+        dbase_close($db);
+        throw new Exception($e->getMessage());    
+      }
+      
+
+      $ctr = 0;
+      $ds = [];
+      $ds['slsmtd_totgrs'] = 0;
+      $ds['date']       = $date->format('Y-m-d');
+      $ds['branchid']   = $backup->branchid;
+      
+      #for ($i=1; $i<=$record_numbers; $i++) {
+      for ($i=$recno; $i>0; $i--) {
+        $row = dbase_get_record_with_names($db, $i);
+        //$this->logAction('-', $row['ORDDATE']);
+
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+        } catch(Exception $e) {
+          $vfpdate = $date->copy()->subDay();
+        }
+
+        if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) { // if salesmtd date == backup date
+          $data = $this->salesmtdCtrl->associateAttributes($row);
+          $data['branch_id'] = $backup->branchid;
+
+          if ($ctr==0) {
+            $ds['opened_at'] = $data['ordtime'];
+            $ds['closed_at'] = $data['ordtime'];
+          }
+
+          if (c($ds['opened_at'])->gt(c($data['ordtime'])))
+            $ds['opened_at'] = $data['ordtime'];
+
+          if (c($ds['closed_at'])->lt(c($data['ordtime'])))
+            $ds['closed_at'] = $data['ordtime'];
+
+          try {
+            //$this->logAction($data['orddate'], ' create:salesmtd');
+            $this->salesmtdCtrl->create($data);
+            $update++;
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw new Exception('salesmtd: '.$e->getMessage());   
+            return false;   
+          }
+          $ds['slsmtd_totgrs'] += $data['grsamt'];
+
+          $ctr++;
+        }
+      }
+
+      // update dailysales
+      try {
+        $this->ds->firstOrNew($ds, ['date', 'branchid']);
+      } catch(Exception $e) {
+        dbase_close($db);
+        throw new Exception('salesmtd:ds: '.$e->getMessage());    
+      }
+      */
+
+      $c->info($update);
+      dbase_close($db);
+      unset($db);
+      return count($update>0) ? true:false;
+    } 
+    return false;  
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ############## endfor App\Command\Backlog\MonthDaily #################################
 
 
   
