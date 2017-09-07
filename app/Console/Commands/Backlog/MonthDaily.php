@@ -105,6 +105,7 @@ class MonthDaily extends Command
     }
     
     
+    
     $this->info('extracting salesmtd...');
     try {
       $r = $this->backlogSalesmtd($br->id, $f, $t, $this);
@@ -114,6 +115,7 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
+    
     
     DB::commit();
 

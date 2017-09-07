@@ -1700,10 +1700,13 @@ class PosUploadRepository extends Repository
         #$c->info($d->{$key});
         $c->info($value);
         $arr[$key]=$value;
+      } else {
+        $arr = [];
       }
-
+      /*
       if ($d->mancostpct=='0' || is_null($d->mancostpct) || empty($d->mancostpct)) 
         $arr['mancostpct'] = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($d->mancost/$d->sales)*100;
+      */
     }
     return empty($arr) ? false: $arr;
   }
@@ -1722,7 +1725,7 @@ class PosUploadRepository extends Repository
       $ds = [];
 
       $ds['slsmtd_totgrs'] = 0;
-      $ds['branchid']   = $branchid;
+      $ds['branchid'] = $branchid;
 
       for ($i=1; $i<=$recno; $i++) {
       //for ($i=$recno; $i>0; $i--) {
@@ -1743,8 +1746,8 @@ class PosUploadRepository extends Repository
           $ds['closed_at'] = $data['ordtime'];
           $trans = 1;
           $curr_slipno = $data['cslipno'];
-          $c->info('delete: '.$curr_date->format('Y-m-d'));
           
+          $c->info('delete: '.$curr_date->format('Y-m-d'));
           try {
             $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
           } catch(Exception $e) {
@@ -1755,63 +1758,69 @@ class PosUploadRepository extends Repository
           //sleep(1);
         }
 
-        if ($vfpdate->gte($from) && $vfpdate->lte($to)) {
+       
 
-          if ($vfpdate->eq($curr_date)) {
-            $ds['slsmtd_totgrs'] += $data['grsamt'];
+        if ($vfpdate->eq($curr_date)) {
+          $ds['slsmtd_totgrs'] += $data['grsamt'];
 
-            if (c($ds['opened_at'])->gt(c($data['ordtime'])))
-              $ds['opened_at'] = $data['ordtime'];
-
-            if (c($ds['closed_at'])->lt(c($data['ordtime'])))
-              $ds['closed_at'] = $data['ordtime'];
-
-            if ($i==1) {
-              //$c->info('save');
-              $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans], $branchid, $vfpdate, $c);
-              if ($x)
-                $ds = array_merge($ds, $x);              
-              
-              $c->info($vfpdate->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
-              $ds['date'] = $vfpdate->format('Y-m-d');
-              $this->ds->firstOrNew($ds, ['date', 'branchid']);
-            }
-
-            if ($curr_slipno!=$data['cslipno']) {
-              $trans++;
-              $curr_slipno=$data['cslipno'];
-            }
-            
-
-          } else {
-
-            $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans], $branchid, $curr_date, $c);
-            if ($x)
-              $ds = array_merge($ds, $x);
-            
-            $c->info($curr_date->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
-            $ds['date'] = $curr_date->format('Y-m-d');
-            $this->ds->firstOrNew($ds, ['date', 'branchid']);
-
-            $ds['slsmtd_totgrs'] = $data['grsamt'];
-            $curr_date = $vfpdate;
-            $trans=0;
+          if (c($ds['opened_at'])->gt(c($data['ordtime'])))
             $ds['opened_at'] = $data['ordtime'];
+
+          if (c($ds['closed_at'])->lt(c($data['ordtime'])))
             $ds['closed_at'] = $data['ordtime'];
-            $c->info('delete: '.$curr_date->format('Y-m-d'));
+          
+          if ($i==$recno) {
+            //$c->info('save');
+            $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans], $branchid, $vfpdate, $c);
+            if ($x)
+              $ds = array_merge($ds, $x);              
+            else 
+              unset($ds['trans_cnt']);
             
-            try {
-              $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
-            } catch(Exception $e) {
-              dbase_close($db);
-              throw $e;    
-            }
-            
-            //sleep(1);
+            $c->info($vfpdate->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
+            $ds['date'] = $vfpdate->format('Y-m-d');
+            $this->ds->firstOrNew($ds, ['date', 'branchid']);
           }
+
+        } else {
+          //$c->info('save');
+          $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans], $branchid, $curr_date, $c);
+          if ($x)
+            $ds = array_merge($ds, $x);
+          else 
+            unset($ds['trans_cnt']);
+          
+          $c->info($curr_date->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
+          $ds['date'] = $curr_date->format('Y-m-d');
+          $this->ds->firstOrNew($ds, ['date', 'branchid']);
+
+          $ds['slsmtd_totgrs'] = $data['grsamt'];
+          $curr_date = $vfpdate;
+          $trans=0;
+          $ds['opened_at'] = $data['ordtime'];
+          $ds['closed_at'] = $data['ordtime'];
+          
+          $c->info('delete: '.$curr_date->format('Y-m-d'));
+          try {
+            $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
+          
+          //sleep(1);
+        }
+
+        if ($curr_slipno!=$data['cslipno']) {
+          $trans++;
+          $curr_slipno=$data['cslipno'];
+        }
+        //$c->info($trans.' '.$curr_slipno.' '.$data['cslipno']);
+        
 
           //$c->info($trans.' '.$curr_slipno.' '.$data['cslipno']);
           $data['branch_id'] = $branchid;
+          
           try {
             $this->salesmtdCtrl->create($data);
           } catch(Exception $e) {
@@ -1819,20 +1828,14 @@ class PosUploadRepository extends Repository
             throw new Exception('salesmtd: '.$e->getMessage());   
             return false;   
           }
-          //$c->info($i.' '.$vfpdate->format('Y-m-d').'  '.$curr_date->format('Y-m-d').'  '.$data['grsamt'].'  '.$ds['slsmtd_totgrs'].' '.$data['ordtime']);
+          
+          $c->info($i.' '.$vfpdate->format('Y-m-d').'  '.$curr_date->format('Y-m-d').'  '.$data['grsamt'].'  '.$ds['slsmtd_totgrs'].' '.$data['ordtime']);
 
 
           
 
           $update++;
-        } else {
-          $c->info($recno);
-          
-          $c->info($update);
-          dbase_close($db);
-          unset($db);
-          return count($update>0) ? true:false;
-        }
+        
       }
 
 
