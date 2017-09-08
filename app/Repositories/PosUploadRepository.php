@@ -1668,6 +1668,13 @@ class PosUploadRepository extends Repository
             $c->info($data['date'].' '.$data['sales'].' '.$data['custcount'].' '.$data['trans_cnt'].' '.$data['empcount'].' '.$data['mancost'].' '.$data['mancostpct']);
 
             $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig'];
+            
+            if ($from->copy()->subDay()->eq($vfpdate)) {
+              $c->info('before month:'. $vfpdate->format('Y-m-d'));
+              $c->info('trans_cnt:'. $data['trans_cnt']);
+              if ($data['trans_cnt']<1)
+                unset($data['trans_cnt']);
+            }
 
             if ($this->ds->firstOrNew(array_only($data, $fields), ['date', 'branchid']))
               $update++;
