@@ -190,6 +190,6 @@ class AuthController extends Controller
         if (app()->environment()==='production')
             event(new GoogleUserLoggedIn($user->email));
         
-        return redirect('/?rdr=google&avatar='.$user->getAvatar())->withCookie(cookie('avatar', $user->getAvatar(), 45000));
+        return redirect('/?rdr=google')->withCookie(cookie('avatar', $user->getAvatar(), 45000));
     }
 }

@@ -67,7 +67,11 @@
   <div style="height: 100px;" class="hidden-xs hidden-sm"></div>
   <div class="div-signin" style="margin-top: 0;">
     <div>
-      <img class="center-block img-signin img-circle img-responsive" src="/images/login-avatar.png">
+      <?php
+      $c = request()->cookie('avatar');
+      $avatar = (!is_null($c) || isset($c)) ? $c : "/images/login-avatar.png";
+      ?>
+      <img class="center-block img-signin img-circle img-responsive" src="{{ $avatar }}">
     </div>
     
       {!! Form::open(['url' => 'auth/login', 'accept-charset'=>'utf-8', 'class'=>'form-signin']) !!}
