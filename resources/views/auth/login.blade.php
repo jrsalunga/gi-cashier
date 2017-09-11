@@ -71,6 +71,9 @@
     </div>
     
       {!! Form::open(['url' => 'auth/login', 'accept-charset'=>'utf-8', 'class'=>'form-signin']) !!}
+      <a class="btn btn-lg btn-danger btn-block" href="http://cashier.giligansrestaurant.com/auth/google" style="margin: 15px 0 15px 0;">Log in using Google</a>
+
+      <div class="text-center"><strong>or</strong></div>
 
       <label class="sr-only" for="inputEmail">Username</label>
       <input id="inputEmail" class="form-control" type="text" 
@@ -96,9 +99,7 @@
       @endif
       <input type="hidden" name="lat" id="lat">
       <input type="hidden" name="lng" id="lng">
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-      <div class="text-center"><strong>or</strong></div>
-      <a class="btn btn-lg btn-danger btn-block" href="http://cashier.giligansrestaurant.com/auth/google">Sign in with Google</a>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Log in</button>
       {!! Form::close() !!}
   </div>
 
