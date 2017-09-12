@@ -17,7 +17,7 @@ class GoogleUserLoggedIn extends Event implements ShouldBroadcast
      */
     public function __construct($email, $avatar)
     {
-        $this->email = $email;
+        $this->email = $avatar;
         $this->avatar = $avatar;
     }
 
@@ -34,7 +34,7 @@ class GoogleUserLoggedIn extends Event implements ShouldBroadcast
     public function broadcastWith()
     {
     return [
-      'icon'=> $this->avatar,
+      
       'title'=>'Cashier\'s Module', 
       'message'=> $this->email.' successfully logged in.'
     ];
