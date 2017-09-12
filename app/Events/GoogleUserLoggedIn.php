@@ -5,7 +5,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Http\Request;
 
-class GoogleUserLoggedIn extends Event
+class GoogleUserLoggedIn extends Event implements ShouldBroadcast
 {
     use SerializesModels;
     public $email;
@@ -38,7 +38,7 @@ class GoogleUserLoggedIn extends Event
     public function broadcastWith()
     {
     return [
-      //'icon'=> is_null(request()->cookie('avatar')) ? false : request()->cookie('avatar'),
+      'icon'=> is_null(request()->cookie('avatar')) ? false : request()->cookie('avatar'),
       'title'=>'Cashier\'s Module', 
       'message'=> $this->request['name'].' successfully logged in at '
       .$this->request['ip'].' using '.$this->request['browser'].' on '. $this->request['platform']
