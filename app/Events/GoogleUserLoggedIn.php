@@ -15,15 +15,10 @@ class GoogleUserLoggedIn extends Event implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct($email, $request)
+    public function __construct($email, $avatar)
     {
         $this->email = $email;
-        $browser = getBrowserInfo();
-        $this->request = $request->all();
-        array_set($this->request, 'name', $email);
-        array_set($this->request, 'ip', clientIP());
-        array_set($this->request, 'browser', $browser['browser']);
-        array_set($this->request, 'platform', $browser['platform']);
+        $this->avatar = $avatar;
     }
 
     /**
@@ -39,10 +34,9 @@ class GoogleUserLoggedIn extends Event implements ShouldBroadcast
     public function broadcastWith()
     {
     return [
-      //'icon'=> is_null(request()->cookie('avatar')) ? false : request()->cookie('avatar'),
+      'icon'=> $this->avatar,
       'title'=>'Cashier\'s Module', 
-      'message'=> $this->request['name'].' successfully logged in at '
-      .$this->request['ip'].' using '.$this->request['browser'].' on '. $this->request['platform']
+      'message'=> $this->email.' successfully logged in.'
     ];
   }
 }

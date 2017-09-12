@@ -188,7 +188,7 @@ class AuthController extends Controller
         Auth::login($au, true);
 
         if (app()->environment()==='production')
-            event(new GoogleUserLoggedIn($user->email, request()));
+            event(new GoogleUserLoggedIn($user->email, substr($user->getAvatar(),0,-5)));
         
         return redirect('/?rdr=google')->withCookie(cookie('avatar',  substr($user->getAvatar(),0,-5), 45000));
     }
