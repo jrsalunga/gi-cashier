@@ -10,6 +10,7 @@ class GoogleUserLoggedIn extends Event implements ShouldBroadcast
     use SerializesModels;
     public $email;
     public $request;
+    public $avatar;
 
     /**
      * Create a new event instance.
@@ -19,6 +20,7 @@ class GoogleUserLoggedIn extends Event implements ShouldBroadcast
     public function __construct($email, $avatar)
     {
         $browser = getBrowserInfo();
+        $this->avatar = is_null(request()->cookie('avatar')) ? false : request()->cookie('avatar');
         $this->request = request()->all();
         array_set($this->request, 'name', $email);
         array_set($this->request, 'ip', clientIP());
@@ -39,7 +41,7 @@ class GoogleUserLoggedIn extends Event implements ShouldBroadcast
     public function broadcastWith()
     {
     return [
-      'icon'=> is_null(request()->cookie('avatar')) ? false : request()->cookie('avatar'),
+      'icon'=> $this->avatar,
       'title'=>'Cashier\'s Module', 
       'message'=> $this->request['name'].' successfully logged in at '
       .$this->request['ip'].' using '.$this->request['browser'].' on '. $this->request['platform']
