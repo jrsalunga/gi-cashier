@@ -20,7 +20,7 @@ class GoogleUserLoggedIn extends Event implements ShouldBroadcast
     public function __construct($email, $avatar)
     {
         $browser = getBrowserInfo();
-        $this->avatar = is_null(request()->cookie('avatar')) ? false : request()->cookie('avatar');
+        $this->avatar = $avatar;
         $this->request = request()->all();
         array_set($this->request, 'name', $email);
         array_set($this->request, 'ip', clientIP());
