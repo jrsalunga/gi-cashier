@@ -9,6 +9,8 @@ class GoogleUserLoggedIn extends Event implements ShouldBroadcast
 {
     use SerializesModels;
     public $email;
+    public $avatar;
+    public $request;
 
     /**
      * Create a new event instance.
