@@ -34,7 +34,7 @@ class GoogleUserLoggedIn extends Event implements ShouldBroadcast
     public function broadcastWith()
     {
     return [
-      
+      'icon'=> $this->avatar,
       'title'=>'Cashier\'s Module', 
       'message'=> $this->email.' successfully logged in.'
     ];
