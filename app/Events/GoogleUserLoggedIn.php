@@ -17,6 +17,7 @@ class GoogleUserLoggedIn extends Event implements ShouldBroadcast
      */
     public function __construct($email)
     {
+        $this->email = $email;
         $browser = getBrowserInfo();
         $this->request = request()->all();
         array_set($this->request, 'name', $email);
