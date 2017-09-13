@@ -22,6 +22,7 @@ class GoogleUserLoggedIn extends Event implements ShouldBroadcast
         $browser = getBrowserInfo();
         $this->avatar = $avatar;
         $this->request = request()->all();
+        $this->email = $email;
         array_set($this->request, 'name', $email);
         array_set($this->request, 'ip', clientIP());
         array_set($this->request, 'browser', $browser['browser']);
