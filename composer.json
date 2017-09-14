@@ -2,7 +2,7 @@
     "name": "gi-boss",
     "description": "Giligan's Restaurant Branch Boss Module",
     "license": "MIT",
-    "type": "project",
+    "type": "project type",
     "require": {
         "php": ">=5.5.9",
         "laravel/framework": "5.1.*",
