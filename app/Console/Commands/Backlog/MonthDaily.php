@@ -91,9 +91,9 @@ class MonthDaily extends Command
 
     $this->info('start processing...');
 
-    $this->posUploadRepo->postNewDailySales($br->id, Carbon::parse($date), $this);
+    //$this->posUploadRepo->postNewDailySales($br->id, Carbon::parse($date), $this);
 
-    /*
+    
     DB::beginTransaction();
 
     $this->info('extracting purchased...');
@@ -137,7 +137,7 @@ class MonthDaily extends Command
     }
     
     DB::commit();
-    */
+    
 
 
     $this->info('done');
