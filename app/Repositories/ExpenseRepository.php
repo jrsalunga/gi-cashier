@@ -41,7 +41,7 @@ class ExpenseRepository extends BaseRepository implements CacheableInterface
     return !is_null($obj) ? $obj : $this->create($attributes);
   }
 
-  public function firstOrNew($attributes, $field) {
+  public function firstOrNewField($attributes, $field) {
     	
   	$attr_idx = [];
   	

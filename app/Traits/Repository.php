@@ -41,7 +41,7 @@ trait Repository {
 
 
 
-  public function firstOrNew($attributes, $field) {
+  public function firstOrNewField($attributes, $field) {
       
     $attr_idx = [];
     

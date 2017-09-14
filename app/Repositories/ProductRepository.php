@@ -66,7 +66,7 @@ class ProductRepository extends BaseRepository implements CacheableInterface
 
     try {
       //return $this->findOrNew($attr, ['code', 'descriptor', 'ucost', 'uprice']);
-      return $this->firstOrNew($attr, ['code', 'descriptor']);
+      return $this->firstOrNewField($attr, ['code', 'descriptor']);
     } catch(Exception $e) {
       throw new Exception('product:import '.$e->getMessage());
     }

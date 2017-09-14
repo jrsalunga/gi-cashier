@@ -32,7 +32,7 @@ class Purchase2Repository extends BaseRepository
   public function verifyAndCreate($data) {
 
     $component = $this->component->verifyAndCreate(array_only($data, ['comp', 'ucost', 'unit', 'supno', 'catname']));
-    $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid']));
+    $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin']));
     $attr = [
       'date' => $data['date'],
       'componentid' => $component->id,
@@ -85,6 +85,31 @@ class Purchase2Repository extends BaseRepository
                     ->leftJoin('expense', 'expense.id', '=', 'compcat.expenseid')
                     ->select(DB::raw('purchase.date, sum(purchase.qty) as qty, sum(purchase.tcost) as tcost'));
     });
+  }
+
+
+  public function associateAttributes($r) {
+    $row = [];
+
+    $vfpdate = c(trim($r['PODATE']).' 00:00:00');
+
+    $row = [
+      'date'      => $vfpdate->format('Y-m-d'),
+      'comp'      => trim($r['COMP']),
+      'unit'      => trim($r['UNIT']),
+      'qty'       => trim($r['QTY']),
+      'ucost'     => trim($r['UCOST']),
+      'tcost'     => trim($r['TCOST']),
+      'supno'     => trim($r['SUPNO']),
+      'supname'   => trim($r['SUPNAME']),
+      'catname'   => trim($r['CATNAME']),
+      'vat'       => trim($r['VAT']),
+      'terms'     => trim($r['TERMS']),
+      'supprefno' => trim($r['FILLER1']),
+      'tin'       => trim($r['SUPTIN'])
+    ];
+
+    return $row;
   }
 
 

@@ -49,6 +49,73 @@ class DailySales extends BaseModel {
     return Carbon::parse($value.' 00:00:00');
   }
 
+  public function getOpex() {
+    if(Carbon::parse($this->date->format('Y-m-d'))->lt(Carbon::parse('2016-01-01')))
+      return 0;
+    else
+      return $this->purchcost - $this->cos;
+  }
+
+  public function get_opexpct($format=true) {
+    if ($this->sales>0) {
+      if ($format)
+        return number_format(($this->getOpex()/$this->sales)*100, 2);
+      else
+        return ($this->getOpex()/$this->sales)*100;
+    }
+    return 0;
+  }
+
+  public function get_cospct($format=true) {
+    if ($this->sales>0) {
+      if ($format)
+        return number_format(($this->cos/$this->sales)*100, 2);
+      else
+        return ($this->cos/$this->sales)*100;
+    }
+    return 0;
+  }
+
+  public function get_mancostpct($format=true) {
+    if ($this->sales>0){
+      if ($format)
+        return number_format(($this->mancost/$this->sales)*100, 2);
+      else
+        return ($this>-mancost/$this->sales)*100;
+    }
+    return 0;
+  }
+
+  public function get_tipspct($format=true) {
+    if ($this->sales>0){
+      if ($format)
+        return number_format(($this->tips/$this->sales)*100, 2);
+      else
+        return ($this->tips/$this->sales)*100;
+    }
+    return 0;
+  }
+
+  public function get_purchcostpct($format=true) {
+    if ($this->sales>0){
+      if ($format)
+        return number_format(($this->purchcost/$this->sales)*100, 2);
+      else
+        return ($this->purchcost/$this->sales)*100;
+    }
+    return 0;
+  }
+
+  public function get_receipt_ave($format=true) {
+    if ($this->trans_cnt>0){
+      if ($format)
+        return number_format($this->sales/$this->trans_cnt, 2);
+      else
+        return $this->sales/$this->trans_cnt;
+    }
+    return 0;
+  }
+
 	
 	
  

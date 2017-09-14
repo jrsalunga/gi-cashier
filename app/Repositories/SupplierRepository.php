@@ -31,6 +31,7 @@ class SupplierRepository extends BaseRepository implements CacheableInterface
     $attr = [
       'code' => substr($data['supno'], 2, 4),
       'descriptor' => $data['supname'],
+      'tin' => $data['tin'],
       'branchid' => $data['branchid']
     ];
 
@@ -56,7 +57,7 @@ class SupplierRepository extends BaseRepository implements CacheableInterface
   }
 
 
-  public function firstOrNew($attributes, $field) {
+  public function firstOrNewField($attributes, $field) {
     	
   	$attr_idx = [];
   	

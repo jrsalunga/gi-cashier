@@ -88,11 +88,23 @@ class MonthDaily extends Command
       exit;
     }
 
-   
+
     $this->info('start processing...');
 
+    $this->posUploadRepo->postNewDailySales($br->id, Carbon::parse($date), $this);
+
+    /*
     DB::beginTransaction();
 
+    $this->info('extracting purchased...');
+    try {
+      $r = $this->backlogPurchased($br->id, $f, $t, $this);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    }
     
     $this->info('extracting cash audit...');
     try {
@@ -104,8 +116,6 @@ class MonthDaily extends Command
       exit;
     }
     
-    
-    
     $this->info('extracting salesmtd...');
     try {
       $r = $this->backlogSalesmtd($br->id, $f, $t, $this);
@@ -115,103 +125,21 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
-    
-    
-    DB::commit();
-
-
-    $this->info('done');
-    $this->removeExtratedDir();
-
-    exit;
-
-
-    $fr = $f->copy();
-    do {
-      $this->info($fr->format('Y-m-d'));
-      //array_push($arr, Carbon::parse($fr->format('Y-m-d').' 00:00:00'));
-    
-
-
-
-
-
-
-
-    } while ($fr->addDay() <= $t);
-
-
-    $this->info('done');
-    $this->removeExtratedDir();
-
-
-    exit;
-
-    //$this->info($locator->realFullPath($path)); exit;
-    
-    $bckup = $this->posUploadRepo->findWhere(['branchid'=>$br->id, 'filename'=>$backup])->first();
-    if (!$bckup) {
-      $this->info('No record found on database.'); 
-      exit;
-    }
-
-  	if (!$this->extract($locator->realFullPath($path), $br->code)) {
-			$this->info('Unable to extract '. $backup .', the backup maybe corrupted. Try to generate another backup file and try to re-upload.');
-			exit;
-		}
-
-
-    $this->info('start processing...');
-
-		DB::beginTransaction();
-
-    $this->info('extracting cash audit...');
-    try {
-      $r = $this->processCashAudit($to, $bckup);
-    } catch (Exception $e) {
-      $this->info($e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      exit;
-    }
-    //$this->info($r);
-		
-    $this->info('extracting purchased...');
-    try {
-      $this->processPurchased($to, $bckup);
-    } catch (Exception $e) {
-      $this->info($e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      exit;
-    }
-    $this->info('success purchased...');
-		
-    $this->info('extracting salesmtd...');
-		try {
-			$this->processSalesmtd($to, $bckup);
-		} catch (Exception $e) {
-			$this->info($e->getMessage());
-    	$this->removeExtratedDir();
-    	DB::rollback();
-    	exit;
-		}
 
     $this->info('extracting charges...');
-		try {
-			$this->processCharges($to, $bckup);
-		} catch (Exception $e) {
-			$this->info($e->getMessage());
-    	$this->removeExtratedDir();
-    	DB::rollback();
-    	exit;
-		}
+    try {
+      $r = $this->backlogCharges($br->id, $f, $t, $this);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    }
+    
+    DB::commit();
+    */
 
 
-    //DB::rollback();
-		DB::commit();
-      
-      
     $this->info('done');
     $this->removeExtratedDir();
     exit;
@@ -245,29 +173,23 @@ class MonthDaily extends Command
     }
   }
 
-  public function processSalesmtd($date, $backup){
-  	try {
-      $this->posUploadRepo->postSalesmtd($date, $backup);
+  public function backlogCharges($branchid, $from, $to, $c) {
+    try {
+      return $this->posUploadRepo->backlogCharges($branchid, $from, $to, $c);
     } catch(Exception $e) {
       throw $e;    
     }
   }
 
-  public function processPurchased($date, $backup){
-  	try {
-      $this->posUploadRepo->postPurchased2($date, $backup);
+  public function backlogPurchased($branchid, $from, $to, $c) {
+    try {
+      return $this->posUploadRepo->backlogPurchased($branchid, $from, $to, $c);
     } catch(Exception $e) {
       throw $e;    
     }
   }
 
-  public function processCharges($date, $backup){
-  	try {
-      $this->posUploadRepo->postCharges($date, $backup);
-    } catch(Exception $e) {
-      throw $e;    
-    }
-  }
+  
 
 
 

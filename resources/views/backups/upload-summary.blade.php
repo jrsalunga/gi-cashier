@@ -29,23 +29,33 @@
   @if(is_null($date))
     no data
   @else
-    <h3>Upload summary of POS backup GC{{ $date->format('mdy') }}.ZIP</h3>
+    <h3>Upload summary of POS backup GC{{ $date->format('mdy') }}.ZIP <em>({{ $date->format('D M d, Y') }})</em></h3>
     <p>&nbsp;</p>
 
     
     <div class="row">
+      <!--
       <div class="col-md-3">
         Backup Date:
         <h3 class="text-primary">{{ $date->format('D M d, Y') }}</h3>
       </div><!-- end: .col-md-3-->
       <div class="col-md-3">
         Gross Sales:
-        <h3 class="text-success">{{ number_format($ds->slsmtd_totgrs, 2) }}</h3>
+        <h3 class="text-muted">{{ number_format($ds->slsmtd_totgrs, 2) }}</h3>
       </div><!-- end: .col-md-3-->
       <div class="col-md-3">
         Net Sales:
-        <h3>{{ number_format($ds->sales, 2) }}</h3>
+        <h3 class="text-success">{{ number_format($ds->sales, 2) }}</h3>
       </div><!-- end: .col-md-3-->
+      <div class="col-md-3">
+        Food Cost:
+        <h3 class="text-info">{{ number_format($ds->cos, 2) }}</h3>
+      </div><!-- end: .col-md-3-->
+      <div class="col-md-3">
+        Operational Expense:
+        <h3 class="text-warning">{{ number_format($ds->getOpex(), 2) }}</h3>
+      </div><!-- end: .col-md-3-->
+      <!--
       <div class="col-md-3">
         Total Purchased Cost:
         <h3 class="text-danger">{{ number_format($ds->purchcost, 2) }}</h3>
@@ -55,39 +65,31 @@
     <p>&nbsp;</p>
       <div class="col-md-3">
         <ul class="list-group">
-          <li class="list-group-item"><span class="pull-right"><strong>{{ $ds->crew_din }}</strong></span> Dining Crew</li>
-          <li class="list-group-item"><span class="pull-right"><strong>{{ $ds->crew_kit }}</strong></span> Kitchen Crew</li>
+          <li class="list-group-item">Customers <span class="pull-right"><strong>{{ number_format($ds->custcount, 0) }}</strong></span></li>
+          <li class="list-group-item">Trans Count <span class="pull-right"><strong>{{ number_format($ds->trans_cnt, 0) }}</strong></span></li>
         </ul>
       </div>
       <div class="col-md-3">
         <ul class="list-group">
-          <li class="list-group-item">Customers <span class="pull-right"><strong>{{ number_format($ds->custcount, 0) }}</strong></span></li>
-          <li class="list-group-item">Tips <span class="pull-right"><strong>{{ number_format($ds->tips, 2) }}</strong></span></li>
+          <li class="list-group-item"><span class="pull-right"><strong>{{ $ds->crew_din }}</strong></span> Dining Crew</li>
+          <li class="list-group-item"><span class="pull-right"><strong>{{ $ds->crew_kit }}</strong></span> Kitchen Crew</li>
         </ul>
-      <!--
-        <div class="panel panel-success">
-          <div class="panel-body">
-            <table class='table'>
-              <tbody>
-                <tr>
-                  <td>Gross Sales</td>
-                  <td>{{ number_format($ds->slsmtd_totgrs, 2) }}</td>
-                </tr>
-                <tr>
-                  <td>Net Sales</td>
-                  <td>{{ number_format($ds->sales, 2) }}</td>
-                </tr> 
-                <tr>
-                  <td>Net Sales</td>
-                  <td>{{ number_format($ds->sales, 2) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      -->
       </div>
+       <div class="col-md-3">
+        <ul class="list-group">
+          <li class="list-group-item"><span class="pull-right"><strong>{{ number_format($ds->mancost,2) }}</strong></span> Man Cost</li>
+          <li class="list-group-item"><span class="pull-right"><strong>{{ $ds->get_mancostpct() }}</strong></span> Man Cost %</li>
+        </ul>
+      </div>
+      <div class="col-md-3">
+        <ul class="list-group">
+          <li class="list-group-item">Tips <span class="pull-right"><strong>{{ number_format($ds->tips, 2) }}</strong></span></li>
+          <li class="list-group-item">Tips % <span class="pull-right"><strong>{{ number_format($ds->get_tipspct(), 2) }}</strong></span></li>
+        </ul>
+      </div>
+      
     </div><!-- end: .row-->
+
 
     <div class="row">
       <div class="col-md-12">
@@ -139,12 +141,13 @@
    
   });
   </script>
-
+ @if(app()->environment()==='production')
 <!-- gi- -->
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <script>
 (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+@endif
 @endsection
 
 

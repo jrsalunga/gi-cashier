@@ -24,14 +24,14 @@ use Illuminate\Container\Container as App;
 class PosUploadRepository extends Repository
 {
     
-    public $ds;
-    public $extracted_path;
-    public $purchase;
-    public $purchase2;
-    public $charges;
-    private $sysinfo = null;
-    protected $salesmtdCtrl;
-    protected $expense_array = [];
+  public $ds;
+  public $extracted_path;
+  public $purchase;
+  public $purchase2;
+  public $charges;
+  private $sysinfo = null;
+  protected $salesmtdCtrl;
+  protected $expense_array = [];
 
     
 
@@ -40,17 +40,18 @@ class PosUploadRepository extends Repository
    * @param Collection $collection
    * @throws \App\Repositories\Exceptions\RepositoryException
    */
-  public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, 
-    Purchase $purchase, PurchaseRepo $purchaserepo, SalesmtdCtrl $salesmtdCtrl, ChargesRepo $charges) {
-      parent::__construct($app, $collection);
+  public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, Purchase $purchase, PurchaseRepo $purchaserepo, SalesmtdCtrl $salesmtdCtrl, ChargesRepo $charges) {
+    
+    parent::__construct($app, $collection);
 
-      $this->ds = $dailysales;
-      $this->purchase   = $purchase;
-      $this->purchase2  = $purchaserepo;
-      $this->salesmtdCtrl = $salesmtdCtrl;
-      $this->charges = $charges;
+    $this->ds = $dailysales;
+    $this->purchase   = $purchase;
+    $this->purchase2  = $purchaserepo;
+    $this->salesmtdCtrl = $salesmtdCtrl;
+    $this->charges = $charges;
 
-      $this->get_foodcost();
+    //$this->get_foodcost();
+    $this->expense_array = ["GR","MP","FS","FV","RC","CK","CG","SS","IC"]; // no ,"DB","DN","DA"
   }
 
   private function get_foodcost() {
@@ -58,9 +59,9 @@ class PosUploadRepository extends Repository
     $this->expense_array =  $expense->findWhere(['expscatid'=> '7208AA3F5CF111E5ADBC00FF59FBB323'], ['code'])->pluck('code')->toArray();
   }
 
-    public function model() {
-        return 'App\Models\Backup';
-    }
+  public function model() {
+      return 'App\Models\Backup';
+  }
 
     public function extract($src, $pwd=NULL, $d=true, $brcode='ALL'){
      
@@ -90,9 +91,6 @@ class PosUploadRepository extends Repository
           $zip->close();
           return false;
         }
-
-        //$this->postDailySales($path, filename_to_date2(pathinfo($src, PATHINFO_FILENAME)));
-        //$this->removeDir($path);
 
         $zip->close();
 
@@ -246,6 +244,60 @@ class PosUploadRepository extends Repository
       return $cust_count;
     }
 
+    //public function postNewDailySales($branchid, Carbon $date, $c){
+    public function postNewDailySales(Backup $backup){
+
+      $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+      if (file_exists($dbf_file)) {
+        $db = dbase_open($dbf_file, 0);
+        $header = dbase_get_header_info($db);
+        $recno = dbase_numrecords($db);
+        $from = $backup->date->copy()->subDay();
+        $to = $backup->date;
+        //$from = $date->copy()->subDay();
+        //$to = $date;
+
+        for ($i=1; $i<=$recno; $i++) {
+          $row = dbase_get_record_with_names($db, $i);
+          $data = $this->getDailySalesDbfRowData($row);
+          $vfpdate = Carbon::parse($data['date']);
+          //$data['branchid'] = $branchid;
+          $data['branchid'] = $backup->branchid;
+
+          if ($vfpdate->gte($from) && $vfpdate->lte($to)) {
+            //$c->info($vfpdate->format('Y-m-d'));
+
+            if ($data['trans_cnt']<1) {
+              $this->postCharges($vfpdate, $backup, true);
+            }
+
+            if ($data['custcount']<1) {
+              $data['custcount'] = $this->parseCustomerCount($vfpdate);
+              $data['headspend'] = $data['custcount']==0 ? 0:($data['sales']/$data['custcount']);
+            }
+
+
+
+            //$c->info($data['date'].' '.$data['sales'].' '.$data['custcount'].' '.$data['trans_cnt'].' '.$data['empcount'].' '.$data['mancost'].' '.$data['mancostpct']);
+
+            $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig'];
+            
+            foreach (['sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig'] as $f) {
+              if ($data[$f]<1)
+                unset($data[$f]);
+            }
+
+            //$c->info(json_encode($data));
+            $this->ds->firstOrNewField($data, ['date', 'branchid']);
+          }
+        }
+
+        dbase_close($db);
+        return true;
+      }
+      return false;
+    }
+
     public function postDailySales(Backup $backup){
 
       //$this->logAction('function:postDailySales', '');
@@ -304,7 +356,7 @@ class PosUploadRepository extends Repository
           //$this->logAction('ds:get_last', '');
           if(is_null($last_ds)) {
 
-            if ($this->ds->firstOrNew($data, ['date', 'branchid']));
+            if ($this->ds->firstOrNewField($data, ['date', 'branchid']));
               $update++;
           
           } else {
@@ -326,7 +378,7 @@ class PosUploadRepository extends Repository
                 if (isset($this->sysinfo->posupdate) 
                 && vfpdate_to_carbon($this->sysinfo->posupdate)->lt(Carbon::parse('2016-07-06')))  // before sysinfo.update
                 {
-                  if ($this->ds->firstOrNew(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid'])) {
+                  if ($this->ds->firstOrNewField(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid'])) {
                     $update++;
                   }
                 } else {
@@ -338,14 +390,14 @@ class PosUploadRepository extends Repository
                     $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt'];
                     
 
-                  if ($this->ds->firstOrNew(array_only($data, $fields), ['date', 'branchid'])) {
+                  if ($this->ds->firstOrNewField(array_only($data, $fields), ['date', 'branchid'])) {
                     $update++;
                     //test_log('last: '. $vfpdate->format('Y-m-d').' '.$data['custcount']);
                   }
                 }
               } else {
                 //$this->logAction('single:lte:i!=record_numbers', '');
-                if ($this->ds->firstOrNew($data, ['date', 'branchid']))
+                if ($this->ds->firstOrNewField($data, ['date', 'branchid']))
                   $update++;
               }
             }
@@ -359,7 +411,7 @@ class PosUploadRepository extends Repository
                // $data['custcount'] = $this->parseCustomerCount($vfpdate);
 
               //test_log('last: '. $vfpdate->format('Y-m-d').' '.$data['custcount']);
-              if ($this->ds->firstOrNew(array_only($data, 
+              if ($this->ds->firstOrNewField(array_only($data, 
                   ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt']
                 ), ['date', 'branchid'])) {
                   $update++;
@@ -445,12 +497,16 @@ class PosUploadRepository extends Repository
             
             //\DB::beginTransaction();
             //$this->logAction($date->format('Y-m-d'), 'create:purchased');
+
+            /* remove 2017-09-12
             try {
               $this->purchase->create($attrs);
             } catch(Exception $e) {
               throw $e;    
             }
+            */
 
+            $attrs['tin'] = trim($row['SUPTIN']);
             $attrs['supprefno'] = trim($row['FILLER1']);
             try {
               //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
@@ -477,7 +533,7 @@ class PosUploadRepository extends Repository
           
           $cospct = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($food_cost/$d->sales)*100;
 
-          $this->ds->firstOrNew(['branchid'=>session('user.branchid'), 
+          $this->ds->firstOrNewField(['branchid'=>session('user.branchid'), 
                               'date'=>$date->format('Y-m-d'),
                               'cos'=> $food_cost,
                               'cospct'=> $cospct,
@@ -863,8 +919,7 @@ class PosUploadRepository extends Repository
         return false;
       }
 
-      //$this->postDailySales($path, filename_to_date2(pathinfo($src, PATHINFO_FILENAME)));
-      //$this->removeDir($path);
+      
 
       $zip->close();
 
@@ -915,7 +970,7 @@ class PosUploadRepository extends Repository
           
           if(is_null($last_ds)) {
 
-            if ($this->ds->firstOrNew($data, ['date', 'branchid']));
+            if ($this->ds->firstOrNewField($data, ['date', 'branchid']));
               $update++;
           
           } else {
@@ -930,13 +985,13 @@ class PosUploadRepository extends Repository
               if($i==$record_numbers) {
                
                 //$this->logAction('single:lte:i==record_numbers', '');
-                if ($this->ds->firstOrNew(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid']))
+                if ($this->ds->firstOrNewField(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid']))
                   $update++;
 
               } else {
                 
                 //$this->logAction('single:lte:i!=record_numbers', '');
-                if ($this->ds->firstOrNew($data, ['date', 'branchid']))
+                if ($this->ds->firstOrNewField($data, ['date', 'branchid']))
                   $update++;
 
               }
@@ -1020,12 +1075,14 @@ class PosUploadRepository extends Repository
             'branchid'  => $backup->branchid
           ];
           
+          /* remove from 2017-09-12
           try {
             $this->purchase->create($attrs);
           } catch(Exception $e) {
             dbase_close($db);
             throw $e;    
           }
+          */
 
           $attrs['supprefno'] = trim($row['FILLER1']);
           try {
@@ -1054,7 +1111,7 @@ class PosUploadRepository extends Repository
           
         $cospct = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($food_cost/$d->sales)*100;
 
-        $this->ds->firstOrNew(['branchid'=>$backup->branchid, 
+        $this->ds->firstOrNewField(['branchid'=>$backup->branchid, 
                             'date'=>$date->format('Y-m-d'),
                             'cos'=> $food_cost,
                             'cospct'=> $cospct,
@@ -1102,7 +1159,7 @@ class PosUploadRepository extends Repository
           $data['branchid']   = $backup->branchid;
           
           
-          if ($this->ds->firstOrNew(array_only($data, 
+          if ($this->ds->firstOrNewField(array_only($data, 
                     ['date', 'branchid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din']
                   ), ['date', 'branchid'])) {
             $update++;
@@ -1188,7 +1245,7 @@ class PosUploadRepository extends Repository
 
       // update dailysales
       try {
-        $this->ds->firstOrNew($ds, ['date', 'branchid']);
+        $this->ds->firstOrNewField($ds, ['date', 'branchid']);
       } catch(Exception $e) {
         dbase_close($db);
         throw new Exception('salesmtd:ds: '.$e->getMessage());    
@@ -1203,7 +1260,7 @@ class PosUploadRepository extends Repository
 
 
 
-  public function postCharges(Carbon $date, Backup $backup) {
+  public function postCharges(Carbon $date, Backup $backup, $parseCustCnt=false) {
 
     //$dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
     
@@ -1249,7 +1306,9 @@ class PosUploadRepository extends Repository
     $ds['chrg_othr']    = $c['chrg_othr'] + $s['chrg_othr'];
     $ds['disc_totamt']  = $c['disc_totamt'] + $s['disc_totamt'];
 
-    if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) {
+    // remove the date bec of $this->postNewDailySales
+    #if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) {
+    if ($parseCustCnt) {
       $ds['custcount']  = $c['custcount'] + $s['custcount'];
       $ds['headspend']  = ($ds['custcount'] > 0) ? $ds['chrg_total'] / $ds['custcount'] : 0 ;
       $ds['trans_cnt']  = $c['ctr'] + $s['ctr'];
@@ -1258,7 +1317,7 @@ class PosUploadRepository extends Repository
 
     // update dailysales
     try {
-      $this->ds->firstOrNew($ds, ['date', 'branchid']);
+      $this->ds->firstOrNewField($ds, ['date', 'branchid']);
       } catch(Exception $e) {
       //dbase_close($db);
       throw new Exception('charges:ds: '.$e->getMessage());    
@@ -1341,7 +1400,6 @@ class PosUploadRepository extends Repository
     return $ds;
   }
 
-
   public function postRawSigned(Carbon $date, Backup $backup) {
 
     $dbf_file = $this->extracted_path.DS.'SIGNED.DBF';
@@ -1412,8 +1470,6 @@ class PosUploadRepository extends Repository
     return $ds;
   }
 
- 
-
   // prototype
   public function dbase($dbf) {
     $obj = new StdClass;
@@ -1427,8 +1483,6 @@ class PosUploadRepository extends Repository
     }
     return false;
   }
-
-
 
   public function updateDailySalesManpower(Carbon $date, Backup $backup) {
 
@@ -1461,7 +1515,7 @@ class PosUploadRepository extends Repository
           ];
 
           try {
-            $this->ds->firstOrNew($ds, ['date', 'branchid']);
+            $this->ds->firstOrNewField($ds, ['date', 'branchid']);
           } catch(Exception $e) {
             dbase_close($db);
             throw new Exception('updateDailySalesManpower: '.$e->getMessage());    
@@ -1479,8 +1533,6 @@ class PosUploadRepository extends Repository
     }
     return false;  
   }
-
-
 
   public function updateDailySalesTransCount(Carbon $date, Backup $backup) {
 
@@ -1520,7 +1572,7 @@ class PosUploadRepository extends Repository
           }
 
           try {
-            $this->ds->firstOrNew($ds, ['date', 'branchid']);
+            $this->ds->firstOrNewField($ds, ['date', 'branchid']);
           } catch(Exception $e) {
             dbase_close($db);
             throw new Exception('updateDailySalesTransCount: '.$e->getMessage());    
@@ -1570,7 +1622,7 @@ class PosUploadRepository extends Repository
 
 
         try {
-          $this->ds->firstOrNew($ds, ['date', 'branchid']);
+          $this->ds->firstOrNewField($ds, ['date', 'branchid']);
         } catch(Exception $e) {
           dbase_close($db);
           throw new Exception('updateDailySalesTransCount: '.$e->getMessage());    
@@ -1588,11 +1640,6 @@ class PosUploadRepository extends Repository
     }
     return false;  
   }
-
-
-
-
-
 
   public function updateProductsTable() {
 
@@ -1638,10 +1685,17 @@ class PosUploadRepository extends Repository
 
 
 
-  ###################################################################################################################################
-  ############## for App\Command\Backlog\MonthDaily #################################################################################
-  ###################################################################################################################################
-
+###################################################################################################################################
+############## for App\Command\Backlog\MonthDaily #################################################################################
+###################################################################################################################################
+  private function getDays(Carbon $from, Carbon $to) {
+    $fr = $from->copy();
+    $days = [];
+    do
+      array_push($days, Carbon::parse($fr->format('Y-m-d').' 00:00:00'));
+    while ($fr->addDay() <= $to);
+    return $days;
+  }
 
   public function backlogDailySales($branchid, Carbon $from, Carbon $to, $c) {
 
@@ -1674,9 +1728,14 @@ class PosUploadRepository extends Repository
               $c->info('trans_cnt:'. $data['trans_cnt']);
               if ($data['trans_cnt']<1)
                 unset($data['trans_cnt']);
+              $c->info('custcount:'. $data['custcount']);
+              if ($data['custcount']<1) {
+                unset($data['custcount']);
+                unset($data['headspend']);
+              }
             }
 
-            if ($this->ds->firstOrNew(array_only($data, $fields), ['date', 'branchid']))
+            if ($this->ds->firstOrNewField(array_only($data, $fields), ['date', 'branchid']))
               $update++;
           
           } else {
@@ -1705,19 +1764,23 @@ class PosUploadRepository extends Repository
       $x = $d->{$key};
       if ($x=='0' || is_null($x) || empty($x)) {
         #$c->info($d->{$key});
-        $c->info($value);
+        $c->info('checkSalesmtdDS:'.$key.': '.$value);
         $arr[$key]=$value;
       } else {
-        $arr = [];
+        unset($arr[$key]);
       }
-      /*
-      if ($d->mancostpct=='0' || is_null($d->mancostpct) || empty($d->mancostpct)) 
-        $arr['mancostpct'] = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($d->mancost/$d->sales)*100;
-      */
     }
+   
+    //if ($d->cospct<=0 || is_null($d->cospct) || empty($d->cospct)) {
+      $arr['cospct']  = ($d->sales<=0) ? 0 : number_format(($d->cos/$d->sales)*100,2,'.','');
+      $c->info('cospct: '.$arr['cospct']);
+    //} else {
+    //  $c->info('unset cospct');
+    //  unset($arr['cospct']);
+    //}
+
     return empty($arr) ? false: $arr;
   }
-
 
   public function backlogSalesmtd($branchid, Carbon $from, Carbon $to, $c) {
 
@@ -1754,7 +1817,7 @@ class PosUploadRepository extends Repository
           $trans = 1;
           $curr_slipno = $data['cslipno'];
           
-          $c->info('delete: '.$curr_date->format('Y-m-d'));
+          $c->info('del: '.$curr_date->format('Y-m-d'));
           try {
             $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
           } catch(Exception $e) {
@@ -1778,28 +1841,32 @@ class PosUploadRepository extends Repository
           
           if ($i==$recno) {
             //$c->info('save');
+            /*
             $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans], $branchid, $vfpdate, $c);
             if ($x)
               $ds = array_merge($ds, $x);              
             else 
               unset($ds['trans_cnt']);
+            */
             
-            $c->info($vfpdate->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
+            $c->info('ds : '.$vfpdate->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
             $ds['date'] = $vfpdate->format('Y-m-d');
-            $this->ds->firstOrNew($ds, ['date', 'branchid']);
+            $this->ds->firstOrNewField($ds, ['date', 'branchid']);
           }
 
         } else {
           //$c->info('save');
+          /*
           $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans], $branchid, $curr_date, $c);
           if ($x)
             $ds = array_merge($ds, $x);
           else 
             unset($ds['trans_cnt']);
+          */
           
-          $c->info($curr_date->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
+          $c->info('ds : '.$curr_date->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
           $ds['date'] = $curr_date->format('Y-m-d');
-          $this->ds->firstOrNew($ds, ['date', 'branchid']);
+          $this->ds->firstOrNewField($ds, ['date', 'branchid']);
 
           $ds['slsmtd_totgrs'] = $data['grsamt'];
           $curr_date = $vfpdate;
@@ -1807,7 +1874,7 @@ class PosUploadRepository extends Repository
           $ds['opened_at'] = $data['ordtime'];
           $ds['closed_at'] = $data['ordtime'];
           
-          $c->info('delete: '.$curr_date->format('Y-m-d'));
+          $c->info('del: '.$curr_date->format('Y-m-d'));
           try {
             $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
           } catch(Exception $e) {
@@ -1825,94 +1892,20 @@ class PosUploadRepository extends Repository
         //$c->info($trans.' '.$curr_slipno.' '.$data['cslipno']);
         
 
-          //$c->info($trans.' '.$curr_slipno.' '.$data['cslipno']);
-          $data['branch_id'] = $branchid;
+        //$c->info($trans.' '.$curr_slipno.' '.$data['cslipno']);
+        $data['branch_id'] = $branchid;
           
-          try {
-            $this->salesmtdCtrl->create($data);
-          } catch(Exception $e) {
-            dbase_close($db);
-            throw new Exception('salesmtd: '.$e->getMessage());   
-            return false;   
-          }
-          
-          //$c->info($i.' '.$vfpdate->format('Y-m-d').'  '.$curr_date->format('Y-m-d').'  '.$data['grsamt'].'  '.$ds['slsmtd_totgrs'].' '.$data['ordtime']);
-
-
-          
-
-          $update++;
-        
-      }
-
-
-      /*    
-
-      // delete salesmtd (branchid, date) if exist
-      try {
-        //$this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
-        $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$date->format('Y-m-d')]);
-      } catch(Exception $e) {
-        dbase_close($db);
-        throw new Exception($e->getMessage());    
-      }
-      
-
-      $ctr = 0;
-      $ds = [];
-      $ds['slsmtd_totgrs'] = 0;
-      $ds['date']       = $date->format('Y-m-d');
-      $ds['branchid']   = $backup->branchid;
-      
-      #for ($i=1; $i<=$record_numbers; $i++) {
-      for ($i=$recno; $i>0; $i--) {
-        $row = dbase_get_record_with_names($db, $i);
-        //$this->logAction('-', $row['ORDDATE']);
-
         try {
-          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+          $this->salesmtdCtrl->create($data);
         } catch(Exception $e) {
-          $vfpdate = $date->copy()->subDay();
+          dbase_close($db);
+          throw new Exception('salesmtd: '.$e->getMessage());   
+          return false;   
         }
-
-        if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) { // if salesmtd date == backup date
-          $data = $this->salesmtdCtrl->associateAttributes($row);
-          $data['branch_id'] = $backup->branchid;
-
-          if ($ctr==0) {
-            $ds['opened_at'] = $data['ordtime'];
-            $ds['closed_at'] = $data['ordtime'];
-          }
-
-          if (c($ds['opened_at'])->gt(c($data['ordtime'])))
-            $ds['opened_at'] = $data['ordtime'];
-
-          if (c($ds['closed_at'])->lt(c($data['ordtime'])))
-            $ds['closed_at'] = $data['ordtime'];
-
-          try {
-            //$this->logAction($data['orddate'], ' create:salesmtd');
-            $this->salesmtdCtrl->create($data);
-            $update++;
-          } catch(Exception $e) {
-            dbase_close($db);
-            throw new Exception('salesmtd: '.$e->getMessage());   
-            return false;   
-          }
-          $ds['slsmtd_totgrs'] += $data['grsamt'];
-
-          $ctr++;
-        }
+          
+        //$c->info($i.' '.$vfpdate->format('Y-m-d').'  '.$curr_date->format('Y-m-d').'  '.$data['grsamt'].'  '.$ds['slsmtd_totgrs'].' '.$data['ordtime']);
+        $update++;
       }
-
-      // update dailysales
-      try {
-        $this->ds->firstOrNew($ds, ['date', 'branchid']);
-      } catch(Exception $e) {
-        dbase_close($db);
-        throw new Exception('salesmtd:ds: '.$e->getMessage());    
-      }
-      */
 
       $c->info($update);
       dbase_close($db);
@@ -1920,7 +1913,377 @@ class PosUploadRepository extends Repository
       return count($update>0) ? true:false;
     } 
     return false;  
+  }
 
+  public function backlogCharges($branchid, Carbon $from, Carbon $to, $c) {
+    foreach ($this->getDays($from, $to) as $key => $date) {
+      $c->info($key.' '.$date->format('Y-m-d'));
+      $this->backlogChargeSigned($branchid, $date, $c);
+    }
+  }
+
+  public function backlogChargeSigned($branchid, Carbon $date, $cmd) {
+
+    try {
+      $cmd->info('charge delete: '.$date->format('Y-m-d'));
+      $this->charges->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$date->format('Y-m-d')]);
+    } catch(Exception $e) {
+      throw new Exception('charges: '.$e->getMessage());    
+    }
+
+    $ds = [];
+    $ds['bank_totchrg'] = 0;
+    $ds['chrg_total']   = 0;
+    $ds['chrg_csh']     = 0;
+    $ds['chrg_chrg']    = 0;
+    $ds['chrg_othr']    = 0;
+    $ds['disc_totamt']  = 0;
+    $ds['date']         = $date->format('Y-m-d');
+    $ds['branchid']     = $branchid;
+
+    try {
+      $c = $this->backlogRawCharges($branchid, $date, $cmd);
+    } catch(Exception $e) {
+      throw new Exception('backlogChargeSigned:charges: '.$e->getMessage());    
+    }
+
+    try {
+      $s = $this->backlogRawSigned($branchid, $date, $cmd);
+    } catch(Exception $e) {
+      throw new Exception('backlogChargeSigned:signed: '.$e->getMessage());    
+    }
+
+    $ds['bank_totchrg'] = $c['bank_totchrg']  + $s['bank_totchrg'];
+    $ds['chrg_total']   = $c['chrg_total']    + $s['chrg_total'];
+    $ds['chrg_csh']     = $c['chrg_csh']      + $s['chrg_csh'];
+    $ds['chrg_chrg']    = $c['chrg_chrg']     + $s['chrg_chrg'];
+    $ds['chrg_othr']    = $c['chrg_othr']     + $s['chrg_othr'];
+    $ds['disc_totamt']  = $c['disc_totamt']   + $s['disc_totamt'];
+
+    $cnt = $c['custcount'] + $s['custcount'];
+    $hspend = ($cnt > 0) ? number_format($ds['chrg_total']/$cnt,2,'.','') : 0;
+    $trans = $c['ctr'] + $s['ctr'];
+
+    $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans, 'custcount'=>$cnt, 'headspend'=>$hspend], $branchid, $date, $cmd);
+    if ($x)
+      $ds = array_merge($ds, $x);
+    else {
+      //unset($ds['custcount']);
+      //unset($ds['headspend']);
+      //unset($ds['trans_cnt']);
+    }
+
+
+    // update dailysales
+    try {
+      //$cmd->info(json_encode($ds));
+      $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+    } catch(Exception $e) {
+      //dbase_close($db);
+      throw new Exception('charges:ds: '.$e->getMessage());    
+    }
+    //sleep(5);
+    
+
+
+    //$cmd->info(json_encode($ds));
+    unset($ds);
+    return false;
+
+
+    /*
+    $ds = [];
+    $ds['bank_totchrg'] = 0;
+    $ds['chrg_total']   = 0;
+    $ds['chrg_csh']     = 0;
+    $ds['chrg_chrg']    = 0;
+    $ds['chrg_othr']    = 0;
+    $ds['disc_totamt']  = 0;
+    $ds['date']         = $date->format('Y-m-d');
+    $ds['branchid']     = $backup->branchid;
+    
+    if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) // same sas line 1226
+      $ds['custcount'] = 0;
+      
+
+    try {
+      $c = $this->postRawCharges($date, $backup);
+    } catch(Exception $e) {
+      throw new Exception('postCharges:charges: '.$e->getMessage());    
+    }
+
+    try {
+      $s = $this->postRawSigned($date, $backup);
+    } catch(Exception $e) {
+      throw new Exception('postCharges:signed: '.$e->getMessage());    
+    }
+
+
+    $ds['bank_totchrg'] = $c['bank_totchrg'] + $s['bank_totchrg'];
+    $ds['chrg_total']   = $c['chrg_total'] + $s['chrg_total'];
+    $ds['chrg_csh']     = $c['chrg_csh'] + $s['chrg_csh'];
+    $ds['chrg_chrg']    = $c['chrg_chrg'] + $s['chrg_chrg'];
+    $ds['chrg_othr']    = $c['chrg_othr'] + $s['chrg_othr'];
+    $ds['disc_totamt']  = $c['disc_totamt'] + $s['disc_totamt'];
+
+    if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) {
+      $ds['custcount']  = $c['custcount'] + $s['custcount'];
+      $ds['headspend']  = ($ds['custcount'] > 0) ? $ds['chrg_total'] / $ds['custcount'] : 0 ;
+      $ds['trans_cnt']  = $c['ctr'] + $s['ctr'];
+    }
+
+
+    // update dailysales
+    try {
+      $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+      } catch(Exception $e) {
+      //dbase_close($db);
+      throw new Exception('charges:ds: '.$e->getMessage());    
+    }
+    //unset($ds);
+    return false;
+    */
+  }
+
+  private function backlogRawCharges($branchid, $date, $c) {
+
+    $dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
+
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      $header = dbase_get_header_info($db);
+      $recno = dbase_numrecords($db);
+      $update = 0;
+      
+      $ds = [];
+      $ds['bank_totchrg'] = 0;
+      $ds['chrg_total'] = 0;
+      $ds['chrg_csh']   = 0;
+      $ds['chrg_chrg']  = 0;
+      $ds['chrg_othr']  = 0;
+      $ds['disc_totamt']  = 0;
+      $ds['custcount']  = 0;
+
+      for ($i=1; $i<=$recno; $i++) {
+        
+        $row = dbase_get_record_with_names($db, $i);
+
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+        } catch(Exception $e) {
+          continue;
+        }
+        
+        
+        if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+          $data = $this->charges->associateAttributes($row);
+          $data['branch_id'] = $branchid;
+
+          try {
+            //$this->logAction($data['orddate'], ' create:charges');
+            $this->charges->create($data);
+            //$c->info('charge:save: '.$data['orddate'].' '.$data['ordtime'].' '.$data['cslipno'].' '.$data['chrg_type'].' '.$data['tblno'].' '.$data['chrg_grs']);
+            $update++;
+            } catch(Exception $e) {
+            dbase_close($db);
+            throw new Exception('charges: '.$e->getMessage());  
+            return false;  
+          }
+
+          switch (strtolower($data['terms'])) {
+            case 'cash':
+              $ds['chrg_csh'] += $data['tot_chrg'];
+              break;
+            case 'charge':
+              $ds['chrg_chrg'] += $data['tot_chrg'];
+              break;
+            default:
+              $ds['chrg_othr'] += $data['tot_chrg'];
+              break;
+          }
+          
+          $ds['chrg_total']   += $data['tot_chrg'];
+          $ds['bank_totchrg'] += $data['bank_chrg'];
+          $ds['disc_totamt']  += $data['disc_amt'];
+          $ds['custcount']    += $data['custcount'];
+
+
+        }
+      }
+      $ds['ctr'] = $update;
+      
+      dbase_close($db);
+    }
+    return $ds;
+  }
+
+  public function backlogRawSigned($branchid, $date, $c) {
+
+    $dbf_file = $this->extracted_path.DS.'SIGNED.DBF';
+
+    if (file_exists($dbf_file)) {
+      //$this->logAction('posting', 'post:charges');
+      $db = dbase_open($dbf_file, 0);
+      
+      $header = dbase_get_header_info($db);
+      $recno = dbase_numrecords($db);
+      $update = 0;
+      
+      $ds = [];
+      $ds['bank_totchrg'] = 0;
+      $ds['chrg_total'] = 0;
+      $ds['chrg_csh']   = 0;
+      $ds['chrg_chrg']  = 0;
+      $ds['chrg_othr']  = 0;
+      $ds['disc_totamt']  = 0;
+      $ds['custcount']  = 0;
+
+      for ($i=1; $i<=$recno; $i++) {
+        
+        $row = dbase_get_record_with_names($db, $i);
+
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+        } catch(Exception $e) {
+          continue;
+        }
+        
+        if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+          $data = $this->charges->associateAttributes($row);
+          $data['branch_id'] = $branchid;
+
+          try {
+            //$this->logAction($data['orddate'], ' create:charges');
+            $this->charges->create($data);
+            //$c->info('signed:save: '.$data['orddate'].' '.$data['ordtime'].' '.$data['cslipno'].' '.$data['chrg_type'].' '.$data['tblno'].' '.$data['chrg_grs']);
+            $update++;
+            } catch(Exception $e) {
+            dbase_close($db);
+            throw new Exception('backlogRawSigned: '.$e->getMessage());  
+            return false;  
+          }
+
+          switch (strtolower($data['terms'])) {
+            case 'cash':
+              $ds['chrg_csh'] += $data['tot_chrg'];
+              break;
+            case 'charge':
+              $ds['chrg_chrg'] += $data['tot_chrg'];
+              break;
+            default:
+              $ds['chrg_othr'] += $data['tot_chrg'];
+              break;
+          }
+          $ds['chrg_total'] += $data['tot_chrg'];
+          $ds['bank_totchrg'] += $data['bank_chrg'];
+          $ds['disc_totamt']  += $data['disc_amt'];
+          $ds['custcount']    += $data['custcount'];
+
+        }
+      }
+      $ds['ctr'] = $update;
+
+      dbase_close($db);
+    }
+    return $ds;
+  }
+
+  public function backlogPurchased($branchid, Carbon $from, Carbon $to, $c) {
+
+    $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      $header = dbase_get_header_info($db);
+      $recno = dbase_numrecords($db);
+      $update = 0;
+      $trans = 0;
+      $curr_date = null;
+      $ds = [];
+
+      $ds['purchcost'] = 0;
+      $ds['cos'] = 0;
+      $ds['branchid'] = $branchid;
+
+
+      for ($i=1; $i<=$recno; $i++) {
+        $row = dbase_get_record_with_names($db, $i);
+        $data = $this->purchase2->associateAttributes($row);
+        $data['branchid'] = $branchid;
+
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+        } catch(Exception $e) {
+          // log on error
+          continue;
+        }
+
+        if (is_null($curr_date)) {
+          $curr_date = $vfpdate;
+          $trans = 1;
+
+          try {
+            $c->info('del: '.$curr_date->format('Y-m-d'));
+            $this->purchase2->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
+        }
+
+
+        if ($curr_date->eq($vfpdate)) {
+
+          $trans++;
+          $ds['purchcost'] += $data['tcost'];
+          
+          if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
+            $ds['cos'] += $data['tcost'];
+
+          if ($i==$recno) {
+            $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['purchcost'].' '.$ds['cos']);
+            $ds['date'] = $curr_date->format('Y-m-d');
+            $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+          }
+
+        } else {
+          
+          $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['purchcost'].' '.$ds['cos']); 
+          $ds['date'] = $curr_date->format('Y-m-d');  
+          $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+          
+          $curr_date = $vfpdate;          
+          $trans=1;
+          $ds['purchcost'] = $data['tcost'];
+          $ds['cos']=0;
+          
+          if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
+            $ds['cos'] = $data['tcost'];
+
+          try {
+            $c->info('del: '.$curr_date->format('Y-m-d'));
+            $this->purchase2->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
+        }
+
+        //$c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
+        
+        try {
+          $this->purchase2->verifyAndCreate($data);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw $e;    
+        }
+
+      }
+
+      dbase_close($db);
+      unset($db);
+      return count($update>0) ? true:false;
+    }
+    return false;
   }
 
 
@@ -1936,7 +2299,10 @@ class PosUploadRepository extends Repository
 
 
 
-  ############## endfor App\Command\Backlog\MonthDaily #################################
+###################################################################################################################################
+############## endfor App\Command\Backlog\MonthDaily ##############################################################################
+###################################################################################################################################
+
 
 
   

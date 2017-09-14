@@ -3,6 +3,8 @@
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 
 abstract class BaseModel extends Model {
 
@@ -64,14 +66,41 @@ abstract class BaseModel extends Model {
 	
 
 	public static function get_uid(){
-		$id = \DB::select('SELECT UUID() as id');
-		$id = array_shift($id);
-		$uid = $id->id;
+		$uid = self::raw_uid();
 		# $uid = '7ec394d3-1507-11e7-9eff-1c1b0d85a7e0' 
 		# SUBSTR($uid, 0, 8) - SUBSTR($uid, 9, 4) - SUBSTR($uid, 14, 4) - SUBSTR($uid, 19, 4) - SUBSTR($uid, 24)
 		return strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 9, 4).SUBSTR($uid, 19, 4).SUBSTR($uid, 24).SUBSTR($uid, 0, 8));
 		//$uid = strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 10, 4).SUBSTR($uid, 1, 8).SUBSTR($uid, 20, 4).SUBSTR($uid, 24));
 		//return str_replace("-", "", $uid);
+	}
+
+	public static function raw_uid() {
+		try {
+			
+	    // Generate a version 1 (time-based) UUID object
+	    $uuid1 = Uuid::uuid1();
+	    return $uuid1->toString(); // i.e. e4eaaaf2-d142-11e1-b3e4-080027620cdd
+	 		/*
+	    // Generate a version 3 (name-based and hashed with MD5) UUID object
+	    $uuid3 = Uuid::uuid3(Uuid::NAMESPACE_DNS, 'php.net');
+	    echo $uuid3->toString() . "\n"; // i.e. 11a38b9a-b3da-360f-9353-a5a725514269
+	 
+	    // Generate a version 4 (random) UUID object
+	    $uuid4 = Uuid::uuid4();
+	    echo $uuid4->toString() . "\n"; // i.e. 25769c6c-d34d-4bfe-ba98-e0ee856f3e7a
+	 
+	    // Generate a version 5 (name-based and hashed with SHA1) UUID object
+	    $uuid5 = Uuid::uuid5(Uuid::NAMESPACE_DNS, 'php.net');
+	    echo $uuid5->toString() . "\n"; // i.e. c4a760a8-dbcf-5254-a0d9-6a4474bd1b62
+		 	*/
+		} catch (UnsatisfiedDependencyException $e) {
+		 
+		 	//throw $e;
+		  $id = \DB::select('SELECT UUID() as id');
+			$id = array_shift($id);
+			return $id->id;
+		}
+
 	}
 
 	public static function get_uid2(){
