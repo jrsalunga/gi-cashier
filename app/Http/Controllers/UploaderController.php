@@ -476,8 +476,8 @@ class UploaderController extends Controller
   }
 
   public function processDailySales(Backup $posupload){
-  	return $this->posUploadRepo->postDailySales($posupload);
-  	//return $this->posUploadRepo->postNewDailySales($posupload);
+  	//return $this->posUploadRepo->postDailySales($posupload);
+  	return $this->posUploadRepo->postNewDailySales($posupload);
   }
 
   public function processPurchased($date){
