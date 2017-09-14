@@ -75,6 +75,10 @@ abstract class BaseModel extends Model {
 	}
 
 	public static function raw_uid() {
+		$id = \DB::select('SELECT UUID() as id');
+		$id = array_shift($id);
+		return $id->id;
+
 		try {
 			
 	    // Generate a version 1 (time-based) UUID object
