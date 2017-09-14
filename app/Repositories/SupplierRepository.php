@@ -53,7 +53,7 @@ class SupplierRepository extends BaseRepository implements CacheableInterface
 
     $obj = $this->findWhere($attr_idx)->first();
     if (is_null($obj->tin) && !is_null($attr_idx['tin']))
-      $this->update(['tin'=>$attr_idx['tin']], $obj->id)
+      $this->update(['tin'=>$attr_idx['tin']], $obj->id);
 
 
     return !is_null($obj) ? $obj : $this->create($attributes);
