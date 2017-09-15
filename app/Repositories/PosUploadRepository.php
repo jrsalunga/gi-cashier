@@ -15,6 +15,7 @@ use App\Repositories\PurchaseRepository as Purchase;
 use App\Repositories\Purchase2Repository as PurchaseRepo;
 use App\Http\Controllers\SalesmtdController as SalesmtdCtrl;
 use App\Repositories\ChargesRepository as ChargesRepo;
+use App\Repositories\StockTransferRepository as TranferRepo;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
@@ -29,6 +30,7 @@ class PosUploadRepository extends Repository
   public $purchase;
   public $purchase2;
   public $charges;
+  public $transfer;
   private $sysinfo = null;
   protected $salesmtdCtrl;
   protected $expense_array = [];
@@ -40,7 +42,7 @@ class PosUploadRepository extends Repository
    * @param Collection $collection
    * @throws \App\Repositories\Exceptions\RepositoryException
    */
-  public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, Purchase $purchase, PurchaseRepo $purchaserepo, SalesmtdCtrl $salesmtdCtrl, ChargesRepo $charges) {
+  public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, Purchase $purchase, PurchaseRepo $purchaserepo, SalesmtdCtrl $salesmtdCtrl, ChargesRepo $charges, TranferRepo $transfer) {
     
     parent::__construct($app, $collection);
 
@@ -49,6 +51,7 @@ class PosUploadRepository extends Repository
     $this->purchase2  = $purchaserepo;
     $this->salesmtdCtrl = $salesmtdCtrl;
     $this->charges = $charges;
+    $this->transfer = $transfer;
 
     //$this->get_foodcost();
     $this->expense_array = ["GR","MP","FS","FV","RC","CK","CG","SS","IC"]; // no ,"DB","DN","DA"
@@ -1470,6 +1473,95 @@ class PosUploadRepository extends Repository
     return $ds;
   }
 
+
+  public function postTransfer($branchid, Carbon $from, Carbon $to) {
+
+    $dbf_file = $this->extracted_path.DS.'TRANSFER.DBF';
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      $header = dbase_get_header_info($db);
+      $recno = dbase_numrecords($db);
+      $update = 0;
+      $trans = 0;
+      $curr_date = null;
+      $ds = [];
+
+      $ds['transcost'] = 0;
+      $ds['branchid'] = $branchid;
+
+
+      for ($i=1; $i<=$recno; $i++) {
+        $row = dbase_get_record_with_names($db, $i);
+        $data = $this->transfer->associateAttributes($row);
+        $data['branchid'] = $branchid;
+
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+        } catch(Exception $e) {
+          // log on error
+          continue;
+        }
+
+        if ($vfpdate->gte($from) && $vfpdate->lte($to)) {
+
+          if (is_null($curr_date)) {
+            $curr_date = $vfpdate;
+            $trans = 1;
+
+            try {
+              $this->transfer->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw $e;    
+            }
+          }
+
+
+          if ($curr_date->eq($vfpdate)) {
+
+            $trans++;
+            $ds['transcost'] += $data['tcost'];
+            
+            if ($i==$recno) {
+              $ds['date'] = $curr_date->format('Y-m-d');
+              $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+            }
+
+          } else {
+            
+            $ds['date'] = $curr_date->format('Y-m-d');  
+            $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+            
+            $curr_date = $vfpdate;          
+            $trans=1;
+            $ds['transcost'] = $data['tcost'];
+            
+            try {
+              $this->transfer->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw $e;    
+            }
+          }
+          
+          $data['to'] = $this->deliveredTo(substr($data['supno'], 2, 3));
+          try {
+            $this->transfer->verifyAndCreate($data);
+            $update++;
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
+        }
+      }
+
+      dbase_close($db);
+      unset($db);
+      return count($update>0) ? true:false;
+    }
+    return false;
+  }
+
   // prototype
   public function dbase($dbf) {
     $obj = new StdClass;
@@ -2284,6 +2376,121 @@ class PosUploadRepository extends Repository
       return count($update>0) ? true:false;
     }
     return false;
+  }
+
+  public function backlogTransfer($branchid, Carbon $from, Carbon $to, $c) {
+
+
+
+    $dbf_file = $this->extracted_path.DS.'TRANSFER.DBF';
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      $header = dbase_get_header_info($db);
+      $recno = dbase_numrecords($db);
+      $update = 0;
+      $trans = 0;
+      $curr_date = null;
+      $ds = [];
+
+      $ds['transcost'] = 0;
+      $ds['branchid'] = $branchid;
+
+
+      for ($i=1; $i<=$recno; $i++) {
+        $row = dbase_get_record_with_names($db, $i);
+        $data = $this->transfer->associateAttributes($row);
+        $data['branchid'] = $branchid;
+
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+        } catch(Exception $e) {
+          // log on error
+          continue;
+        }
+
+        if (is_null($curr_date)) {
+          $curr_date = $vfpdate;
+          $trans = 1;
+
+          try {
+            $c->info('del: '.$curr_date->format('Y-m-d'));
+            $this->transfer->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
+        }
+
+
+        if ($curr_date->eq($vfpdate)) {
+
+          $trans++;
+          $ds['transcost'] += $data['tcost'];
+          
+          if ($i==$recno) {
+            $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost']);
+            $ds['date'] = $curr_date->format('Y-m-d');
+            $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+          }
+
+        } else {
+          
+          $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost']); 
+          $ds['date'] = $curr_date->format('Y-m-d');  
+          $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+          
+          $curr_date = $vfpdate;          
+          $trans=1;
+          $ds['transcost'] = $data['tcost'];
+          
+          try {
+            $c->info('del: '.$curr_date->format('Y-m-d'));
+            $this->transfer->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
+        }
+
+        //$c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
+        
+        $data['to'] = $this->deliveredTo(substr($data['supno'], 2, 3));
+        try {
+          //$c->info('to: '. substr($data['supno'], 2, 3).' '.$data['to']);
+          $this->transfer->verifyAndCreate($data);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw $e;    
+        }
+
+      }
+
+      dbase_close($db);
+      unset($db);
+      return count($update>0) ? true:false;
+    }
+    return false;
+  }
+
+  private function deliveredTo($code) {
+    $branch = new \App\Repositories\BranchRepository;
+    $supplier = new \App\Repositories\SupplierRepository;
+
+    if ($code=='711') {
+      return '971077BCA54611E5955600FF59FBB323';
+    }
+
+    $br = $branch->findWhere(['code'=>$code]);
+    if (count($br)>0) {
+      return $br->first()->id;
+    } else {
+      $su = $supplier->findWhere(['code'=>$code]);
+      if (count($su)>0) {
+        return $su->first()->id;
+      } else {
+        return $code;
+      }
+    }
   }
 
 

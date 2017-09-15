@@ -95,10 +95,20 @@ class MonthDaily extends Command
 
     
     DB::beginTransaction();
-
+    
     $this->info('extracting purchased...');
     try {
       $r = $this->backlogPurchased($br->id, $f, $t, $this);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    }
+    
+    $this->info('extracting trasfer...');
+    try {
+      $r = $this->backlogTransfer($br->id, $f, $t, $this);
     } catch (Exception $e) {
       $this->info($e->getMessage());
       $this->removeExtratedDir();
@@ -184,6 +194,14 @@ class MonthDaily extends Command
   public function backlogPurchased($branchid, $from, $to, $c) {
     try {
       return $this->posUploadRepo->backlogPurchased($branchid, $from, $to, $c);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+  public function backlogTransfer($branchid, $from, $to, $c) {
+    try {
+      return $this->posUploadRepo->backlogTransfer($branchid, $from, $to, $c);
     } catch(Exception $e) {
       throw $e;    
     }

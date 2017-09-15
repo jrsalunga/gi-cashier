@@ -29,8 +29,14 @@
   @if(is_null($date))
     no data
   @else
+
+    @if($ds->sales!=$ds->chrg_total)
+    <div class="alert alert-important alert-danger"><b>Warning:</b> The backup file you uploaded is possibly not the end-of-day backup. Please reupload the actual EoD/EoM backup or you can ignore this if you're not sending EoD/EoM backup.</div>
+    @endif
+
     <h3>Upload summary of POS backup GC{{ $date->format('mdy') }}.ZIP <em>({{ $date->format('D M d, Y') }})</em></h3>
     <p>&nbsp;</p>
+
 
     
     <div class="row">
@@ -39,19 +45,19 @@
         Backup Date:
         <h3 class="text-primary">{{ $date->format('D M d, Y') }}</h3>
       </div><!-- end: .col-md-3-->
-      <div class="col-md-3">
+      <div class="col-md-3 col-xs-6">
         Gross Sales:
         <h3 class="text-muted">{{ number_format($ds->slsmtd_totgrs, 2) }}</h3>
       </div><!-- end: .col-md-3-->
-      <div class="col-md-3">
+      <div class="col-md-3 col-xs-6">
         Net Sales:
         <h3 class="text-success">{{ number_format($ds->sales, 2) }}</h3>
       </div><!-- end: .col-md-3-->
-      <div class="col-md-3">
+      <div class="col-md-3 col-xs-6">
         Food Cost:
         <h3 class="text-info">{{ number_format($ds->cos, 2) }}</h3>
       </div><!-- end: .col-md-3-->
-      <div class="col-md-3">
+      <div class="col-md-3 col-xs-6">
         Operational Expense:
         <h3 class="text-warning">{{ number_format($ds->getOpex(), 2) }}</h3>
       </div><!-- end: .col-md-3-->
@@ -106,7 +112,7 @@
           <b><span class="glyphicon glyphicon-alert"></span> Reminders:</b> Always check if you have complete <b>POS Backup</b> by checking on <a href="{{ $url }}" class="btn btn-default"><span class="fa fa-calendar-check-o"></span> Checklist</a> or 
           <a href="/{{brcode()}}/uploader" class="btn btn-primary">
             <span class="glyphicon glyphicon-cloud-upload"></span>
-            <span class="hidden-xs hidden-sm">Back to DropBox</span>
+            <span>Back to DropBox</span>
           </a>
         </div>
 

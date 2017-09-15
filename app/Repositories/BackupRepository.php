@@ -42,6 +42,7 @@ class BackupRepository extends BaseRepository
 
     $data = $this->aggregateDailyLogsProcessed($fr, $to);
 
+
     for ($i=0; $i < $days; $i++) { 
 
       $date = $to->copy()->subDays($i);
@@ -107,8 +108,12 @@ class BackupRepository extends BaseRepository
     $arr = [];
     $fr = $date->firstOfMonth();
     $to = $date->copy()->lastOfMonth();
-
+    
+    
     $data = $this->aggregateDailyLogs($fr, $to);
+    $d = new \App\Repositories\DailySales2Repository;
+
+    $dss = $d->findWhere([['date','like', $date->format('Y-m-').'%']], ['date', 'sales', 'chrg_total']);
 
     for ($i=0; $i < $date->daysInMonth; $i++) { 
 
@@ -125,11 +130,24 @@ class BackupRepository extends BaseRepository
         $e = file_exists(config('gi-dtr.upload_path.pos.'.app()->environment()).session('user.branchcode').DS.$b->year.DS.$b->filedate->format('m').DS.$b->filename);
       else
         $e = 0;
+
+      $ds = $dss->filter(function ($item) use ($date){
+        return $item->date->format('Y-m-d') == $date->format('Y-m-d')
+          ? $item : null;
+      });
+
+      $ds = $ds->first();
+
+      if(is_null($ds))
+        $m = false;
+      else 
+        $m = number_format($ds->sales, 2, '.', '') === number_format($ds->chrg_total, 2, '.', '') ? true:false;
       
       array_push($arr, [ 
           'date'=>$date,
           'backup'=>$b,
-          'exist'=>$e]
+          'exist'=>$e,
+          'match'=>$m]
       );
     }
 

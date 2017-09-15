@@ -236,6 +236,17 @@ class UploaderController extends Controller
 						//$this->logAction('error:process:purchased', $log_msg.$msg);
 						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
 					}
+
+
+					try {
+						$this->processTransfer($backup->branchid, $backup->date);
+					} catch (Exception $e) {
+						$msg =  $e->getMessage();
+						//$res = $this->movedErrorProcessing($filepath, $storage_path);
+						$this->updateBackupRemarks($backup, $msg);
+						//$this->logAction('error:process:purchased', $log_msg.$msg);
+						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+					}
 					//$this->logAction('success:process:purchased', $log_msg.$msg);
 
 
@@ -483,6 +494,14 @@ class UploaderController extends Controller
   public function processPurchased($date){
   	try {
       $this->posUploadRepo->postPurchased($date);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+  public function processTransfer($branchid, $date){
+  	try {
+      $this->posUploadRepo->postTransfer($branchid, $date, $date);
     } catch(Exception $e) {
       throw $e;    
     }

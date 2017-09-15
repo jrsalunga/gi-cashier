@@ -102,6 +102,10 @@
             <td {{ $class }}>
               @if($b['exist'])
                 <span class="glyphicon glyphicon-ok text-success"></span>
+
+                @if(!$b['match'])
+                  <span class="text-danger">Possibly not end-of-day backup.<br> Please reupload the actual EoD/EoM backup</span>
+                @endif
               @else
                 <span class="glyphicon glyphicon-remove text-danger"></span>
               @endif
