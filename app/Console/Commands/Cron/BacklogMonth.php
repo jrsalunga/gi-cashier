@@ -164,7 +164,7 @@ class BacklogMonth extends Command
   
   private function notify($msg) {
   	if(app()->environment()=='production')
-      event(new Notifier(session('Cron\BacklogMonth: '.$msg)));
+      event(new Notifier('Cron\BacklogMonth: '.$msg));
     else
       $this->error($msg);
   }
