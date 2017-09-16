@@ -17,7 +17,7 @@ class BacklogMonth extends Command
    *
    * @var string
    */
-  protected $signature = 'import:backlog-month {brcode : Branch Code} {from : from date} {to : to date} {--reset= : reset}';
+  protected $signature = 'import:backlog-month {from : from date} {to : to date} {brcode : Branch Code} {--reset= : reset}';
 
   /**
    * The console command description.
@@ -105,13 +105,13 @@ class BacklogMonth extends Command
         
         $p = $this->process->firstOrCreate($attr);
         
-        if ($p)
-          $this->line('exist');
+        if ($p) {
+          $this->line('loaded');
           if ($reset) {
             $p->processed = 0; 
             $p->save();
           }
-        else
+        } else
           $this->error('error on inserting processed');
       } else {
         if(app()->environment()=='production')
