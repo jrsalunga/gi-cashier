@@ -26,6 +26,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Backlog\MonthDaily::class,
         \App\Console\Commands\Import\Product::class,
         \App\Console\Commands\Import\Ap::class,
+        \App\Console\Commands\Import\BacklogMonth::class,
+        \App\Console\Commands\Cron\BacklogMonth::class,
     ];
 
     /**

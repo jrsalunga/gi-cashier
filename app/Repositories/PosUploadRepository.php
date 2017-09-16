@@ -1489,7 +1489,6 @@ class PosUploadRepository extends Repository
       $ds['transcost'] = 0;
       $ds['branchid'] = $branchid;
 
-
       for ($i=1; $i<=$recno; $i++) {
         $row = dbase_get_record_with_names($db, $i);
         $data = $this->transfer->associateAttributes($row);
@@ -1515,7 +1514,6 @@ class PosUploadRepository extends Repository
               throw $e;    
             }
           }
-
 
           if ($curr_date->eq($vfpdate)) {
 
@@ -2492,35 +2490,8 @@ class PosUploadRepository extends Repository
       }
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ###################################################################################################################################
 ############## endfor App\Command\Backlog\MonthDaily ##############################################################################
 ###################################################################################################################################
-
-
-
-  
-
-
-
-
-    
-
-  
-
-
     
 }
