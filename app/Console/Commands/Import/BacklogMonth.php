@@ -114,10 +114,7 @@ class BacklogMonth extends Command
         } else
           $this->error('error on inserting processed');
       } else {
-        if(app()->environment()=='production')
-          event(new Notifier(session('Import\BacklogMonth: Backup do not exist. ('.$path.')')));
-        else
-          $this->error('backup do not exist');
+        $this->error('backup do not exist');
       }
       
     }
