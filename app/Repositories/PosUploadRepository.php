@@ -1849,7 +1849,7 @@ class PosUploadRepository extends Repository
   private function checkSalesmtdDS($data, $branchid, $date, $c) {
     $d = \App\Models\DailySales::where(['date'=>$date->format('Y-m-d'), 'branchid'=>$branchid])->first();
     
-    if (!is_null($d)) {
+    if (is_null($d)) {
       $d = \App\Models\DailySales::firstOrCreate(['date'=>$date->format('Y-m-d'), 'branchid'=>$branchid]);
     }
     //$c->info($d->date->format('Y-m-d').' '.$d->custcount.' '.$d->trans_cnt);
