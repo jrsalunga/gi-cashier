@@ -44,7 +44,7 @@ class BacklogMonth extends Command
     	$br = Branch::where('code', strtoupper($process->code))->first();
   		if (!$br) {
   			$this->notify('Branch not found.');
-  			$process->processed = 2;
+  			$process->processed = 3;
   			$process->save();
 	      exit;
 	  	}
@@ -56,7 +56,7 @@ class BacklogMonth extends Command
 	    $path = $br->code.DS.$t->format('Y').DS.$t->format('m').DS.'GC'.$t->format('mdy').'.ZIP';
 	    if (!$locator->exists($path)) {
 	      $this->notify('Backup '.$path.' do not exist.');
-  			$process->processed = 2;
+  			$process->processed = 3;
   			$process->save();
 	      exit;
 	    }
@@ -65,7 +65,7 @@ class BacklogMonth extends Command
 	    	$this->info('extracting...');
 	    if (!$this->extract($locator->realFullPath($path), $br->code)) {
 	      $this->notify('Unable to extract '. $path .', the backup maybe corrupted. Try to generate another backup file and try to re-upload.');
-  			$process->processed = 2;
+  			$process->processed = 3;
   			$process->save();
 	      exit;
 	    }
@@ -73,7 +73,9 @@ class BacklogMonth extends Command
 	    if(app()->environment()=='local')
 	    	$this->info('start processing...');
 
-
+	  // set to know the backup is on process
+	  $process->processed = 2;
+  	$process->save();
 
 
 	  DB::beginTransaction();
@@ -85,7 +87,7 @@ class BacklogMonth extends Command
       $this->notify('purchased:'.$e->getMessage());
       $this->removeExtratedDir();
       DB::rollback();
-      $process->processed = 2;
+      $process->processed = 3;
   		$process->save();
       exit;
     }
@@ -97,7 +99,7 @@ class BacklogMonth extends Command
       $this->notify('transfer:'.$e->getMessage());
       $this->removeExtratedDir();
       DB::rollback();
-      $process->processed = 2;
+      $process->processed = 3;
   		$process->save();
       exit;
     }
@@ -109,7 +111,7 @@ class BacklogMonth extends Command
       $this->notify('csh_audt:'.$e->getMessage());
       $this->removeExtratedDir();
       DB::rollback();
-      $process->processed = 2;
+      $process->processed = 3;
   		$process->save();
       exit;
     }
@@ -121,7 +123,7 @@ class BacklogMonth extends Command
       $this->notify('salesmtd:'.$e->getMessage());
       $this->removeExtratedDir();
       DB::rollback();
-      $process->processed = 2;
+      $process->processed = 3;
   		$process->save();
       exit;
     }
@@ -133,7 +135,7 @@ class BacklogMonth extends Command
       $this->notify('charges:'.$e->getMessage());
       $this->removeExtratedDir();
       DB::rollback();
-      $process->processed = 2;
+      $process->processed = 3;
   		$process->save();
       exit;
     }
