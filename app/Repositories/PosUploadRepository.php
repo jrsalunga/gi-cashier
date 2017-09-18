@@ -2395,6 +2395,7 @@ class PosUploadRepository extends Repository
       $ds = [];
 
       $ds['transcost'] = 0;
+      $ds['transcos'] = 0;
       $ds['branchid'] = $branchid;
 
 
@@ -2428,9 +2429,12 @@ class PosUploadRepository extends Repository
 
           $trans++;
           $ds['transcost'] += $data['tcost'];
+
+          if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
+            $ds['transcos'] += $data['tcost'];
           
           if ($i==$recno) {
-            $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost']);
+            $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' '.$ds['transcos']);
             $ds['date'] = $curr_date->format('Y-m-d');
             $this->ds->firstOrNewField($ds, ['date', 'branchid']);
           }
@@ -2444,6 +2448,10 @@ class PosUploadRepository extends Repository
           $curr_date = $vfpdate;          
           $trans=1;
           $ds['transcost'] = $data['tcost'];
+          $ds['transcos'] = 0;
+
+          if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
+            $ds['transcos'] = $data['tcost'];
           
           try {
             $c->info('del: '.$curr_date->format('Y-m-d'));
