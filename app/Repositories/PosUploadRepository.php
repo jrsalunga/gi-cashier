@@ -1850,6 +1850,8 @@ class PosUploadRepository extends Repository
     $d = \App\Models\DailySales::where(['date'=>$date->format('Y-m-d'), 'branchid'=>$branchid])->first();
     //$c->info($d->date->format('Y-m-d').' '.$d->custcount.' '.$d->trans_cnt);
     $arr = [];
+    if (!is_null($d)) {
+      
     foreach ($data as $key => $value) {
       $x = $d->{$key};
       if ($x=='0' || is_null($x) || empty($x)) {
@@ -1869,6 +1871,7 @@ class PosUploadRepository extends Repository
     //  unset($arr['cospct']);
     //}
 
+    }
     return empty($arr) ? false: $arr;
   }
 
