@@ -153,7 +153,7 @@ class BacklogMonth extends Command
     	$process->processed = 1;
     	$process->save();
 
-	    $this->info('done: '.$pocess->code.' '.$process->filedate);
+	    $this->info('done: '.$process->code.' '.$process->filedate);
 	    
 	    exit;
 	    
