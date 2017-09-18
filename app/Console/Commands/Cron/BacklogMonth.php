@@ -145,15 +145,16 @@ class BacklogMonth extends Command
 
 
 
-	    if(app()->environment()=='local') {
-	    	$this->info('done');
+	    //if(app()->environment()=='local') {
 	    	$this->info('removing directory...');
-	    }
+	    //}
 	    $this->removeExtratedDir();
     	
     	$process->processed = 1;
     	$process->save();
 
+	    $this->info('done: '.$pocess->code.' '.$process->filedate);
+	    
 	    exit;
 	    
 
