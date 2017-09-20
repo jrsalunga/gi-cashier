@@ -105,7 +105,7 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
-    
+    /*
     $this->info('extracting trasfer...');
     try {
       $r = $this->backlogTransfer($br->id, $f, $t, $this);
@@ -145,7 +145,7 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
-    
+    */
     DB::commit();
     
 

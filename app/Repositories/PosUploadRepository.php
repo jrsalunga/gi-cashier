@@ -54,7 +54,7 @@ class PosUploadRepository extends Repository
     $this->transfer = $transfer;
 
     //$this->get_foodcost();
-    $this->expense_array = ["CK","FS","FV","GR","MP","RC","SS","IC"]; // no ,"DB","DN","DA","CG"
+    $this->expense_array = ["CK","FS","FV","GR","MP","RC","SS"]; // no ,"DB","DN","DA","CG","IC"
   }
 
   private function get_foodcost() {
