@@ -54,7 +54,7 @@ class PosUploadRepository extends Repository
     $this->transfer = $transfer;
 
     //$this->get_foodcost();
-    $this->expense_array = ["GR","MP","FS","FV","RC","CK","CG","SS","IC"]; // no ,"DB","DN","DA"
+    $this->expense_array = ["CK","FS","FV","GR","MP","RC","SS","IC"]; // no ,"DB","DN","DA","CG"
   }
 
   private function get_foodcost() {
@@ -2401,7 +2401,7 @@ class PosUploadRepository extends Repository
 
       for ($i=1; $i<=$recno; $i++) {
         $row = dbase_get_record_with_names($db, $i);
-        $data = $this->transfer->associateAttributes($row);
+        //$data = $this->transfer->associateAttributes($row);
         $data['branchid'] = $branchid;
 
         try {
