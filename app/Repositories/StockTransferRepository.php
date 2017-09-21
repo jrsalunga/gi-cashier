@@ -1,6 +1,8 @@
 <?php namespace App\Repositories;
 
+use DB;
 use Exception;
+use Carbon\Carbon;
 use Prettus\Repository\Eloquent\BaseRepository;
 use Prettus\Repository\Traits\CacheableRepository;
 use Prettus\Repository\Contracts\CacheableInterface;
@@ -76,6 +78,19 @@ class StockTransferRepository extends BaseRepository implements CacheableInterfa
     ];
 
     return $row;
+  }
+
+
+  public function getCos($branchid, Carbon $date, array $expcode) {
+    return $this->scopeQuery(function($query) use ($branchid, $date, $expcode) {
+      return $query->where('stocktransfer.date', $date->format('Y-m-d'))
+                    ->where('stocktransfer.branchid', $branchid)
+                    ->whereIn('expense.code', $expcode)
+                    ->leftJoin('component', 'component.id', '=', 'stocktransfer.componentid')
+                    ->leftJoin('compcat', 'compcat.id', '=', 'component.compcatid')
+                    ->leftJoin('expense', 'expense.id', '=', 'compcat.expenseid')
+                    ->select(DB::raw('sum(stocktransfer.tcost) as tcost'));
+    });
   }
 
 

@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\Process;
 use Illuminate\Console\Command;
 use App\Repositories\Purchase2Repository as PurchRepo;
+use App\Repositories\StockTransferRepository as TransferRepo;
 use App\Events\Notifier;
 
 class BacklogCos extends Command
@@ -14,15 +15,14 @@ class BacklogCos extends Command
 	protected $signature = 'process:backlog-cos';
   protected $description = 'process the backlog cos';
   protected $process;
-  protected $sales;
-  protected $ds;
-  protected $posUploadRepo;
+  protected $transfer;
   protected $purchase;
 
-  public function __construct(Process $process, PurchRepo $purchase) {
+  public function __construct(Process $process, PurchRepo $purchase, TransferRepo $transfer) {
     parent::__construct();
     $this->process = $process;
     $this->purchase = $purchase;
+    $this->transfer = $transfer;
   }
 
   public function handle() {
@@ -49,8 +49,8 @@ class BacklogCos extends Command
     	$t = Carbon::parse($process->filedate->format('Y-m-d'))->endOfMonth();
 
       // set to know the backup is on process
-      $process->processed = 5;
-      $process->save();
+      //$process->processed = 5;
+      //$process->save();
 
       DB::beginTransaction();
       
@@ -75,12 +75,27 @@ class BacklogCos extends Command
           $o = $o->first();
           $opex = $o->tcost;
         }
+
+        $transfer=0;
+        $t = $this->transfer->skipCache()->getCos($br->id, $date, ["CK","FS","FV","GR","MP","RC","SS"])->all();
+        if (count($t)>0) {
+          $t = $t->first();
+          $transfer = $t->tcost;
+        }
+        
+        $this->info('DS: '.$ds->cos);
+        if (number_format($cos, 2, '.','')==number_format($ds->cos, 2, '.',''))
+          $this->line('same');
+        else
+          $this->error('not same');
         
         $this->info('Cos: '.$cos);
         $this->info('OpEx: '.$opex);
+        $this->info('Trans Cos: '.$transfer);
 
         $ds->cos = $cos;
         $ds->opex = $opex;
+        $ds->transcos = $transfer;
 
         if ($ds->save())
           $this->info('saved!');
@@ -92,8 +107,8 @@ class BacklogCos extends Command
       
       DB::commit();
 
-      $process->processed = 6;
-      $process->save();
+      //$process->processed = 6;
+      //$process->save();
 
 	    $this->info('done: '.$process->code.' '.$process->filedate.' '.$br->id);
 	    

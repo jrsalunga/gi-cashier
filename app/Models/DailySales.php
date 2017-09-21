@@ -10,7 +10,7 @@ class DailySales extends BaseModel {
 	public $timestamps = false;
  	protected $fillable = ['date', 'branchid', 'managerid', 'sales', 'cos', 'tips', 'custcount', 'crew_din', 'crew_kit', 'empcount', 
         'mancost', 'headspend', 'tipspct', 'mancostpct', 'cospct', 'purchcost', 'salesemp', 'slsmtd_totgrs', 
-        'chrg_total', 'chrg_csh', 'chrg_chrg', 'chrg_othr', 'bank_totchrg', 'disc_totamt', 'opened_at', 'closed_at', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig','transcost', 'transcos'];
+        'chrg_total', 'chrg_csh', 'chrg_chrg', 'chrg_othr', 'bank_totchrg', 'disc_totamt', 'opened_at', 'closed_at', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig','transcost', 'transcos', 'opex'];
 	//protected $guarded = ['id'];
 	protected $casts = [
     'sales' => 'float',
@@ -40,6 +40,7 @@ class DailySales extends BaseModel {
     'sale_sig' => 'float',
     'transcost' => 'float',
     'transcos' => 'float',
+    'opex' => 'float',
   ];
 
 
@@ -51,19 +52,26 @@ class DailySales extends BaseModel {
     return Carbon::parse($value.' 00:00:00');
   }
 
+  public function getBeerPurch() {
+    if(Carbon::parse($this->date->format('Y-m-d'))->lt(Carbon::parse('2016-01-01')))
+      return 0;
+    else
+      return $this->purchcost - ($this->cos + $this->opex);
+  }
+
   public function getOpex() {
     if(Carbon::parse($this->date->format('Y-m-d'))->lt(Carbon::parse('2016-01-01')))
       return 0;
     else
-      return $this->purchcost - $this->cos;
+      return $this->opex;
   }
 
   public function get_opexpct($format=true) {
     if ($this->sales>0) {
       if ($format)
-        return number_format(($this->getOpex()/$this->sales)*100, 2);
+        return number_format(($this->opex/$this->sales)*100, 2);
       else
-        return ($this->getOpex()/$this->sales)*100;
+        return ($this->opex/$this->sales)*100;
     }
     return 0;
   }
