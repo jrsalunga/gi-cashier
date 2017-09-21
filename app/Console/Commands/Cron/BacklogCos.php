@@ -67,21 +67,21 @@ class BacklogCos extends Command
         $p = $this->purchase->getCos($br->id, $date, ["CK","FS","FV","GR","MP","RC","SS"])->all();
         if (count($p)>0) {
           $p = $p->first();
-          $cos = is_null($p->tcost) 0:$p->tcost;
+          $cos = is_null($p->tcost)?0:$p->tcost;
         }
 
         $opex=0;
         $o = $this->purchase->getOpex($br->id, $date)->all();
         if (count($o)>0) {
           $o = $o->first();
-          $opex = is_null($o->tcost) 0:$o->tcost;
+          $opex = is_null($o->tcost)?0:$o->tcost;
         }
 
         $transfer=0;
         $t = $this->transfer->skipCache()->getCos($br->id, $date, ["CK","FS","FV","GR","MP","RC","SS"])->all();
         if (count($t)>0) {
           $t = $t->first();
-          $transfer = is_null($t->tcost) 0:$t->tcost;
+          $transfer = is_null($t->tcost)?0:$t->tcost;
         }
         
 
