@@ -28,9 +28,8 @@ class BacklogCos extends Command
   public function handle() {
 
     $process = $this->process
-                    ->where('processed', '0')
+                    ->where('processed', '1')
                     ->where('type', '3')
-                    ->where('code', '1')
                     ->orderBy('code')
                     ->orderBy('filedate')
                     ->first();
