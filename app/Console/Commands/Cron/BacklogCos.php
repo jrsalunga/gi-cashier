@@ -49,8 +49,8 @@ class BacklogCos extends Command
     	$t = Carbon::parse($process->filedate->format('Y-m-d'))->endOfMonth();
 
       // set to know the backup is on process
-      //$process->processed = 5;
-      //$process->save();
+      $process->processed = 5;
+      $process->save();
 
       DB::beginTransaction();
       
@@ -107,8 +107,8 @@ class BacklogCos extends Command
       
       DB::commit();
 
-      //$process->processed = 6;
-      //$process->save();
+      $process->processed = 6;
+      $process->save();
 
 	    $this->info('done: '.$process->code.' '.$process->filedate.' '.$br->id);
 	    
