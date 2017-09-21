@@ -34,6 +34,7 @@ class PosUploadRepository extends Repository
   private $sysinfo = null;
   protected $salesmtdCtrl;
   protected $expense_array = [];
+  protected $non_cos_array = [];
 
     
 
@@ -55,6 +56,7 @@ class PosUploadRepository extends Repository
 
     //$this->get_foodcost();
     $this->expense_array = ["CK","FS","FV","GR","MP","RC","SS"]; // no ,"DB","DN","DA","CG","IC"
+    $this->non_cos_array = ["DB","DN","DA","CG","IC"];
   }
 
   private function get_foodcost() {
@@ -447,6 +449,7 @@ class PosUploadRepository extends Repository
         $tot_purchase = 0;
         $update = 0;
         $food_cost = 0;
+        $opex = 0;
 
         // delete if exist
         try {
@@ -520,6 +523,8 @@ class PosUploadRepository extends Repository
 
             if (in_array(substr($attrs['supno'], 0, 2), $this->expense_array))
               $food_cost += $tcost;
+            if (!in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && !in_array(substr($attrs['supno'], 0, 2), $this->non_cos_array))
+              $opex += $tcost;
             
             //\DB::rollBack();
             $tot_purchase += $tcost;
@@ -540,6 +545,7 @@ class PosUploadRepository extends Repository
                               'date'=>$date->format('Y-m-d'),
                               'cos'=> $food_cost,
                               'cospct'=> $cospct,
+                              'opex'=> $opex,
                               'purchcost'=>$tot_purchase],
                               ['date', 'branchid']);
         } catch(Exception $e) {
@@ -1029,6 +1035,7 @@ class PosUploadRepository extends Repository
       $tot_purchase = 0;
       $update = 0;
       $food_cost = 0;
+      $opex = 0;
 
       // delete if exist
       try {
@@ -1098,6 +1105,9 @@ class PosUploadRepository extends Repository
 
           if (in_array(substr($attrs['supno'], 0, 2), $this->expense_array))
             $food_cost += $tcost;
+          if (!in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && !in_array(substr($attrs['supno'], 0, 2), $this->non_cos_array))
+            $opex += $tcost;
+
           
           //\DB::rollBack();
           $tot_purchase += $tcost;
@@ -1118,6 +1128,7 @@ class PosUploadRepository extends Repository
                             'date'=>$date->format('Y-m-d'),
                             'cos'=> $food_cost,
                             'cospct'=> $cospct,
+                            'opex'=> $opex,
                             'purchcost'=>$tot_purchase],
                             ['date', 'branchid']);
       } catch(Exception $e) {
@@ -2296,6 +2307,7 @@ class PosUploadRepository extends Repository
 
       $ds['purchcost'] = 0;
       $ds['cos'] = 0;
+      $ds['opex'] = 0;
       $ds['branchid'] = $branchid;
 
 
@@ -2332,6 +2344,8 @@ class PosUploadRepository extends Repository
           
           if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
             $ds['cos'] += $data['tcost'];
+          if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
+            $ds['opex'] += $data['tcost'];
 
           if ($i==$recno) {
             $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['purchcost'].' '.$ds['cos']);
@@ -2349,9 +2363,12 @@ class PosUploadRepository extends Repository
           $trans=1;
           $ds['purchcost'] = $data['tcost'];
           $ds['cos']=0;
+          $ds['opex']=0;
           
           if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
             $ds['cos'] = $data['tcost'];
+          if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
+            $ds['opex'] = $data['tcost'];
 
           try {
             $c->info('del: '.$curr_date->format('Y-m-d'));

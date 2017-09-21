@@ -58,6 +58,7 @@ class BacklogCos extends Command
       foreach (dateInterval($f, $t) as $key => $date) {
         # code...
       
+        $this->info(' ');
         $this->info($date->format('Y-m-d'));
 
         $ds = \App\Models\DailySales::where(['branchid'=>$br->id, 'date'=>$date->format('Y-m-d')])->first();
@@ -83,7 +84,7 @@ class BacklogCos extends Command
           $transfer = $t->tcost;
         }
         
-        
+
         $this->info('DS: '.$ds->cos);
         if (number_format($cos, 2, '.','')==number_format($ds->cos, 2, '.',''))
           $this->line('same');
