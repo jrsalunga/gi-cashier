@@ -83,6 +83,7 @@ class BacklogCos extends Command
           $transfer = $t->tcost;
         }
         
+        
         $this->info('DS: '.$ds->cos);
         if (number_format($cos, 2, '.','')==number_format($ds->cos, 2, '.',''))
           $this->line('same');
