@@ -75,18 +75,12 @@ class BacklogCos extends Command
           $o = $o->first();
           $opex = $o->tcost;
         }
-
-        
-
         
         $this->info('Cos: '.$cos);
         $this->info('OpEx: '.$opex);
 
         $ds->cos = $cos;
         $ds->opex = $opex;
-
-          
-        
 
         if ($ds->save())
           $this->info('saved!');
