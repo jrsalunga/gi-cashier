@@ -113,6 +113,33 @@ class Purchase2Repository extends BaseRepository
   }
 
 
+  public function getCos($branchid, Carbon $date, array $expcode) {
+    return $this->scopeQuery(function($query) use ($branchid, $date, $expcode) {
+      return $query->where('purchase.date', $date->format('Y-m-d'))
+                    ->where('purchase.branchid', $branchid)
+                    ->whereIn('expense.code', $expcode)
+                    ->leftJoin('component', 'component.id', '=', 'purchase.componentid')
+                    ->leftJoin('supplier', 'supplier.id', '=', 'purchase.supplierid')
+                    ->leftJoin('compcat', 'compcat.id', '=', 'component.compcatid')
+                    ->leftJoin('expense', 'expense.id', '=', 'compcat.expenseid')
+                    ->select(DB::raw('sum(purchase.tcost) as tcost'));
+    });
+  } 
+
+  public function getOpex($branchid, Carbon $date, $expscatid='8A1C2FF95CF111E5ADBC00FF59FBB323') {
+    return $this->scopeQuery(function($query) use ($branchid, $date, $expscatid) {
+      return $query->where('purchase.date', $date->format('Y-m-d'))
+                    ->where('purchase.branchid', $branchid)
+                    ->where('expense.expscatid', $expscatid)
+                    ->leftJoin('component', 'component.id', '=', 'purchase.componentid')
+                    ->leftJoin('supplier', 'supplier.id', '=', 'purchase.supplierid')
+                    ->leftJoin('compcat', 'compcat.id', '=', 'component.compcatid')
+                    ->leftJoin('expense', 'expense.id', '=', 'compcat.expenseid')
+                    ->select(DB::raw('sum(purchase.tcost) as tcost'));
+    });
+  }
+
+
 
 
   
