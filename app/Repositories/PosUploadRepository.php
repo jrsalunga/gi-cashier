@@ -1498,6 +1498,7 @@ class PosUploadRepository extends Repository
       $ds = [];
 
       $ds['transcost'] = 0;
+      $ds['transcos'] = 0;
       $ds['branchid'] = $branchid;
 
       for ($i=1; $i<=$recno; $i++) {
@@ -1529,7 +1530,11 @@ class PosUploadRepository extends Repository
           if ($curr_date->eq($vfpdate)) {
 
             $trans++;
-            $ds['transcost'] += $data['tcost'];
+            if ($data['tcost']>0)
+              $ds['transcost'] += $data['tcost'];
+
+            if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
+            $ds['transcos'] += $data['tcost'];
             
             if ($i==$recno) {
               $ds['date'] = $curr_date->format('Y-m-d');
@@ -1543,7 +1548,12 @@ class PosUploadRepository extends Repository
             
             $curr_date = $vfpdate;          
             $trans=1;
-            $ds['transcost'] = $data['tcost'];
+            if ($data['tcost']>0)
+             $ds['transcost'] = $data['tcost'];
+            $ds['transcos'] = 0;
+
+            if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
+              $ds['transcos'] = $data['tcost'];
             
             try {
               $this->transfer->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
@@ -2445,9 +2455,10 @@ class PosUploadRepository extends Repository
         if ($curr_date->eq($vfpdate)) {
 
           $trans++;
-          $ds['transcost'] += $data['tcost'];
+          if ($data['tcost']>0)
+            $ds['transcost'] += $data['tcost'];
 
-          if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
+          if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
             $ds['transcos'] += $data['tcost'];
           
           if ($i==$recno) {
@@ -2458,16 +2469,17 @@ class PosUploadRepository extends Repository
 
         } else {
           
-          $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost']); 
+          $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' '.$ds['transcos']); 
           $ds['date'] = $curr_date->format('Y-m-d');  
           $this->ds->firstOrNewField($ds, ['date', 'branchid']);
           
           $curr_date = $vfpdate;          
           $trans=1;
-          $ds['transcost'] = $data['tcost'];
+          if ($data['tcost']>0)
+            $ds['transcost'] = $data['tcost'];
           $ds['transcos'] = 0;
 
-          if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
+          if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
             $ds['transcos'] = $data['tcost'];
           
           try {
