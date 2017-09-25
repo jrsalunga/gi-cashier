@@ -28,7 +28,7 @@ class BacklogCos extends Command
   public function handle() {
 
     $process = $this->process
-                    ->where('processed', '1')
+                    ->where('processed', '6')
                     ->where('type', '3')
                     ->orderBy('code')
                     ->orderBy('filedate')
@@ -49,7 +49,7 @@ class BacklogCos extends Command
     	$t = Carbon::parse($process->filedate->format('Y-m-d'))->endOfMonth();
 
       // set to know the backup is on process
-      $process->processed = 5;
+      $process->processed = 2;
       $process->save();
 
       DB::beginTransaction();
@@ -109,7 +109,7 @@ class BacklogCos extends Command
       
       DB::commit();
 
-      $process->processed = 6;
+      $process->processed = 1;
       $process->save();
 
 	    $this->info('done: '.$process->code.' '.$process->filedate.' '.$br->id);
