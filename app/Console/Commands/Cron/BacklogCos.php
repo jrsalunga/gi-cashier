@@ -28,7 +28,7 @@ class BacklogCos extends Command
   public function handle() {
 
     $process = $this->process
-                    ->where('processed', '6')
+                    ->where('processed', '1')
                     ->where('type', '3')
                     ->orderBy('code')
                     ->orderBy('filedate')
@@ -49,7 +49,7 @@ class BacklogCos extends Command
     	$t = Carbon::parse($process->filedate->format('Y-m-d'))->endOfMonth();
 
       // set to know the backup is on process
-      $process->processed = 2;
+      $process->processed = 5;
       $process->save();
 
       DB::beginTransaction();
@@ -64,7 +64,7 @@ class BacklogCos extends Command
         $ds = \App\Models\DailySales::where(['branchid'=>$br->id, 'date'=>$date->format('Y-m-d')])->first();
         
         $cos=0;
-        $p = $this->purchase->getCos($br->id, $date, ["CK","FS","FV","GR","MP","RC","SS"])->all();
+        $p = $this->purchase->getCos($br->id, $date, ["CK","FS","FV","GR","MP","RC","SS", "DN"])->all();
         if (count($p)>0) {
           $p = $p->first();
           $cos = is_null($p->tcost)?0:$p->tcost;
@@ -78,7 +78,7 @@ class BacklogCos extends Command
         }
 
         $transfer=0;
-        $t = $this->transfer->skipCache()->getCos($br->id, $date, ["CK","FS","FV","GR","MP","RC","SS"])->all();
+        $t = $this->transfer->skipCache()->getCos($br->id, $date, ["CK","FS","FV","GR","MP","RC","SS", "DN"])->all();
         if (count($t)>0) {
           $t = $t->first();
           $transfer = is_null($t->tcost)?0:$t->tcost;
@@ -109,7 +109,7 @@ class BacklogCos extends Command
       
       DB::commit();
 
-      $process->processed = 1;
+      $process->processed = 6;
       $process->save();
 
 	    $this->info('done: '.$process->code.' '.$process->filedate.' '.$br->id);

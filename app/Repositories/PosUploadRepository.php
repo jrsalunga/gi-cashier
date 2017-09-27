@@ -55,8 +55,8 @@ class PosUploadRepository extends Repository
     $this->transfer = $transfer;
 
     //$this->get_foodcost();
-    $this->expense_array = ["CK","FS","FV","GR","MP","RC","SS"]; // no ,"DB","DN","DA","CG","IC"
-    $this->non_cos_array = ["DB","DN","DA","CG","IC"];
+    $this->expense_array = ["CK","FS","FV","GR","MP","RC","SS", "DN"]; // no ,"DB","DA","CG","IC"
+    $this->non_cos_array = ["DB","DA","CG","IC"];
   }
 
   private function get_foodcost() {
@@ -1563,7 +1563,7 @@ class PosUploadRepository extends Repository
             }
           }
           
-          $data['to'] = $this->deliveredTo(substr($data['supno'], 2, 3));
+          $data['to'] = $this->deliveredTo(substr($data['supno'], 2, 3), $data);
           try {
             $this->transfer->verifyAndCreate($data);
             $update++;
@@ -2493,7 +2493,7 @@ class PosUploadRepository extends Repository
 
         //$c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
         
-        $data['to'] = $this->deliveredTo(substr($data['supno'], 2, 3));
+        $data['to'] = $this->deliveredTo(substr($data['supno'], 2, 3), $data);
         try {
           //$c->info('to: '. substr($data['supno'], 2, 3).' '.$data['to']);
           $this->transfer->verifyAndCreate($data);
@@ -2511,7 +2511,7 @@ class PosUploadRepository extends Repository
     return false;
   }
 
-  private function deliveredTo($code) {
+  private function deliveredTo($code, $data) {
     $branch = new \App\Repositories\BranchRepository;
     $supplier = new \App\Repositories\SupplierRepository;
 
@@ -2523,9 +2523,12 @@ class PosUploadRepository extends Repository
     if (count($br)>0) {
       return $br->first()->id;
     } else {
-      $su = $supplier->findWhere(['code'=>$code]);
-      if (count($su)>0) {
-        return $su->first()->id;
+      $su = $supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin']));
+      //$su = $supplier->findWhere(['code'=>$code]);
+      //if (count($su)>0) {
+      if (!is_null($su)) {
+        //return $su->first()->id;
+        return $su->id;
       } else {
         return $code;
       }
