@@ -48,11 +48,13 @@ public function __construct(Invdtl $invdtl, Orpaydtl $orpaydtl) {
 
 public function handle()
 {
+    /*
     $br = Branch::where('code', strtoupper($this->option('brcode')))->first();
     if (!$br) {
         $this->error('Invalid Branch Code.');
       exit;
     }
+    */
     
 
     $date = $this->argument('date');
@@ -69,17 +71,26 @@ public function handle()
     $this->date = $date;  
 
 
-    $this->info('Generating backup for '.$br->code);
+    $this->info('Generating backup...');
 
 
-    if ($this->set_temp_path($br->code)) {
+    if ($this->set_temp_path()) {
+    //if ($this->set_temp_path($br->code)) {
       
+      $this->info('');
       $this->info($this->temp_path);
 
       //$this->update_products();
 
+      $this->info('');
+      $this->info("\tPROCESSING SALESMTD");
+      
       $this->salesmtd($date);
 
+      $this->info('');
+      $this->info('*******************************************');
+      $this->info("\tPROCESSING PAYMENTS");
+      $this->info('');
       $this->charges($date);
 
      
@@ -111,27 +122,60 @@ public function handle()
         ])
         ->all();
 
+      $tot = 0;
+      $ptype = null;
+      $terminals = [];
       foreach ($orpaydtls as $key => $orpaydtl) {
         if (in_array($orpaydtl->paytype, [1,2])) {
-          $this->info($orpaydtl->paytype);
-
           $this->add_record($dbf_c,  $this->setOrpaydtl($orpaydtl));
-         
+          if ($orpaydtl->paytype=='1') 
+            $ptype = 'CASH';
+          else        
+            $ptype = 'CHGR'; 
+          $tot += $orpaydtl->amount;
         }
 
-        if ($orpaydtl->paytype=='4')
+        if ($orpaydtl->paytype=='4') {
           $this->add_record($dbf_s,  $this->setOrpaydtl($orpaydtl));
-      
+          $ptype = 'SIGN';
+          $tot += $orpaydtl->amount; 
+        }
+
+        $this->info(
+          str_pad(($key+1),4,' ',STR_PAD_LEFT).' '.
+          $ptype.' '.
+          substr($orpaydtl->invrefno,4).' '.
+          str_pad(number_format($orpaydtl->amount,2),10,' ',STR_PAD_LEFT).' '.
+          $orpaydtl->terminalid
+        );
+
+        if (array_key_exists($orpaydtl->terminalid, $terminals))
+           $terminals[$orpaydtl->terminalid] += $orpaydtl->amount;
+         else
+           $terminals[$orpaydtl->terminalid] = $orpaydtl->amount;
+            
+
       }
       $this->close_dbf($dbf_c);
       $this->close_dbf($dbf_s);
+
+      $this->info('-----------------------------------------');
+      $this->info('TOTAL: '.number_format($tot,2));
+      $this->info(' ');
+
+      $this->info('*** terminal ***');
+      foreach ($terminals as $key => $t) {
+        $this->info($key.' '.str_pad(number_format($t,2),10,' ',STR_PAD_LEFT));
+      }
+
     }
   }
 
   private function set_temp_path($dir=null) {
 
     $root_path = is_null($dir) 
-      ? storage_path().DS.'eod'.DS.'_tmp'.DS.$this->date->format('Ymd')
+      //? storage_path().DS.'eod'.DS.'_tmp'.DS.$this->date->format('Ymd')
+      ? 'C:\\GI_GLO'
       : storage_path().DS.'eod'.DS.$dir.DS.$this->date->format('Ymd');
 
     if(!is_dir($root_path))
@@ -254,7 +298,7 @@ public function handle()
       $pdamt = $orpaydtl->amount;
       $cusname = 'CASH';
       $terms = 'CASH';
-      $this->info('totpayline:'.$orpaydtl->totpayline);
+      //$this->info('totpayline:'.$orpaydtl->totpayline);
       if ($orpaydtl->totpayline<=1)
         $lastpd = $orpaydtl->date->format('Ymd');
       if (count($orpaydtl->invhdr->scinfos)>0 && $orpaydtl->scpax>0) {

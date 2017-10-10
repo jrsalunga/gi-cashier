@@ -26,7 +26,7 @@ class Orpaydtl extends BaseRepository implements CacheableInterface
   									->where('a.cancelled', 0)
   									->where('orpaydtl.cancelled', 0)
                     ->leftJoin('invhdr as a', 'a.id', '=', 'orpaydtl.invhdrid')
-                    ->select(DB::raw('orpaydtl.*, (a.vtotal+a.xtotal+a.ztotal) as subtotal, a.refno as invrefno, a.date, a.timestop, a.tableno, a.tablename, a.pax, a.saletype, a.scpax, a.scdisc, a.pwddisc, a.vatamount, a.svcamount, a.uidcreate, a.vtotal, a.discountid, a.discamount, a.totpayline'))
+                    ->select(DB::raw('orpaydtl.*, (a.vtotal+a.xtotal+a.ztotal) as subtotal, a.refno as invrefno, a.date, a.timestop, a.tableno, a.tablename, a.pax, a.saletype, a.scpax, a.scdisc, a.pwddisc, a.vatamount, a.svcamount, a.uidcreate, a.vtotal, a.discountid, a.discamount, a.totpayline, a.terminalid'))
                     ->orderBy('a.refno');
     });
   }

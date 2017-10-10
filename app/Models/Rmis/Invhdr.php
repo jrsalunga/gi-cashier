@@ -18,5 +18,9 @@ class Invhdr extends BaseModel {
   public function scinfos() {
     return $this->hasMany('App\Models\Rmis\Scinfo', 'invhdrid');
   }	
+
+  public function terminal() {
+    return $this->belongsTo('App\Models\Rmis\Terminal', 'terminalid');
+  }
   
 }

@@ -723,7 +723,7 @@ class UploaderController extends Controller
 			$ds = $this->ds->findWhere(['date'=>$request->input('date')])->first();
 		}
 
-		/*
+		
 		if (app()->environment()==='local') {
 
 			$date  = c('2017-10-06');
@@ -786,7 +786,7 @@ class UploaderController extends Controller
 				])
 				->all();
 		}
-		*/
+		
 
 
 		return view('backups.upload-summary', compact('date'))->with('ds', $ds);
