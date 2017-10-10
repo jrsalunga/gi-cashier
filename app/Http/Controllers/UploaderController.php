@@ -18,6 +18,8 @@ use App\Repositories\DailySalesRepository as DSRepo;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException as Http404;
 use App\Events\Backup\ProcessSuccess;
 use App\Events\Upload\Depslp as DepslpUpload;
+use App\Repositories\Rmis\Invdtl;
+use App\Repositories\Rmis\Orpaydtl;
 
 
 class UploaderController extends Controller 
@@ -31,8 +33,10 @@ class UploaderController extends Controller
 	protected $web;
 	protected $backupCtrl;
 	protected $ds;
+	protected $invdtl;
+	protected $orpaydtl;
 
-	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, DSRepo $ds) {
+	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, DSRepo $ds, Invdtl$invdtl, Orpaydtl $orpaydtl) {
 		$this->posUploadRepo = $posUploadRepo;
 		$this->fileUploadRepo = $fileUploadRepo;
 		$this->depslip = $depslip;
@@ -45,6 +49,8 @@ class UploaderController extends Controller
 		$this->path['temp'] = strtolower(session('user.branchcode')).DS.now('year').DS;
 		$this->path['web'] = config('gi-dtr.upload_path.web').session('user.branchcode').DS.now('year').DS;
 	
+		$this->invdtl = $invdtl;
+		$this->orpaydtl = $orpaydtl;
 	}
 
 
@@ -716,6 +722,72 @@ class UploaderController extends Controller
 
 			$ds = $this->ds->findWhere(['date'=>$request->input('date')])->first();
 		}
+
+		/*
+		if (app()->environment()==='local') {
+
+			$date  = c('2017-10-06');
+
+			
+			return $orpaydtls = $this->orpaydtl
+				->skipCache()
+				->whereDate($date)
+				->with([
+					'invhdr'=>function($q) {
+						$q->select(['id'])
+							->with(['scinfos'=>function($q){
+                $q->where('cancelled', 0);
+              }]);
+					},
+					'bankcard'
+				])
+				->all();
+
+			return count($orpaydtls[0]->invhdr->scinfos);
+				//->findWhere(['orpaydtl.cancelled'=>'0']);
+
+			return view('backups.upload-summary', compact('date'))->with('ds', $ds);
+			
+			return $orpaydtls = $this->orpaydtl
+				->skipCache()
+				->whereHas('invhdr', function($query) use ($date) {
+	        $query->where('date', $date->format('Y-m-d'))
+	        			->where('posted', 1);
+	      })
+				->with([
+					'invhdr'=>function($q) {
+						$q->select(['refno', 'date', 'tableno', 'timestart','id']);
+					}
+				])
+				->all();
+			
+
+
+
+			return $invdtls = $this->invdtl
+				->skipCache()
+				->whereDate($date)
+				->with([
+					'invhdr'=>function($q) {
+						$q->select(['refno', 'date', 'tableno', 'timestart','posted','id']);
+					}, 
+					'product'=>function($q) {
+						$q->select(['code', 'shortdesc', 'prodcatid', 'sectionid', 'id'])
+							->with('prodcat')
+							->with(['combos'=>function($q){
+								$q->with('product')
+								->orderBy('seqno');
+							}])
+							->with(['menuprod'=>function($q){
+								$q->with('menucat')
+									->orderBy('seqno');
+							}]);
+					}
+				])
+				->all();
+		}
+		*/
+
 
 		return view('backups.upload-summary', compact('date'))->with('ds', $ds);
 	}

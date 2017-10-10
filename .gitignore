@@ -17,6 +17,9 @@ Homestead.json
 /UNKNOWN_BACKUP_FILES
 /storage/backup
 /storage/process
+/storage/eod
+/storage/product
+/config/database.php
 
 .env.example
 bower_components
