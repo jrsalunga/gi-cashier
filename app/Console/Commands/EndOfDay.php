@@ -261,7 +261,7 @@ public function handle()
         } else {
           $this->line(' ');
           $this->line('==========================================');
-          $this->line("\t".$invdtl->invhdr->refno);
+          $this->line("\t".substr($invdtl->invhdr->refno,4));
           $this->line('==========================================');
           $last_clspno=$invdtl->invhdr->refno;
           //$this->comment('TRUE');
@@ -269,9 +269,9 @@ public function handle()
         }
 
         if ($invdtl->cancelled)
-          $this->info((-1*abs($invdtl->qty)+0).' '.$invdtl->product->shortdesc."\t".$invdtl->unitprice."\t".number_format(-1*abs($invdtl->amount),2));
+          $this->info((-1*abs($invdtl->qty)+0).' '.str_pad($invdtl->product->shortdesc,25,' ')." ".str_pad(number_format($invdtl->unitprice,2),8,' ',STR_PAD_LEFT)."\t".str_pad(number_format(-1*abs($invdtl->amount),2),8,' ',STR_PAD_LEFT));
         else
-          $this->info(($invdtl->qty+0).' '.$invdtl->product->shortdesc."\t".$invdtl->unitprice."\t".$invdtl->amount);
+          $this->info(($invdtl->qty+0).' '.str_pad($invdtl->product->shortdesc,25,' ')." ".str_pad(number_format($invdtl->unitprice,2),8,' ',STR_PAD_LEFT)."\t".str_pad(number_format($invdtl->amount,2),8,' ',STR_PAD_LEFT));
                   
         if ($this->is_groupies($invdtl)) {
           
