@@ -125,41 +125,61 @@ public function handle()
       $tot = 0;
       $ptype = null;
       $terminals = [];
+      $this->info('+---------------------------------------------+');
+      $this->info(
+            str_pad('#',4,' ',STR_PAD_LEFT).' '.
+            str_pad('TYPE',4,' ',STR_PAD_LEFT).' '.
+            str_pad('REFNO',4,' ',STR_PAD_LEFT).' '.
+            str_pad('TENDERED',11,' ',STR_PAD_LEFT).' '.
+            str_pad('AMT PAID',10,' ',STR_PAD_LEFT).' '.
+            str_pad('MID',5,' ',STR_PAD_LEFT)
+          );
+      $this->info('+---------------------------------------------+');
       foreach ($orpaydtls as $key => $orpaydtl) {
+        $true_charge = 0;
         if (in_array($orpaydtl->paytype, [1,2])) {
           $this->add_record($dbf_c,  $this->setOrpaydtl($orpaydtl));
-          if ($orpaydtl->paytype=='1') 
+          if ($orpaydtl->paytype=='1') {
             $ptype = 'CASH';
-          else        
+            $true_charge = $orpaydtl->amount-$orpaydtl->totchange;
+            $tot += $true_charge;
+          } else {
             $ptype = 'CHGR'; 
-          $tot += $orpaydtl->amount;
+            $true_charge = $orpaydtl->amount;
+            $tot += $orpaydtl->amount;
+          }
         }
 
         if ($orpaydtl->paytype=='4') {
           $this->add_record($dbf_s,  $this->setOrpaydtl($orpaydtl));
           $ptype = 'SIGN';
+          $true_charge = $orpaydtl->amount;
           $tot += $orpaydtl->amount; 
         }
 
-        $this->info(
-          str_pad(($key+1),4,' ',STR_PAD_LEFT).' '.
-          $ptype.' '.
-          substr($orpaydtl->invrefno,4).' '.
-          str_pad(number_format($orpaydtl->amount,2),10,' ',STR_PAD_LEFT).' '.
-          $orpaydtl->terminalid
-        );
+        if (in_array($orpaydtl->paytype, [1,2,4])) {
 
-        if (array_key_exists($orpaydtl->terminalid, $terminals))
-           $terminals[$orpaydtl->terminalid] += $orpaydtl->amount;
-         else
-           $terminals[$orpaydtl->terminalid] = $orpaydtl->amount;
+          $this->info(
+            str_pad(($key+1),4,' ',STR_PAD_LEFT).' '.
+            $ptype.' '.
+            substr($orpaydtl->invrefno,4).' '.
+            str_pad(number_format($orpaydtl->amount,2),10,' ',STR_PAD_LEFT).' '.
+            str_pad(number_format($true_charge,2),10,' ',STR_PAD_LEFT).' '.
+            $orpaydtl->terminalid
+          );
+
+          if (array_key_exists($orpaydtl->terminalid, $terminals))
+             $terminals[$orpaydtl->terminalid] += $true_charge;
+           else
+             $terminals[$orpaydtl->terminalid] = $true_charge;
             
+        }
 
       }
       $this->close_dbf($dbf_c);
       $this->close_dbf($dbf_s);
 
-      $this->info('-----------------------------------------');
+      $this->info('+---------------------------------------------+');
       $this->info('TOTAL: '.number_format($tot,2));
       $this->info(' ');
 
