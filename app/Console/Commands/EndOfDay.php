@@ -39,6 +39,10 @@ protected $date;
 protected $invdtl;
 protected $orpaydtl;
 protected $save_cancelled = true;
+protected $payment_type = [1=>'CASH', 2=>'CHRG', 3=>'GCRT', 4=>'SIGN'];
+protected $payment_breakdown = [];
+protected $gross = 0;
+protected $prodtype_breakdown = [];
 
 public function __construct(Invdtl $invdtl, Orpaydtl $orpaydtl) {
   parent::__construct();
@@ -98,6 +102,12 @@ public function handle()
     }
   }
 
+  private function get_payment_type($key) {
+    return array_key_exists($key, $this->payment_type)
+      ? $this->payment_type[$key]
+      : 'OTHR';
+  }
+
 
   private function charges(Carbon $date) {
 
@@ -125,6 +135,7 @@ public function handle()
       $tot = 0;
       $ptype = null;
       $terminals = [];
+      
       $this->info('+---------------------------------------------+');
       $this->info(
             str_pad('#',4,' ',STR_PAD_LEFT).' '.
@@ -132,29 +143,31 @@ public function handle()
             str_pad('REFNO',4,' ',STR_PAD_LEFT).' '.
             str_pad('TENDERED',11,' ',STR_PAD_LEFT).' '.
             str_pad('AMT PAID',10,' ',STR_PAD_LEFT).' '.
+            str_pad('CHANGE',10,' ',STR_PAD_LEFT).' '.
             str_pad('MID',5,' ',STR_PAD_LEFT)
           );
       $this->info('+---------------------------------------------+');
+      
       foreach ($orpaydtls as $key => $orpaydtl) {
         $true_charge = 0;
         if (in_array($orpaydtl->paytype, [1,2])) {
           $this->add_record($dbf_c,  $this->setOrpaydtl($orpaydtl));
           if ($orpaydtl->paytype=='1') {
             $ptype = 'CASH';
-            $true_charge = $orpaydtl->amount-$orpaydtl->totchange;
+            $true_charge = $orpaydtl->amounts-$orpaydtl->totchange;
             $tot += $true_charge;
           } else {
             $ptype = 'CHGR'; 
-            $true_charge = $orpaydtl->amount;
-            $tot += $orpaydtl->amount;
+            $true_charge = $orpaydtl->amounts;
+            $tot += $orpaydtl->amounts;
           }
         }
 
         if ($orpaydtl->paytype=='4') {
           $this->add_record($dbf_s,  $this->setOrpaydtl($orpaydtl));
           $ptype = 'SIGN';
-          $true_charge = $orpaydtl->amount;
-          $tot += $orpaydtl->amount; 
+          $true_charge = $orpaydtl->amounts;
+          $tot += $orpaydtl->amounts; 
         }
 
         if (in_array($orpaydtl->paytype, [1,2,4])) {
@@ -163,30 +176,53 @@ public function handle()
             str_pad(($key+1),4,' ',STR_PAD_LEFT).' '.
             $ptype.' '.
             substr($orpaydtl->invrefno,4).' '.
-            str_pad(number_format($orpaydtl->amount,2),10,' ',STR_PAD_LEFT).' '.
+            str_pad(number_format($orpaydtl->amounts,2),10,' ',STR_PAD_LEFT).' '.
             str_pad(number_format($true_charge,2),10,' ',STR_PAD_LEFT).' '.
+            str_pad(number_format($orpaydtl->amounts-$true_charge,2),10,' ',STR_PAD_LEFT).' '.
             $orpaydtl->terminalid
           );
 
           if (array_key_exists($orpaydtl->terminalid, $terminals))
-             $terminals[$orpaydtl->terminalid] += $true_charge;
+            $terminals[$orpaydtl->terminalid] += $true_charge;
            else
-             $terminals[$orpaydtl->terminalid] = $true_charge;
+            $terminals[$orpaydtl->terminalid] = $true_charge;
             
         }
 
+        $type = $this->get_payment_type($orpaydtl->paytype);
+        if (array_key_exists($type, $this->payment_breakdown))
+          $this->payment_breakdown[$type] += $true_charge;
+        else
+          $this->payment_breakdown[$type] = $true_charge;
+
       }
+      
       $this->close_dbf($dbf_c);
       $this->close_dbf($dbf_s);
 
       $this->info('+---------------------------------------------+');
       $this->info('TOTAL: '.number_format($tot,2));
+      $this->info('+---------------------------------------------+');
       $this->info(' ');
 
-      $this->info('*** terminal ***');
+      $tot_ptype = 0;
+      $this->info('*** Payment Type ***');
+      foreach ($this->payment_breakdown as $key => $value) {
+        $this->info($key.' '.str_pad(number_format($value,2),12,' ',STR_PAD_LEFT));
+        $tot_ptype += $value;
+      }
+      $this->info('--------------------');
+      $this->info(str_pad(number_format($tot_ptype,2),17,' ',STR_PAD_LEFT));
+
+      $tot_terminal = 0;
+      $this->info(' ');
+      $this->info('*** Terminal ***');
       foreach ($terminals as $key => $t) {
         $this->info($key.' '.str_pad(number_format($t,2),10,' ',STR_PAD_LEFT));
+        $tot_terminal += $t;
       }
+      $this->info('----------------');
+      $this->info(str_pad(number_format($tot_terminal,2),14,' ',STR_PAD_LEFT));
 
     }
   }
@@ -251,20 +287,19 @@ public function handle()
 
       //$this->info(count($invdtls));
 
+      $tot = 0;
       $last_clspno = null;
       $flag = false;
       foreach ($invdtls as $key => $invdtl) {
 
         if ($last_clspno==$invdtl->invhdr->refno) {
           $flag = false;
-          //$this->comment('FALSE');
         } else {
           $this->line(' ');
           $this->line('==========================================');
           $this->line("\t".substr($invdtl->invhdr->refno,4));
           $this->line('==========================================');
           $last_clspno=$invdtl->invhdr->refno;
-          //$this->comment('TRUE');
           $flag = true;
         }
 
@@ -275,15 +310,11 @@ public function handle()
                   
         if ($this->is_groupies($invdtl)) {
           
-          //$this->info('GROUPIES: ');
-          
           $invdtl->product->load(['combos'=>function($q){
-                $q->with('product')
-                  ->orderBy('seqno');
-              }]);
+              $q->with('product')
+                ->orderBy('seqno');
+            }]);
           
-          //$this->info(count($invdtl->product->combos));
-
           foreach ($invdtl->product->combos as $key => $combo) {
             $this->add_record($dbf, $this->setToArray($flag, $key, $invdtl, $combo, 'combo'));
             if($invdtl->cancelled)
@@ -294,8 +325,26 @@ public function handle()
           if($invdtl->cancelled)
             $this->add_record($dbf, $this->setToArray($flag, 0, $invdtl, null, 'invdtl', true));
         }
+
+        $tot += $invdtl->amount;
         
+      } // end: foreach $invdtls
+
+      $this->info('+-----------------------------------------------+');
+      $this->comment('GROSS: '.number_format($tot, 2));
+      $this->info('+-----------------------------------------------+');
+      $this->info(' ');
+
+      $tot_prodcat = 0;
+      $this->info(' ');
+      $this->info('*** Product Category ***');
+      foreach ($this->prodtype_breakdown as $key => $value) {
+        $this->info(str_pad(substr($key,0,15),15,' ').': '.str_pad(number_format($value,2),13,' ',STR_PAD_LEFT));
+        $tot_prodcat += $value;
       }
+      $this->info('+-----------------------------+');
+      $this->info(str_pad(number_format($tot_prodcat,2),30,' ',STR_PAD_LEFT));
+
       $this->close_dbf($dbf);
     }
   }
@@ -312,14 +361,16 @@ public function handle()
     $pdamt = number_format(0,2);
     $bnkchrg = number_format(0,2);
     $terms = '';
+    //$true_charge = number_format(0,2);
 
     if ($orpaydtl->paytype=='1') { //cash
       $cusno = $orpaydtl->tableno;
-      $pdamt = $orpaydtl->amount;
+      $pdamt = $orpaydtl->amounts;
       $cusname = 'CASH';
       $terms = 'CASH';
+      $true_charge = $orpaydtl->amounts-$orpaydtl->totchange;
       //$this->info('totpayline:'.$orpaydtl->totpayline);
-      if ($orpaydtl->totpayline<=1)
+      if ($orpaydtl->totpayline<=1 || $orpaydtl->ismulti>1)
         $lastpd = $orpaydtl->date->format('Ymd');
       if (count($orpaydtl->invhdr->scinfos)>0 && $orpaydtl->scpax>0) {
         $cusaddr1 = 'SC'.$orpaydtl->scpax.' '.$orpaydtl->invhdr->scinfos[0]->fullname;  
@@ -332,8 +383,9 @@ public function handle()
       $orpaydtl->load('bankcard');
       $cusno = $orpaydtl->tableno;
       $cusname = $orpaydtl->bankcard->descriptor;
-      $bnkchrg = number_format(($orpaydtl->amount*$orpaydtl->bankrate)/100,2);
+      $bnkchrg = number_format(($orpaydtl->amounts*$orpaydtl->bankrate)/100,2);
       $terms = 'CHARGE';
+      $true_charge = $orpaydtl->amounts;
       $cardno = $orpaydtl->approval.' '.$orpaydtl->refno;  
       $cardtyp = 'VISA';
       $cusaddr1 = $orpaydtl->fullname;
@@ -344,7 +396,10 @@ public function handle()
       $cusno = $orpaydtl->refno;
       $cusname = $orpaydtl->fullname;
       $terms = 'SIGNED';
+      $true_charge = $orpaydtl->amounts;
     }
+
+
 
     return [
       substr($orpaydtl->invrefno,4), //CSLIPNO 
@@ -355,19 +410,20 @@ public function handle()
       $orpaydtl->bankrate, //CHARGPCT  
       $orpaydtl->subtotal, //GRSCHRG 
       number_format(0,2), //PROMO_PCT 
-      number_format(0,2), //PROMO_AMT 
+      number_format(0,2), //number_format($orpaydtl->promoamt,2), //PROMO_AMT 
       $orpaydtl->pax, //SR_TCUST  
       $orpaydtl->scpax, //SR_BODY 
-      $orpaydtl->scdisc, //SR_DISC 
+      number_format($orpaydtl->scdisc+$orpaydtl->scdisc2,2,'.',''), //SR_DISC 
       $orpaydtl->vatamount, //VAT 
       $orpaydtl->svcamount, //SERVCHRG  
-      $orpaydtl->discamount, //OTHDISC 
+      //$orpaydtl->discamount, //OTHDISC 
+      number_format($orpaydtl->discamount,2,'.',''), //OTHDISC 
       number_format(0,2), //UDISC 
       $bnkchrg, //BANKCHARG 
-      $orpaydtl->amount, //TOTCHRG 
+      number_format($true_charge,2,'.',''), //$orpaydtl->amount, //TOTCHRG 
       $pdamt, //PDAMT 
       '', //PMTDISC 
-      number_format($orpaydtl->amount-$pdamt,2,'.',''), //BALANCE 
+      number_format($orpaydtl->amounts-$pdamt,2,'.',''), //BALANCE 
       $terms, //TERMS 
       $cardno, //CARDNO  
       $cardtyp, //CARDTYP 
@@ -382,16 +438,16 @@ public function handle()
       '', //TCHARGE 
       '', //TSIGNED 
       '', //AGE 
-      '', //VAT_XMPT  
+      number_format($orpaydtl->vatxmpt,2,'.',''), //VAT_XMPT  
       '', //FILLER1 
       '', //FILLER2 
       '', //DIS_PROM  
       '', //DIS_UDISC 
-      $orpaydtl->scdisc, //DIS_SR  
+      number_format($orpaydtl->scdisc+$orpaydtl->scdisc2,2,'.',''), //DIS_SR  
       strtolower($orpaydtl->discountid)=='emp'?$orpaydtl->discamount:number_format(0,2), //DIS_EMP 
       '', //DIS_VIP 
       '', //DIS_GPC 
-      $orpaydtl->pwddisc, //DIS_PWD 
+      number_format($orpaydtl->pwddisc+$orpaydtl->pwddisc2,2,'.',''), //DIS_PWD 
       '', //DIS_G 
       '', //DIS_H 
       '', //DIS_I 
@@ -435,7 +491,12 @@ public function handle()
       $custno = $invdtl->invhdr->uidcreate;
     }
     
-    
+    $catname = ucwords(strtolower($$table->product->prodcat->descriptor), " \t\r\n\f\v-");
+
+    if (array_key_exists($catname, $this->prodtype_breakdown))
+      $this->prodtype_breakdown[$catname] += $grsamt;
+    else
+      $this->prodtype_breakdown[$catname] = $grsamt;
       
 
     return [
@@ -454,7 +515,7 @@ public function handle()
       $invdtl->invhdr->date->format('Ymd'), //ORDDATE
       $invdtl->ordtime.':00',  //ORDTIME
       '', //CATNO
-      ucwords(strtolower($$table->product->prodcat->descriptor)),  //CATNAME
+      $catname,  //CATNAME
       $invdtl->lineno, //RECORD 
       substr($invdtl->invhdr->refno,4), //CSLIPNO
       '', //COMP1

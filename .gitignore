@@ -23,3 +23,6 @@ Homestead.json
 
 .env.example
 bower_components
+
+/app/Console/Commands/_EndOfDay.php
+/app/Repositories/Rmis/_Orpaydtl.php
