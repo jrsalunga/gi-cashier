@@ -6,7 +6,7 @@ class Branch extends BaseModel {
 
   protected $connection = 'mysql-hr';
 	protected $table = 'branch';
- 	protected $fillable = ['code', 'descriptor'];
+ 	protected $fillable = ['code', 'descriptor', 'opendate', 'email', 'mancost', 'address'];
  	public static $header = ['code', 'descriptor'];
 
   public function __construct(array $attributes = [])
