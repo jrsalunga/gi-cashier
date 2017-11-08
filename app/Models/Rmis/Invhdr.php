@@ -7,7 +7,8 @@ class Invhdr extends BaseModel {
 	protected $connection = 'rmis';
   protected $table = 'invhdr';
 	protected $guarded = ['id'];
-	protected $dates = ['date'];
+  protected $dates = ['date'];
+	protected $appends = ['vatxmpt'];
 
 
 
@@ -19,8 +20,28 @@ class Invhdr extends BaseModel {
     return $this->hasMany('App\Models\Rmis\Scinfo', 'invhdrid');
   }	
 
+   public function pwdinfos() {
+    return $this->hasMany('App\Models\Rmis\Pwdinfo', 'invhdrid');
+  } 
+
   public function terminal() {
     return $this->belongsTo('App\Models\Rmis\Terminal', 'terminalid');
+  }
+
+  public function orderhdrs() {
+    return $this->hasMany('App\Models\Rmis\Orderhdr', 'invhdrid');
+  }
+
+  public function orpaydtls() {
+    return $this->hasMany('App\Models\Rmis\Orpaydtl', 'invhdrid');
+  }
+
+  public function getVatxmptAttribute(){
+    return (($this->vtotal - $this->ctotal) * (($this->scpax+$this->pwdpax)/$this->pax)) - $this->vatxsales;
+  }
+
+  public function srefno() {
+    return substr($this->refno,4);
   }
   
 }

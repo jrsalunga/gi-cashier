@@ -13,6 +13,10 @@ class Orderhdr extends BaseModel {
     return $this->hasMany('App\Models\Rmis\Orderdtl', 'orderhdrid');
   }
 
+  public function orderdtls() {
+    return $this->hasMany('App\Models\Rmis\Orderdtl', 'orderhdrid');
+  }
+
 	
   
 }

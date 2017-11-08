@@ -13,6 +13,10 @@ class Orderdtl extends BaseModel {
     return $this->belongsTo('App\Models\Rmis\Orderhdr', 'orderhdrid');
   }
 
+  public function product() {
+    return $this->belongsTo('App\Models\Rmis\Product', 'productid');
+  }
+
 	
   
 }

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Inspiring;
 use App\Http\Controllers\SalesmtdController as SalesmtdCtrl;
 use App\Repositories\Rmis\Invdtl;
 use App\Repositories\Rmis\Orpaydtl;
+use App\Repositories\Rmis\Invhdr;
 
 class EndOfDay extends Command
 {
@@ -37,6 +38,7 @@ protected $description = 'Generate eod';
 protected $temp_path;
 protected $date;
 protected $invdtl;
+protected $invhdr;
 protected $orpaydtl;
 protected $save_cancelled = true;
 protected $payment_type = [1=>'CASH', 2=>'CHRG', 3=>'GCRT', 4=>'SIGN'];
@@ -44,10 +46,12 @@ protected $payment_breakdown = [];
 protected $gross = 0;
 protected $prodtype_breakdown = [];
 
-public function __construct(Invdtl $invdtl, Orpaydtl $orpaydtl) {
+public function __construct(Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
   parent::__construct();
   $this->invdtl = $invdtl;
   $this->orpaydtl = $orpaydtl;
+  $this->invhdr = $invhdr;
+  $this->assert = new AssertBag;
 }
 
 public function handle()
@@ -85,6 +89,11 @@ public function handle()
       $this->info($this->temp_path);
 
       //$this->update_products();
+      $this->info('');
+      $this->info("\tCHECKING DATA INTEGRITY");
+      $this->data_check($date);
+
+      //return;
 
       $this->info('');
       $this->info("\tPROCESSING SALESMTD");
@@ -98,6 +107,16 @@ public function handle()
       $this->charges($date);
 
      
+      $this->info('');
+      if ($this->assert->assert)
+        $this->info('All data are okay!');
+      else {
+        $this->info('Errors:');
+        foreach ($this->assert->getErrors() as $key => $value) {
+          $this->info(' - '.$value);
+        }
+      }
+
 
     }
   }
@@ -688,5 +707,193 @@ public function handle()
       ['DIS_VX',    'N', 10,2],  
       ['NTAX_SAL',  'N', 10,2]
     ];
+  }
+
+  private function  data_check(Carbon $date) {
+
+    $invhdrs = $this->invhdr
+                ->skipCache()
+                ->orderBy('refno')
+                ->with([
+                  'invdtls.product'=>function($q) {
+                    $q->select(['code','descriptor','shortdesc','iscombo','id']);
+                  },
+                  'scinfos',
+                  'pwdinfos',
+                  'orpaydtls',
+                  'orderhdrs.orderdtls'
+                ])
+                ->findWhere(['date'=>$date->format('Y-m-d'), 'posted'=>1, 'cancelled'=>0]);
+
+    //$this->info(count($invhdrs));
+    foreach ($invhdrs as $key => $invhdr) {
+
+
+      $adtl = $this->assertInvdtl($invhdr);
+      $asc = $this->assertScinfo($invhdr);
+      $apwd = $this->assertPwdinfo($invhdr);
+      $aor = $this->assertOrpaydtl($invhdr);
+
+      //$tdtl = $adtl ? 'yes':' no';
+      $tdtl   = $adtl->assert ? '-':'X';
+      $tsc    = $asc->assert  ? '-':'X';
+      $tpwd   = $apwd->assert ? '-':'X';
+      $tor    = $aor->assert  ? '-':'X';
+
+      if (!$adtl->assert || !$asc->assert || !$apwd->assert || !$aor->assert) { 
+        $text = str_pad($key,3,' ',STR_PAD_LEFT).' '.$invhdr->srefno().' '.$tdtl.' '.$tsc.' '.$tpwd.' '.$tor;
+        $this->info($text);
+
+        if (!$adtl->assert)
+          $this->assert->addError($adtl->getErrors());
+        if (!$asc->assert)
+          $this->assert->addError($asc->getErrors());
+        if (!$apwd->assert)
+          $this->assert->addError($apwd->getErrors());
+        if (!$aor->assert)
+          $this->assert->addError($aor->getErrors());
+
+      }
+      
+    }
+
+
+
+
+  }
+
+
+  private function assertInvdtl($invhdr) {
+    $assert = new AssertBag;
+
+    //$this->info($invhdr->totinvline.'-'.count($invhdr->invdtls));
+
+    if (count($invhdr->invdtls)<=0 || is_null($invhdr->invdtls))
+      $assert->addError($invhdr->srefno().': No invdtl');
+
+    if ($invhdr->totinvline > count($invhdr->invdtls))
+      $assert->addError($invhdr->srefno().': Totinvline is greater than actual invdtl');
+
+    if ($invhdr->totinvline < count($invhdr->invdtls))
+      $assert->addError($invhdr->srefno().': Actual invdtl do not match totinvline');
+
+    return $assert;
+  }
+
+  private function assertOrpaydtl($invhdr) {
+    $assert = new AssertBag;
+
+    if (count($invhdr->orpaydtls)<=0 || is_null($invhdr->orpaydtls))
+      $assert->addError($invhdr->srefno().': No orpaydtls');
+
+    if ($invhdr->totpayline > count($invhdr->orpaydtls))
+      $assert->addError($invhdr->srefno().': Totpayline is greater than actual orpaydtl');
+
+    if ($invhdr->totpayline < count($invhdr->orpaydtls)) {
+      $ctr = 0;
+      foreach ($invhdr->orpaydtls as $key => $orpaydtl) {
+        if ($orpaydtl->cancelled==0)
+          $ctr++;
+      }
+
+      if ($invhdr->totpayline < $ctr)
+        $assert->addError($invhdr->srefno().': Actual orpaydtl do not match totpayline');
+    }
+
+    $ctr_totpaid = 0;
+    foreach ($invhdr->orpaydtls as $key => $orpaydtl) {
+      if ($orpaydtl->cancelled==0)
+        $ctr_totpaid += $orpaydtl->amount;
+    }
+
+    if (number_format($ctr_totpaid,2)!==number_format($invhdr->totpaid,2))
+      $assert->addError($invhdr->srefno().': Total orpaydtl amount do not match totpaid');
+
+    if (number_format($ctr_totpaid-$invhdr->totchange,2)!==number_format($invhdr->totsales,2))
+      $assert->addError($invhdr->srefno().': Total orpaydtl amount less totchange do not match totsales');
+
+    return $assert;
+  }
+
+  private function assertScinfo($invhdr) {
+    $assert = new AssertBag;
+
+    if ($invhdr->scpax > count($invhdr->scinfos))
+      $assert->addError($invhdr->srefno().': Scpax is greater than actual scinfo');
+
+    if ($invhdr->scpax < count($invhdr->scinfos)) {
+      $ctr = 0;
+      foreach ($invhdr->scinfos as $key => $scinfo) {
+        if ($scinfo->cancelled==0)
+          $ctr++;
+      }
+
+      if ($invhdr->scpax < $ctr)
+        $assert->addError($invhdr->srefno().': Actual scinfo do not match scpax');
+    }
+
+    if ($invhdr->scdisc>0 && $invhdr->scpax<=0)
+        $assert->addError($invhdr->srefno().': With SC discount but have no scpax');
+
+
+    return $assert;
+  }
+
+  private function assertPwdinfo($invhdr) {
+    $assert = new AssertBag;
+
+    if ($invhdr->pwdpax > count($invhdr->pwdinfos))
+      $assert->addError($invhdr->srefno().': Pwdpax is greater than actual pwdinfo');
+
+    if ($invhdr->pwdpax < count($invhdr->pwdinfos)) {
+      $ctr = 0;
+      foreach ($invhdr->pwdinfos as $key => $pwdinfo) {
+        if ($pwdinfo->cancelled==0)
+          $ctr++;
+      }
+
+      if ($invhdr->pwdpax < $ctr)
+        $assert->addError($invhdr->srefno().': Actual pwdinfo do not match pwdpax');
+    }
+
+    if ($invhdr->pwddisc>0 && $invhdr->pwdpax<=0)
+        $assert->addError($invhdr->srefno().': With PWD discount but have no pwdpax');
+
+
+    return $assert;
+  }
+}
+
+class AssertBag {
+  public $assert = true;
+  protected $errorBag = [];
+
+  public function getErrors() {
+    return $this->errorBag;
+  }
+
+  public function getAssert() {
+    return $this->assert;
+  }
+
+  public function addError($error) {
+
+    if (is_array($error))
+      foreach ($error as $key => $value)
+        $this->push_error($value);
+    else
+      $this->push_error($error);
+      
+    return false;
+  }
+
+  private function push_error($e) {
+    array_push($this->errorBag, $e);
+    if ($this->assert)
+      $this->assert = false;
+  }
+
+  public function __toString() {
+    return $this->getAssert();
   }
 }
