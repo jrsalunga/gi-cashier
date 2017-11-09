@@ -111,7 +111,7 @@ public function handle()
       if ($this->assert->assert)
         $this->info('All data are okay!');
       else {
-        $this->info('Errors:');
+        $this->info('Notes:');
         foreach ($this->assert->getErrors() as $key => $value) {
           $this->info(' - '.$value);
         }
@@ -774,8 +774,16 @@ public function handle()
     if ($invhdr->totinvline > count($invhdr->invdtls))
       $assert->addError($invhdr->srefno().': Totinvline is greater than actual invdtl');
 
-    if ($invhdr->totinvline < count($invhdr->invdtls))
-      $assert->addError($invhdr->srefno().': Actual invdtl do not match totinvline');
+    if ($invhdr->totinvline < count($invhdr->invdtls)) {
+      $ctr = 0;
+      foreach ($invhdr->invdtls as $key => $invdtl) {
+        if ($invdtl->cancelled==0)
+          $ctr++;
+      }
+
+      if ($invhdr->totinvline < $ctr)
+        $assert->addError($invhdr->srefno().': Actual invdtl do not match totinvline');
+    }
 
     return $assert;
   }
