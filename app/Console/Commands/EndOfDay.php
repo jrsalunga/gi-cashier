@@ -10,6 +10,8 @@ use App\Http\Controllers\SalesmtdController as SalesmtdCtrl;
 use App\Repositories\Rmis\Invdtl;
 use App\Repositories\Rmis\Orpaydtl;
 use App\Repositories\Rmis\Invhdr;
+use Mike42\Escpos\PrintConnectors\FilePrintConnector;
+use Mike42\Escpos\Printer;
 
 class EndOfDay extends Command
 {
@@ -45,6 +47,7 @@ protected $payment_type = [1=>'CASH', 2=>'CHRG', 3=>'GCRT', 4=>'SIGN'];
 protected $payment_breakdown = [];
 protected $gross = 0;
 protected $prodtype_breakdown = [];
+protected $summary = [];
 
 public function __construct(Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
   parent::__construct();
@@ -105,11 +108,24 @@ public function handle()
       $this->info("\tPROCESSING PAYMENTS");
       $this->info('');
       $this->charges($date);
+      
 
-     
+      $this->info('');
+      $this->info('*** Discounts ***');
+      $this->info('SC '.str_pad(number_format($this->summary['disc']['sc'],2),12,' ',STR_PAD_LEFT));
+      $this->info('PWD '.str_pad(number_format($this->summary['disc']['pwd'],2),11,' ',STR_PAD_LEFT));
+      $this->info('OTHR '.str_pad(number_format($this->summary['disc']['other'],2),10,' ',STR_PAD_LEFT));
+      $this->info('-----------------');
+      $this->info(str_pad(number_format($this->summary['tot_disc'],2),15,' ',STR_PAD_LEFT));
+
+      $this->info('');
+      $this->info('Tax Exempt: '.str_pad(number_format($this->summary['tot_vatxmpt'],2),8,' ',STR_PAD_LEFT));
+      $this->info('Srv Charge: '.str_pad(number_format($this->summary['tot_svchrg'],2),8,' ',STR_PAD_LEFT));
+      
+
       $this->info('');
       if ($this->assert->assert)
-        $this->info('All data are okay!');
+        return;
       else {
         $this->info('Notes:');
         foreach ($this->assert->getErrors() as $key => $value) {
@@ -117,6 +133,30 @@ public function handle()
         }
       }
 
+
+      /*
+      $connector = new FilePrintConnector("lpt1");
+      $printer = new Printer($connector);
+      $printer->text("*** Discounts ***\n");
+      $printer->text("SC: ".str_pad(number_format($this->summary['disc']['sc'],2),11,' ',STR_PAD_LEFT)."\n");
+
+
+      $printer->cut();
+      $printer->close();
+
+      $connector = new FilePrintConnector("lpt1");
+      $printer = new Printer($connector);
+      $printer->text("       ALQUIROS FOOD CORPORATION\n");
+      $printer->text("         (GILIGAN'S RESTAURANT)\n");
+      $printer->text("             SM by the Bay\n");
+      $printer->text("      BLDG H, UNITS 11-16 BRGY.076\n");
+      $printer->text("      SM BUSINESS PARK, PASAY CITY\n");
+      $printer->text("          #205-257-440-005 VAT\n");
+      $printer->text("            S/N AZLF9270080W\n");
+      $printer->text("             MIN# 090119166\n");
+      $printer->cut();
+      $printer->close();
+      */
 
     }
   }
@@ -152,10 +192,12 @@ public function handle()
         ->all();
 
       $tot = 0;
+      $tot_svc = 0;
+      $tot_nosvc = 0;
       $ptype = null;
       $terminals = [];
       
-      $this->info('+---------------------------------------------+');
+      $this->info('+------------------------------------------------------------------------+');
       $this->info(
             str_pad('#',4,' ',STR_PAD_LEFT).' '.
             str_pad('TYPE',4,' ',STR_PAD_LEFT).' '.
@@ -163,9 +205,11 @@ public function handle()
             str_pad('TENDERED',11,' ',STR_PAD_LEFT).' '.
             str_pad('AMT PAID',10,' ',STR_PAD_LEFT).' '.
             str_pad('CHANGE',10,' ',STR_PAD_LEFT).' '.
-            str_pad('MID',5,' ',STR_PAD_LEFT)
+            str_pad('SVCHRG',8,' ',STR_PAD_LEFT).' '.
+            str_pad('NOCHRG',10,' ',STR_PAD_LEFT).' '.
+            str_pad('MID',3,' ',STR_PAD_LEFT)
           );
-      $this->info('+---------------------------------------------+');
+      $this->info('+------------------------------------------------------------------------+');
       
       foreach ($orpaydtls as $key => $orpaydtl) {
         $true_charge = 0;
@@ -175,31 +219,42 @@ public function handle()
             $ptype = 'CASH';
             $true_charge = $orpaydtl->amounts-$orpaydtl->totchange;
             $tot += $true_charge;
+            $tot_svc += $orpaydtl->svcamount;
+            $tot_nosvc += $true_charge-$orpaydtl->svcamount;
           } else {
             $ptype = 'CHGR'; 
             $true_charge = $orpaydtl->amounts;
             $tot += $orpaydtl->amounts;
+            $tot_svc += $orpaydtl->svcamount;
+            $tot_nosvc += $true_charge-$orpaydtl->svcamount;
           }
         }
 
+        //if ($orpaydtl->paytype=='10') {
         if ($orpaydtl->paytype=='4') {
           $this->add_record($dbf_s,  $this->setOrpaydtl($orpaydtl));
           $ptype = 'SIGN';
           $true_charge = $orpaydtl->amounts;
-          $tot += $orpaydtl->amounts; 
+          //$tot += $orpaydtl->amounts; 
+          //$tot_svc += $orpaydtl->svcamount;
+          //$tot_nosvc += $true_charge-$orpaydtl->svcamount;
         }
 
         if (in_array($orpaydtl->paytype, [1,2,4])) {
 
-          $this->info(
-            str_pad(($key+1),4,' ',STR_PAD_LEFT).' '.
-            $ptype.' '.
-            substr($orpaydtl->invrefno,4).' '.
-            str_pad(number_format($orpaydtl->amounts,2),10,' ',STR_PAD_LEFT).' '.
-            str_pad(number_format($true_charge,2),10,' ',STR_PAD_LEFT).' '.
-            str_pad(number_format($orpaydtl->amounts-$true_charge,2),10,' ',STR_PAD_LEFT).' '.
-            $orpaydtl->terminalid
-          );
+          if (in_array($orpaydtl->paytype, [1,2])) {
+            $this->info(
+              str_pad(($key+1),4,' ',STR_PAD_LEFT).' '.
+              $ptype.' '.
+              substr($orpaydtl->invrefno,4).' '.
+              str_pad(number_format($orpaydtl->amounts,2),10,' ',STR_PAD_LEFT).' '.
+              str_pad(number_format($true_charge,2),10,' ',STR_PAD_LEFT).' '.
+              str_pad(number_format($orpaydtl->amounts-$true_charge,2),10,' ',STR_PAD_LEFT).' '.
+              str_pad(number_format($orpaydtl->svcamount,2),8,' ',STR_PAD_LEFT).' '.
+              str_pad(number_format($true_charge-$orpaydtl->svcamount,2),10,' ',STR_PAD_LEFT).' '.
+              $orpaydtl->terminalid
+            );
+          }
 
           if (array_key_exists($orpaydtl->terminalid, $terminals))
             $terminals[$orpaydtl->terminalid] += $true_charge;
@@ -219,9 +274,11 @@ public function handle()
       $this->close_dbf($dbf_c);
       $this->close_dbf($dbf_s);
 
-      $this->info('+---------------------------------------------+');
-      $this->info('TOTAL: '.number_format($tot,2));
-      $this->info('+---------------------------------------------+');
+      $this->info('+------------------------------------------------------------------------+');
+      $this->info('TOTAL CASH: '.str_pad(number_format($tot,2),26,' ',STR_PAD_LEFT)
+                          .str_pad(number_format($tot_svc,2),20,' ',STR_PAD_LEFT)
+                          .str_pad(number_format($tot_nosvc,2),11,' ',STR_PAD_LEFT));
+      $this->info('+------------------------------------------------------------------------+');
       $this->info(' ');
 
       $tot_ptype = 0;
@@ -315,17 +372,19 @@ public function handle()
           $flag = false;
         } else {
           $this->line(' ');
-          $this->line('==========================================');
+          $this->line('================================================');
           $this->line("\t".substr($invdtl->invhdr->refno,4));
-          $this->line('==========================================');
+          $this->line('================================================');
           $last_clspno=$invdtl->invhdr->refno;
           $flag = true;
         }
 
-        if ($invdtl->cancelled)
+        if ($invdtl->cancelled) {
+          $this->line('====================CANCELLED============================');
           $this->info((-1*abs($invdtl->qty)+0).' '.str_pad($invdtl->product->shortdesc,25,' ')." ".str_pad(number_format($invdtl->unitprice,2),8,' ',STR_PAD_LEFT)."\t".str_pad(number_format(-1*abs($invdtl->amount),2),8,' ',STR_PAD_LEFT));
-        else
+        } else {
           $this->info(($invdtl->qty+0).' '.str_pad($invdtl->product->shortdesc,25,' ')." ".str_pad(number_format($invdtl->unitprice,2),8,' ',STR_PAD_LEFT)."\t".str_pad(number_format($invdtl->amount,2),8,' ',STR_PAD_LEFT));
+        }
                   
         if ($this->is_groupies($invdtl)) {
           
@@ -349,9 +408,10 @@ public function handle()
         
       } // end: foreach $invdtls
 
-      $this->info('+-----------------------------------------------+');
+      $this->line('================================================');
+      $this->info('+----------------------------------------------+');
       $this->comment('GROSS: '.number_format($tot, 2));
-      $this->info('+-----------------------------------------------+');
+      $this->info('+----------------------------------------------+');
       $this->info(' ');
 
       $tot_prodcat = 0;
@@ -432,14 +492,14 @@ public function handle()
       number_format(0,2), //number_format($orpaydtl->promoamt,2), //PROMO_AMT 
       $orpaydtl->pax, //SR_TCUST  
       $orpaydtl->scpax, //SR_BODY 
-      number_format($orpaydtl->scdisc+$orpaydtl->scdisc2,2,'.',''), //SR_DISC 
+      number_format($orpaydtl->scdisc,2,'.',''), //SR_DISC 
       $orpaydtl->vatamount, //VAT 
-      $orpaydtl->svcamount, //SERVCHRG  
+      number_format(0,2), //$orpaydtl->svcamount, //SERVCHRG  
       //$orpaydtl->discamount, //OTHDISC 
-      number_format($orpaydtl->discamount,2,'.',''), //OTHDISC 
+      number_format($orpaydtl->discamount+$orpaydtl->pwddisc,2,'.',''), //OTHDISC 
       number_format(0,2), //UDISC 
       $bnkchrg, //BANKCHARG 
-      number_format($true_charge,2,'.',''), //$orpaydtl->amount, //TOTCHRG 
+      number_format($true_charge-$orpaydtl->svcamount,2,'.',''), //$orpaydtl->amount, //TOTCHRG 
       $pdamt, //PDAMT 
       '', //PMTDISC 
       number_format($orpaydtl->amounts-$pdamt,2,'.',''), //BALANCE 
@@ -462,11 +522,11 @@ public function handle()
       '', //FILLER2 
       '', //DIS_PROM  
       '', //DIS_UDISC 
-      number_format($orpaydtl->scdisc+$orpaydtl->scdisc2,2,'.',''), //DIS_SR  
+      number_format($orpaydtl->scdisc,2,'.',''), //DIS_SR  
       strtolower($orpaydtl->discountid)=='emp'?$orpaydtl->discamount:number_format(0,2), //DIS_EMP 
       '', //DIS_VIP 
       '', //DIS_GPC 
-      number_format($orpaydtl->pwddisc+$orpaydtl->pwddisc2,2,'.',''), //DIS_PWD 
+      number_format($orpaydtl->pwddisc,2,'.',''), //DIS_PWD 
       '', //DIS_G 
       '', //DIS_H 
       '', //DIS_I 
@@ -726,6 +786,7 @@ public function handle()
                 ->findWhere(['date'=>$date->format('Y-m-d'), 'posted'=>1, 'cancelled'=>0]);
 
     //$this->info(count($invhdrs));
+    $this->initSummary();
     foreach ($invhdrs as $key => $invhdr) {
 
 
@@ -733,6 +794,8 @@ public function handle()
       $asc = $this->assertScinfo($invhdr);
       $apwd = $this->assertPwdinfo($invhdr);
       $aor = $this->assertOrpaydtl($invhdr);
+
+      $this->setSummary($invhdr);
 
       //$tdtl = $adtl ? 'yes':' no';
       $tdtl   = $adtl->assert ? '-':'X';
@@ -784,6 +847,32 @@ public function handle()
       if ($invhdr->totinvline < $ctr)
         $assert->addError($invhdr->srefno().': Actual invdtl do not match totinvline');
     }
+
+    $ctr_gross = 0;
+    foreach ($invhdr->invdtls as $key => $invdtl) {
+      if ($invdtl->cancelled==0) {
+
+
+        if ($this->is_groupies($invdtl)) {
+          
+          $invdtl->product->load(['combos'=>function($q){
+              $q->with('product')
+                ->orderBy('seqno');
+            }]);
+          //$ctr_gross += $invdtl->amount;
+          foreach ($invdtl->product->combos as $key => $combo) {
+            $ctr_gross += $combo->qty*$combo->product->unitprice;
+            //$this->info($combo->product->shortdesc);
+          }
+
+        } else {
+          $ctr_gross += $invdtl->amount;
+        }
+      }
+    }
+    if (number_format($ctr_gross,2)!==number_format($invhdr->vtotal,2))
+      $assert->addError($invhdr->srefno().': Gross amount do not match vtotal');
+    //$this->info('Gross: '.$invhdr->srefno().' '.$ctr_gross.' '.$invhdr->vtotal);
 
     return $assert;
   }
@@ -869,6 +958,29 @@ public function handle()
 
 
     return $assert;
+  }
+
+  private function initSummary() {
+    $this->summary['disc']['sc'] = 0;
+    $this->summary['disc']['pwd'] = 0;
+    $this->summary['disc']['other'] = 0;
+
+    $this->summary['tot_disc'] = 0;
+    $this->summary['tot_vatxmpt'] = 0;
+    $this->summary['tot_svchrg'] = 0;
+    $this->summary['tot_vat'] = 0;
+  }
+
+  private function setSummary($invhdr) {
+
+    $this->summary['disc']['sc']    += $invhdr->scdisc;
+    $this->summary['disc']['pwd']   += $invhdr->pwddisc;
+    $this->summary['disc']['other'] += $invhdr->discamount;
+
+    $this->summary['tot_disc']      += ($invhdr->scdisc + $invhdr->pwddisc + $invhdr->discamount);
+    $this->summary['tot_vatxmpt']   += $invhdr->vatxmpt;
+    $this->summary['tot_svchrg']    += $invhdr->svcamount;
+    $this->summary['tot_vat']       += $invhdr->vatamount;
   }
 }
 

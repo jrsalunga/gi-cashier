@@ -20,6 +20,9 @@ use App\Events\Backup\ProcessSuccess;
 use App\Events\Upload\Depslp as DepslpUpload;
 use App\Repositories\Rmis\Invdtl;
 use App\Repositories\Rmis\Orpaydtl;
+use App\Repositories\Rmis\Invhdr;
+use Mike42\Escpos\PrintConnectors\FilePrintConnector;
+use Mike42\Escpos\Printer;
 
 
 class UploaderController extends Controller 
@@ -35,8 +38,9 @@ class UploaderController extends Controller
 	protected $ds;
 	protected $invdtl;
 	protected $orpaydtl;
+	protected $invhdr;
 
-	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, DSRepo $ds, Invdtl$invdtl, Orpaydtl $orpaydtl) {
+	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, DSRepo $ds, Invdtl$invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
 		$this->posUploadRepo = $posUploadRepo;
 		$this->fileUploadRepo = $fileUploadRepo;
 		$this->depslip = $depslip;
@@ -51,6 +55,7 @@ class UploaderController extends Controller
 	
 		$this->invdtl = $invdtl;
 		$this->orpaydtl = $orpaydtl;
+		$this->invhdr = $invhdr;
 	}
 
 
@@ -714,6 +719,22 @@ class UploaderController extends Controller
 
 
 	public function getUploadSummary($brcode, Request $request) {
+		/*
+		$connector = new FilePrintConnector("lpt1");
+		$printer = new Printer($connector);
+		$printer -> text("       ALQUIROS FOOD CORPORATION\n");
+		$printer -> text("         (GILIGAN'S RESTAURANT)\n");
+		$printer -> text("             SM by the Bay\n");
+		$printer -> text("      BLDG H, UNITS 11-16 BRGY.076\n");
+		$printer -> text("      SM BUSINESS PARK, PASAY CITY\n");
+		$printer -> text("          #205-257-440-005 VAT\n");
+		$printer -> text("            S/N AZLF9270080W\n");
+		$printer -> text("             MIN# 090119166\n");
+		$printer -> cut();
+		$printer -> close();
+
+		return 'printing';
+		*/
 
 		$ds = null;
 		$date = null;
@@ -726,9 +747,31 @@ class UploaderController extends Controller
 		
 		if (app()->environment()==='local') {
 
-			$date  = c('2017-10-06');
+			$date  = c('2017-11-08');
 
-			
+			return $invhdrs = $this->invhdr
+													->skipCache()
+													->orderBy('refno')
+													->with([
+														'invdtls.product'=>function($q) {
+															$q->select(['code','descriptor','shortdesc','iscombo','id']);
+														},
+														'scinfos',
+														'pwdinfos',
+														'orpaydtls',
+														'orderhdrs.orderdtls.product'=>function($q) {
+															$q->select(['code','descriptor','shortdesc','iscombo','id']);
+														}
+													])
+													->scopeQuery(function($query) {
+														return $query->limit(1);
+													})
+													//->findWhere(['date'=>$date->format('Y-m-d'), 'posted'=>1, 'cancelled'=>0]);
+													->findWhere(['date'=>$date->format('Y-m-d'), 'refno'=>'0000027018']);
+
+				//return dd($invhdrs[0]->invdtls);
+
+			/*
 			return $orpaydtls = $this->orpaydtl
 				->skipCache()
 				->whereDate($date)
@@ -761,7 +804,7 @@ class UploaderController extends Controller
 				])
 				->all();
 			
-
+			*/
 
 
 			return $invdtls = $this->invdtl

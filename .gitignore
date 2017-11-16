@@ -26,4 +26,5 @@ bower_components
 
 /app/Console/Commands/_EndOfDay.php
 /app/Repositories/Rmis/_Orpaydtl.php
+/app/Http/Controllers/UploaderController.php
 /public/images/employees
