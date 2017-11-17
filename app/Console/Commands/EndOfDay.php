@@ -852,17 +852,15 @@ public function handle()
     foreach ($invhdr->invdtls as $key => $invdtl) {
       if ($invdtl->cancelled==0) {
 
-
         if ($this->is_groupies($invdtl)) {
-          
+           
           $invdtl->product->load(['combos'=>function($q){
               $q->with('product')
                 ->orderBy('seqno');
             }]);
-          //$ctr_gross += $invdtl->amount;
+
           foreach ($invdtl->product->combos as $key => $combo) {
-            $ctr_gross += $combo->qty*$combo->product->unitprice;
-            //$this->info($combo->product->shortdesc);
+            $ctr_gross += $combo->qty*($invdtl->qty*$combo->product->unitprice);
           }
 
         } else {
@@ -872,7 +870,8 @@ public function handle()
     }
     if (number_format($ctr_gross,2)!==number_format($invhdr->vtotal,2))
       $assert->addError($invhdr->srefno().': Gross amount do not match vtotal');
-    //$this->info('Gross: '.$invhdr->srefno().' '.$ctr_gross.' '.$invhdr->vtotal);
+    //if ($invhdr->refno=='0000027226')
+    //  $this->info('Gross: '.$invhdr->srefno().' '.$ctr_gross.' '.$invhdr->vtotal);
 
     return $assert;
   }
