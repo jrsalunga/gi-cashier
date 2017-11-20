@@ -47,7 +47,8 @@ class SalesmtdController extends Controller
 		$row = [];
 
 		$cut = c(trim($r['ORDDATE']).' 06:00:00');
-		$vfpdate = c(trim($r['ORDDATE']).' '.trim($r['ORDTIME']));
+		$t = is_time(trim($r['ORDTIME'])) ? trim($r['ORDTIME']) : '00:00:01';
+		$vfpdate = c(trim($r['ORDDATE']).' '.$t);
 		$cuscount = substr(trim($r['CUSNO']), 0, strspn(trim($r['CUSNO']), '0123456789'));
 
 		$row['tblno'] 				= trim($r['TBLNO']);
