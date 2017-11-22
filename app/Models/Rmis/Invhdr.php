@@ -37,7 +37,9 @@ class Invhdr extends BaseModel {
   }
 
   public function getVatxmptAttribute(){
-    return (($this->vtotal - $this->ctotal) * (($this->scpax+$this->pwdpax)/$this->pax)) - $this->vatxsales;
+    if ($this->pax>0)
+      return (($this->vtotal - $this->ctotal) * (($this->scpax+$this->pwdpax)/$this->pax)) - $this->vatxsales;
+    return 0;
   }
 
   public function srefno() {

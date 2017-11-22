@@ -48,6 +48,8 @@ protected $payment_breakdown = [];
 protected $gross = 0;
 protected $prodtype_breakdown = [];
 protected $summary = [];
+protected $prodcats = [];
+protected $ctrx = 2;
 
 public function __construct(Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
   parent::__construct();
@@ -96,12 +98,23 @@ public function handle()
       $this->info("\tCHECKING DATA INTEGRITY");
       $this->data_check($date);
 
+      
+
       //return;
 
       $this->info('');
       $this->info("\tPROCESSING SALESMTD");
       
       $this->salesmtd($date);
+
+      $t = 0;
+      $this->info('');
+      foreach ($this->prodcats as $key => $value) {
+        $this->info(str_pad($key,4).': '.str_pad(number_format($value, 2), 10, ' ', STR_PAD_LEFT));
+        $t += $value;
+      }
+      $this->info('-----------------');
+      $this->info(str_pad(number_format($t,2),15,' ',STR_PAD_LEFT));
 
       $this->info('');
       $this->info('*******************************************');
@@ -491,12 +504,12 @@ public function handle()
       number_format(0,2), //PROMO_PCT 
       number_format(0,2), //number_format($orpaydtl->promoamt,2), //PROMO_AMT 
       $orpaydtl->pax, //SR_TCUST  
-      $orpaydtl->scpax, //SR_BODY 
-      number_format($orpaydtl->scdisc,2,'.',''), //SR_DISC 
+      number_format($orpaydtl->scpax+$orpaydtl->pwdpax,0,'.',''), //SR_BODY 
+      number_format($orpaydtl->scdisc+$orpaydtl->pwddisc,2,'.',''), //SR_DISC 
       $orpaydtl->vatamount, //VAT 
       number_format(0,2), //$orpaydtl->svcamount, //SERVCHRG  
       //$orpaydtl->discamount, //OTHDISC 
-      number_format($orpaydtl->discamount+$orpaydtl->pwddisc,2,'.',''), //OTHDISC 
+      number_format($orpaydtl->discamount,2,'.',''), //OTHDISC 
       number_format(0,2), //UDISC 
       $bnkchrg, //BANKCHARG 
       number_format($true_charge-$orpaydtl->svcamount,2,'.',''), //$orpaydtl->amount, //TOTCHRG 
@@ -559,8 +572,8 @@ public function handle()
     }
     
     $grsamt = $cancelled
-      ? number_format(-1*abs($uprice*$qty),2)
-      : number_format($uprice*$qty,2);
+      ? number_format(-1*abs($uprice*$qty),2,'.','')
+      : number_format($uprice*$qty,2,'.','');
     
     if ($is_new && $key==0) {
       $pax = $invdtl->invhdr->pax.'|1';
@@ -572,10 +585,14 @@ public function handle()
     
     $catname = ucwords(strtolower($$table->product->prodcat->descriptor), " \t\r\n\f\v-");
 
-    if (array_key_exists($catname, $this->prodtype_breakdown))
+    if (array_key_exists($catname, $this->prodtype_breakdown)) {
       $this->prodtype_breakdown[$catname] += $grsamt;
-    else
+      //$this->info('*************************************************************+');
+    }
+    else {
       $this->prodtype_breakdown[$catname] = $grsamt;
+      //$this->info('*************************************************************=');
+    }
       
 
     return [
@@ -776,7 +793,7 @@ public function handle()
                 ->orderBy('refno')
                 ->with([
                   'invdtls.product'=>function($q) {
-                    $q->select(['code','descriptor','shortdesc','iscombo','id']);
+                    $q->select(['code','descriptor','shortdesc','iscombo','id', 'prodcatid']);
                   },
                   'scinfos',
                   'pwdinfos',
@@ -788,7 +805,6 @@ public function handle()
     //$this->info(count($invhdrs));
     $this->initSummary();
     foreach ($invhdrs as $key => $invhdr) {
-
 
       $adtl = $this->assertInvdtl($invhdr);
       $asc = $this->assertScinfo($invhdr);
@@ -849,22 +865,61 @@ public function handle()
     }
 
     $ctr_gross = 0;
+    $prodcats = [];
     foreach ($invhdr->invdtls as $key => $invdtl) {
       if ($invdtl->cancelled==0) {
 
         if ($this->is_groupies($invdtl)) {
            
           $invdtl->product->load(['combos'=>function($q){
-              $q->with('product')
+              $q->with('product.prodcat')
                 ->orderBy('seqno');
             }]);
 
           foreach ($invdtl->product->combos as $key => $combo) {
             $ctr_gross += $combo->qty*($invdtl->qty*$combo->product->unitprice);
+
+            $this->info(
+              str_pad($this->ctrx, 5).' '
+              .$invhdr->srefno().' '
+              .str_pad($invdtl->product->code, 3).' '
+              .str_pad($combo->product->shortdesc, 25).' '
+              .str_pad(number_format($combo->qty,2)+0, 4, ' ', STR_PAD_LEFT).' '
+              .str_pad(number_format($invdtl->qty,2)+0, 4, ' ', STR_PAD_LEFT).' '
+              .str_pad(number_format($combo->product->unitprice,2), 6, ' ', STR_PAD_LEFT).' '
+              .str_pad(number_format($combo->qty*($invdtl->qty*$combo->product->unitprice),2), 6, ' ', STR_PAD_LEFT).' '
+              .str_pad($combo->product->prodcat->code, 25)
+            );
+            $this->ctrx++;
+
+            if (array_key_exists($combo->product->prodcat->code, $this->prodcats))
+              $this->prodcats[$combo->product->prodcat->code] += $combo->qty*($invdtl->qty*$combo->product->unitprice);
+            else
+              $this->prodcats[$combo->product->prodcat->code] = $combo->qty*($invdtl->qty*$combo->product->unitprice);
           }
 
         } else {
           $ctr_gross += $invdtl->amount;
+          
+          $invdtl->product->load('prodcat');
+          
+          $this->info(
+            str_pad($this->ctrx, 5).' '
+            .$invhdr->srefno().' '
+            .str_pad('', 3).' '
+            .str_pad($invdtl->product->shortdesc, 25).' '
+            .str_pad(number_format($invdtl->qty,2)+0, 4, ' ', STR_PAD_LEFT).' '
+            .str_pad('', 4, ' ', STR_PAD_LEFT).' '
+            .str_pad(number_format($invdtl->unitprice,2), 6, ' ', STR_PAD_LEFT).' '
+            .str_pad(number_format($invdtl->amount,2), 6, ' ', STR_PAD_LEFT).' '
+            .str_pad($invdtl->product->prodcat->code, 25)
+          );
+          $this->ctrx++;
+
+          if (array_key_exists($invdtl->product->prodcat->code, $this->prodcats))
+              $this->prodcats[$invdtl->product->prodcat->code] += $invdtl->amount;
+            else
+              $this->prodcats[$invdtl->product->prodcat->code] = $invdtl->amount;
         }
       }
     }
@@ -872,6 +927,8 @@ public function handle()
       $assert->addError($invhdr->srefno().': Gross amount do not match vtotal');
     //if ($invhdr->refno=='0000027226')
     //  $this->info('Gross: '.$invhdr->srefno().' '.$ctr_gross.' '.$invhdr->vtotal);
+
+
 
     return $assert;
   }
