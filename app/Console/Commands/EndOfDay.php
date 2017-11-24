@@ -50,6 +50,7 @@ protected $prodtype_breakdown = [];
 protected $summary = [];
 protected $prodcats = [];
 protected $ctrx = 2;
+protected $rcpt_lines = [];
 
 public function __construct(Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
   parent::__construct();
@@ -136,21 +137,34 @@ public function handle()
       $this->info('Srv Charge: '.str_pad(number_format($this->summary['tot_svchrg'],2),8,' ',STR_PAD_LEFT));
       
 
-      $this->info('');
       if ($this->assert->assert)
-        return;
+        $this->info('');
       else {
+        $this->info('');
         $this->info('Notes:');
         foreach ($this->assert->getErrors() as $key => $value) {
           $this->info(' - '.$value);
         }
       }
 
+      $datas = $this->getZreading($date);
+      $this->zreadfile($date, $datas);
+      //$this->zreadprint($datas);
+
+      foreach ($this->invhdr->usedTerminal($date) as $key => $terminalid) {
+        $datas = $this->getTzreading($date, $terminalid);
+        $this->zreadfile($date, $datas, $terminalid);
+        //$this->zreadprint($datas);
+      }
+
 
       /*
       $connector = new FilePrintConnector("lpt1");
       $printer = new Printer($connector);
+      $printer->text(str_pad('Z-READING', 40, " ", STR_PAD_BOTH));
+      $printer->text(bpad('Sat, Nov 18, 2017', 40));
       $printer->text("*** Discounts ***\n");
+      $printer->text();
       $printer->text("SC: ".str_pad(number_format($this->summary['disc']['sc'],2),11,' ',STR_PAD_LEFT)."\n");
 
 
@@ -169,9 +183,195 @@ public function handle()
       $printer->text("             MIN# 090119166\n");
       $printer->cut();
       $printer->close();
+
+      $this->info('done');
       */
+      
+      return 1;
 
     }
+  }
+
+  private function zreadprint($lines) {
+    if (is_null($lines)) 
+      return false;
+
+    $connector = new FilePrintConnector("lpt1");
+    $printer = new Printer($connector);
+
+    foreach ($lines as $key => $content) {
+      $printer->text($content.PHP_EOL); 
+    }
+
+    $printer->cut();
+    $printer->close();
+
+  }
+
+  private function zreadfile(Carbon $date, $lines, $terminalid=NULL) {
+    
+    $logfile = is_null($terminalid)
+      ? "C:\ZREAD".DS.$date->format('Y').DS.$date->format('m').DS.'ZREPORT-'.$date->format('Ymd').'.txt'
+      : "C:\ZREAD".DS.$date->format('Y').DS.$date->format('m').DS.'ZREPORT-'.$date->format('Ymd').'-'.$terminalid.'.txt';
+
+    $dir = pathinfo($logfile, PATHINFO_DIRNAME);
+
+    if(!is_dir($dir))
+      mkdir($dir, 0775, true);
+
+    $new = file_exists($logfile) ? false : true;
+    if($new){
+      $handle = fopen($logfile, 'w+');
+      chmod($logfile, 0775);
+    } else
+      $handle = fopen($logfile, 'w+');
+
+    if (!is_null($lines)) {
+      foreach ($lines as $key => $content) {
+        fwrite($handle, $content.PHP_EOL);
+      }
+    }
+    
+    fclose($handle);
+    
+  }
+
+  private function getZreading(Carbon $date) {
+    
+    $invhdr = $this->invhdr
+                ->skipCache()
+                ->zreadsales($date)
+                ->all();
+
+    $orpaydtls = $this->invhdr
+                ->skipCache()
+                ->zreadpay($date)
+                ->all();
+
+    $invhdr = is_null($invhdr) ? NULL : $invhdr->first();
+
+    if (is_null($invhdr))
+      return NULL;
+    
+    return $this->getLines($date, $invhdr, $orpaydtls);
+      
+  }
+
+  private function getTzreading(Carbon $date, $terminalid) {
+    
+    $invhdr = $this->invhdr
+                ->skipCache()
+                ->tzreadsales($date, $terminalid)
+                ->all();
+
+    $orpaydtls = $this->invhdr
+                ->skipCache()
+                ->tzreadpay($date, $terminalid)
+                ->all();
+
+    $invhdr = is_null($invhdr) ? NULL : $invhdr->first();
+
+    if (is_null($invhdr))
+      return NULL;
+    
+    return $this->getLines($date, $invhdr, $orpaydtls, $terminalid);
+      
+  }
+
+  private function getLines($date, $invhdr, $orpaydtls, $terminalid=NULL) {
+
+    $csh = 0;
+    $chgr = 0;
+    $gc = 0;
+    $sign = 0;
+
+    if (!is_null($orpaydtls)) {
+      foreach ($orpaydtls as $key => $pay) {
+        switch ($pay->paytype) {
+          case '1':
+            $csh = $pay->amount;
+            break;
+          case '2':
+            $chgr = $pay->amount;
+            break;
+          case '3':
+            $gc = $pay->amount;
+            break;
+          case '4':
+            $sign = $pay->amount;
+            break;
+        }
+      }
+    }
+
+    $title = is_null($terminalid)
+      ? 'Z-READING'
+      : 'Z-READING ('.$terminalid.')';
+
+    $lines = [];
+
+    array_push($lines, bpad($title, 40));
+    array_push($lines, bpad($date->format('M-d-Y'), 40));
+    array_push($lines, bpad(' ', 40));
+    array_push($lines, bpad('=', 40, '='));
+    array_push($lines, bpad(' ', 40));
+    
+    array_push($lines, rpad('GROSS SALES', 40));
+    array_push($lines, rpad('  VAT Sales', 28).lpad(number_format($invhdr->vtotal, 2), 12));
+    array_push($lines, rpad('  VAT Exempt Sales', 28).lpad(number_format($invhdr->xtotal, 2), 12));
+    array_push($lines, rpad('  Zero Rated Sales', 28).lpad(number_format($invhdr->ztotal, 2), 12));
+    array_push($lines, rpad('  (-) Discount', 28).lpad(number_format($invhdr->discamount, 2), 12));
+    array_push($lines, '  --------------------------------------');
+    array_push($lines, rpad('  TOTAL GROSS SALES', 28).lpad(number_format(($invhdr->vtotal+$invhdr->xtotal+$invhdr->ztotal)-$invhdr->discamount, 2), 12));
+    array_push($lines, bpad(' ', 40));
+
+    $net = 0;
+    array_push($lines, rpad('NET SALES', 40));
+    array_push($lines, $this->t('  VAT Sales', $invhdr->vatsales));           $net += $invhdr->vatsales;
+    array_push($lines, $this->t('  VAT Exempt Sales', $invhdr->vatxsales));   $net += $invhdr->vatxsales;
+    array_push($lines, $this->t('  Zero Rated Sales', $invhdr->vatzsales));   $net += $invhdr->vatzsales;
+    array_push($lines, $this->t('  VAT Amount', $invhdr->vatamount));         $net += $invhdr->vatamount;
+    array_push($lines, $this->t('(+) Service Charge', $invhdr->svcamount));   $net += $invhdr->svcamount;
+    array_push($lines, $this->t('(+) Tax', $invhdr->taxamount));              $net += $invhdr->taxamount;
+    array_push($lines, $this->t('(-) Senior Discount', $invhdr->scdisc));     $net -= $invhdr->scdisc;
+    array_push($lines, $this->t('(-) PWD Discount', $invhdr->pwddisc));       $net -= $invhdr->pwddisc;
+    array_push($lines, '  --------------------------------------');
+    array_push($lines, $this->t('  TOTAL NET SALES', $net));
+    array_push($lines, bpad(' ', 40));
+
+    $tender = 0;
+    array_push($lines, rpad('TENDERS', 40));
+    array_push($lines, $this->t('  Cash', $csh));             $tender += $csh;
+    array_push($lines, $this->t('  Credit Card', $chgr));     $tender += $chgr;
+    array_push($lines, $this->t('  Gift Certificate', $gc));  $tender += $gc;
+    array_push($lines, $this->t('  Signed Chit', $sign));     $tender += $sign;
+    array_push($lines, '  --------------------------------------');
+    array_push($lines, $this->t('  TOTAL TENDERS', $tender));
+    array_push($lines, bpad(' ', 40));
+    
+    array_push($lines, rpad('CASH FROM SALES', 40));
+    array_push($lines, $this->t('  Cash', $invhdr->totpaid));
+    array_push($lines, $this->t('(-) Change', $invhdr->totchange));
+    array_push($lines, '  --------------------------------------');
+    array_push($lines, $this->t('  TOTAL CASH FROM SALES', ($invhdr->totpaid-$invhdr->totchange)));
+    array_push($lines, bpad(' ', 40));
+
+    array_push($lines, '----------------------------------------');
+    array_push($lines, $this->t('Posted Txn Count', $invhdr->txncount));
+    array_push($lines, $this->t('Cancelled Txn Count', $invhdr->txncancel));
+    array_push($lines, $this->t('Total Pax', $invhdr->pax));
+    array_push($lines, $this->t('SC Pax', $invhdr->scpax));
+    array_push($lines, $this->t('PWD Pax', $invhdr->pwdpax));
+    array_push($lines, '----------------------------------------');
+
+    array_push($lines, bpad('* END OF Z-REPORT *', 40));
+    array_push($lines, bpad(c()->format('m/d/Y H:i:s'), 40));
+
+    return $lines;
+  }
+
+  private function t($a, $b) {
+    return rpad($a, 28).lpad(number_format($b, 2), 12);
   }
 
   private function get_payment_type($key) {
