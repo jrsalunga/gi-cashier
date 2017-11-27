@@ -149,12 +149,12 @@ public function handle()
 
       $datas = $this->getZreading($date);
       $this->zreadfile($date, $datas);
-      //$this->zreadprint($datas);
+      $this->zreadprint($datas);
 
       foreach ($this->invhdr->usedTerminal($date) as $key => $terminalid) {
         $datas = $this->getTzreading($date, $terminalid);
         $this->zreadfile($date, $datas, $terminalid);
-        //$this->zreadprint($datas);
+        $this->zreadprint($datas);
       }
 
 
@@ -193,7 +193,7 @@ public function handle()
   }
 
   private function zreadprint($lines) {
-    if (is_null($lines)) 
+    if (is_null($lines) || !env('POS_PRINT')) 
       return false;
 
     $connector = new FilePrintConnector("lpt1");
@@ -206,6 +206,7 @@ public function handle()
     $printer->cut();
     $printer->close();
 
+    return true;
   }
 
   private function zreadfile(Carbon $date, $lines, $terminalid=NULL) {
