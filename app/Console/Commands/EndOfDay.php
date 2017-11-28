@@ -22,7 +22,8 @@ class EndOfDay extends Command
  */
  protected $signature = 'pos:eod 
                         {date : YYYY-MM-DD}
-                        {--brcode=EGC : branch code}';
+                        {--brcode=EGC : branch code}
+                        {--print=false : print to printer}';
 
 /**
  * The console command description.
@@ -51,6 +52,7 @@ protected $summary = [];
 protected $prodcats = [];
 protected $ctrx = 2;
 protected $rcpt_lines = [];
+protected $print = false;
 
 public function __construct(Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
   parent::__construct();
@@ -69,6 +71,8 @@ public function handle()
       exit;
     }
     */
+
+    $this->print = $this->option('print');
     
 
     $date = $this->argument('date');
@@ -193,7 +197,9 @@ public function handle()
   }
 
   private function zreadprint($lines) {
-    if (is_null($lines) || !env('POS_PRINT')) 
+    //$this->info($this->print);
+    //return dd(is_null($lines) || (!env('POS_PRINT') && $this->print=='false'));
+    if (is_null($lines) || (!env('POS_PRINT') && $this->print=='false')) 
       return false;
 
     $connector = new FilePrintConnector("lpt1");
