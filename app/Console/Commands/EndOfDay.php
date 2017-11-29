@@ -197,13 +197,12 @@ public function handle()
   }
 
   private function zreadprint($lines) {
-    //$this->info($this->print);
-    //return dd(is_null($lines) || (!env('POS_PRINT') && $this->print=='false'));
+
     if (is_null($lines) || (!env('POS_PRINT') && $this->print=='false')) 
       return false;
 
-    $connector = new FilePrintConnector("lpt1");
-    $printer = new Printer($connector);
+    //$connector = new FilePrintConnector("lpt1");
+    $printer = new Printer(new FilePrintConnector("lpt1"));
 
     foreach ($lines as $key => $content) {
       $printer->text($content.PHP_EOL); 
