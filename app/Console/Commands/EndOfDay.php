@@ -23,7 +23,8 @@ class EndOfDay extends Command
  protected $signature = 'pos:eod 
                         {date : YYYY-MM-DD}
                         {--brcode=EGC : branch code}
-                        {--print=false : print to printer}';
+                        {--print=false : print to printer}
+                        {--zread : print z reading}';
 
 /**
  * The console command description.
@@ -53,6 +54,10 @@ protected $prodcats = [];
 protected $ctrx = 2;
 protected $rcpt_lines = [];
 protected $print = false;
+protected $zread = false;
+
+protected $zread_lines = [];
+protected $zread_gross = 0;
 
 public function __construct(Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
   parent::__construct();
@@ -73,8 +78,10 @@ public function handle()
     */
 
     $this->print = $this->option('print');
-    
 
+    $this->zread = $this->option('zread')
+      ? true : false;
+    
     $date = $this->argument('date');
     if (!is_iso_date($date)) {
       $this->error('Invalid date.');
@@ -141,16 +148,7 @@ public function handle()
       $this->info('Srv Charge: '.str_pad(number_format($this->summary['tot_svchrg'],2),8,' ',STR_PAD_LEFT));
       
 
-      if ($this->assert->assert)
-        $this->info('');
-      else {
-        $this->info('');
-        $this->info('Notes:');
-        foreach ($this->assert->getErrors() as $key => $value) {
-          $this->info(' - '.$value);
-        }
-      }
-
+      
       $datas = $this->getZreading($date);
       $this->zreadfile($date, $datas);
       $this->zreadprint($datas);
@@ -161,8 +159,29 @@ public function handle()
         $this->zreadprint($datas);
       }
 
+      $this->info('');
+      $this->info('----------------------------------------');
+      $this->zreadScreen($this->zreadLines());
+
+      if ($this->zread)
+        $this->printToPrinter($this->zread_lines);
+
+      if ($this->assert->assert)
+        $this->info('');
+      else {
+        $this->info('');
+        $this->info('Notes:');
+        foreach ($this->assert->getErrors() as $key => $value) {
+          $this->info(' - '.$value);
+        }
+      }
+
 
       /*
+      foreach ($this->summary['c'] as $key => $value) {
+        $this->info(strtoupper($key).' '.number_format($value, 2));
+      }
+
       $connector = new FilePrintConnector("lpt1");
       $printer = new Printer($connector);
       $printer->text(str_pad('Z-READING', 40, " ", STR_PAD_BOTH));
@@ -201,10 +220,14 @@ public function handle()
     if (is_null($lines) || (!env('POS_PRINT') && $this->print=='false')) 
       return false;
 
+    return $this->printToPrinter($lines);
+  }
+
+  private function printToPrinter(array $array) {
     //$connector = new FilePrintConnector("lpt1");
     $printer = new Printer(new FilePrintConnector("lpt1"));
 
-    foreach ($lines as $key => $content) {
+    foreach ($array as $key => $content) {
       $printer->text($content.PHP_EOL); 
     }
 
@@ -356,10 +379,10 @@ public function handle()
     array_push($lines, bpad(' ', 40));
     
     array_push($lines, rpad('CASH FROM SALES', 40));
-    array_push($lines, $this->t('  Cash', $invhdr->totpaid));
+    array_push($lines, $this->t('  Cash', $csh));
     array_push($lines, $this->t('(-) Change', $invhdr->totchange));
     array_push($lines, '  --------------------------------------');
-    array_push($lines, $this->t('  TOTAL CASH FROM SALES', ($invhdr->totpaid-$invhdr->totchange)));
+    array_push($lines, $this->t('  TOTAL CASH FROM SALES', ($csh-$invhdr->totchange)));
     array_push($lines, bpad(' ', 40));
 
     array_push($lines, '----------------------------------------');
@@ -375,6 +398,77 @@ public function handle()
 
     return $lines;
   }
+
+  private function zreadLines() {
+
+    $a = 0;
+    
+
+    array_push($this->zread_lines, bpad('WINPOS Z-READING', 40));
+    array_push($this->zread_lines, '----------------------------------------');
+    array_push($this->zread_lines, rpad('Gross Sales', 28).lpad(number_format($this->summary['a']['gross'], 2), 12));             $a += $this->summary['a']['gross'];
+    array_push($this->zread_lines, rpad(' Less Discount', 28).lpad('-'.number_format($this->summary['tot_disc'], 2), 12));            $a -= $this->summary['tot_disc'];
+    array_push($this->zread_lines, rpad(' Less Tax-Exemption', 28).lpad('-'.number_format($this->summary['tot_vatxmpt'], 2), 12));    $a -= $this->summary['tot_vatxmpt'];
+    array_push($this->zread_lines, lpad('-----------------', 40));
+    array_push($this->zread_lines, rpad('     TOTAL (A)', 28).lpad(number_format($a, 2), 12));
+    //array_push($this->zread_lines, lpad('-----------------', 40));
+    //array_push($this->zread_lines, rpad(' Less 12% VAT', 28).lpad('-'.number_format($this->summary['tot_vat'], 2), 12));    $a -= $this->summary['tot_vat'];
+    //array_push($this->zread_lines, lpad('-----------------', 40));
+    //array_push($this->zread_lines, rpad('NET SALES', 28).lpad(number_format($a, 2), 12));
+    array_push($this->zread_lines, '----------------------------------------');
+    array_push($this->zread_lines, bpad(' ', 40));
+    
+    $b = 0;
+    array_push($this->zread_lines, rpad('Revenue:', 40));
+    foreach ($this->prodtype_breakdown as $key => $value) {
+      array_push($this->zread_lines, rpad('  '.strtoupper(substr($key,0,15)), 28).lpad(number_format($value, 2), 12));           
+      $b += $value;
+    }
+    array_push($this->zread_lines, rpad('  GROSS SIGNED', 28).lpad('-'.number_format($this->summary['c']['signed'], 2), 12));   $b -= $this->summary['c']['signed'];
+    array_push($this->zread_lines, rpad('  TAX EXEMPT', 28).lpad('-'.number_format($this->summary['tot_vatxmpt'], 2), 12));     $b -= $this->summary['tot_vatxmpt'];
+    array_push($this->zread_lines, rpad('  DISCOUNT/S', 28).lpad('-'.number_format($this->summary['tot_disc'], 2), 12));        $b -= $this->summary['tot_disc'];
+    array_push($this->zread_lines, lpad('-----------------', 40));
+    array_push($this->zread_lines, rpad('     TOTAL (B)', 28).lpad(number_format($b, 2), 12));
+    array_push($this->zread_lines, '----------------------------------------');
+    array_push($this->zread_lines, bpad(' ', 40));
+
+    $c = 0;
+    array_push($this->zread_lines, rpad('Collections:', 40));
+    array_push($this->zread_lines, rpad('  CASH', 28).lpad(number_format($this->summary['c']['cash'], 2), 12));   $c += $this->summary['c']['cash'];
+    array_push($this->zread_lines, lpad('-----------------', 40));
+    array_push($this->zread_lines, rpad('     TOTAL (C)', 28).lpad(number_format($c, 2), 12));
+    array_push($this->zread_lines, lpad('-----------------', 40));
+    array_push($this->zread_lines, rpad('  Service Charge', 28).lpad(number_format($this->summary['tot_svchrg'], 2), 12));   $c += $this->summary['tot_svchrg'];
+    array_push($this->zread_lines, lpad('-----------------', 40));
+    array_push($this->zread_lines, rpad('TOTAL CASH', 28).lpad(number_format($c, 2), 12));
+    array_push($this->zread_lines, '----------------------------------------');
+    array_push($this->zread_lines, bpad(' ', 40));
+
+    $d = 0;
+    array_push($this->zread_lines, rpad('Discounts:', 40));
+    array_push($this->zread_lines, rpad('  SR.CITIZEN', 28).lpad(number_format($this->summary['disc']['sc'], 2), 12));   $d +=  $this->summary['disc']['sc'];
+    array_push($this->zread_lines, rpad('  PWD', 28).lpad(number_format($this->summary['disc']['pwd'], 2), 12));   $d +=  $this->summary['disc']['pwd'];
+    array_push($this->zread_lines, rpad('  OTHER DISC', 28).lpad(number_format($this->summary['disc']['other'], 2), 12));   $d +=  $this->summary['disc']['other'];
+    array_push($this->zread_lines, lpad('-----------------', 40));
+    array_push($this->zread_lines, rpad('     TOTAL DISC.', 28).lpad(number_format($d, 2), 12));
+    array_push($this->zread_lines, lpad('-----------------', 40));
+    array_push($this->zread_lines, rpad('  TAX EXEMPT', 28).lpad(number_format($this->summary['tot_vatxmpt'], 2), 12));
+    array_push($this->zread_lines, '----------------------------------------');
+    array_push($this->zread_lines, bpad(' ', 40));
+    array_push($this->zread_lines, bpad('Printed on: '.c()->format('m/d/Y h:i:s A'), 40));
+
+
+
+    return $this->zread_lines;
+  }
+
+  private function zreadScreen(array $lines) {
+    foreach ($lines as $key => $content) {
+      $this->info($content); 
+    }
+  }
+
+
 
   private function t($a, $b) {
     return rpad($a, 28).lpad(number_format($b, 2), 12);
@@ -633,6 +727,8 @@ public function handle()
       $this->info('+----------------------------------------------+');
       $this->info(' ');
 
+      $this->zread_gross = $tot;
+
       $tot_prodcat = 0;
       $this->info(' ');
       $this->info('*** Product Category ***');
@@ -768,6 +864,7 @@ public function handle()
       $comp3 = number_format($invdtl->qty, 0);
 
       $this->info(' '.($combo->qty+0).' '.$combo->product->shortdesc);
+       $sec = lpad($invdtl->lineno.$combo->seqno, 2, '0');
     } else {
       $uprice = $invdtl->unitprice;
       $qty = $cancelled 
@@ -775,6 +872,7 @@ public function handle()
         : number_format($invdtl->qty,2);
       $comp2 = '';
       $comp3 = '';
+      $sec = lpad($invdtl->lineno, 2, '0');
     }
     
     $grsamt = $cancelled
@@ -799,6 +897,8 @@ public function handle()
       $this->prodtype_breakdown[$catname] = $grsamt;
       //$this->info('*************************************************************=');
     }
+
+
       
 
     return [
@@ -815,10 +915,11 @@ public function handle()
       '0.00', //DISC
       $grsamt, //NETAMT
       $invdtl->invhdr->date->format('Ymd'), //ORDDATE
-      $invdtl->ordtime.':00',  //ORDTIME
+      $invdtl->ordtime.':'.$sec,  //ORDTIME
       '', //CATNO
       $catname,  //CATNAME
-      $invdtl->lineno, //RECORD 
+      //$invdtl->lineno, //RECORD 
+      $sec, //RECORD 
       substr($invdtl->invhdr->refno,4), //CSLIPNO
       '', //COMP1
       $comp2, //COMP2
@@ -1043,6 +1144,10 @@ public function handle()
     }
 
 
+    $this->summary['a']['gross'] = $this->summary['a']['gross']-$this->summary['c']['signed'];
+    $this->summary['tot_vat'] = $this->summary['tot_vat']-$this->summary['tot_vat_signed'];
+
+
 
 
   }
@@ -1134,7 +1239,7 @@ public function handle()
     //if ($invhdr->refno=='0000027226')
     //  $this->info('Gross: '.$invhdr->srefno().' '.$ctr_gross.' '.$invhdr->vtotal);
 
-
+    $this->summary['a']['gross'] += $invhdr->vtotal;
 
     return $assert;
   }
@@ -1161,9 +1266,38 @@ public function handle()
 
     $ctr_totpaid = 0;
     foreach ($invhdr->orpaydtls as $key => $orpaydtl) {
-      if ($orpaydtl->cancelled==0)
+      if ($orpaydtl->cancelled==0) {
         $ctr_totpaid += $orpaydtl->amount;
+
+        
+
+        switch ($orpaydtl->paytype) {
+          case '1':
+            $this->summary['c']['cash'] += $orpaydtl->amount;
+            //$this->summary['tot_vat'] += $invhdr->vatamount;
+            break;
+          case '3':
+            if (array_key_exists('charge', $this->summar['c']))
+              $this->summar['c']['charge'] += $orpaydtl->amount;
+            else
+              $this->summar['c']['charge'] = $orpaydtl->amount;
+            break;
+          case '4':
+            $this->summary['c']['signed'] += $orpaydtl->amount;
+            $this->summary['tot_vat_signed'] += $invhdr->vatamount;
+            break;
+          default:
+            if (array_key_exists('other', $this->summar['c']))
+              $this->summar['c']['other'] += $orpaydtl->amount;
+            else
+              $this->summar['c']['other'] = $orpaydtl->amount;
+            break;
+        }
+
+      }
     }
+
+    $this->summary['c']['cash'] = ($this->summary['c']['cash'] - $invhdr->totchange) - $invhdr->svcamount;
 
     if (number_format($ctr_totpaid,2)!==number_format($invhdr->totpaid,2))
       $assert->addError($invhdr->srefno().': Total orpaydtl amount do not match totpaid');
@@ -1231,6 +1365,12 @@ public function handle()
     $this->summary['tot_vatxmpt'] = 0;
     $this->summary['tot_svchrg'] = 0;
     $this->summary['tot_vat'] = 0;
+    $this->summary['tot_vat_signed'] = 0;
+    
+    $this->summary['a']['gross'] = 0;
+
+    $this->summary['c']['cash'] = 0;
+    $this->summary['c']['signed'] = 0;
   }
 
   private function setSummary($invhdr) {
@@ -1242,7 +1382,9 @@ public function handle()
     $this->summary['tot_disc']      += ($invhdr->scdisc + $invhdr->pwddisc + $invhdr->discamount);
     $this->summary['tot_vatxmpt']   += $invhdr->vatxmpt;
     $this->summary['tot_svchrg']    += $invhdr->svcamount;
-    $this->summary['tot_vat']       += $invhdr->vatamount;
+    $this->summary['tot_vat']       += $invhdr->vatamount; // moved to assert orpaydtl
+
+
   }
 }
 
