@@ -107,7 +107,7 @@ abstract class BaseModel extends Model {
 		} catch (UnsatisfiedDependencyException $e) {
 		 
 		 	//throw $e;
-		  $id = \DB::select('SELECT UUID() as id');
+		  $id = \DB::select('SELECT CONCAT(substr(UUID(),15,4),substr(UUID(),10,4),substr(UUID(),25,12),substr(UUID(),1,8),substr(UUID(),20,4)) as id');
 			$id = array_shift($id);
 			return $id->id;
 		}

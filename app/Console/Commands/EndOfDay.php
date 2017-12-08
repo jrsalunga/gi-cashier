@@ -23,8 +23,9 @@ class EndOfDay extends Command
  protected $signature = 'pos:eod 
                         {date : YYYY-MM-DD}
                         {--brcode=EGC : branch code}
-                        {--print=false : print to printer}
-                        {--zread : print z reading}';
+                        {--winpos : print to printer}
+                        {--zread : print z reading}
+                        {--terminal : print z reading}';
 
 /**
  * The console command description.
@@ -55,6 +56,7 @@ protected $ctrx = 2;
 protected $rcpt_lines = [];
 protected $print = false;
 protected $zread = false;
+protected $terminal = false;
 
 protected $zread_lines = [];
 protected $zread_gross = 0;
@@ -77,9 +79,13 @@ public function handle()
     }
     */
 
-    $this->print = $this->option('print');
+    $this->print = $this->option('winpos')
+      ? true : false;
 
     $this->zread = $this->option('zread')
+      ? true : false;
+
+    $this->terminal = $this->option('terminal')
       ? true : false;
     
     $date = $this->argument('date');
@@ -151,17 +157,22 @@ public function handle()
       
       $datas = $this->getZreading($date);
       $this->zreadfile($date, $datas);
-      $this->zreadprint($datas);
-
-      foreach ($this->invhdr->usedTerminal($date) as $key => $terminalid) {
-        $datas = $this->getTzreading($date, $terminalid);
-        $this->zreadfile($date, $datas, $terminalid);
+      //return dd($this->print);
+      if ($this->print)
         $this->zreadprint($datas);
+
+      $used_terminal = $this->invhdr->usedTerminal($date);
+      foreach ($used_terminal as $key => $terminalid) {
+        $page = ($key+1).' of '.count($used_terminal);
+        $datas = $this->getTzreading($date, $terminalid, $page);
+        $this->zreadfile($date, $datas, $terminalid);
+        if ($this->terminal)
+          $this->zreadprint($datas);
       }
 
       $this->info('');
       $this->info('----------------------------------------');
-      $this->zreadScreen($this->zreadLines());
+      $this->zreadScreen($this->zreadLines($date));
 
       if ($this->zread)
         $this->printToPrinter($this->zread_lines);
@@ -217,7 +228,7 @@ public function handle()
 
   private function zreadprint($lines) {
 
-    if (is_null($lines) || (!env('POS_PRINT') && $this->print=='false')) 
+    if (is_null($lines)) 
       return false;
 
     return $this->printToPrinter($lines);
@@ -225,6 +236,9 @@ public function handle()
 
   private function printToPrinter(array $array) {
     //$connector = new FilePrintConnector("lpt1");
+    if (is_null($array)) 
+      return false;
+
     $printer = new Printer(new FilePrintConnector("lpt1"));
 
     foreach ($array as $key => $content) {
@@ -286,7 +300,7 @@ public function handle()
       
   }
 
-  private function getTzreading(Carbon $date, $terminalid) {
+  private function getTzreading(Carbon $date, $terminalid, $page=NULL) {
     
     $invhdr = $this->invhdr
                 ->skipCache()
@@ -303,11 +317,11 @@ public function handle()
     if (is_null($invhdr))
       return NULL;
     
-    return $this->getLines($date, $invhdr, $orpaydtls, $terminalid);
+    return $this->getLines($date, $invhdr, $orpaydtls, $terminalid, $page);
       
   }
 
-  private function getLines($date, $invhdr, $orpaydtls, $terminalid=NULL) {
+  private function getLines($date, $invhdr, $orpaydtls, $terminalid=NULL, $page=NULL) {
 
     $csh = 0;
     $chgr = 0;
@@ -393,18 +407,22 @@ public function handle()
     array_push($lines, $this->t('PWD Pax', $invhdr->pwdpax));
     array_push($lines, '----------------------------------------');
 
+
     array_push($lines, bpad('* END OF Z-REPORT *', 40));
     array_push($lines, bpad(c()->format('m/d/Y H:i:s'), 40));
+    if (!is_null($page))
+      array_push($lines, bpad($page, 40));
 
     return $lines;
   }
 
-  private function zreadLines() {
+  private function zreadLines(Carbon $date) {
 
     $a = 0;
     
 
-    array_push($this->zread_lines, bpad('WINPOS Z-READING', 40));
+    array_push($this->zread_lines, bpad('IMPORT Z-READING', 40));
+    array_push($this->zread_lines, bpad($date->format('D M-d-Y'), 40));
     array_push($this->zread_lines, '----------------------------------------');
     array_push($this->zread_lines, rpad('Gross Sales', 28).lpad(number_format($this->summary['a']['gross'], 2), 12));             $a += $this->summary['a']['gross'];
     array_push($this->zread_lines, rpad(' Less Discount', 28).lpad('-'.number_format($this->summary['tot_disc'], 2), 12));            $a -= $this->summary['tot_disc'];
