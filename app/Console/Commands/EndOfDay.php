@@ -469,7 +469,8 @@ public function handle()
     array_push($this->zread_lines, rpad('  OTHER DISC', 28).lpad(number_format($this->summary['disc']['other'], 2), 12));   $d +=  $this->summary['disc']['other'];
     array_push($this->zread_lines, lpad('-----------------', 40));
     array_push($this->zread_lines, rpad('     TOTAL DISC.', 28).lpad(number_format($d, 2), 12));
-    array_push($this->zread_lines, lpad('-----------------', 40));
+    //array_push($this->zread_lines, lpad('-----------------', 40));
+    array_push($this->zread_lines, '----------------------------------------');
     array_push($this->zread_lines, rpad('  TAX EXEMPT', 28).lpad(number_format($this->summary['tot_vatxmpt'], 2), 12));
     array_push($this->zread_lines, '----------------------------------------');
     array_push($this->zread_lines, bpad(' ', 40));
