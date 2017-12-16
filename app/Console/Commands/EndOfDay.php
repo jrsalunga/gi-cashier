@@ -1302,20 +1302,20 @@ public function handle()
             //$this->summary['tot_vat'] += $invhdr->vatamount;
             break;
           case '3':
-            if (array_key_exists('charge', $this->summar['c']))
-              $this->summar['c']['charge'] += $orpaydtl->amount;
+            if (array_key_exists('charge', $this->summary['c']))
+              $this->summary['c']['charge'] += $orpaydtl->amount;
             else
-              $this->summar['c']['charge'] = $orpaydtl->amount;
+              $this->summary['c']['charge'] = $orpaydtl->amount;
             break;
           case '4':
             $this->summary['c']['signed'] += $orpaydtl->amount;
             $this->summary['tot_vat_signed'] += $invhdr->vatamount;
             break;
           default:
-            if (array_key_exists('other', $this->summar['c']))
-              $this->summar['c']['other'] += $orpaydtl->amount;
+            if (array_key_exists('other', $this->summary['c']))
+              $this->summary['c']['other'] += $orpaydtl->amount;
             else
-              $this->summar['c']['other'] = $orpaydtl->amount;
+              $this->summary['c']['other'] = $orpaydtl->amount;
             break;
         }
 
