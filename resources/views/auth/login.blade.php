@@ -115,10 +115,12 @@
 
 
 <script src="/js/vendors-common.min.js"></script>
+<!--
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjNiaRtUU5cE7G2IcIYVGm5vxyNDzh6ws&signed_in=true&callback=findMyGeo"></script>
-
+-->
 <script type="text/javascript">
 
+/*
 var findMyGeo = function() {
 
   var response = {};
@@ -153,6 +155,7 @@ var findMyGeo = function() {
 
   navigator.geolocation.getCurrentPosition(success, error, opt);
 }
+*/
 
 
 </script>

@@ -1253,8 +1253,14 @@ public function handle()
         }
       }
     }
-    if (number_format($ctr_gross,2)!==number_format($invhdr->vtotal,2))
-      $assert->addError($invhdr->srefno().': Gross amount do not match vtotal');
+    if (number_format($ctr_gross,2)!==number_format($invhdr->vtotal,2)) {
+      
+      if ($invhdr->date->gte(c('2017-12-16')))
+        $assert->addError($invhdr->srefno().': Gross amount do not match vtotal');
+
+      //$this->info(c().' '.number_format($ctr_gross,2).'!='.number_format($invhdr->vtotal,2));
+      //exit;
+    }
     //if ($invhdr->refno=='0000027226')
     //  $this->info('Gross: '.$invhdr->srefno().' '.$ctr_gross.' '.$invhdr->vtotal);
 
