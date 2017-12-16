@@ -50,7 +50,7 @@ protected $payment_type = [1=>'CASH', 2=>'CHRG', 3=>'GCRT', 4=>'SIGN'];
 protected $payment_breakdown = [];
 protected $gross = 0;
 protected $prodtype_breakdown = [];
-protected $summary = [];
+public $summary = [];
 protected $prodcats = [];
 protected $ctrx = 2;
 protected $rcpt_lines = [];
