@@ -539,7 +539,8 @@ class PosUploadRepository extends Repository
                               'date'=>$date->format('Y-m-d')],
                               ['sales'])->first();
           
-          $cospct = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($food_cost/$d->sales)*100;
+          //$cospct = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($food_cost/$d->sales)*100;
+          $cospct = 1;
 
           $this->ds->firstOrNewField(['branchid'=>session('user.branchid'), 
                               'date'=>$date->format('Y-m-d'),
