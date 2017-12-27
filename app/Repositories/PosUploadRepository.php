@@ -184,11 +184,11 @@ class PosUploadRepository extends Repository
       //$custcount  = empty(trim($r['CUST_CNT'])) ? 0 : trim($r['CUST_CNT']);
       $custcount  = $cuscnt;
       $headspend  = $custcount==0 ? 0:($sales/$custcount);
-      $tipspct    = ($sales=='0.00' || $sales=='0') ? 0 : ($tips/$sales)*100;
+      $tipspct    = $sales>0 ? ($tips/$sales)*100 : 0;
       //$brmancost  = ($r['MAN_COST'] * $empcount);
       $mancost    = $mcost*$empcount;
 
-      $mancostpct = ($sales=='0.00' || $sales=='0') ? 0 : ($mancost/$sales)*100;
+      $mancostpct = $sales>0 ? ($mancost/$sales)*100 : 0;
       $salesemp   = ($empcount=='0.00' || $empcount=='0') ? 0 : $sales/$empcount;
 
       $row['branchid']  = session('user.branchid');
