@@ -217,7 +217,7 @@ class UploaderController extends Controller
 					try {
 						$this->processSalesmtd($backup->date, $backup);
 					} catch (Exception $e) {
-						$msg =  $e->getMessage();
+						$msg =  'Process Salesmtd: '.$e->getMessage();
 						$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
 						//$this->logAction('error:process:salesmtd', $log_msg.$msg);
@@ -229,7 +229,7 @@ class UploaderController extends Controller
 					try {
 						$this->processCharges($backup->date, $backup);
 					} catch (Exception $e) {
-						$msg =  $e->getMessage();
+						$msg =  'Process Charges: '.$e->getMessage();
 						$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
 						//$this->logAction('error:process:charges', $log_msg.$msg);
@@ -241,7 +241,7 @@ class UploaderController extends Controller
 					try {
 						$this->processPurchased($backup->date);
 					} catch (Exception $e) {
-						$msg =  $e->getMessage();
+						$msg =  'Process Purchased: '.$e->getMessage();
 						//$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
 						//$this->logAction('error:process:purchased', $log_msg.$msg);
@@ -252,7 +252,7 @@ class UploaderController extends Controller
 					try {
 						$this->processTransfer($backup->branchid, $backup->date);
 					} catch (Exception $e) {
-						$msg =  $e->getMessage();
+						$msg =  'Process Transfer: '.$e->getMessage();
 						//$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
 						//$this->logAction('error:process:purchased', $log_msg.$msg);
@@ -745,7 +745,7 @@ class UploaderController extends Controller
 		}
 
 		
-		if (app()->environment()==='local') {
+		if (app()->environment()==='locals') {
 
 			$date  = c('2017-11-08');
 
