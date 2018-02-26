@@ -495,7 +495,6 @@ class PosUploadRepository extends Repository
               'date'      => $vfpdate->format('Y-m-d'),
               'supno'     => trim($row['SUPNO']),
               'supname'   => trim($row['SUPNAME']),
-              'tin'       => trim($row['SUPTIN']),
               'catname'   => trim($row['CATNAME']),
               'vat'       => trim($row['VAT']),
               'terms'     => trim($row['TERMS']),
@@ -1081,7 +1080,6 @@ class PosUploadRepository extends Repository
             'date'      => $vfpdate->format('Y-m-d'),
             'supno'     => trim($row['SUPNO']),
             'supname'   => trim($row['SUPNAME']),
-            'tin'       => trim($row['SUPTIN']),
             'catname'   => trim($row['CATNAME']),
             'vat'       => trim($row['VAT']),
             'terms'     => trim($row['TERMS']),
@@ -1097,6 +1095,7 @@ class PosUploadRepository extends Repository
           }
           */
 
+          $attrs['tin'] = trim($row['SUPTIN']);
           $attrs['supprefno'] = trim($row['FILLER1']);
           try {
             $this->purchase2->verifyAndCreate($attrs);
