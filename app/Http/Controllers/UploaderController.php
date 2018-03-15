@@ -208,10 +208,10 @@ class UploaderController extends Controller
 						$msg = 'File: '.$request->input('filename').' unable to process daily sales!';
 						$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
-						//$this->logAction('error:process:backup', $log_msg.$msg);
 						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+					} else {
+						event(new \App\Events\Backup\DailySalesSuccess($backup));
 					}
-					//$this->logAction('success:process:backup', $log_msg.$msg);
 
 
 					try {
@@ -220,10 +220,10 @@ class UploaderController extends Controller
 						$msg =  'Process Salesmtd: '.$e->getMessage();
 						$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
-						//$this->logAction('error:process:salesmtd', $log_msg.$msg);
 						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+					} finally {
+						event(new \App\Events\Posting\SalesmtdSuccess($backup));
 					}
-					//$this->logAction('success:process:salesmtd', $log_msg.$msg);
 				
 				
 					try {
@@ -463,7 +463,7 @@ class UploaderController extends Controller
   	$d = $this->backupParseDate($request);
 
 	 	$data = [
-	 	'branchid' 	=> session('user.branchid'),
+	 		'branchid' 	=> session('user.branchid'),
     	'filename' 	=> $request->input('filename'),
     	'year' 			=> $d->format('Y'), //$request->input('year'),
     	'month' 		=> $d->format('m'), //$request->input('month'),

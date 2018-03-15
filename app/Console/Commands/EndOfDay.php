@@ -1253,7 +1253,7 @@ public function handle()
         }
       }
     }
-    
+
     if (number_format($ctr_gross,2)!==number_format($invhdr->vtotal,2)) {
       
       //if ($invhdr->date->gte(c('2017-12-16')))

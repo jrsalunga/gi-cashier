@@ -14,7 +14,7 @@ class DailySales extends Command
 {
   /**
    * The name and signature of the console command.
-   *
+   *  php artisan backlog:ds ara gc021618.zip 2018-02-15
    * @var string
    */
   protected $signature = 'backlog:ds {brcode : Branch Code} {backup : Backup File} {date : YYYY-MM-DD}';

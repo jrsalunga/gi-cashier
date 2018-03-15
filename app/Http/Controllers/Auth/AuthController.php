@@ -80,6 +80,8 @@ class AuthController extends Controller
 
 
     public function postLogin(Request $request) {
+
+        //return dd('fdsafasfas');
         
         // $request->input('email') is from the form
         $login_type = filter_var($request->input('email'), FILTER_VALIDATE_EMAIL ) ? 'email' : 'username';
@@ -125,6 +127,7 @@ class AuthController extends Controller
             
             return $this->handleUserWasAuthenticated($request, $throttles);
         }
+
 
         // If the login attempt was unsuccessful we will increment the number of attempts
         // to login and redirect the user back to the login form. Of course, when this
