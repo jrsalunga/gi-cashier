@@ -18,6 +18,7 @@ Homestead.json
 /storage/backup
 /storage/process
 /storage/eod
+/storage/db
 /storage/product
 /config/database.php
 

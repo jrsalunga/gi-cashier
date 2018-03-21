@@ -230,8 +230,8 @@ function test_log($log, $logfile=NULL) {
   } else
     $handle = fopen($logfile, 'a');
 
-  $ip = clientIP();
-  $brw = $_SERVER['HTTP_USER_AGENT'];
+  //$ip = clientIP();
+  //$brw = $_SERVER['HTTP_USER_AGENT'];
   //$content = date('r')." | {$ip} | {$action} | {$log} \t {$brw}\n";
   $content = "{$log}\n";
   fwrite($handle, $content);

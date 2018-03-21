@@ -87,8 +87,10 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
     $sql .= 'SUM(man_hrs) AS man_hrs, SUM(man_pay) AS man_pay, SUM(depo_cash) AS depo_cash, SUM(depo_check) AS depo_check, ';
     $sql .= 'SUM(tips) AS tips, ';
     $sql .= 'SUM(opex) AS opex, SUM(transcost) AS transcost, SUM(transcos) AS transcos';
+    
 
     $res = $this->skipCache()
+        ->skipCriteria()
         ->scopeQuery(function($query) use ($date, $branchid, $sql) {
           return $query->select(DB::raw($sql))
             ->where(DB::raw('MONTH(date)'), $date->format('m'))
@@ -97,9 +99,13 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
         })
         ->all();
 
-    //logAction($date->format('Y-m-d'), $branchid);
+    if (count($res)<0)
+      return NULL;
+    else
+      $r = $res->first();
 
-    return count($res)>0 ? $res->first() : NULL;
+
+    return is_null($r->branch_id) ? NULL : $r;
 
   }
 
