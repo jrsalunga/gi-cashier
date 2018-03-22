@@ -19,7 +19,7 @@ class MonthlySales extends Command
    *  php artisan backlog:ds ara gc021618.zip 2018-02-15
    * @var string
    */
-  protected $signature = 'backlog:ms {year : YYYY} {brcode : BrCode}';
+  protected $signature = 'backlog:ms {brcode : BrCode} {year : YYYY}';
 
   /**
    * The console command description.
@@ -238,7 +238,7 @@ class MonthlySales extends Command
   	return $this->posUploadRepo->removeExtratedDir();
   }
 
-  public function processCashAudit($date, $backup){
+  public function processCashAudit($date, $backup) {
     try {
       return $this->posUploadRepo->postCashAudit($date, $backup);
     } catch(Exception $e) {
@@ -246,7 +246,7 @@ class MonthlySales extends Command
     }
   }
 
-  public function processSalesmtd($date, $backup){
+  public function processSalesmtd($date, $backup) {
   	try {
       $this->posUploadRepo->postSalesmtd($date, $backup);
     } catch(Exception $e) {
@@ -254,7 +254,7 @@ class MonthlySales extends Command
     }
   }
 
-  public function processPurchased($date, $backup){
+  public function processPurchased($date, $backup) {
   	try {
       $this->posUploadRepo->postPurchased2($date, $backup);
     } catch(Exception $e) {
@@ -262,7 +262,7 @@ class MonthlySales extends Command
     }
   }
 
-  public function processCharges($date, $backup){
+  public function processCharges($date, $backup) {
   	try {
       $this->posUploadRepo->postCharges($date, $backup);
     } catch(Exception $e) {
