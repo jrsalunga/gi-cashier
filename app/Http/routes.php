@@ -174,7 +174,7 @@ get('test/array/only', function(){
   $data['branch'] = 'MOA';
   $data['sales']  = 1000.00;
 
-  return array_only($data, ['date', 'branch', 'sales']);
+  return array_only($data, ['date', 'branch']);
 
   
 });
