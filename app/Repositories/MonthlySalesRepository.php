@@ -48,7 +48,7 @@ class MonthlySalesRepository extends BaseRepository implements CacheableInterfac
       if ($m->sales>0)
         $m->save();
 
-      if ($m->sales<=0 && ($m->format('Y-m-d')==$m->copy()->firstOfMonth()->format('Y-m-d')))
+      if ($m->sales<=0 && ($m->date->format('Y-m-d')==$m->date->copy()->firstOfMonth()->format('Y-m-d')))
         $m->delete();
     }
     return true;
