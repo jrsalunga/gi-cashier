@@ -511,6 +511,14 @@ if (!function_exists('stl')) {
     }
 }
 
+if (!function_exists('get_login_redirect')) {
+    function get_login_redirect() {
+        return (app()->environment()=='production')
+            ? 'http://cashier.giligansrestaurant.com/auth/google'
+            : 'http://gi-cashier.loc/auth/google';
+    }
+}
+
 
 if (!function_exists('dateInterval')) {
 

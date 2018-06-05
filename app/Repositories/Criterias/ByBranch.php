@@ -10,6 +10,7 @@ class ByBranch implements CriteriaInterface {
 
     public function __construct(Request $request){
         $this->request = $request;
+        logAction('ByBranch', json_encode($request->all()));
     }
 
     /**

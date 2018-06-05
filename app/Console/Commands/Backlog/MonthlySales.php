@@ -26,7 +26,7 @@ class MonthlySales extends Command
    *
    * @var string
    */
-  protected $description = 'Process monthly sales summary with rank backlog';
+  protected $description = 'Backlog process monthly sales summary with rank';
 
   /**
    * Create a new command instance.
@@ -115,7 +115,7 @@ class MonthlySales extends Command
     
     } finally {
       //logAction('onDailySalesSuccess', $event->backup->filedate->format('Y-m-d').' '.request()->user()->branchid.' '.json_encode($month));
-      $this->ms->firstOrNewField(array_except($month->toArray(), ['year', 'month', 'record_count']), ['date', 'branch_id']);
+      $this->ms->firstOrNewField(array_except($month->toArray(), ['year', 'month']), ['date', 'branch_id']);
       //logAction('onDailySalesSuccess', 'rank');
       $this->ms->rank($month->date);
     }

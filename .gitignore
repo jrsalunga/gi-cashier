@@ -21,6 +21,8 @@ Homestead.json
 /storage/db
 /storage/product
 /config/database.php
+/storage
+/config
 
 .env.example
 bower_components

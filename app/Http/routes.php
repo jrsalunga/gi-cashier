@@ -174,7 +174,7 @@ get('test/array/only', function(){
   $data['branch'] = 'MOA';
   $data['sales']  = 1000.00;
 
-  return array_only($data, ['date', 'branch']);
+  return array_only($data, ['date', 'branch', 'sales']);
 
   
 });
@@ -194,7 +194,7 @@ get('/env/hostname', function() {
 });
 
 get('/env/clientname', function(){
-	return gethostbyaddr($_SERVER['REMOTE_ADDR']);
+	//return gethostbyaddr($_SERVER['REMOTE_ADDR']);
 });
 
 get('/phpinfoko', function(){
@@ -212,5 +212,5 @@ get('/checkdbconn', function(){
 });
 
 get('/v', function(){
-  dd($app->version());
+  dd(app()->version());
 });

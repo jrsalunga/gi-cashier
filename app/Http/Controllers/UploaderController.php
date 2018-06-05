@@ -517,7 +517,7 @@ class UploaderController extends Controller
       throw $e;    
     }
   }
-
+ 
   public function processSalesmtd($date, Backup $backup){
   	try {
       $this->posUploadRepo->postSalesmtd($date, $backup);

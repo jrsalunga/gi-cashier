@@ -56,7 +56,7 @@ class BackupEventListener
     
     } finally {
       //logAction('onDailySalesSuccess', $event->backup->filedate->format('Y-m-d').' '.request()->user()->branchid.' '.json_encode($month));
-      $this->ms->firstOrNewField(array_except($month->toArray(), ['year', 'month', 'record_count']), ['date', 'branch_id']);
+      $this->ms->firstOrNewField(array_except($month->toArray(), ['year', 'month']), ['date', 'branch_id']);
       //logAction('onDailySalesSuccess', 'rank');
       $this->ms->rank($month->date);
     }
