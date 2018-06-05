@@ -45,7 +45,11 @@ class MonthlySalesRepository extends BaseRepository implements CacheableInterfac
     foreach ($ms as $key => $m) {
       //$this->update(['rank'=>($key+1)], $m->id);
       $m->rank = ($key+1);
-      $m->save();
+      if ($m->sales>0)
+        $m->save();
+
+      if ($m->sales<=0 && ($m->format('Y-m-d')==$m->copy()->firstOfMonth()->format('Y-m-d')))
+        $m->delete();
     }
     return true;
     
