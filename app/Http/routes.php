@@ -1,5 +1,9 @@
 <?php
+get('/', function(){
+  return 'under maintenance';
+});
 
+/*
 Route::get('login', ['as'=>'auth.getlogin', 'uses'=>'Auth\AuthController@getLogin']);
 Route::post('auth/login', ['as'=>'auth.postlogin', 'uses'=>'Auth\AuthController@postLogin']);
 Route::get('logout', ['as'=>'auth.getlogout', 'uses'=>'Auth\AuthController@getLogout']);
@@ -11,7 +15,7 @@ Route::get('salesmtd', ['middleware' => 'auth', 'uses'=>'SalesmtdController@test
 Route::get('dashboard', ['middleware' => 'auth', 'uses'=>'DashboardController@getIndex']);
 Route::get('timelog/daily', ['middleware' => 'auth', 'uses'=>'DashboardController@getDailyDTR']);
 
-/******* start middeware:auth ********/
+/******* start middeware:auth ********//*
 Route::group(['middleware' => 'auth'], function(){
 
 Route::get('settings/{param1?}/{param2?}', ['uses'=>'SettingsController@getIndex'])
@@ -62,17 +66,18 @@ Route::put('uploader/postfile', ['uses'=>'UploaderController@putFile']);
 Route::get('uploader/deposit-slip', ['uses'=>'UploaderController@getDepositIndex']);
 Route::get('{brcode}/upload/summary', ['as'=>'upload-summary', 'uses'=>'UploaderController@getUploadSummary']);
 
-/******* start prefix:api     ********/
+/******* start prefix:api     ********//*
 Route::group(['prefix'=>'api'], function(){  /******* begin prefix:api ********/
 
-
+/*
 Route::get('search/employee', ['uses'=>'EmployeeController@search']);
 
 
 }); /******* end prefix:api     ********/
-}); /******* end middeware:auth ********/
+//}); /******* end middeware:auth ********/
 
 // for TK
+/*
 Route::post('api/timelog', ['as'=>'timelog.post', 'uses'=>'TimelogController@post']);
 Route::get('tk', ['as'=>'tk.index','uses'=>'TimelogController@getTkIndex']);
 Route::get('api/employee/{field?}/{value?}', ['as'=>'employee.getbyfield', 'uses'=>'EmployeeController@getByField']);
@@ -195,7 +200,7 @@ get('/env/hostname', function() {
 
 get('/env/clientname', function(){
 	//return gethostbyaddr($_SERVER['REMOTE_ADDR']);
-  
+
 });
 
 get('/phpinfoko', function(){
@@ -215,3 +220,4 @@ get('/checkdbconn', function(){
 get('/v', function(){
   dd(app()->version());
 });
+*/
