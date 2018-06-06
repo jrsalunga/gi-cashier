@@ -105,8 +105,7 @@ function endKey($array){
 }
 
 function clientIP(){
-    //$ipAddress = $_SERVER['REMOTE_ADDR'];
-	$ipAddress = 'none';
+	$ipAddress = $_SERVER['REMOTE_ADDR'];
 	if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
     $ipAddress =  $_SERVER['HTTP_X_FORWARDED_FOR'];
 	}
@@ -208,7 +207,7 @@ function logAction($action, $log, $logfile=NULL) {
 		$handle = fopen($logfile, 'a');
 
 	$ip = clientIP();
-	$brw = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT']:'none';
+	$brw = $_SERVER['HTTP_USER_AGENT'];
 	$content = date('r')." | {$ip} | {$action} | {$log} \t {$brw}\n";
   fwrite($handle, $content);
   fclose($handle);
