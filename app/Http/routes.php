@@ -195,6 +195,7 @@ get('/env/hostname', function() {
 
 get('/env/clientname', function(){
 	//return gethostbyaddr($_SERVER['REMOTE_ADDR']);
+  
 });
 
 get('/phpinfoko', function(){
