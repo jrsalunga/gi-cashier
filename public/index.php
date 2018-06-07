@@ -36,8 +36,6 @@ require __DIR__.'/../bootstrap/autoload.php';
 */
 
 $app = require_once __DIR__.'/../bootstrap/app.php';
-echo 'bootstrap';
-return 1;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +55,8 @@ $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
 );
 
+echo 'kernel';
+return 1;
 $response->send();
 
 $kernel->terminate($request, $response);
