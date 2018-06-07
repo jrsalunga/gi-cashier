@@ -1,5 +1,9 @@
 <?php
 
+echo 'under maintenance';
+
+return 1;
+
 /**
  * Laravel - A PHP Framework For Web Artisans
  *
