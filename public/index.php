@@ -21,9 +21,7 @@
 
 require __DIR__.'/../bootstrap/autoload.php';
 
-echo 'autoload';
 
-return 1;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +36,8 @@ return 1;
 */
 
 $app = require_once __DIR__.'/../bootstrap/app.php';
+echo 'bootstrap';
+return 1;
 
 /*
 |--------------------------------------------------------------------------
