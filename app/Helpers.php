@@ -105,7 +105,7 @@ function endKey($array){
 }
 
 function clientIP(){
-	$ipAddress = $_SERVER['REMOTE_ADDR'];
+	$ipAddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']:'localhost';
 	if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
     $ipAddress =  $_SERVER['HTTP_X_FORWARDED_FOR'];
 	}
@@ -207,7 +207,7 @@ function logAction($action, $log, $logfile=NULL) {
 		$handle = fopen($logfile, 'a');
 
 	$ip = clientIP();
-	$brw = $_SERVER['HTTP_USER_AGENT'];
+	$brw = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT']:'cmd';
 	$content = date('r')." | {$ip} | {$action} | {$log} \t {$brw}\n";
   fwrite($handle, $content);
   fclose($handle);
@@ -242,7 +242,7 @@ function test_log($log, $logfile=NULL) {
 
 function getBrowserInfo() 
 { 
-    $u_agent = $_SERVER['HTTP_USER_AGENT']; 
+    $u_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT']:'cmd'; 
     $bname = 'Unknown';
     $platform = 'Unknown';
     $version= "";
