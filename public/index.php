@@ -1,9 +1,5 @@
 <?php
 
-echo 'under maintenance';
-
-return 1;
-
 /**
  * Laravel - A PHP Framework For Web Artisans
  *
@@ -24,6 +20,10 @@ return 1;
 */
 
 require __DIR__.'/../bootstrap/autoload.php';
+
+echo 'autoload';
+
+return 1;
 
 /*
 |--------------------------------------------------------------------------
