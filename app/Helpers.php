@@ -202,7 +202,7 @@ function logAction($action, $log, $logfile=NULL) {
 	$new = file_exists($logfile) ? false : true;
 	if($new){
 		$handle = fopen($logfile, 'w+');
-		chmod($logfile, 0775);
+		chmod($logfile, 0777);
 	} else
 		$handle = fopen($logfile, 'a');
 
@@ -221,12 +221,12 @@ function test_log($log, $logfile=NULL) {
   $dir = pathinfo($logfile, PATHINFO_DIRNAME);
 
   if(!is_dir($dir))
-    mkdir($dir, 0775, true);
+    mkdir($dir, 0777, true);
 
   $new = file_exists($logfile) ? false : true;
   if($new){
     $handle = fopen($logfile, 'w+');
-    chmod($logfile, 0775);
+    chmod($logfile, 0777);
   } else
     $handle = fopen($logfile, 'a');
 
