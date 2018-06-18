@@ -164,14 +164,14 @@ class DepslpController extends Controller {
 		$id = explode('.', $filename);
 
 		if(!is_uuid($id[0]) || $brcode!==strtolower(session('user.branchcode')))
-			return 'not uuid';
+			return abort(404);
 
 		$d = $this->depslip->find($id[0]);
 
 		$path = $this->getPath($d);
 
 		if(!$this->files->exists($this->getPath($d)))
-			return abort(404);
+			return '!exist';
 
 		if($request->has('download') && $request->input('download')==='true') {
     	return response($this->files->get($path), 200)
