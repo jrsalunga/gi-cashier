@@ -184,6 +184,8 @@ class DepslpController extends Controller {
 
 	}
 
+	
+
 	private function countFilenameByDate($date, $time, $type) {
   	$d = $this->depslip->findWhere(['date'=>$date, 'time'=>$time, 'type'=>$type]);
 		$c = intval(count($d));
