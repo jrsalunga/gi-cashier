@@ -164,7 +164,7 @@ class DepslpController extends Controller {
 		$id = explode('.', $filename);
 
 		if(!is_uuid($id[0]) || $brcode!==strtolower(session('user.branchcode')))
-			return abort(404);
+			return 'not uuid';
 
 		$d = $this->depslip->find($id[0]);
 
