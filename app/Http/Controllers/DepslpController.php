@@ -169,9 +169,10 @@ class DepslpController extends Controller {
 		$d = $this->depslip->find($id[0]);
 
 		$path = $this->getPath($d);
+			return $path;
 
 		if(!$this->files->exists($this->getPath($d)))
-			return '!exist';
+			return abort(404);
 
 		if($request->has('download') && $request->input('download')==='true') {
     	return response($this->files->get($path), 200)
