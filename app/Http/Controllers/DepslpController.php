@@ -66,8 +66,6 @@ class DepslpController extends Controller {
 
 		$r = $this->files->folderInfo2('DEPSLP');
 
-		return $r;
-
 		foreach ($r['subfolders'] as $path => $folder) {
 			if ($this->files->exists($path.DS.strtoupper($brcode)))
 				$paths[$path.'/'.strtoupper($brcode)] = $folder;
@@ -172,8 +170,8 @@ class DepslpController extends Controller {
 
 		$path = $this->getPath($d);
 
-		//if(!$this->files->exists($this->getPath($d)))
-			//return abort(404);
+		if(!$this->files->exists($this->getPath($d)))
+			return abort(404);
 
 		if($request->has('download') && $request->input('download')==='true') {
     	return response($this->files->get($path), 200)
