@@ -61,10 +61,12 @@ class DepslpController extends Controller {
 
 
 	private function getDepslpFileSystem($brcode, $id, $action) { // $id = yr, $action = month
-		return $this->files->getType();
+
 		$paths = [];
 
 		$r = $this->files->folderInfo2('DEPSLP');
+
+		return $r;
 
 		foreach ($r['subfolders'] as $path => $folder) {
 			if ($this->files->exists($path.DS.strtoupper($brcode)))
