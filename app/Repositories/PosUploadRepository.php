@@ -139,6 +139,49 @@ class PosUploadRepository extends Repository
       
     }
 
+    public function isEoD($backup) {
+      $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+      if (file_exists($dbf_file)) { 
+        $db = dbase_open($dbf_file, 0);
+        $record_numbers = dbase_numrecords($db);
+
+        for ($i = 1; $i <= $record_numbers; $i++) {
+          $row = dbase_get_record_with_names($db, $i);
+          $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
+            if ( $vfpdate->format('Y-m-d')==$backup->date->format('Y-m-d')) {
+              //dbase_close($db);
+              //throw new Exception($row['CREW']);
+            }
+        }
+        dbase_close($db);
+      
+       
+
+      } else {
+        throw new Exception("Cannot locate CSH_AUDT.DBF"); 
+      }
+
+      $dbf_file = $this->extracted_path.DS.'ORDERS.DBF';
+      if (file_exists($dbf_file)) { 
+        $db = dbase_open($dbf_file, 0);
+        $record_numbers = dbase_numrecords($db);
+        $grsamt = 0;
+
+        for ($i = 1; $i <= $record_numbers; $i++) {
+          $row = dbase_get_record_with_names($db, $i);
+          $grsamt += $row['GRSAMT'];
+        }
+        dbase_close($db);
+      
+        if ($record_numbers>0 || $grsamt>0)
+          throw new Exception("Error: Invalid EoD backup. ".$record_numbers." unsettled item(s) on ORDERS.DBF with a total amount of ". number_format($grsamt, 2).". Please upload the correct backup file."); 
+
+      } else {
+        throw new Exception("Cannot locate ORDERS.DBF"); 
+      }
+
+    }
+
 
     private function getManCost() {
       $this->getBackupCode();

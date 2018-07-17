@@ -201,6 +201,24 @@ class UploaderController extends Controller
 						//$this->logAction('success:verify:backup', $log_msg.$msg);
 					}
 
+						
+					/******** para maka send kahit hindi EoD ung backup 
+					try {
+						$this->isEoD($backup);
+					} catch (Exception $e) {
+						$msg =  $e->getMessage();
+						//$res = $this->movedErrorProcessing($filepath, $storage_path);							
+						$this->removeExtratedDir();
+						DB::rollBack();
+
+						$this->updateBackupRemarks($backup, $msg);
+						//$this->logAction('error:verify:backup', $log_msg.$msg);
+						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+					}
+					*****/
+
+
+
 					/******* extract trasanctions data ***********/
 
 
@@ -444,6 +462,15 @@ class UploaderController extends Controller
 			: $posupload->remarks.', '. $message;
 					
 		return $this->posUploadRepo->update(['remarks'=> $msg], $posupload->id);
+  }
+
+
+  private function isEoD($backup) {
+  	try {
+  		$code = $this->posUploadRepo->isEoD($backup); 
+  	} catch (\Exception $e) {
+  		throw $e;
+  	}
   }
 
   private function verifyBackup(Request $request) {

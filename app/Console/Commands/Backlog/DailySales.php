@@ -92,6 +92,8 @@ class DailySales extends Command
     	exit;
   	}
 
+    //return dd($bckup);
+
   	if (!$this->extract($locator->realFullPath($path), $br->code)) {
 			$this->info('Unable to extract '. $backup .', the backup maybe corrupted. Try to generate another backup file and try to re-upload.');
 			exit;
@@ -132,18 +134,35 @@ class DailySales extends Command
     	$this->removeExtratedDir();
     	DB::rollback();
     	exit;
-		}
+		} finally {
+      event(new \App\Events\Posting\SalesmtdSuccess($bckup));
+    }
 
     $this->info('extracting charges...');
-		try {
-			$this->processCharges($to, $bckup);
-		} catch (Exception $e) {
-			$this->info($e->getMessage());
-    	$this->removeExtratedDir();
-    	DB::rollback();
-    	exit;
-		}
+    try {
+      $this->processCharges($to, $bckup);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    }
 
+
+    $this->info('extracting transfer...');
+    try {
+      $this->processTransfer($br->id, $to);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    }
+
+
+
+    event(new \App\Events\Backup\DailySalesSuccess($bckup));
+   
 
     //DB::rollback();
 		DB::commit();
@@ -193,6 +212,14 @@ class DailySales extends Command
   public function processCharges($date, $backup){
   	try {
       $this->posUploadRepo->postCharges($date, $backup);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+  public function processTransfer($branchid, $date){
+    try {
+      $this->posUploadRepo->postTransfer($branchid, $date, $date);
     } catch(Exception $e) {
       throw $e;    
     }
