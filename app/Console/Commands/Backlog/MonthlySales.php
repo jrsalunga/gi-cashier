@@ -68,6 +68,7 @@ class MonthlySales extends Command
 
 
     foreach ($this->dr->monthInterval() as $key => $date) {
+      $date->lastOfMonth();
       $this->info($br->code.' '.$date);
 
       if ($br->opendate()->copy()->startOfMonth()->gt($date)) {
