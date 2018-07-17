@@ -95,7 +95,8 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
           return $query->select(DB::raw($sql))
             ->where(DB::raw('MONTH(date)'), $date->format('m'))
             ->where(DB::raw('YEAR (date)'), $date->format('Y'))
-            ->where('branchid', $branchid);
+            ->where('branchid', $branchid)
+            ->where('sales', '>', 0);
         })
         ->all();
 
