@@ -80,7 +80,7 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
     $sql .= 'SUM(custcount) AS custcount, SUM(target_cust) AS target_cust, SUM(crew_din) AS crew_din,  SUM(crew_kit) AS crew_kit,  ';
     $sql .= 'SUM(empcount) AS empcount, SUM(target_empcount) AS target_empcount, SUM(mancost) AS mancost, SUM(headspend) AS headspend, ';
     $sql .= 'SUM(target_headspend) AS target_headspend, ((SUM(tips)/SUM(sales))*100) AS tipspct, ((SUM(mancost)/SUM(sales))*100) AS mancostpct, ';
-    $sql .= '(SUM(target_mancost)/COUNT(id)) AS target_mancostpct, ';
+    $sql .= '(SUM(target_mancostpct)/COUNT(id)) AS target_mancostpct, ';
     $sql .= 'SUM(cos) AS cos, ((SUM(cos)/SUM(sales))*100) AS cospct, SUM(purchcost) AS purchcost, (SUM(sales)/SUM(empcount)) AS salesemp, ';
     $sql .= 'SUM(slsmtd_totgrs) AS slsmtd_totgrs, SUM(chrg_total) AS chrg_total, SUM(chrg_csh) AS chrg_csh, SUM(chrg_chrg) AS chrg_chrg, ';
     $sql .= 'SUM(chrg_othr) AS chrg_othr, SUM(bank_totchrg) AS bank_totchrg, SUM(disc_totamt) AS disc_totamt, SUM(trans_cnt) AS trans_cnt, ';
