@@ -86,7 +86,7 @@ class MonthlySales extends Command
           $this->ms->firstOrNewField(['date'=>$date->format('Y-m-d'), 'branch_id'=>$br->id], ['date', 'branch_id']);
         } else {
           $this->info($ms->date);
-          $this->ms->firstOrNewField(array_except($ms->toArray(), ['year', 'month', 'record_count']), ['date', 'branch_id']);
+          $this->ms->firstOrNewField(array_except($ms->toArray(), ['year', 'month']), ['date', 'branch_id']);
           $this->ms->rank($ms->date);
           //$this->info(json_encode($ms));
         }
