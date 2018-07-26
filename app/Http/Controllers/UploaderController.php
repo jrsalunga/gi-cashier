@@ -366,7 +366,7 @@ class UploaderController extends Controller
 			Mail::queue('emails.email_to_hrd', $data, function ($message) use ($data) {
 	        $message->subject($data['branchcode'].' '.$data['filename'].' GI PAY BACKUP [gi_pay]');
 	        $message->from('no-reply@giligansrestaurant.com', 'GI App - '.$data['branchcode'].' Cashier');
-	       	$message->to('gi.efiles@gmail.com');
+	       	$message->to('giligans.app@gmail.com');
 	       	$message->replyTo($data['email'], $data['user']);
 	       	//$message->cc($data['email']);
 	        //$message->to('giligans.app@gmail.com');
