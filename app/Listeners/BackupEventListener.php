@@ -55,10 +55,13 @@ class BackupEventListener
       });
     
     } finally {
+      if (!is_null($month)) {
+        
       //logAction('onDailySalesSuccess', $event->backup->filedate->format('Y-m-d').' '.request()->user()->branchid.' '.json_encode($month));
       $this->ms->firstOrNewField(array_except($month->toArray(), ['year', 'month']), ['date', 'branch_id']);
       //logAction('onDailySalesSuccess', 'rank');
       $this->ms->rank($month->date);
+      }
     }
 
   }
