@@ -83,7 +83,7 @@ class UploaderController extends Controller
 			'filename'		=> 'required',
 			'filetype'  	=> 'required',
 			'backup_type'	=> 'required',
-			'cashier'		=> 'required',
+			'cashier'			=> 'required',
 		];
 
 		$messages = [];
@@ -368,11 +368,9 @@ class UploaderController extends Controller
 	        $message->from('no-reply@giligansrestaurant.com', 'GI App - '.$data['branchcode'].' Cashier');
 	       	$message->to('giligans.app@gmail.com');
 	       	$message->replyTo($data['email'], $data['user']);
-	       	//$message->cc($data['email']);
-	        //$message->to('giligans.app@gmail.com');
+
 	        if (app()->environment()==='production')
 	        	$message->to('gi.hrd01@gmail.com');
-	        //$message->to('freakyash02@gmail.com');
 	       	$message->attach($data['attachment']);
 	    });
 
@@ -411,7 +409,8 @@ class UploaderController extends Controller
 				Mail::send('emails.email_to_hrd', $data, function ($message) use ($data) {
 		        $message->subject($data['branchcode'].' '.$data['filename'].' PAYROLL BACKUP [payroll]');
 		        $message->from('no-reply@giligansrestaurant.com', 'GI App - '.$data['branchcode'].' Cashier');
-		       	$message->to('gi.efiles@gmail.com');
+		      //$message->to('gi.efiles@gmail.com');
+		        $message->to('giligans.app@gmail.com');
 		       	$message->replyTo($data['email'], $data['user']);
 		       	//$message->cc($data['email']);
 		        //$message->to('giligans.app@gmail.com');
