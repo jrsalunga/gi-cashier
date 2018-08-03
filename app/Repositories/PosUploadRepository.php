@@ -220,7 +220,8 @@ class PosUploadRepository extends Repository
       */
 
 
-      $sales      = ($r['CSH_SALE'] + $r['CHG_SALE'] + $r['SIG_SALE']) + 0;
+      //$sales      = ($r['CSH_SALE'] + $r['CHG_SALE'] + $r['SIG_SALE']) + 0;
+      $sales      = ($r['CSH_SALE'] + $r['CHG_SALE']) + 0; // netsales: removed sign
       $empcount   = ($kit + $din);
       //$tips       = empty(trim($r['TIP'])) ? 0: trim($r['TIP']);
       $tips       = $tip;
@@ -1579,7 +1580,7 @@ class PosUploadRepository extends Repository
               $ds['transcost'] += $data['tcost'];
 
             if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
-            $ds['transcos'] += $data['tcost'];
+              $ds['transcos'] += $data['tcost'];
             
             if ($i==$recno) {
               $ds['date'] = $curr_date->format('Y-m-d');
