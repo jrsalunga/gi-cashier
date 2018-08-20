@@ -11,6 +11,7 @@ use App\Repositories\Repository;
 use Dflydev\ApacheMimeTypes\PhpRepository;
 use Illuminate\Support\Facades\Storage;
 use App\Repositories\DailySalesRepository;
+use App\Repositories\DailySalesRepository as DS2;
 use App\Repositories\PurchaseRepository as Purchase;
 use App\Repositories\Purchase2Repository as PurchaseRepo;
 use App\Http\Controllers\SalesmtdController as SalesmtdCtrl;
@@ -140,26 +141,6 @@ class PosUploadRepository extends Repository
     }
 
     public function isEoD($backup) {
-      $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
-      if (file_exists($dbf_file)) { 
-        $db = dbase_open($dbf_file, 0);
-        $record_numbers = dbase_numrecords($db);
-
-        for ($i = 1; $i <= $record_numbers; $i++) {
-          $row = dbase_get_record_with_names($db, $i);
-          $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
-            if ( $vfpdate->format('Y-m-d')==$backup->date->format('Y-m-d')) {
-              //dbase_close($db);
-              //throw new Exception($row['CREW']);
-            }
-        }
-        dbase_close($db);
-      
-       
-
-      } else {
-        throw new Exception("Cannot locate CSH_AUDT.DBF"); 
-      }
 
       $dbf_file = $this->extracted_path.DS.'ORDERS.DBF';
       if (file_exists($dbf_file)) { 
@@ -174,12 +155,53 @@ class PosUploadRepository extends Repository
         dbase_close($db);
       
         if ($record_numbers>0 || $grsamt>0)
-          throw new Exception("Error: Invalid EoD backup. ".$record_numbers." unsettled item(s) on ORDERS.DBF with a total amount of ". number_format($grsamt, 2).". Please upload the correct backup file."); 
+          throw new Exception("Validation Error: Invalid EoD backup. ".$record_numbers." unsettled item(s) on ORDERS.DBF with a total amount of ". number_format($grsamt, 2).". Please upload the correct backup file."); 
 
       } else {
         throw new Exception("Cannot locate ORDERS.DBF"); 
       }
 
+
+
+      $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+      if (file_exists($dbf_file)) { 
+        $db = dbase_open($dbf_file, 0);
+        $record_numbers = dbase_numrecords($db);
+        $a = [];
+        $valid = true;
+        for ($i = 1; $i <= $record_numbers; $i++) {
+          $row = dbase_get_record_with_names($db, $i);
+          $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
+         
+          if ( $vfpdate->format('Y-m-d')==$backup->date->format('Y-m-d')) {
+
+            $t = trim($row['TIP']);
+            if (empty($t)) {
+              array_push($a, 'TIPS');
+            }
+
+            $k = trim($row['CREW_KIT']);
+            if (empty($k)) {
+              array_push($a, 'CREW_KIT');
+              $valid = false;
+            }
+
+            $d = trim($row['CREW_DIN']);
+            if (empty($k)) {
+              array_push($a, 'CREW_DIN');
+              $valid = false;
+            }
+          }
+        }
+        dbase_close($db);
+
+        if (!$valid) {
+          throw new Exception("Validation Error: Invalid EoD backup. No encoded ".join(", ", $a)." on CSH_AUDT.DBF. Please upload the correct backup file."); 
+        }
+
+      } else {
+        throw new Exception("Cannot locate CSH_AUDT.DBF"); 
+      }
     }
 
 
@@ -1583,13 +1605,25 @@ class PosUploadRepository extends Repository
               $ds['transcos'] += $data['tcost'];
             
             if ($i==$recno) {
+              // $cospct = $d->sales>0 ? ($food_cost/$d->sales)*100 : 0;
               $ds['date'] = $curr_date->format('Y-m-d');
+
+              $curr_ds = $this->ds->findWhere(array_only($ds, ['date', 'branchid']), ['cos', 'sales'])->first();
+              $cos = ($curr_ds->cos - $ds['transcos']);
+              $ds['cospct'] = $cos;
+              //$ds['cospct'] = $curr_ds->sales>0 ? ($cos/$curr_ds->sales)*100 : 0;
+
               $this->ds->firstOrNewField($ds, ['date', 'branchid']);
             }
 
           } else {
             
             $ds['date'] = $curr_date->format('Y-m-d');  
+
+            $curr_ds = $this->ds->findWhere(array_only($ds, ['date', 'branchid']), ['cos', 'sales'])->first();
+            $cos = ($curr_ds->cos - $ds['transcos']);
+            $ds['cospct'] = 0;
+
             $this->ds->firstOrNewField($ds, ['date', 'branchid']);
             
             $curr_date = $vfpdate;          

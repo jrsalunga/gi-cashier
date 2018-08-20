@@ -202,7 +202,7 @@ class UploaderController extends Controller
 					}
 
 						
-					/******** para maka send kahit hindi EoD ung backup 
+					/******** para maka send kahit hindi EoD ung backup **/
 					try {
 						$this->isEoD($backup);
 					} catch (Exception $e) {
@@ -215,7 +215,7 @@ class UploaderController extends Controller
 						//$this->logAction('error:verify:backup', $log_msg.$msg);
 						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
 					}
-					*****/
+					
 
 
 
