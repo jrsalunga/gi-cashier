@@ -111,11 +111,7 @@
           <div class="img-cont">
             <img  id="emp-img" src="/images/employees/{{ $timelogs[0]->employee->code }}.jpg" height="100%" width="100%">
           </div>
-          <div class="emp-cont">
-            <p id="emp-code">{{ $timelogs[0]->employee->code }}</p>
-            <h1 id="emp-name">{{ $timelogs[0]->employee->lastname }}, {{ $timelogs[0]->employee->firstname }}</h1>
-            <p id="emp-pos">{{ $timelogs[0]->employee->position->descriptor }}</p>
-          </div>
+         
         @else 
           <div class="img-cont">
           <img  id="emp-img" src="/images/login-avatar.png" height="100%" width="100%">
