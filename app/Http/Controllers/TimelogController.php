@@ -240,12 +240,12 @@ class TimelogController extends Controller {
 											->take(20)
 											->get();
 
-			if ($request->has('raw') && $request->input('raw')=='data')
-				return $timelogs;
 
 			
 		}
 
+		if ($request->has('raw') && $request->input('raw')=='data')
+			return $timelogs;
 		//return $timelogs;
 		//if(count($timelogs) <= 0)
 		//	return redirect()->route('auth.getlogin');
