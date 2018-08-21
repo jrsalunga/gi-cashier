@@ -207,6 +207,8 @@ class TimelogController extends Controller {
 	}
 
   public function getTkIndex(Request $request) {
+
+
 		if(isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR']==='127.0.0.1'){
 			
 			$timelogs = Timelog::with('employee.branch')
@@ -237,6 +239,9 @@ class TimelogController extends Controller {
 											->orderBy('datetime', 'DESC')
 											->take(20)
 											->get();
+
+			if ($request->has('raw') && $request->input('raw')=='data')
+				return $timelogs;
 
 			
 		}
