@@ -154,7 +154,7 @@ class PosUploadRepository extends Repository
         }
         dbase_close($db);
       
-        if ($record_numbers>0 && $grsamt>0)
+        if ($record_numbers>0 || $grsamt>0)
           throw new Exception("Validation Error: Invalid EoD backup. ".$record_numbers." unsettled item(s) on ORDERS.DBF with total amount of ". number_format($grsamt, 2).". Please upload the correct backup file."); 
 
       } else {
