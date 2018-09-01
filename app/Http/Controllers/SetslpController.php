@@ -195,20 +195,23 @@ class SetslpController extends Controller {
   }
 
   private function moveUpdatedFile($o, $n) {
-  	if ($o->date!=$n->date || $o->time!=$n->time || $o->type!=$n->type) {
+  	if ($o->date!=$n->date || $o->time!=$n->time || $o->terminal_id!=$n->terminal_id) {
 			
 			$old_path = 'SETSLP'.DS.$o->date->format('Y').DS.session('user.branchcode').DS.$o->date->format('m').DS.$o->filename;
 			$ext = strtolower(pathinfo($o->filename, PATHINFO_EXTENSION));
 			$br = strtoupper(session('user.branchcode'));
-			switch ($n->type) {
+			switch ($n->terminal_id) {
 				case 1:
-					$type = 'C';
+					$type = 'BDO';
 					break;
 				case 2:
-					$type = 'K';
+					$type = 'RCBC';
+					break;	
+				case 2:
+					$type = 'HSBC';
 					break;				
 				default:
-					$type = 'U';
+					$type = 'X';
 					break;
 			}
 			
@@ -242,6 +245,7 @@ class SetslpController extends Controller {
 			'time'		=> 'required',
 			'amount'	=> 'required',
 			'cashier'	=> 'required',
+			'terminal_id'	=> 'required',
 			'id'			=> 'required',
 		];
 
@@ -256,7 +260,7 @@ class SetslpController extends Controller {
 			$d = $this->setslp->update([
 				'date' 				=> request()->input('date'),
 	    	'time' 				=> request()->input('time'),
-	    	'type' 				=> request()->input('type'),
+	    	'terminal_id' => request()->input('terminal_id'),
 	    	'amount' 			=> str_replace(",", "", request()->input('amount')),
 	    	'cashier' 		=> $request->input('cashier'),
 	    	'remarks' 		=> $request->input('notes'),
@@ -275,24 +279,24 @@ class SetslpController extends Controller {
 			$arr = array_diff($o->toArray(), $d->toArray());
 			array_forget($arr, 'updated_at');
 			
-			if (app()->environment()==='production')
-				event(new setslpChange($o, $d, $arr));
+			//if (app()->environment()==='production')
+				//event(new setslpChange($o, $d, $arr));
 
 			return redirect(brcode().'/setslp/'.$d->lid())
-							->with('alert-success', 'Deposit slip is updated!');
+							->with('alert-success', 'Card settlement slip is updated!');
 		}
 
-		return redirect()->back()->withErrors('Deposit Slip not found!');
+		return redirect()->back()->withErrors('Card settlement not found!');
 	}
 
 
 
 	private function getPath($d) {
-		return 'setslp'.DS.$d->date->format('Y').DS.session('user.branchcode').DS.$d->date->format('m').DS.$d->filename;
+		return 'SETSLP'.DS.$d->date->format('Y').DS.session('user.branchcode').DS.$d->date->format('m').DS.$d->filename;
 	}
 
 	public function delete(Request $request) {
-
+		
 		$validator = app('validator')->make($request->all(), ['id'=>'required'], []);
 
 		if ($validator->fails()) 
@@ -301,7 +305,7 @@ class SetslpController extends Controller {
 		$setslp = $this->setslp->find($request->input('id'));
 
 		if (is_null($setslp))
-			return redirect()->back()->withErrors('Deposit slip not found!');
+			return redirect()->back()->withErrors('Card settlement slip not found!');
 
 		if (!$setslp->isDeletable())
 			return redirect()->back()->withErrors($setslp->fileUpload->filename.' deposit slip is not deletable, already verified!');
@@ -312,7 +316,7 @@ class SetslpController extends Controller {
 				$this->files->deleteFile($this->getPath($setslp));
 
 			//if (app()->environment()==='production')
-				event(new setslpDelete($setslp->toArray()));
+				//event(new setslpDelete($setslp->toArray()));
 
 			return redirect(brcode().'/setslp/log')
 							->with('setslp.delete', $setslp)

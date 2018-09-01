@@ -23,7 +23,7 @@
               <span class="hidden-xs hidden-sm">Back</span>
             </a> 
             <div class="btn-group">
-              <button terminal_id="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="fa fa-archive"></span> 
                 <span class="hidden-xs hidden-sm">Filing System</span>
                 <span class="caret"></span>
@@ -35,7 +35,7 @@
             </div>
             
             <div class="btn-group">
-              <button terminal_id="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="fa fa-calendar-check-o"></span>
                 <span class="hidden-xs hidden-sm">Checklist</span>
                 <span class="caret"></span>
@@ -47,7 +47,7 @@
             </div>
 
             <div class="btn-group">
-              <button terminal_id="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="glyphicon glyphicon-th-list"></span>
                 <span class="hidden-xs hidden-sm">Logs</span>
                 <span class="caret"></span>
@@ -160,11 +160,11 @@
 
 
 <div class="modal fade mdl-delete" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
-  {!! Form::open(['method'=>'POST', 'url'=>'delete/setslp', 'id'=>'form-file', 'class'=>'form-horizontal', 'encterminal_id'=>'multipart/form-data']) !!}
+  {!! Form::open(['method'=>'POST', 'url'=>'delete/setslp', 'id'=>'form-file', 'class'=>'form-horizontal', 'enctype'=>'multipart/form-data']) !!}
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <button terminal_id="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="myModalLabel"><span class="fa fa-trash"></span> Delete Card Settlement Slip</h4>
       </div>
       <div class="modal-body">
@@ -178,9 +178,9 @@
       <div class="modal-footer">
         <div class="pull-right">
         
-          <button terminal_id="submit" class="btn btn-primary">Yes</button>
-          <button terminal_id="button" class="btn btn-default" data-dismiss="modal">No</button>
-          <input terminal_id="hidden" name="id" value="{{ $setslp->id }}">
+          <button type="submit" class="btn btn-primary">Yes</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+          <input type="hidden" name="id" value="{{ $setslp->id }}">
         </div>
       </div>
     </div><!-- end: .modal-content  -->

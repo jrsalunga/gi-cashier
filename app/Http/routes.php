@@ -48,6 +48,8 @@ Route::get('dl/ap/{p1}/{p2}/{p3}/{p4}/{p5}/{p6}', ['uses'=>'ApController@getDown
 Route::get('{brcode?}/setslp/log', ['uses'=>'SetslpController@getHistory']);
 Route::get('{brcode?}/setslp/{id?}/{action?}', ['uses'=>'SetslpController@getAction']);
 Route::get('{brcode?}/images/setslp/{id?}', ['uses'=>'SetslpController@getImage']);
+Route::put('put/setslp', ['uses'=>'SetslpController@put']);
+Route::post('delete/setslp', ['uses'=>'SetslpController@delete']);
 
 Route::get('timelog/{param1?}/{param2?}', ['uses'=>'TimelogController@getIndex'])
   ->where(['param1'=>'add', 
