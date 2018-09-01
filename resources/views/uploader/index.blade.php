@@ -244,8 +244,8 @@
           +'</ol>'
           +'<small><em class="text-muted">For more questions / clarifications / need assistance you can email us at <a href="mailto:giligans.helpdesk@gmail.com">giligans.helpdesk@gmail.com</a></em></small>');
       } else if ($(this).val()==='setslp') {
-          html = '';
-          htmls += '<div class="row" style="margin-top: 20px;">'
+
+          html += '<div class="row" style="margin-top: 20px;">'
               +'<div class="input-group">'
                 +'<span class="input-group-addon" id="basic-addon1">'
                 +'Credit Card Terminal</span>'
@@ -283,7 +283,7 @@
                 +'<span class="gly gly-money"></span> Grand Total</span>'
               +'<input type="text" class="form-control" id="amount" name="amount" required style="text-align: right;" placeholder="0.00">'
             +'</div></div>';
-        alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> <ol><li>Before attaching the scanned Bank Deposit Slip please follow the standard file naming convention.'
+        alertMessage($('#nav-actions'), 'warning', '<b>Tips:</b> <ol><li>Before attaching the scanned Bank Deposit Slip please follow the standard file naming convention.'
           +' Sample "<b>DEPSLP MOA 20170102</b>"</b> where <b>DEPSLP</b> - is the document type code, <b>MOA</b> - is the 3 char branch code and '
           +'<b>20170102</b> - is the Deposit Date in YYYYMMDD format. '
           +'</li><li> Make sure that the <b>Date/Time</b> encoded is the <b>Deposit Date/Time</b> on the Deposit Slip.</li>'
