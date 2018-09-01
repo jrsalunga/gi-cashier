@@ -243,8 +243,9 @@
           +'<li>Please don\'t upload other documents like DCCR, etc. <b>Scanned Deposit Slip</b> only. =)</li>'
           +'</ol>'
           +'<small><em class="text-muted">For more questions / clarifications / need assistance you can email us at <a href="mailto:giligans.helpdesk@gmail.com">giligans.helpdesk@gmail.com</a></em></small>');
-      } else if ($(this).val()==='setslps') {
-          html += '<div class="row" style="margin-top: 20px;">'
+      } else if ($(this).val()==='setslp') {
+          html = '';
+          htmls += '<div class="row" style="margin-top: 20px;">'
               +'<div class="input-group">'
                 +'<span class="input-group-addon" id="basic-addon1">'
                 +'Credit Card Terminal</span>'
