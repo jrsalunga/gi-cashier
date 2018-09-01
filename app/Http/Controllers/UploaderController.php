@@ -208,7 +208,7 @@ class UploaderController extends Controller
 
 						
 					/******** para maka send kahit hindi EoD ung backup **/
-					/*
+					
 					if (c()->format('Ymd')!=c()->firstOfMonth()->format('Ymd')) {
 						try {
 							$this->isEoD($backup);
@@ -223,7 +223,7 @@ class UploaderController extends Controller
 							return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
 						}
 					}
-					*/
+					
 
 
 
