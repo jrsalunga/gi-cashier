@@ -1,11 +1,6 @@
 $(function(){
-
 	/*
 	var re = /\b(GC)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(\d\d)(\.ZIP)/gi; 
-	var str = 'GC071416.ZIP';
-	
-	console.log(re.exec(str));
-	console.log(str.match(re));
 	*/
 	var resetForm =  function () {
 		$('#form-file').trigger("reset");
@@ -120,7 +115,7 @@ $(function(){
 			console.log(ext);
 			
 			if (ext === 'pdf') {
-				$('#filetype').val('depslp').trigger('change');
+				//$('#filetype').val('depslp').trigger('change'); // removed bec of ccr
 				console.log('pdf');
 				return true;
 			}

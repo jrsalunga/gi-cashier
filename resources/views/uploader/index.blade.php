@@ -45,9 +45,10 @@
                     <span class="glyphicon glyphicon-file"></span> Document Type
                   </span>
                   <select id="filetype" name="filetype" class="form-control" style="width: 100%; border-left: 1px solid #ccc;" required>
-                    <option value="">-- select document type --</option>
+                    <option value="" disabled selected>-- Select document type --</option>
                     <option value="backup">Backup File</option>
                     <option value="depslp">Depost Slip</option>
+                    <option value="setslp">Card Settlement Slip</option>
                   </select>
                 </div><!-- /.col-lg-12 -->
               </div><!-- /.col-lg-12 -->
@@ -162,7 +163,7 @@
   @parent
   <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
   <script src="/js/vendors/jquery.filedrop-0.1.0.js"></script>
-  <script src="/js/filedrop-common.js?v=1"></script>
+  <script src="/js/filedrop-common.js?v=0.2"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 
 
@@ -242,6 +243,59 @@
           +'<li>Please don\'t upload other documents like DCCR, etc. <b>Scanned Deposit Slip</b> only. =)</li>'
           +'</ol>'
           +'<small><em class="text-muted">For more questions / clarifications / need assistance you can email us at <a href="mailto:giligans.helpdesk@gmail.com">giligans.helpdesk@gmail.com</a></em></small>');
+      } else if ($(this).val()==='setslp') {
+          html += '<div class="row" style="margin-top: 20px;">'
+              +'<div class="input-group">'
+                +'<span class="input-group-addon" id="basic-addon1">'
+                +'Credit Card Terminal</span>'
+                +'<select id="terminal_id" name="terminal_id" class="form-control" style="width: 100%; border-left: 1px solid #ccc;" required>'
+                  +'<option value="" disabled selected>-- Select credit card terminal --</option>'
+                  +'<option value="1">BDO</option>'
+                  +'<option value="2">RCBC</option>'
+                  +'<option value="3">HSBC</option>'
+                +'</select>'
+              +'</div>'
+            +'</div>'
+            +'<div class="row" style="margin-top: 20px;">'
+              +'<div class="input-group date-toggle">'
+              +'<span class="input-group-addon" id="basic-addon1">'
+                +'Transaction Date</span>'
+              +'<input type="text" class="form-control" id="date" name="date" required placeholder="YYYY-MM-DD" maxlength="8">'
+            +'<span class="input-group-addon">'
+            +'<span class="glyphicon glyphicon-calendar"></span>'
+            +'</span>'
+            +'</div>'
+            +'</div>'
+            +'<div class="row" style="margin-top: 20px;">'
+              +'<div class="input-group time-toogle">'
+              +'<span class="input-group-addon" id="basic-addon1">'
+                +'Transaction Time</span>'
+              +'<input type="text" class="form-control" id="time" name="time" required placeholder="HH:MM:SS" maxlength="8">'
+            +'<span class="input-group-addon">'
+            +'<span class="glyphicon glyphicon-time"></span>'
+            +'</span>'
+            +'</div>'
+            +'</div>'
+            +'<div class="row" style="margin-top: 20px;">'
+              +'<div class="input-group">'
+              +'<span class="input-group-addon" id="basic-addon1">'
+                +'<span class="gly gly-money"></span> Grand Total</span>'
+              +'<input type="text" class="form-control" id="amount" name="amount" required style="text-align: right;" placeholder="0.00">'
+            +'</div></div>';
+        alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> <ol><li>Before attaching the scanned Bank Deposit Slip please follow the standard file naming convention.'
+          +' Sample "<b>DEPSLP MOA 20170102</b>"</b> where <b>DEPSLP</b> - is the document type code, <b>MOA</b> - is the 3 char branch code and '
+          +'<b>20170102</b> - is the Deposit Date in YYYYMMDD format. '
+          +'</li><li> Make sure that the <b>Date/Time</b> encoded is the <b>Deposit Date/Time</b> on the Deposit Slip.</li>'
+          +'<li><div style="text-decoration: line-through;">For <b>multiple deposit slip</b> on <b>one scanned/attached file</b>, for example the <b>Cash and Check Deposit</b> are on one attachment, kindly sum the <b>Amount (27,052.94)</b> and break it down on the <b>Notes</b>. sample <b>Cash: 25,000.00, Check: 2,052.94</b>'
+          +'</div><div style="color:red; font-size: 1.2em;">Please be reminded that from now on the <b>Deposit Slip</b> should be <b>one is to one (1:1)</b>. One scanned deposit slip for every upload.</div>'
+          +'</li>'
+          +'<li>'
+          +'For branch that has multiple deposit on the same day, the filename should be <b>DEPSLP MOA 20170102 Cash</b>, <b>DEPSLP MOA 20170102 Check</b>, <b>DEPSLP MOA 20170102 Cash_2</b>, etc.'
+          +'</li>'
+          +'<li>Please don\'t upload other documents like DCCR, etc. <b>Scanned Deposit Slip</b> only. =)</li>'
+          +'</ol>'
+          +'<small><em class="text-muted">For more questions / clarifications / need assistance you can email us at <a href="mailto:giligans.helpdesk@gmail.com">giligans.helpdesk@gmail.com</a></em></small>');
+
       } else if ($(this).val()==='backup') {
         html += '<div class="row" style="margin-top: 20px;"><span class="title">Choose Backup Type</span>'
             +'<div class="radio">'

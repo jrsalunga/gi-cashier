@@ -156,12 +156,9 @@ function filename_to_date2($filename){
 
 
 function vfpdate_to_carbon($f){
-	
-
 	$m = substr($f, 4, 2);
 	$d = substr($f, 6, 2);
 	$y = substr($f, 0, 4);
-
 	return Carbon\Carbon::parse($y.'-'.$m.'-'.$d);
 }
 
