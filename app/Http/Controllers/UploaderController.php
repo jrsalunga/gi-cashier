@@ -12,6 +12,7 @@ use Illuminate\Filesystem\Filesystem;
 use App\Repositories\StorageRepository;
 use Dflydev\ApacheMimeTypes\PhpRepository;
 use App\Repositories\DepslipRepository as DepslipRepo;
+use App\Repositories\SetslpRepository as SetslpRepo;
 use App\Repositories\PosUploadRepository as PosUploadRepo;
 use App\Repositories\FileUploadRepository as FileUploadRepo;
 use App\Repositories\DailySalesRepository as DSRepo;
@@ -30,6 +31,7 @@ class UploaderController extends Controller
 	protected $posUploadRepo;
 	protected $fileUploadRepo;
 	protected $depslip;
+	protected $setslp;
 	protected $files;
 	protected $pos;
 	protected $payroll;
@@ -40,10 +42,11 @@ class UploaderController extends Controller
 	protected $orpaydtl;
 	protected $invhdr;
 
-	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, DSRepo $ds, Invdtl$invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
+	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, SetslpRepo $setslp, DSRepo $ds, Invdtl$invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
 		$this->posUploadRepo = $posUploadRepo;
 		$this->fileUploadRepo = $fileUploadRepo;
 		$this->depslip = $depslip;
+		$this->setslp = $setslp;
 		$this->ds = $ds;
 		$this->files = new StorageRepository(new PhpRepository, 'files.'.app()->environment());
 		$this->pos = new StorageRepository(new PhpRepository, 'pos.'.app()->environment());
@@ -73,6 +76,8 @@ class UploaderController extends Controller
 			return $this->processBackup($request);
 		else if ($request->input('filetype')=='depslp')
 			return $this->processBankSlip($request);
+		else if ($request->input('filetype')=='setslp')
+			return $this->processCreditCardSlip($request);
 		else
 			return $this->processUnknownFile($request);
 	}
@@ -203,17 +208,20 @@ class UploaderController extends Controller
 
 						
 					/******** para maka send kahit hindi EoD ung backup **/
-					try {
-						$this->isEoD($backup);
-					} catch (Exception $e) {
-						$msg =  $e->getMessage();
-						//$res = $this->movedErrorProcessing($filepath, $storage_path);							
-						$this->removeExtratedDir();
-						DB::rollBack();
 
-						$this->updateBackupRemarks($backup, $msg);
-						//$this->logAction('error:verify:backup', $log_msg.$msg);
-						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+					if (c()->format('Ymd')!=c()->firstOfMonth()->format('Ymd')) {
+						try {
+							$this->isEoD($backup);
+						} catch (Exception $e) {
+							$msg =  $e->getMessage();
+							//$res = $this->movedErrorProcessing($filepath, $storage_path);							
+							$this->removeExtratedDir();
+							DB::rollBack();
+
+							$this->updateBackupRemarks($backup, $msg);
+							//$this->logAction('error:verify:backup', $log_msg.$msg);
+							return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+						}
 					}
 					
 
@@ -579,9 +587,6 @@ class UploaderController extends Controller
     }
   }
 
-
-
-
 	/************* end: processBackup **************/
 
 
@@ -676,7 +681,6 @@ class UploaderController extends Controller
 	}
 
 	/************* for processBankSlip **************/
-
 	private function createFileUpload($src, Request $request, $doctypeid){
 
   	$d = Carbon::parse($request->input('date').' '.c()->format('H:i:s'));
@@ -727,9 +731,123 @@ class UploaderController extends Controller
   		
 		return false;
   }
-
-
 	/************* end: processBankSlip **************/
+
+	public function processCreditCardSlip(Request $request) {
+
+		//return $request->all();
+
+		$rules = [
+			'filename'		=> 'required',
+			'filetype'  	=> 'required',
+			'date'				=> 'required|date',
+			'terminal_id'	=> 'required',
+			'time'				=> 'required',
+			'amount'			=> 'required',
+			'cashier'			=> 'required',
+		];
+
+		$messages = [];
+		
+		$validator = Validator::make($request->all(), $rules, $messages);
+
+		if ($validator->fails()) {
+			$this->web->deleteFile($this->path['temp'].$request->input('filename'));
+			return redirect()->back()->withErrors($validator);
+		}
+
+		$ext = strtolower(pathinfo($request->input('filename'), PATHINFO_EXTENSION));
+		if (!in_array(strtolower($ext), ['png', 'jpeg', 'jpg', 'pdf'])) {
+			$this->web->deleteFile($this->path['temp'].$request->input('filename'));
+			return redirect()->back()->withErrors(['error'=>$request->input('filename').': invalid file extension for Card Settlement Slip.']);
+		}
+
+		$date = carbonCheckorNow($request->input('date').' '.$request->input('time'));
+		$upload_path = $this->path['temp'].$request->input('filename');
+
+		if ($this->web->exists($upload_path)) { //public/uploads/{branch_code}/{year}/{file}
+			$br = strtoupper(session('user.branchcode'));
+
+			$filename = strtoupper($request->input('filename'));
+			//if (!starts_with(strtoupper($filename), 'DEPSLP '.$br)) {
+
+				switch ($request->input('terminal_id')) {
+					case 1:
+						$type = 'BDO';
+						break;
+					case 2:
+						$type = 'RCBC';
+						break;
+					case 3:
+						$type = 'HSBC';
+						break;		
+					default:
+						$type = 'X';
+						break;
+				}
+				
+				$cnt = $this->countFilenameByDate2($this->setslp ,$date->format('Y-m-d'), $date->format('H:i:s'), $request->input('terminal_id'));
+				if ($cnt)
+					$filename = 'SETSLP '.$br.' '.$date->format('Ymd His').' '.$type.'-'.$cnt.'.'.$ext;
+				else
+					$filename = 'SETSLP '.$br.' '.$date->format('Ymd His').' '.$type.'.'.$ext;
+					
+			//}
+
+			$storage_path = 'SETSLP'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
+
+			$file = $this->createFileUpload($upload_path, $request, '11E8AB712E498A149DCC1C1B0D85A7E0');
+
+			try {
+	     		$this->files->moveFile($this->web->realFullPath($upload_path), $storage_path, true); // false = override file!
+		    } catch(Exception $e) {
+					return redirect()->back()
+					->with('alert-error', 'Error on moving file. '.$e->getMessage())
+					->with('alert-important', ' ');
+		    }
+
+	    $setslp = $this->createCrrslip($file, $filename);
+	    if (!is_null($setslp))
+	    	$this->fileUploadRepo->update(['processed'=>1], $file->id);
+
+	    //if (app()->environment()==='production')
+			//	event(new DepslpUpload($depslp));
+
+	    return redirect()
+    					->route('uploader', ['brcode'=>brcode(),'u'=>strtolower($request->cashier),'type'=>'setslp'])
+    					->with('setslp.success', $setslp)
+	    				->with('alert-important', '');
+		}
+		return redirect()->back()->withErrors(['error'=>'File: '.$request->input('filename').' do not exist! Try to upload again..']);
+	}
+	/************* for processCreditCardSlip **************/
+	private function countFilenameByDate2($repo, $date, $time, $terminal_id) {
+  	$d = $repo->findWhere(['date'=>$date, 'time'=>$time, 'terminal_id'=>$terminal_id]);
+		$c = intval(count($d));
+  	return ($c>0) 
+  		? $c+1
+  		: false;
+  }
+
+  private function createCrrslip($file, $filename){
+
+	 	$data = [
+	 	'branch_id' 			=> session('user.branchid'),
+    	'filename' 			=> $filename,
+    	'date' 					=> request()->input('date'),
+    	'time' 					=> request()->input('time'),
+    	'amount' 				=> str_replace(",", "", request()->input('amount')),
+    	'terminal_id'		=> request()->input('terminal_id'),
+    	'file_upload_id'=> $file->id,
+    	'terminal' 			=> clientIP(), //$request->ip(),
+    	'remarks' 			=> request()->input('notes'),
+    	'user_id' 			=> request()->user()->id,
+    	'cashier' 			=> request()->input('cashier')
+    ];
+
+    return $this->setslp->create($data)?:NULL;
+  }
+	/************* end: processCreditCardSlip **************/
 
 	public function processUnknownFile(Request $request) {
 
