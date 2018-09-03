@@ -285,7 +285,7 @@
             +'</div></div>';
         alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> <ol>'
           +'<li>This facility is intended only to those branches with credit card terminal starting September 1, 2018.</li>'
-          +'<li>Scan and save your Card Settlement Slip in this format '
+          +'<li>Scan and save your Card Settlement Slip in this following filename format '
           +' "<b style="color:red;">SETSLP SGD 20180901 BDO</b>" where <b>SETSLP</b> - is the document code, <b>SGD</b> - is the 3 char branch code, '
           +'<b>20180901</b> - is the Transaction Date in YYYYMMDD format and <b>BDO</b> - is the credit card teminal.</li>'
           +'<li> Make sure that the <b>Transaction Date/Time</b> encoded is the <b style="color:red;">Date/Time on the Card Settlement Slip</b> and not the current or computer\'s date and time.</li>'
