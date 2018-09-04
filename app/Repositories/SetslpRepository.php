@@ -29,7 +29,7 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
   	return $this->scopeQuery(function($query) use ($fr, $to) {
     	return $query
     						->whereBetween('date', 
-    							[$fr->format('Y-m-d').' 10:00:00', $to->copy()->addDay()->format('Y-m-d').' 09:59:59']
+    							[$fr->format('Y-m-d').' 00:00:00', $to->copy()->addDay()->format('Y-m-d').' 00:00:00']
     							)
     						->orderBy('created_at', 'DESC');
     						//->orderBy('filedate', 'DESC');
@@ -48,14 +48,16 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
 
     for ($i=0; $i < $date->daysInMonth; $i++) { 
 
-      $date = $fr->copy()->addDays($i);
-  	
-      $arr[$i]['date'] = $date;
+      $d = $fr->copy()->addDays($i);
+    
+      $arr[$i]['date'] = $d;
       $arr[$i]['total'] = 0;
+    
+      $data = $this->aggregateDailyLogs(c($d->copy()->subDay()->format('Y-m-d').' 10:00:00'), c($d->format('Y-m-d').' 07:59:59'));
 
-      $filtered = $data->filter(function ($item) use ($date){
-        $s = c($date->format('Y-m-d').' 10:00:00');
-        $e = c($date->copy()->addDay()->format('Y-m-d').' 09:59:59');
+      $filtered = $data->filter(function ($item) use ($d){
+        $s = c($d->copy()->subDay()->format('Y-m-d').' 10:00:00');
+        $e = c($d->format('Y-m-d').' 0:59:59');
 
         return $item->date->gte($s) && $item->date->lte($e)
           ? $item : null;
