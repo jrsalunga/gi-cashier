@@ -28,11 +28,9 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
   private function aggregateDailyLogs(Carbon $fr, Carbon $to) {
   	return $this->scopeQuery(function($query) use ($fr, $to) {
     	return $query
-    						->select(DB::raw('*, count(*) as count'))
     						->whereBetween('date', 
-    							[$fr->format('Y-m-d').' 10:00:00', $to->copy()->addDay()->format('Y-m-d').' 06:00:00']
+    							[$fr->format('Y-m-d').' 10:00:00', $to->copy()->addDay()->format('Y-m-d').' 09:59:59']
     							)
-    						->groupBy(DB::raw('DAY(date)'))
     						->orderBy('created_at', 'DESC');
     						//->orderBy('filedate', 'DESC');
 		})->skipCache()->all();
@@ -42,33 +40,37 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
 
 
 	public function monthlyLogs(Carbon $date) {
-  	$arr = [];
-  	$fr = $date->firstOfMonth();
-  	$to = $date->copy()->lastOfMonth();
+    $arr = [];
+    $fr = $date->firstOfMonth();
+    $to = $date->copy()->lastOfMonth();
 
-  	return $data = $this->aggregateDailyLogs($fr, $to);
+    $data = $this->aggregateDailyLogs($fr, $to);
 
-  	for ($i=0; $i < $date->daysInMonth; $i++) { 
+    for ($i=0; $i < $date->daysInMonth; $i++) { 
 
-  		$date = $fr->copy()->addDays($i);
+      $date = $fr->copy()->addDays($i);
+  	
+      $arr[$i]['date'] = $date;
+      $arr[$i]['total'] = 0;
 
-  		$filtered = $data->filter(function ($item) use ($date){
-        return $item->date->format('Y-m-d') == $date->format('Y-m-d')
+      $filtered = $data->filter(function ($item) use ($date){
+        $s = c($date->format('Y-m-d').' 10:00:00');
+        $e = c($date->copy()->addDay()->format('Y-m-d').' 09:59:59');
+
+        return $item->date->gte($s) && $item->date->lte($e)
           ? $item : null;
-    	});
+      });
 
-  		$b = $filtered->first();
+      $arr[$i]['count'] = count($filtered);
 
-  		if(!is_null($b))
-    		$e = file_exists(config('gi-dtr.upload_path.files.'.app()->environment()).'SETSLP'.DS.$b->date->format('Y').DS.session('user.branchcode').DS.$b->date->format('m').DS.$b->filename);
-    	else
-    		$e = 0;
+      $arr[$i]['datas'] = $filtered;
+
+      if (count($filtered)>0) 
+        foreach ($filtered as $key => $obj) 
+          $arr[$i]['total'] += $obj->amount;
+
   		
-  		array_push($arr, [ 
-      		'date'=>$date,
-      		'backup'=>$b,
-      		'exist'=>$e]
-      );
+  		
   	}
 
     

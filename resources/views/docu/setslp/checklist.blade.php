@@ -45,72 +45,54 @@
     <table class="table table-hover table-striped">
       <thead>
         <tr>
-          <th>Deposit Date</th>
-          <th>Filename</th>
-          <th>
-            <span style="cursor: help;" title="Shows only the lastest uploader of the same backup.">
-              Cashier
-            </span>
-          </th>
-          <th>Upload Date</th>
-          <th>Log Count</th>
-          <th>
-            <span style="cursor: help;" title="Tells whether the actual physical backup file is in the server's file system.">
-              File in Server?
-            </span>
-          </th>
+          <th>Business Date</th>
+          <th class="text-right">POS Total Charge</th>
+          <th class="text-right">Settlement Total</th>
+          <th class="text-right">Settlement Slips</th>
+          <th class="text-right">&nbsp;</th>
         </tr>
       </thead>
       <tbody>
-        @foreach($setslps as $key => $b) 
+        @foreach($datas as $key => $b) 
         <?php
           $class = c()->format('Y-m-d')==$b['date']->format('Y-m-d') ? 'class=bg-success':'';
         ?>
         <tr>
           <td {{ $class }}>{{ $b['date']->format('M j, D') }}</td>
-          @if(is_null($b['backup']) || !$b['exist'])
-            <td {{ $class }}>-</td>
-            <td {{ $class }}>-</td>
-            <td {{ $class }}>-</td>
-            <td {{ $class }}>-</td>
-            <td {{ $class }}>-</td>
+           
+          @if($b['pos_total']>0) 
+          <td class="text-right">{{ number_format($b['pos_total'],2) }}</td>
           @else
-            <td {{ $class }}>
-              {{ $b['backup']->filename }}
+            <td class="text-right">-</td>
+          @endif 
+
+          @if($b['count']>0)
+            <td class="text-right">{{ number_format($b['slip_total'],2) }}</td>
+            <td class="text-right">
+              <span class="badge text-info help" title="" data-toggle="tooltip">{{ $b['count'] }}</span>
+
+              <div class="btn-group">
+              <a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="box-shadow: none; cursor: pointer;">
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-right">
+                @foreach($b['slips'] as $slip)
+                  <li>
+                  <a href="/{{brcode()}}/setslp/{{$slip->lid()}}" target="_blank" class="text-right">
+                  {{ number_format($slip->amount,2) }}
+                  </a>
+                </li>
+                @endforeach
+              </ul>
+              </div>
+
             </td>
-            <td title="Shows only the lastest uploader of the same backup." {{ $class }}>
-              {{ $b['backup']->cashier }}
-            </td>
-            <td {{ $class }}>
-              <small>
-                <em>
-                  <span class="hidden-xs">
-                    @if($b['backup']->created_at->format('Y-m-d')==now())
-                      {{ $b['backup']->created_at->format('h:i A') }}
-                    @else
-                      {{ $b['backup']->created_at->format('D M j') }}
-                    @endif
-                  </span> 
-                  <em>
-                    <small class="text-muted">
-                    {{ diffForHumans($b['backup']->created_at) }}
-                    </small>
-                  </em>
-                </em>
-              </small>
-            </td>
-            <td {{ $class }}>
-              <span class="badge">{{ $b['backup']->count }}</span>
-            </td>
-            <td {{ $class }}>
-              @if($b['exist'])
-                <span class="glyphicon glyphicon-ok text-success"></span>
-              @else
-                <span class="glyphicon glyphicon-remove text-danger"></span>
-              @endif
-            </td>
+          @else
+            <td class="text-right">-</td>
+            <td></td>
           @endif
           
+            <td class="text-right">X</td>
         </tr>
         @endforeach
       </tbody>

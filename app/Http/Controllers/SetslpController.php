@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\StorageRepository;
 use Dflydev\ApacheMimeTypes\PhpRepository;
 use App\Repositories\SetslpRepository as SetslpRepo;
+use App\Repositories\DailySales2Repository as DailySalesRepo;
 //use App\Events\setslp\Change as setslpChange;
 //use App\Events\setslp\Delete as setslpDelete;
 
@@ -15,9 +16,11 @@ class SetslpController extends Controller {
 
 	protected $setslp;
 	protected $files;
+	protected $ds;
 
-	public function __construct(SetslpRepo $setslp) {
+	public function __construct(SetslpRepo $setslp, DailySalesRepo $ds) {
 		$this->setslp = $setslp;
+		$this->ds = $ds;
 		$this->files = new StorageRepository(new PhpRepository, 'files.'.app()->environment());
 	}
 
@@ -36,10 +39,32 @@ class SetslpController extends Controller {
 
 	public function getChecklist($brcode, Request $request) {
 
+		$datas = [];
 		$date = carbonCheckorNow($request->input('date'));
-		$setslps = $this->setslp->monthlyLogs($date);
+		$dss = $this->ds->getByBranchDate($date, $date,  ['date', 'sales', 'sale_chg']);
 
-		return view('docu.setslp.checklist')->with('date', $date)->with('setslps', $setslps);
+		foreach ($this->setslp->monthlyLogs($date) as $key => $data) {
+
+			$d = $data['date'];
+			$datas[$key]['date'] = $data['date'];
+			$datas[$key]['count'] = $data['count'];
+			$datas[$key]['slip_total'] = $data['total'];
+			$datas[$key]['slips'] = $data['datas'];
+
+			$f = $dss->filter(function ($item) use ($d){
+	      return $item->date->format('Y-m-d') == $d->format('Y-m-d')
+	      	? $item : null;
+	    });
+
+	    $b = $f->first();
+
+			if(is_null($b))
+	  		$datas[$key]['pos_total'] = 0;
+	  	else
+	  		$datas[$key]['pos_total'] = $b->sale_chg;
+		
+		}
+		return view('docu.setslp.checklist')->with('date', $date)->with('datas', $datas);
 	}
 
 	public function getAction($brcode, $id=null, $action=null) {
