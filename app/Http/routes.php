@@ -46,6 +46,7 @@ Route::get('{brcode?}/ap/{id?}/{action?}/{day?}', ['uses'=>'ApController@getActi
 Route::get('dl/ap/{p1}/{p2}/{p3}/{p4}/{p5}/{p6}', ['uses'=>'ApController@getDownload']);
 
 Route::get('{brcode?}/setslp/log', ['uses'=>'SetslpController@getHistory']);
+Route::get('{brcode?}/setslp/checklist', ['uses'=>'SetslpController@getChecklist']);
 Route::get('{brcode?}/setslp/{id?}/{action?}', ['uses'=>'SetslpController@getAction']);
 Route::get('{brcode?}/images/setslp/{id?}', ['uses'=>'SetslpController@getImage']);
 Route::put('put/setslp', ['uses'=>'SetslpController@put']);

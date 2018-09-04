@@ -30,7 +30,7 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
     	return $query
     						->select(DB::raw('*, count(*) as count'))
     						->whereBetween('date', 
-    							[$fr->format('Y-m-d').' 00:00:00', $to->format('Y-m-d').' 23:59:59']
+    							[$fr->format('Y-m-d').' 10:00:00', $to->copy()->addDay()->format('Y-m-d').' 06:00:00']
     							)
     						->groupBy(DB::raw('DAY(date)'))
     						->orderBy('created_at', 'DESC');
@@ -46,7 +46,7 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
   	$fr = $date->firstOfMonth();
   	$to = $date->copy()->lastOfMonth();
 
-  	$data = $this->aggregateDailyLogs($fr, $to);
+  	return $data = $this->aggregateDailyLogs($fr, $to);
 
   	for ($i=0; $i < $date->daysInMonth; $i++) { 
 

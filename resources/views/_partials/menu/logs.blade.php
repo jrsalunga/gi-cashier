@@ -13,6 +13,7 @@
   <ul class="dropdown-menu">
     <li><a href="/backups"><span class="fa fa-file-archive-o"></span> Backup</a></li>
     <li><a href="/{{brcode()}}/depslp"><span class="fa fa-bank"></span> Deposit Slip</a></li>
+    <li><a href="/{{brcode()}}/setslp"><span class="fa fa-credit-card"></span> Card Settlement Slip</a></li>
     <li><a href="/{{brcode()}}/ap"><span class="fa fa-briefcase"></span> Payables</a></li>
   </ul>
 </div>
@@ -26,6 +27,7 @@
   <ul class="dropdown-menu">
     <li><a href="/backups/checklist"><span class="fa fa-file-archive-o"></span> Backup</a></li>
     <li><a href="/{{brcode()}}/depslp/checklist"><span class="fa fa-bank"></span> Deposit Slip</a></li>
+    <li><a href="/{{brcode()}}/setslp/checklist"><span class="fa fa-credit-card"></span> Card Settlement Slip</a></li>
     <li><a href="/{{brcode()}}/ap/checklist"><span class="fa fa-briefcase"></span> Payables</a></li>
   </ul>
 </div>
@@ -39,6 +41,7 @@
   <ul class="dropdown-menu">
     <li><a href="/backups/log"><span class="fa fa-file-archive-o"></span> Backup</a></li>
     <li><a href="/{{brcode()}}/depslp/log"><span class="fa fa-bank"></span> Deposit Slip</a></li>
+    <li><a href="/{{brcode()}}/setslp/log"><span class="fa fa-credit-card"></span> Card Settlement Slip</a></li>
     <li><a href="/{{brcode()}}/ap/log"><span class="fa fa-briefcase"></span> Payables</a></li>
   </ul>
 </div>

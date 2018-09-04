@@ -1,16 +1,16 @@
 @extends('index')
 
-@section('title', '- Deposit Slip Checklist')
+@section('title', '- Card Settlement Checklist')
 
-@section('body-class', 'depslp-checklist')
+@section('body-class', 'setslp-checklist')
 
 @section('container-body')
 <div class="container-fluid">
 
   <ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
-    <li><a href="/{{brcode()}}/depslp/log">Deposit Slip</a></li>
-    <li><a href="/{{brcode()}}/depslp/checklist">Checklist</a></li>
+    <li><a href="/{{brcode()}}/setslp/log">Deposit Slip</a></li>
+    <li><a href="/{{brcode()}}/setslp/checklist">Checklist</a></li>
     <li class="active">{{ $date->format('M Y') }}</li>
   </ol>
 
@@ -18,15 +18,16 @@
     <nav id="nav-action" class="navbar navbar-default">
       <div class="container-fluid">
         <div class="navbar-form">
+          
           @include('_partials.menu.logs')
 
           <div class="btn-group pull-right clearfix" role="group">
-          <a href="/{{brcode()}}/depslp/checklist?date={{ $date->copy()->subMonth()->format('Y-m-d') }}" class="btn btn-default" title="{{ $date->copy()->subMonth()->format('Y-m-d') }}">
+          <a href="/{{brcode()}}/setslp/checklist?date={{ $date->copy()->subMonth()->format('Y-m-d') }}" class="btn btn-default" title="{{ $date->copy()->subMonth()->format('Y-m-d') }}">
             <span class="glyphicon glyphicon-chevron-left"></span>
           </a>
           <input type="text" class="btn btn-default" id="dp-date" value="{{ $date->format('m/Y') }}" style="max-width: 110px;" readonly>
           <label class="btn btn-default" for="dp-date"><span class="glyphicon glyphicon-calendar"></span></label>
-          <a href="/{{brcode()}}/depslp/checklist?date={{ $date->copy()->addMonth()->format('Y-m-d') }}" class="btn btn-default" title="{{ $date->copy()->addMonth()->format('Y-m-d') }}">
+          <a href="/{{brcode()}}/setslp/checklist?date={{ $date->copy()->addMonth()->format('Y-m-d') }}" class="btn btn-default" title="{{ $date->copy()->addMonth()->format('Y-m-d') }}">
             <span class="glyphicon glyphicon-chevron-right"></span>
           </a>
         </div>
@@ -61,7 +62,7 @@
         </tr>
       </thead>
       <tbody>
-        @foreach($depslips as $key => $b) 
+        @foreach($setslps as $key => $b) 
         <?php
           $class = c()->format('Y-m-d')==$b['date']->format('Y-m-d') ? 'class=bg-success':'';
         ?>
@@ -147,7 +148,7 @@
       viewMode: 'months'
     }).on('dp.change', function(e){
       var date = e.date.format('YYYY-MM-DD');
-      document.location.href = '/{{brcode()}}/depslp/checklist?date='+e.date.format('YYYY-MM-DD');
+      document.location.href = '/{{brcode()}}/setslp/checklist?date='+e.date.format('YYYY-MM-DD');
       console.log(date);
     });
   });
