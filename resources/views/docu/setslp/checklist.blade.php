@@ -55,10 +55,10 @@
       <tbody>
         @foreach($datas as $key => $b) 
         <?php
-          $class = c()->format('Y-m-d')==$b['date']->format('Y-m-d') ? 'class=bg-success':'';
+          $class = c()->format('Y-m-d')==$b['date']->format('Y-m-d') ? 'bg-success':'';
         ?>
         <tr>
-          <td {{ $class }}>{{ $b['date']->format('M j, D') }}</td>
+          <td class="{{ $class }}">{{ $b['date']->format('M j, D') }}</td>
            
           @if($b['pos_total']>0) 
           <td class="text-right">{{ number_format($b['pos_total'],2) }}</td>

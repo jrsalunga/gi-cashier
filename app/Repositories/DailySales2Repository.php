@@ -120,7 +120,7 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
                 #->groupBy(DB::raw('DAY(date)'))
                 ->orderBy('date');
                 //->orderBy('filedate', 'DESC');
-    })->all($select);
+    })->skipCache()->all($select);
   }
 
 }
