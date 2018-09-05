@@ -61,13 +61,12 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
       $arr[$i]['date'] = $d;
       $arr[$i]['total'] = 0;
     
-      //$data = $this->aggregateDailyLogs(c($d->copy()->subDay()->format('Y-m-d').' 10:00:00'), c($d->format('Y-m-d').' 07:59:59'));
-
       $filtered = $data->filter(function ($item) use ($d){
         $s = c($d->format('Y-m-d').' 10:00:00');
-        $e = c($d->copy()->addDay()->format('Y-m-d').' 0:59:59');
+        $e = c($d->copy()->addDay()->format('Y-m-d').' 09:59:59');
+        $i = c($item->date->format('Y-m-d').' '.$item->time);
 
-        return $item->date->gte($s) && $item->date->lte($e)
+        return $i->gte($s) && $i->lte($e)
           ? $item : null;
       });
 
