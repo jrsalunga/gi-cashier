@@ -43,7 +43,7 @@ class SetslpController extends Controller {
 		$date = carbonCheckorNow($request->input('date'));
 		$dss = $this->ds->getByBranchDate($date->copy()->startOfMonth(), $date->copy()->endOfMonth(),  ['date', 'sales', 'sale_chg']);
 
-		//$this->setslp->monthlyLogs($date);
+		//return $this->setslp->monthlyLogs($date);
 
 		foreach ($this->setslp->monthlyLogs($date) as $key => $data) {
 

@@ -29,13 +29,13 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
   	return $this->scopeQuery(function($query) use ($fr, $to) {
     	return $query
     						
-                ->where(function ($query) use ($fr, $to){
+                ->Where(function ($query) use ($fr, $to){
                   $query->where(function ($query) use ($fr){
-                    $query->where('date', $fr->format('Y-m-d'))
+                    $query->where('date', '>', $fr->format('Y-m-d'))
                           ->where('time', '>', '10:00:000');
                   })
                   ->orWhere(function ($query) use ($to) {
-                    $query->where('date', $to->copy()->addDay()->format('Y-m-d'))
+                    $query->where('date', '<', $to->copy()->addDay()->format('Y-m-d'))
                           ->where('time', '<', '09:59:59');
                   });
                 })
@@ -52,7 +52,7 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
     $fr = $date->firstOfMonth();
     $to = $date->copy()->lastOfMonth();
 
-    //$data = $this->aggregateDailyLogs($fr, $to);
+    $data = $this->aggregateDailyLogs($fr, $to);
 
     for ($i=0; $i < $date->daysInMonth; $i++) { 
 
@@ -61,21 +61,14 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
       $arr[$i]['date'] = $d;
       $arr[$i]['total'] = 0;
     
-      $data = $this->aggregateDailyLogs(c($d->format('Y-m-d').' 10:00:00'), c($d->copy()->addDay()->format('Y-m-d').' 07:59:59'));
+      //$data = $this->aggregateDailyLogs(c($d->copy()->subDay()->format('Y-m-d').' 10:00:00'), c($d->format('Y-m-d').' 07:59:59'));
 
-      $filtered = $data->filter(function ($item) use ($d) {
+      $filtered = $data->filter(function ($item) use ($d){
+        $s = c($d->format('Y-m-d').' 10:00:00');
+        $e = c($d->copy()->addDay()->format('Y-m-d').' 0:59:59');
 
-        if ($item->date->format('Y-m-d')==$d->format('Y-m-d') || $item->date->format('Y-m-d')==$d->copy()->addDay()->format('Y-m-d')) {
-          $s = c($d->format('Y-m-d').' 10:00:00');
-          $e = c($d->copy()->addDay()->format('Y-m-d').' 0:59:59');
-          
-          $i = c($item->date->format('Y-m-d').' '.$item->time);
-          return $i->gte($s) && $i->lte($e)
+        return $item->date->gte($s) && $item->date->lte($e)
           ? $item : null;
-        } 
-        return null;
-
-
       });
 
       $arr[$i]['count'] = count($filtered);
