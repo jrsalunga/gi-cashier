@@ -91,7 +91,7 @@ class SetslpController extends Controller {
 
 		$paths = [];
 
-		$r = $this->files->folderInfo2('setslp');
+		$r = $this->files->folderInfo2('SETSLP');
 
 		foreach ($r['subfolders'] as $path => $folder) {
 			if ($this->files->exists($path.DS.strtoupper($brcode)))
@@ -102,11 +102,11 @@ class SetslpController extends Controller {
 
 		if (in_array($id, $paths) && is_null($action))  {
 			$data = [
-					'folder' 			=> "/setslp/".$id,
+					'folder' 			=> "/SETSLP/".$id,
 					'folderName'  => $id,
 					'breadcrumbs' => [
 						'/' 				=> "Storage",
-						'/setslp'   => "setslp",
+						'/setslp'   => "SETSLP",
 					],
 					'subfolders' 	=> $y['subfolders'],
 					'files' 			=> $y['files']
@@ -114,11 +114,11 @@ class SetslpController extends Controller {
 		} elseif (in_array($id, $paths) && in_array($action, $y['subfolders']))  {
 			$m = $this->files->folderInfo2(array_search($action, $y['subfolders']));
 			$data = [
-					'folder' 			=> "/setslp/".$id.'/'.$action,
+					'folder' 			=> "/SETSLP/".$id.'/'.$action,
 					'folderName'  => $action,
 					'breadcrumbs' => [
 						'/' 				=> "Storage",
-						'/setslp'   => "setslp",
+						'/setslp'   => "SETSLP",
 						'/setslp/'.$id   => $id,
 					],
 					'subfolders' 	=> $m['subfolders'],
@@ -127,8 +127,8 @@ class SetslpController extends Controller {
 		} elseif (is_null($id) && is_null($action))  {
 			//$data = $r;
 			$data = [
-					'folder' 			=> "/setslp",
-					'folderName'  => "setslp",
+					'folder' 			=> "/SETSLP",
+					'folderName'  => "SETSLP",
 					'breadcrumbs' => [
 						'/' 				=> "Storage",
 					],
