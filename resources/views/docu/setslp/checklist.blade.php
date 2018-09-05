@@ -53,6 +53,7 @@
         </tr>
       </thead>
       <tbody>
+        <?php $tot_pos = $tot_set = 0; ?>
         @foreach($datas as $key => $b) 
         <?php
           $class = c()->format('Y-m-d')==$b['date']->format('Y-m-d') ? 'bg-success':'';
@@ -61,14 +62,17 @@
           <td class="{{ $class }}">{{ $b['date']->format('M j, D') }}</td>
            
           @if($b['pos_total']>0) 
-          <td class="text-right">{{ number_format($b['pos_total'],2) }}</td>
+          <td class="text-right {{ $class }}">{{ number_format($b['pos_total'],2) }}</td>
+
+          <?php $tot_pos += $b['pos_total']; ?>
           @else
-            <td class="text-right">-</td>
+            <td class="text-right {{ $class }}">-</td>
           @endif 
 
           @if($b['count']>0)
-            <td class="text-right">{{ number_format($b['slip_total'],2) }}</td>
-            <td class="text-right">
+            <td class="text-right {{ $class }}">{{ number_format($b['slip_total'],2) }}</td>
+            <?php $tot_set += $b['slip_total']; ?>
+            <td class="text-right {{ $class }}">
               <span class="badge text-info help" title="" data-toggle="tooltip">{{ $b['count'] }}</span>
 
               <div class="btn-group">
@@ -88,14 +92,23 @@
 
             </td>
           @else
-            <td class="text-right">-</td>
-            <td></td>
+            <td class="text-right {{ $class }}">-</td>
+            <td class="{{ $class }}"></td>
           @endif
           
-            <td class="text-right">&nbsp;</td>
+            <td class="text-right {{ $class }}">&nbsp;</td>
         </tr>
         @endforeach
       </tbody>
+      <tfoot>
+        <tr>
+          <td></td>
+          <td class="text-right">{{ number_format($tot_pos,2) }}</td>
+          <td class="text-right">{{ number_format($tot_set,2) }}</td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tfoot>
     </table>
     </div>
     

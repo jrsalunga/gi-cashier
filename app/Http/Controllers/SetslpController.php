@@ -234,7 +234,7 @@ class SetslpController extends Controller {
 				case 2:
 					$type = 'RCBC';
 					break;	
-				case 2:
+				case 3:
 					$type = 'HSBC';
 					break;				
 				default:
