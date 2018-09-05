@@ -245,7 +245,7 @@ class SetslpController extends Controller {
 			if ($this->files->exists($old_path)) {
 				$date = carbonCheckorNow($n->date->format('Y-m-d').' '.$n->time);
 
-				$cnt = $this->countFilenameByDate($date->format('Y-m-d'), $date->format('H:i:s'), $n->type);
+				$cnt = $this->countFilenameByDate($date->format('Y-m-d'), $date->format('H:i:s'), $n->terminal_id);
 				if ($cnt)
 					$filename = 'SETSLP '.$br.' '.$date->format('Ymd His').' '.$type.'-'.$cnt.'.'.$ext;
 				else
