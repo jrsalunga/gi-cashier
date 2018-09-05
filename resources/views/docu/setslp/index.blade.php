@@ -39,7 +39,7 @@
           <th></th>
           <th class="text-right">Amount</th>
           <th></th>
-          <th>Transaction Date/Time</th>
+          <th>Settlement Date/Time</th>
           <th>Cashier</th>
           <th>Remarks</th>
           <th>Uploaded</th>
