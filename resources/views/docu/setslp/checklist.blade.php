@@ -92,7 +92,7 @@
             <td></td>
           @endif
           
-            <td class="text-right">X</td>
+            <td class="text-right">&nbsp;</td>
         </tr>
         @endforeach
       </tbody>
