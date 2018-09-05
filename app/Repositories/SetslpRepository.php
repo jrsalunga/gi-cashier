@@ -31,11 +31,11 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
     						
                 ->Where(function ($query) use ($fr, $to){
                   $query->where(function ($query) use ($fr){
-                    $query->where('date', '>', $fr->format('Y-m-d'))
-                          ->where('time', '>', '10:00:000');
+                    $query->where('date', '>=', $fr->format('Y-m-d'))
+                          ->where('time', '>', '10:00:00');
                   })
                   ->orWhere(function ($query) use ($to) {
-                    $query->where('date', '<', $to->copy()->addDay()->format('Y-m-d'))
+                    $query->where('date', '<=', $to->copy()->addDay()->format('Y-m-d'))
                           ->where('time', '<', '09:59:59');
                   });
                 })
@@ -67,9 +67,7 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
         $s = c($d->format('Y-m-d').' 10:00:00');
         $e = c($d->copy()->addDay()->format('Y-m-d').' 09:59:59');
         $i = c($item->date->format('Y-m-d').' '.$item->time);
-
-        $t = $i->gte($s) && $i->lte($e) ? $item->amount:'F';
-        
+        //$t = $i->gte($s) && $i->lte($e) ? $item->amount:'F';
         //test_log($s.' < '.$i.' > '.$e.' = '.$t);
         return $i->gte($s) && $i->lte($e)
           ? $item : null;
