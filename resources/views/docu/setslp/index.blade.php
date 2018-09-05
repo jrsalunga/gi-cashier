@@ -65,11 +65,13 @@
             @elseif($setslp->verified and !$setslp->matched)
 
             @else
+            <!--
             <span class="pull-right">
               <a href="/{{brcode()}}/setslp/{{$setslp->lid()}}" class="btn btn-primary btn-xs" title="View Card Settlement Slip Information">
                 <span class="gly gly-eye-open"></span> view
               </a>
             </span>
+          -->
             @endif
           </td>
           <td class="text-right">{{ number_format($setslp->amount,2) }}</td>
