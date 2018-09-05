@@ -56,7 +56,7 @@
         <?php $tot_pos = $tot_set = 0; ?>
         @foreach($datas as $key => $b) 
         <?php
-          $class = c()->format('Y-m-d')==$b['date']->format('Y-m-d') ? 'bg-success':'';
+          $class = c()->format('Y-m-d')==$b['date']->format('Y-m-d') ? 'bg-success':($b['date']->isSunday() ? 'bg-warning' : '');
         ?>
         <tr>
           <td class="{{ $class }}">{{ $b['date']->format('M j, D') }}</td>

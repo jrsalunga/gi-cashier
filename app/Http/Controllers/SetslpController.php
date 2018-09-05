@@ -214,7 +214,7 @@ class SetslpController extends Controller {
 	
 
 	private function countFilenameByDate($date, $time, $type) {
-  	$d = $this->setslp->findWhere(['date'=>$date, 'time'=>$time, 'type'=>$type]);
+  	$d = $this->setslp->findWhere(['date'=>$date, 'time'=>$time, 'terminal_id'=>$type]);
 		$c = intval(count($d));
   	if ($c>1)
 			return $c;
