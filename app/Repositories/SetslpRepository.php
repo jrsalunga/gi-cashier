@@ -68,10 +68,10 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
         $e = c($d->copy()->addDay()->format('Y-m-d').' 09:59:59');
         $i = c($item->date->format('Y-m-d').' '.$item->time);
 
-        $t = $item->date->gte($s) && $item->date->lte($e) ? $item->amount:'F';
+        $t = $i->gte($s) && $i->lte($e) ? $item->amount:'F';
         
         //test_log($s.' < '.$i.' > '.$e.' = '.$t);
-        return $item->date->gte($s) && $item->date->lte($e)
+        return $i->gte($s) && $i->lte($e)
           ? $item : null;
       });
 
