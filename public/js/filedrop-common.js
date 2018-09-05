@@ -145,7 +145,7 @@ $(function(){
 					return false;
 				} else {
 					console.log($('#filetype').val());
-					$('#filetype').val('backup').trigger('change');
+					//$('#filetype').val('backup').trigger('change');
 					return true;
 				}
 			}
@@ -159,7 +159,7 @@ $(function(){
 			
 			console.log('Continue on pics');
 			
-			$('#filetype').val('depslp').trigger('change');
+			//$('#filetype').val('depslp').trigger('change');
 			console.log($('#filetype'));
 		},
 		
@@ -265,7 +265,19 @@ $(function(){
 	
 	file_select.on('change', function(){
 		var oFile = document.getElementById('file_upload').files[0];
+		
 		console.log(oFile.name);
+
+		var whatEverString = "SETSLt  ";
+    var pattern = /^depslp/i
+    var pattern2 = /^setslp/i
+    var result = pattern.test(oFile.name);
+    if(result===true)
+    	$('#filetype').val('depslp').trigger('change');
+    result = pattern2.test(oFile.name);
+    if(result===true)
+    	$('#filetype').val('setslp').trigger('change');
+    
 	});
 	
 	

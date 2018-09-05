@@ -163,7 +163,7 @@
   @parent
   <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
   <script src="/js/vendors/jquery.filedrop-0.1.0.js"></script>
-  <script src="/js/filedrop-common.js?v=0.2"></script>
+  <script src="/js/filedrop-common.js?v=0.4"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 
 
