@@ -27,6 +27,7 @@
     @if(session('alert-success') || session('depslp.delete')) 
       
     @else
+    <!--
       <div class="alert alert-important alert-info">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -43,6 +44,7 @@
           </ul>
           <small><em class="text-muted">For more questions / clarifications email us at <a href="mailto:giligans.helpdesk@gmail.com">giligans.helpdesk@gmail.com</a></em></small>
       </div>
+    -->
     @endif
 
     <div class="table-responsive">
@@ -80,11 +82,13 @@
             @elseif($depslip->verified and !$depslip->matched)
 
             @else
+            <!--[CDATA[
             <span class="pull-right">
               <a href="/{{brcode()}}/depslp/{{$depslip->lid()}}" class="btn btn-primary btn-xs" title="View Deposit Slip Information">
                 <span class="gly gly-eye-open"></span> view
               </a>
             </span>
+          -->
             @endif
           </td>
           <td class="text-right">{{ number_format($depslip->amount,2) }}</td>
