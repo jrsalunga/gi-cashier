@@ -145,7 +145,7 @@ $(function(){
 					return false;
 				} else {
 					console.log($('#filetype').val());
-					//$('#filetype').val('backup').trigger('change');
+					$('#filetype').val('backup').trigger('change');
 					return true;
 				}
 			}
