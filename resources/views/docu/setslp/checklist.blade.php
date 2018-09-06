@@ -46,11 +46,11 @@
       <thead>
         <tr>
           <th>Business Date</th>
-          <th class="text-right">POS Total Charge</th>
-          <th class="text-right">Charge Trans</th>
           <!--
-          <th class="text-right">Settlement Total</th>
+          <th class="text-right">POS Total Charge</th>
         -->
+          <th class="text-right">Charge Trans</th>
+          <th class="text-right">Settlement Total</th>
           <th class="text-right">Settlement Slips</th>
           <th class="text-right">&nbsp;</th>
         </tr>
