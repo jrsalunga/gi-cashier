@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\StorageRepository;
 use Dflydev\ApacheMimeTypes\PhpRepository;
 use App\Repositories\DepslipRepository as DepslpRepo;
+use App\Repositories\DailySales2Repository as DSRepo;
 use App\Events\Depslp\Change as DepslpChange;
 use App\Events\Depslp\Delete as DepslpDelete;
 
@@ -15,8 +16,10 @@ class DepslpController extends Controller {
 
 	protected $depslip;
 	protected $files;
+	protected $ds;
 
-	public function __construct(DepslpRepo $depslip) {
+	public function __construct(DepslpRepo $depslip, DSRepo $dsrepo) {
+		$this->ds = $dsrepo;
 		$this->depslip = $depslip;
 		$this->files = new StorageRepository(new PhpRepository, 'files.'.app()->environment());
 	}
@@ -40,6 +43,77 @@ class DepslpController extends Controller {
 		$depslips = $this->depslip->monthlyLogs($date);
 
 		return view('docu.depslp.checklist')->with('date', $date)->with('depslips', $depslips);
+	}
+
+	public function getChecklist2($brcode, Request $request) {
+
+		$date = carbonCheckorNow($request->input('date'));
+		$fr = $date->firstOfMonth();
+  	$to = $date->copy()->lastOfMonth();
+		
+		$depslips = $this->depslip->branchByDR($fr, $to);
+		$dss = $this->ds->getByBranchDate($fr, $to, ['date', 'sales', 'depo_cash', 'depo_check']);
+
+		$arr = [];
+    $gt = [];
+    for ($i=0; $i < $date->daysInMonth; $i++) { 
+
+  		$date = $fr->copy()->addDays($i);
+
+  		$arr[$i]['date'] = $date;
+  		$arr[$i]['depo_totamt'] = 0;
+  		$arr[$i]['pos_totamt'] = 0;
+  		$arr[$i]['depo_totcnt'] = 0;
+
+  		$type = [];
+  		for ($j=0; $j<3; $j++) {
+  			$fd = $depslips->filter(function ($item) use ($date, $j){
+        				return $item->date->format('Y-m-d') == $date->format('Y-m-d') && $item->type==$j
+          			? $item : null;
+    					})->all();
+  			
+	  		if (count($fd)>0) {
+	  			$type[$j]['slips'] = $fd;
+	  			$amt = 0;
+	  			foreach ($fd as $key => $slip) {
+	  				$amt += $slip->amount;
+	  				$arr[$i]['depo_totcnt']++;
+	  			}
+	  			$type[$j]['amount'] = $amt;
+	  			$arr[$i]['depo_totamt'] += $amt;
+	  		} else
+	  			$type[$j]['slips'] = false;
+  		}
+    	$arr[$i]['depo_type'] = $type;
+
+    	$pos = [];
+    	$ds = $dss->filter(function ($item) use ($date){
+        				return $item->date->format('Y-m-d') == $date->format('Y-m-d')
+          			? $item : null;
+    					})->first();
+
+    	if (is_null($ds)) {
+    		$pos[0]['amount'] = false;
+    		$pos[1]['amount']	= false;
+    	} else {
+    		$pos[0]['amount'] = $ds->depo_cash>0 ? $ds->depo_cash:false;
+    		$pos[1]['amount']	= $ds->depo_check>0 ? $ds->depo_check:false;
+
+    		if ($pos[0]['amount'])
+    			$arr[$i]['pos_totamt'] += $pos[0]['amount'];
+
+    		if ($pos[1]['amount'])
+    			$arr[$i]['pos_totamt'] += $pos[1]['amount'];
+
+    	}
+    	$arr[$i]['pos'] = $pos;
+  		
+  	}
+
+  	//if($request->has('debug'))
+  		//return $arr;
+
+		return view('docu.depslp.checklist2')->with('date', $date)->with('datas', $arr);
 	}
 
 	public function getAction($brcode, $id=null, $action=null) {

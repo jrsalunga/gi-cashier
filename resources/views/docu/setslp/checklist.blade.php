@@ -49,7 +49,7 @@
           <!--
           <th class="text-right">POS Total Charge</th>
         -->
-          <th class="text-right">Charge Trans</th>
+          <th class="text-right">Charged Trans</th>
           <th class="text-right">Settlement Total</th>
           <th class="text-right">Settlement Slips</th>
           <th class="text-right">&nbsp;</th>
@@ -112,7 +112,7 @@
           <!--
           <td class="text-right">{{ number_format($tot_pos,2) }}</td>
           -->
-          <td class="text-right">{{ number_format($tot_set,2) }}</td>
+          <td class="text-right"><b>{{ number_format($tot_set,2) }}</b></td>
           <td></td>
           <td></td>
         </tr>

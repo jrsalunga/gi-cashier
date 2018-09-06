@@ -34,7 +34,7 @@ Route::get('download/{param1?}/{param2?}/{param3?}/{param4?}/{param5?}', ['uses'
 
 
 Route::get('{brcode?}/depslp/log', ['uses'=>'DepslpController@getHistory']);
-Route::get('{brcode?}/depslp/checklist', ['uses'=>'DepslpController@getChecklist']);
+Route::get('{brcode?}/depslp/checklist', ['uses'=>'DepslpController@getChecklist2']);
 Route::get('{brcode?}/depslp/{id?}/{action?}', ['uses'=>'DepslpController@getAction']);
 Route::get('{brcode?}/images/depslp/{id?}', ['uses'=>'DepslpController@getImage']);
 Route::put('put/depslp', ['uses'=>'DepslpController@put']);
