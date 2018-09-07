@@ -10,6 +10,7 @@ class Setslp extends BaseModel {
 	
 	protected $table = 'setslp';
   protected $dates = ['date', 'created_at', 'updated_at'];
+  protected $appends = ['datetime'];
  	protected $fillable = ['branch_id', 'filename', 'date', 'terminal_id', 'time', 'amount', 'file_upload_id', 'cashier',
                 'remarks', 'user_id', 'verified', 'matched', 'created_at', 'updated_at'];
 	protected $guarded = ['id'];
@@ -58,6 +59,21 @@ class Setslp extends BaseModel {
       ? false
       : true;
   }
+
+
+  public function file_exists() {
+    return file_exists($this->file_path());
+  }
+
+  public function file_path() {
+    return config('gi-dtr.upload_path.files.'.app()->environment()).'SETSLP'.DS.$this->date->format('Y').DS.session('user.branchcode').DS.$this->date->format('m').DS.$this->filename;
+  }
+
+  public function getDatetimeAttribute(){
+    return Carbon::parse($this->date->format('Y-m-d').' '.$this->time);
+  }
+
+
 
   
  

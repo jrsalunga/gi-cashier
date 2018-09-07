@@ -82,18 +82,21 @@
         </div><!-- end: .panel -->
       </div>
       <div class="col-md-6">
-
-        <?php
-          $src = '/'.brcode().'/images/setslp/'.$setslp->lid().'.'.strtolower(pathinfo($setslp->filename, PATHINFO_EXTENSION));
-        ?>
-        @if(strtolower(pathinfo($setslp->filename, PATHINFO_EXTENSION))==='pdf')
-            <iframe style="width: 100%; height: 500px;" src="{{$src}}"></iframe>
+        @if($setslp->file_exists())
+          <?php
+            $src = '/'.brcode().'/images/setslp/'.$setslp->lid().'.'.strtolower(pathinfo($setslp->filename, PATHINFO_EXTENSION));
+          ?>
+          @if(strtolower(pathinfo($setslp->filename, PATHINFO_EXTENSION))==='pdf')
+              <iframe style="width: 100%; height: 500px;" src="{{$src}}"></iframe>
+          @else
+            <a href="{{$src}}" target="_blank">
+              <img class="img-responsive" src="{{$src}}">
+            </a>
+          @endif
+          <a href="{{$src}}" target="_blank" style="text-decoration:none;"><span class="fa fa-clone"></span> <small>view on other tab</small></a>
         @else
-          <a href="{{$src}}" target="_blank">
-            <img class="img-responsive" src="{{$src}}">
-          </a>
+          File not found.
         @endif
-        <a href="{{$src}}" target="_blank" style="text-decoration:none;"><span class="fa fa-clone"></span> <small>view on other tab</small></a>
       </div>
     </div>
 

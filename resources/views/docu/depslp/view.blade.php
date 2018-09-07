@@ -80,17 +80,21 @@
         </div><!-- end: .panel -->
       </div>
       <div class="col-md-6">
-        <?php
-          $src = '/'.brcode().'/images/depslp/'.$depslp->lid().'.'.strtolower(pathinfo($depslp->filename, PATHINFO_EXTENSION));
-        ?>
-        @if(strtolower(pathinfo($depslp->filename, PATHINFO_EXTENSION))==='pdf')
-            <iframe style="width: 100%; height: 500px;" src="{{$src}}"></iframe>
-        @else
-          <a href="{{$src}}" target="_blank">
-            <img class="img-responsive" src="{{$src}}">
-          </a>
-        @endif
-        <a href="{{$src}}" target="_blank" style="text-decoration:none;"><span class="fa fa-clone"></span> <small>view</small></a>
+        @if($depslp->file_exists())
+          <?php
+            $src = '/'.brcode().'/images/depslp/'.$depslp->lid().'.'.strtolower(pathinfo($depslp->filename, PATHINFO_EXTENSION));
+          ?>
+          @if(strtolower(pathinfo($depslp->filename, PATHINFO_EXTENSION))==='pdf')
+              <iframe style="width: 100%; height: 500px;" src="{{$src}}"></iframe>
+          @else
+            <a href="{{$src}}" target="_blank">
+              <img class="img-responsive" src="{{$src}}">
+            </a>
+          @endif
+          <a href="{{$src}}" target="_blank" style="text-decoration:none;"><span class="fa fa-clone"></span> <small>view</small></a>
+          @else
+            File not found.
+          @endif
       </div>
     </div>
 

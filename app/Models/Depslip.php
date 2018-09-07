@@ -60,6 +60,14 @@ class Depslip extends BaseModel {
       : true;
   }
 
+  public function file_exists() {
+    return file_exists($this->file_path());
+  }
+
+  public function file_path() {
+    return config('gi-dtr.upload_path.files.'.app()->environment()).'DEPSLP'.DS.$this->date->format('Y').DS.session('user.branchcode').DS.$this->date->format('m').DS.$this->filename;
+  }
+
   
  
 
