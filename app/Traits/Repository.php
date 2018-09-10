@@ -53,7 +53,6 @@ trait Repository {
         $attr_idx[$value] = array_pull($attributes, $value);
     else 
       $attr_idx[$field] = array_pull($attributes, $field);
-    
 
     $m = $this->model();
     $model = $m::firstOrNew($attr_idx);
@@ -63,13 +62,13 @@ trait Repository {
     
     return $model->save() ? $model : false;
   }
-  
 
   public function deleteWhere(array $where){
     return $this->model->where($where)->delete();
   }
 
   public function sumFieldsByMonth($field, Carbon $date) {
+    
     $select = '';
     $arr = [];
     if (is_array($field)) {
@@ -83,15 +82,12 @@ trait Repository {
 
     return $this
         ->skipCache()
-        ->skipCriteria()
         ->scopeQuery(function($query) use ($select, $date) {
           return $query->select(DB::raw($select))
             ->where(DB::raw('MONTH(date)'), $date->format('m'))
             ->where(DB::raw('YEAR (date)'), $date->format('Y'));
         })
         ->first();
-
-
   }
   
 }
