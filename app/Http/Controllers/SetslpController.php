@@ -374,7 +374,7 @@ class SetslpController extends Controller {
 			throw $e;			
 		}
 
-		$ms = $this->ds->sumFields(['setslp'], $setslp->bizdate);
+		$ms = $this->ds->sumFieldsByMonth(['setslp'], $setslp->bizdate);
 
 		try {
 			$this->ms->firstOrNewField([

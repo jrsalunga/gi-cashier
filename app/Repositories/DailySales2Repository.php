@@ -7,11 +7,11 @@ use Prettus\Repository\Eloquent\BaseRepository;
 use Prettus\Repository\Traits\CacheableRepository;
 use Prettus\Repository\Contracts\CacheableInterface;
 use App\Repositories\Criterias\ByBranch;
-
+use App\Traits\Repository as RepoTrait;
 
 class DailySales2Repository extends BaseRepository implements CacheableInterface
 {
-  use CacheableRepository;
+  use CacheableRepository, RepoTrait;
 
 	public function __construct() {
     parent::__construct(app());
@@ -124,30 +124,6 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
     })->skipCache()->all($select);
   }
 
-  public function sumFields($field, Carbon $date) {
-    $select = '';
-    $arr = [];
-    if (is_array($field)) {
-      foreach ($field as $key => $value) {
-        $arr[$key] = 'sum('.$value.') as '.$value;
-      }
-      $select = join(',', $arr);
-    } else {
-      $select = 'sum('.$field.') as '.$field;
-    }
-
-
-    return $this
-        ->skipCache()
-        ->skipCriteria()
-        ->scopeQuery(function($query) use ($select, $date) {
-          return $query->select(DB::raw($select))
-            ->where(DB::raw('MONTH(date)'), $date->format('m'))
-            ->where(DB::raw('YEAR (date)'), $date->format('Y'));
-        })
-        ->first();
-
-
-  }
+  
 
 }

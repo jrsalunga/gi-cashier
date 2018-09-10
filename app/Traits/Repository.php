@@ -1,5 +1,8 @@
 <?php namespace App\Traits;
 
+use DB;
+use Carbon\Carbon;
+
 trait Repository {
 
   public function order($order=null, $asc='asc'){
@@ -64,6 +67,31 @@ trait Repository {
 
   public function deleteWhere(array $where){
     return $this->model->where($where)->delete();
+  }
+
+  public function sumFieldsByMonth($field, Carbon $date) {
+    $select = '';
+    $arr = [];
+    if (is_array($field)) {
+      foreach ($field as $key => $value) {
+        $arr[$key] = 'sum('.$value.') as '.$value;
+      }
+      $select = join(',', $arr);
+    } else {
+      $select = 'sum('.$field.') as '.$field;
+    }
+
+    return $this
+        ->skipCache()
+        ->skipCriteria()
+        ->scopeQuery(function($query) use ($select, $date) {
+          return $query->select(DB::raw($select))
+            ->where(DB::raw('MONTH(date)'), $date->format('m'))
+            ->where(DB::raw('YEAR (date)'), $date->format('Y'));
+        })
+        ->first();
+
+
   }
   
 }
