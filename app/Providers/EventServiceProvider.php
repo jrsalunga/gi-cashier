@@ -18,6 +18,7 @@ use App\Events\GoogleUserLoggedFailed;
 use App\Listeners\AuthLoginEventListener;
 use App\Listeners\BackupEventListener;
 use App\Listeners\DepslpEventListener;
+use App\Listeners\SetslpEventListener;
 use App\Events\Upload\Depslp;
 use App\Handlers\Events\Upload\DepslpEventHandler;
 use App\Listeners\NotifierEventListener;
@@ -58,6 +59,7 @@ class EventServiceProvider extends ServiceProvider
         DepslpEventListener::class,
         NotifierEventListener::class,
         ApEventListener::class,
+        SetslpEventListener::class,
     ];
     
     /**

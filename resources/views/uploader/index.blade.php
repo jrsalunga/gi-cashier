@@ -271,7 +271,7 @@
               +'<div class="input-group time-toogle">'
               +'<span class="input-group-addon" id="basic-addon1">'
                 +'Settlement Time</span>'
-              +'<input type="text" class="form-control" id="time" name="time" required placeholder="HH:MM:SS" maxlength="8">'
+              +'<input type="text" class="form-control" id="time2" name="time" required placeholder="HH:MM:SS" maxlength="8">'
             +'<span class="input-group-addon">'
             +'<span class="glyphicon glyphicon-time"></span>'
             +'</span>'
@@ -291,7 +291,7 @@
           +'<li> Make sure that the <b>Settlement Date/Time</b> encoded is the <b style="color:red;">Date/Time on the Card Settlement Slip</b> and not the current or computer\'s date and time.</li>'
           +'<li>For those branches that have <b>multiple terminal or multiple terminal with the same bank/provider</b>, the file naming should be  <ul><li><b>SETSLP SGD 20180901 BDO</b> or</li><li> <b>SETSLP SGD 20180901 BDO CREDIT</b> or</li><li> <b>SETSLP SGD 20180901 BDO DEBIT</b> or</li><li><b>SETSLP SGD 20180901 RCBC</b> or</li><li><b>SETSLP SGD 20180901 HSBC</b></li></ul> and <b style="color:red;">must scan and uploaded separately (one-to-one 1:1)</b>.'
           +'</li>'
-          +'<li>Please scan only the <b>actual size</b> of Card Settlement Slip to reduce the file size.</li>'
+          +'<li>Please scan only the <b>actual size</b> of each Card Settlement Slip to reduce the file size.</li>'
           +'</ol>'
           +'<small><em class="text-muted">For more questions / clarifications / need assistance you can email us at <a href="mailto:giligans.helpdesk@gmail.com">giligans.helpdesk@gmail.com</a></em></small>');
 
@@ -341,6 +341,14 @@
         .on('dp.hide', function(e) {
           $('#time').val(e.date.format('HH:mm:ss'));
         });
+      }
+
+      if ($('#time2')[0]!==undefined) {
+       //$('.time-toogle').datetimepicker({
+        $('#time2').datetimepicker({
+          format: 'hh:mm:ss',
+          ignoreReadonly: true,
+        })
       }
     });
 

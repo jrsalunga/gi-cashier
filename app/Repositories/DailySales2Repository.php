@@ -86,7 +86,8 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
     $sql .= 'SUM(chrg_othr) AS chrg_othr, SUM(bank_totchrg) AS bank_totchrg, SUM(disc_totamt) AS disc_totamt, SUM(trans_cnt) AS trans_cnt, ';
     $sql .= 'SUM(man_hrs) AS man_hrs, SUM(man_pay) AS man_pay, SUM(depo_cash) AS depo_cash, SUM(depo_check) AS depo_check, ';
     $sql .= 'SUM(tips) AS tips, ';
-    $sql .= 'SUM(opex) AS opex, SUM(transcost) AS transcost, SUM(transcos) AS transcos';
+    $sql .= 'SUM(opex) AS opex, SUM(transcost) AS transcost, SUM(transcos) AS transcos, ';
+    $sql .= 'SUM(depslpc) AS depslpc, SUM(depslpk) AS depslpk, SUM(setslp) AS setslp';
     
 
     $res = $this->skipCache()
@@ -121,6 +122,32 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
                 ->orderBy('date');
                 //->orderBy('filedate', 'DESC');
     })->skipCache()->all($select);
+  }
+
+  public function sumFields($field, Carbon $date) {
+    $select = '';
+    $arr = [];
+    if (is_array($field)) {
+      foreach ($field as $key => $value) {
+        $arr[$key] = 'sum('.$value.') as '.$value;
+      }
+      $select = join(',', $arr);
+    } else {
+      $select = 'sum('.$field.') as '.$field;
+    }
+
+
+    return $this
+        ->skipCache()
+        ->skipCriteria()
+        ->scopeQuery(function($query) use ($select, $date) {
+          return $query->select(DB::raw($select))
+            ->where(DB::raw('MONTH(date)'), $date->format('m'))
+            ->where(DB::raw('YEAR (date)'), $date->format('Y'));
+        })
+        ->first();
+
+
   }
 
 }

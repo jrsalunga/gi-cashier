@@ -1,4 +1,5 @@
 <?php namespace App\Http\Controllers;
+use DB;
 use Event;
 use StdClass;
 use Carbon\Carbon;
@@ -9,6 +10,7 @@ use App\Repositories\StorageRepository;
 use Dflydev\ApacheMimeTypes\PhpRepository;
 use App\Repositories\SetslpRepository as SetslpRepo;
 use App\Repositories\DailySales2Repository as DailySalesRepo;
+use App\Repositories\MonthlySalesRepository as MonthlySalesRepo;
 //use App\Events\setslp\Change as setslpChange;
 //use App\Events\setslp\Delete as setslpDelete;
 
@@ -17,10 +19,12 @@ class SetslpController extends Controller {
 	protected $setslp;
 	protected $files;
 	protected $ds;
+	protected $ms;
 
-	public function __construct(SetslpRepo $setslp, DailySalesRepo $ds) {
+	public function __construct(SetslpRepo $setslp, DailySalesRepo $ds, MonthlySalesRepo $ms) {
 		$this->setslp = $setslp;
 		$this->ds = $ds;
+		$this->ms = $ms;
 		$this->files = new StorageRepository(new PhpRepository, 'files.'.app()->environment());
 	}
 
@@ -352,6 +356,41 @@ class SetslpController extends Controller {
 		return redirect()->back()->withErrors('Error while deleting record!');
 	}
 
+
+	public function aggregate($setslp) {
+
+		$ds = $this->setslp->sumByBizdate($setslp->bizdate);
+
+		DB::beginTransaction();
+
+		try {
+			$this->ds->firstOrNewField([
+	    	'branchid'  => $setslp->branch_id,
+	    	'date'      => $setslp->bizdate->format('Y-m-d'),
+	    	'setslp'    => $ds->amount
+	  	], ['date', 'branchid']);
+		} catch (Exception $e) {
+			DB::rollBack();
+			throw $e;			
+		}
+
+		$ms = $this->ds->sumFields(['setslp'], $setslp->bizdate);
+
+		try {
+			$this->ms->firstOrNewField([
+	    	'branch_id'  => $setslp->branch_id,
+	    	'date'      => $setslp->bizdate->copy()->lastOfMonth()->format('Y-m-d'),
+	    	'setslp'    => $ms->setslp
+	  	], ['date', 'branch_id']);
+		} catch (Exception $e) {
+			DB::rollBack();
+			throw $e;			
+		}
+
+		DB::commit();
+    
+
+	}
 
 
 

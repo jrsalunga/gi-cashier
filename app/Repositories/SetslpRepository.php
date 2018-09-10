@@ -29,14 +29,14 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
   	return $this->scopeQuery(function($query) use ($fr, $to) {
     	return $query
     						
-                ->Where(function ($query) use ($fr, $to){
+                ->where(function ($query) use ($fr, $to){
                   $query->where(function ($query) use ($fr){
                     $query->where('date', '>=', $fr->format('Y-m-d'))
-                          ->where('time', '>', '10:00:00');
+                          ->where('time', '>', '06:00:00');
                   })
                   ->orWhere(function ($query) use ($to) {
                     $query->where('date', '<=', $to->copy()->addDay()->format('Y-m-d'))
-                          ->where('time', '<', '09:59:59');
+                          ->where('time', '<', '05:59:59');
                   });
                 })
     						->orderBy('created_at', 'DESC');
@@ -44,7 +44,39 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
 		})->skipCache()->all();
   }
 
+  public function getByBizdate(Carbon $date) {
+    return $this->scopeQuery(function($query) use ($date) {
+      return $query
+                ->where(function ($query) use ($date){
+                  $query->where(function ($query) use ($date){
+                    $query->where('date', '=', $date->format('Y-m-d'))
+                          ->whereBetween('time', ['06:00:00', '23:59:59']);
+                  })
+                  ->orWhere(function ($query) use ($date) {
+                    $query->where('date', '=', $date->copy()->addDay()->format('Y-m-d'))
+                          ->whereBetween('time', ['00:00:00', '05:59:59']);
+                  });
+                })
+                ->orderBy('created_at', 'DESC');
+    })->skipCache()->all();
+  }
 
+  public function sumByBizdate(Carbon $date) {
+    return $this->scopeQuery(function($query) use ($date) {
+      return $query
+                ->select(DB::raw('sum(amount) as amount, count(id) as count'))
+                ->where(function ($query) use ($date){
+                  $query->where(function ($query) use ($date){
+                    $query->where('date', '=', $date->format('Y-m-d'))
+                          ->whereBetween('time', ['06:00:00', '23:59:59']);
+                  })
+                  ->orWhere(function ($query) use ($date) {
+                    $query->where('date', '=', $date->copy()->addDay()->format('Y-m-d'))
+                          ->whereBetween('time', ['00:00:00', '05:59:59']);
+                  });
+                });
+    })->skipCache()->first();
+  }
 
 
 	public function monthlyLogs(Carbon $date) {
@@ -61,14 +93,10 @@ class SetslpRepository extends BaseRepository implements CacheableInterface
       $arr[$i]['date'] = $d;
       $arr[$i]['total'] = 0;
     
-      //$data = $this->aggregateDailyLogs(c($d->copy()->subDay()->format('Y-m-d').' 10:00:00'), c($d->format('Y-m-d').' 07:59:59'));
-
       $filtered = $data->filter(function ($item) use ($d){
-        $s = c($d->format('Y-m-d').' 10:00:00');
-        $e = c($d->copy()->addDay()->format('Y-m-d').' 09:59:59');
+        $s = c($d->format('Y-m-d').' 06:00:00');
+        $e = c($d->copy()->addDay()->format('Y-m-d').' 05:59:59');
         $i = c($item->date->format('Y-m-d').' '.$item->time);
-        //$t = $i->gte($s) && $i->lte($e) ? $item->amount:'F';
-        //test_log($s.' < '.$i.' > '.$e.' = '.$t);
         return $i->gte($s) && $i->lte($e)
           ? $item : null;
       });
