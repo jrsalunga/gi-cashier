@@ -49,8 +49,9 @@
           <!--
           <th class="text-right">POS Total Charge</th>
         -->
-          <th class="text-right">Charged Trans</th>
-          <th class="text-right">Settlement Total</th>
+          <th class="text-right">POS Total Charged Trans (A)</th>
+          <th class="text-right">Settlement Total (B)</th>
+          <th class="text-right">Short/Over (A-B)</th>
           <th class="text-right">Settlement Slips</th>
           <th class="text-right">&nbsp;</th>
         </tr>
@@ -60,15 +61,16 @@
         @foreach($datas as $key => $b) 
         <?php
           $class = c()->format('Y-m-d')==$b['date']->format('Y-m-d') ? 'bg-success':($b['date']->isSunday() ? 'bg-warning' : '');
+          $diff = $b['pos_total'] - $b['slip_total'];
         ?>
         <tr>
           <td class="{{ $class }}">{{ $b['date']->format('M j, D') }}</td>
            
           @if($b['pos_total']>0) 
-          <!--
           <td class="text-right {{ $class }}">{{ number_format($b['pos_total'],2) }}</td>
-          -->
+          <!--
           <td class="text-right {{ $class }}"><span class="glyphicon glyphicon-ok text-success"></span></td>
+          -->
           <?php $tot_pos += $b['pos_total']; ?>
           @else
             <td class="text-right {{ $class }}">&nbsp;</td>
@@ -77,6 +79,7 @@
           @if($b['count']>0)
             <td class="text-right {{ $class }}">{{ number_format($b['slip_total'],2) }}</td>
             <?php $tot_set += $b['slip_total']; ?>
+              <td class="text-right {{ $class }}">{{ $diff==0 ? '':number_format($diff,2) }}</td>
             <td class="text-right {{ $class }}">
               <span class="badge text-info help" title="" data-toggle="tooltip">{{ $b['count'] }}</span>
 
@@ -98,6 +101,7 @@
             </td>
           @else
             <td class="text-right {{ $class }}">-</td>
+            <td class="text-right {{ $class }}">{{ $diff==0 ? '':number_format($diff,2) }}</td>
             <td class="{{ $class }}"></td>
           @endif
           
@@ -108,11 +112,12 @@
       <tfoot>
         <tr>
           <td></td>
-          <td></td>
-          <!--
           <td class="text-right">{{ number_format($tot_pos,2) }}</td>
+          <!--
+          <td></td>
           -->
           <td class="text-right"><b>{{ number_format($tot_set,2) }}</b></td>
+          <td class="text-right"><b>{{ number_format($tot_pos-$tot_set,2) }}</b></td>
           <td></td>
           <td></td>
         </tr>
