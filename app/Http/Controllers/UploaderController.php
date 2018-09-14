@@ -208,6 +208,8 @@ class UploaderController extends Controller
 
 						
 					/******** para maka send kahit hindi EoD ung backup **/
+
+					/*
 					
 					if (c()->format('Ymd')!=c()->firstOfMonth()->format('Ymd')) {
 						try {
@@ -223,6 +225,7 @@ class UploaderController extends Controller
 							return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
 						}
 					}
+					*/
 					
 
 
@@ -236,7 +239,8 @@ class UploaderController extends Controller
 						$this->updateBackupRemarks($backup, $msg);
 						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
 					} else {
-						event(new \App\Events\Backup\DailySalesSuccess($backup));
+						// change location below to recompte when all is ok
+						//event(new \App\Events\Backup\DailySalesSuccess($backup)); // recompute Monthlysales
 					}
 
 
@@ -312,6 +316,9 @@ class UploaderController extends Controller
 							$this->updateBackupRemarks($backup, $msg);
 						}
 					}
+
+
+					event(new \App\Events\Backup\DailySalesSuccess($backup)); // recompute Monthlysales
 
 
 					/******* end: extract trasanctions data ***********/
