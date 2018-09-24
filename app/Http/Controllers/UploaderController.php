@@ -211,7 +211,7 @@ class UploaderController extends Controller
 					/******** para maka send kahit hindi EoD ung backup **/
 					
 					if ( c()->format('Ymd')!=c()->firstOfMonth()->format('Ymd')
-						|| (request()->has('_eod') && request()->has('_eod')=='false')
+						|| (request()->has('_eod') && request()->input('_eod')=='false')
 					) {
 						try {
 							$this->isEoD($backup);
