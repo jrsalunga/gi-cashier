@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 use DB;
 use Mail;
+use Event;
 use Validator;
 use Exception;
 use ZipArchive;
@@ -209,7 +210,9 @@ class UploaderController extends Controller
 						
 					/******** para maka send kahit hindi EoD ung backup **/
 					
-					if (c()->format('Ymd')!=c()->firstOfMonth()->format('Ymd')) {
+					if ( c()->format('Ymd')!=c()->firstOfMonth()->format('Ymd')
+						|| (request()->has('_eod') && request()->has('_eod')=='false')
+					) {
 						try {
 							$this->isEoD($backup);
 						} catch (Exception $e) {
@@ -287,6 +290,9 @@ class UploaderController extends Controller
 						//$this->logAction('error:process:purchased', $log_msg.$msg);
 						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
 					}
+
+					// push emp meal on purchase
+					event('transfer.empmeal', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date, 'suppliercode'=>session('user.branchcode')]]);
 					//$this->logAction('success:process:purchased', $log_msg.$msg);
 
 
@@ -316,6 +322,11 @@ class UploaderController extends Controller
 
 
 					event(new \App\Events\Backup\DailySalesSuccess($backup)); // recompute Monthlysales
+					event(new \App\Events\Process\AggregateComponentMonthly($backup->date, $backup->branchid)); // recompute Monthly Component
+					event(new \App\Events\Process\AggregateMonthlyExpense($backup->date, $backup->branchid)); // recompute Monthly Expense
+					event(new \App\Events\Process\AggregatorMonthly('product', $backup->date, $backup->branchid)); // recompute Monthly Expense
+					event(new \App\Events\Process\AggregatorMonthly('prodcat', $backup->date, $backup->branchid)); 
+					event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
 
 
 					/******* end: extract trasanctions data ***********/

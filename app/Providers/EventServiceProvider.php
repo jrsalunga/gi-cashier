@@ -60,6 +60,8 @@ class EventServiceProvider extends ServiceProvider
         NotifierEventListener::class,
         ApEventListener::class,
         SetslpEventListener::class,
+        \App\Listeners\ProcessesEventListener::class,
+        \App\Listeners\AggregatorEventListener::class,
     ];
     
     /**

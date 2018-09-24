@@ -114,6 +114,9 @@
             <div class="row" style="margin-top: 20px;">
               <div class="col-lg-12">
                 <div class="process-btn-container">
+                  @if(request()->has('eod') && request()->input('eod')=='false')
+                    <input type="hidden" name="_eod" value="false">
+                  @endif
                   <button id="btn-upload" class="btn btn-primary" type="submit" disabled="disabled">Upload File</button>
                   <a class="btn btn-link" href="/uploader">Cancel</a>  
                 </div>
@@ -284,7 +287,7 @@
               +'<input type="text" class="form-control" id="amount" name="amount" required style="text-align: right;" placeholder="0.00">'
             +'</div></div>';
         alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> <ol>'
-          +'<li>This facility is intended only to those branches with credit card terminal starting September 1, 2018.</li>'
+          +'<li>This facility is intended only to those branches with credit card terminal, and must start uploading on September 1, 2018.</li>'
           +'<li>Scan and save your Card Settlement Slip in this following filename format '
           +' "<b style="color:red;">SETSLP SGD 20180901 BDO</b>" where <b>SETSLP</b> - is the document code, <b>SGD</b> - is the 3 char branch code, '
           +'<b>20180901</b> - is the Settlement Date in YYYYMMDD format and <b>BDO</b> - is the credit card teminal.</li>'

@@ -11,7 +11,7 @@ use App\Repositories\Repository;
 use Dflydev\ApacheMimeTypes\PhpRepository;
 use Illuminate\Support\Facades\Storage;
 use App\Repositories\DailySalesRepository;
-use App\Repositories\DailySalesRepository as DS2;
+use App\Repositories\DailySales2Repository as DS2;
 use App\Repositories\PurchaseRepository as Purchase;
 use App\Repositories\Purchase2Repository as PurchaseRepo;
 use App\Http\Controllers\SalesmtdController as SalesmtdCtrl;
@@ -44,11 +44,12 @@ class PosUploadRepository extends Repository
    * @param Collection $collection
    * @throws \App\Repositories\Exceptions\RepositoryException
    */
-  public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, Purchase $purchase, PurchaseRepo $purchaserepo, SalesmtdCtrl $salesmtdCtrl, ChargesRepo $charges, TranferRepo $transfer) {
+  public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, Purchase $purchase, PurchaseRepo $purchaserepo, SalesmtdCtrl $salesmtdCtrl, ChargesRepo $charges, TranferRepo $transfer, DS2 $ds2) {
     
     parent::__construct($app, $collection);
 
     $this->ds = $dailysales;
+    $this->ds2 = $ds2;
     $this->purchase   = $purchase;
     $this->purchase2  = $purchaserepo;
     $this->salesmtdCtrl = $salesmtdCtrl;
@@ -111,7 +112,7 @@ class PosUploadRepository extends Repository
       $s = new StdClass;
       foreach ($r as $key => $value) {
         $f = strtolower($key);
-        $s->{$f} = isset($r[$key]) ? $r[$key]:NULL;
+        $s->{$f} = isset($r[$key]) ? $r[$key] : NULL;
       }
       return $s;
     }
@@ -135,6 +136,7 @@ class PosUploadRepository extends Repository
         else 
           return $code;
       } else {
+        return NULL;
         throw new Exception("Cannot locate SYSINFO"); 
       }
       
@@ -162,7 +164,7 @@ class PosUploadRepository extends Repository
       }
 
 
-
+      
       $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
       if (file_exists($dbf_file)) { 
         $db = dbase_open($dbf_file, 0);
@@ -175,22 +177,25 @@ class PosUploadRepository extends Repository
          
           if ( $vfpdate->format('Y-m-d')==$backup->date->format('Y-m-d')) {
 
-            $t = trim($row['TIP']);
-            if (empty($t)) {
-              array_push($a, 'TIPS');
-            }
+            if (c()->diffInDays($backup->date) < 3) { // dont check if lagpas 3 days
 
-            $k = trim($row['CREW_KIT']);
-            if (empty($k)) {
-              array_push($a, 'CREW_KIT');
-              $valid = false;
-            }
+              $t = trim($row['TIP']);
+              if (empty($t)) {
+                array_push($a, 'TIPS');
+              }
 
-            $d = trim($row['CREW_DIN']);
-            if (empty($k)) {
-              array_push($a, 'CREW_DIN');
-              $valid = false;
-            }
+              $k = trim($row['CREW_KIT']);
+              if (empty($k)) {
+                array_push($a, 'CREW_KIT');
+                $valid = false;
+              }
+
+              $d = trim($row['CREW_DIN']);
+              if (empty($k)) {
+                array_push($a, 'CREW_DIN');
+                $valid = false;
+              }
+            } 
           }
         }
         dbase_close($db);
@@ -198,6 +203,7 @@ class PosUploadRepository extends Repository
         if (!$valid) {
           throw new Exception("Validation Error: Invalid EoD backup. No encoded ".join(", ", $a)." on CSH_AUDT.DBF. Please upload the correct backup file."); 
         }
+        
 
       } else {
         throw new Exception("Cannot locate CSH_AUDT.DBF"); 
@@ -601,7 +607,8 @@ class PosUploadRepository extends Repository
 
         try {
           //$this->logAction($date->format('Y-m-d'), 'update:ds');
-          $d =  $this->ds->findWhere(['branchid'=>session('user.branchid'), 
+          $d =  $this->ds->findWhere([
+                              'branchid'=>session('user.branchid'), 
                               'date'=>$date->format('Y-m-d')],
                               ['sales'])->first();
           
@@ -1186,13 +1193,14 @@ class PosUploadRepository extends Repository
       try {
         
         // $this->ds->skipFilters()  // added bec no session('user.branchid')
-        $d =  $this->ds->skipFilters()->findWhere(['branchid'=>$backup->branchid, 
+        //$d =  $this->ds->skipFilters()->findWhere(['branchid'=>$backup->branchid, 
+        $d =  $this->ds2->skipCritera()->findWhere(['branchid'=>$backup->branchid, 
                               'date'=>$date->format('Y-m-d')],
                               ['sales'])->first();
           
         $cospct = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($food_cost/$d->sales)*100;
 
-        $this->ds->firstOrNewField(['branchid'=>$backup->branchid, 
+        $this->ds2->firstOrNewField(['branchid'=>$backup->branchid, 
                             'date'=>$date->format('Y-m-d'),
                             'cos'=> $food_cost,
                             'cospct'=> $cospct,
@@ -1567,7 +1575,10 @@ class PosUploadRepository extends Repository
 
       $ds['transcost'] = 0;
       $ds['transcos'] = 0;
+      $ds['emp_meal'] = 0;
       $ds['branchid'] = $branchid;
+      $test_cos = 0;
+      $test_emp = 0;
 
       for ($i=1; $i<=$recno; $i++) {
         $row = dbase_get_record_with_names($db, $i);
@@ -1601,16 +1612,20 @@ class PosUploadRepository extends Repository
             if ($data['tcost']>0)
               $ds['transcost'] += $data['tcost'];
 
-            if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
+            if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
               $ds['transcos'] += $data['tcost'];
-            
+              if (strtolower(substr($data['supno'], 2, 3))==strtolower(session('user.branchcode')))
+                $ds['emp_meal'] += $data['tcost'];
+            } // else Non COS
+
             if ($i==$recno) {
               // $cospct = $d->sales>0 ? ($food_cost/$d->sales)*100 : 0;
               $ds['date'] = $curr_date->format('Y-m-d');
 
-              $curr_ds = $this->ds->findWhere(array_only($ds, ['date', 'branchid']), ['cos', 'sales'])->first();
+              $curr_ds = $this->ds2->findWhere(array_only($ds, ['date', 'branchid']), ['cos', 'sales'])->first();
               $cos = ($curr_ds->cos - $ds['transcos']);
-              $ds['cospct'] = $cos;
+              //test_log($curr_date->format('Y-m-d').' '.$curr_ds->cos.'-'.$ds['transcos'].' 1');
+              //$ds['cospct'] = $cos;
               //$ds['cospct'] = $curr_ds->sales>0 ? ($cos/$curr_ds->sales)*100 : 0;
 
               $this->ds->firstOrNewField($ds, ['date', 'branchid']);
@@ -1620,9 +1635,10 @@ class PosUploadRepository extends Repository
             
             $ds['date'] = $curr_date->format('Y-m-d');  
 
-            $curr_ds = $this->ds->findWhere(array_only($ds, ['date', 'branchid']), ['cos', 'sales'])->first();
+            $curr_ds = $this->ds2->findWhere(array_only($ds, ['date', 'branchid']), ['cos', 'sales'])->first();
+            //test_log($curr_date->format('Y-m-d').' '.$curr_ds->cos.'-'.$ds['transcos'].' 2');
             $cos = ($curr_ds->cos - $ds['transcos']);
-            $ds['cospct'] = 0;
+            //$ds['cospct'] = 0;
 
             $this->ds->firstOrNewField($ds, ['date', 'branchid']);
             
@@ -1631,9 +1647,13 @@ class PosUploadRepository extends Repository
             if ($data['tcost']>0)
              $ds['transcost'] = $data['tcost'];
             $ds['transcos'] = 0;
+            $ds['emp_meal'] = 0;
 
-            if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
+            if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
               $ds['transcos'] = $data['tcost'];
+              if (strtolower(substr($data['supno'], 2, 3))==strtolower(session('user.branchcode')))
+                $ds['emp_meal'] = $data['tcost'];
+            } // else Non COS
             
             try {
               $this->transfer->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
@@ -2503,8 +2523,10 @@ class PosUploadRepository extends Repository
 
       $ds['transcost'] = 0;
       $ds['transcos'] = 0;
+      $ds['emp_meal'] = 0;
       $ds['branchid'] = $branchid;
 
+      $branchcode = $this->getBackupCode();
 
       for ($i=1; $i<=$recno; $i++) {
         $row = dbase_get_record_with_names($db, $i);
@@ -2538,13 +2560,21 @@ class PosUploadRepository extends Repository
           if ($data['tcost']>0)
             $ds['transcost'] += $data['tcost'];
 
-          if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
+          //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
+          //  $ds['transcos'] += $data['tcost'];
+
+          if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
             $ds['transcos'] += $data['tcost'];
+            if (strtolower(substr($data['supno'], 2, 3))==strtolower($branchcode))
+              $ds['emp_meal'] += $data['tcost'];
+          } // else Non COS
           
           if ($i==$recno) {
             $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' '.$ds['transcos']);
             $ds['date'] = $curr_date->format('Y-m-d');
             $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+            // push emp meal on purchase
+            event('transfer.empmeal', ['data'=>['branch_id'=>$branchid, 'date'=>$curr_date, 'suppliercode'=>$branchcode]]);
           }
 
         } else {
@@ -2552,15 +2582,23 @@ class PosUploadRepository extends Repository
           $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' '.$ds['transcos']); 
           $ds['date'] = $curr_date->format('Y-m-d');  
           $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+          // push emp meal on purchase
+          event('transfer.empmeal', ['data'=>['branch_id'=>$branchid, 'date'=>$curr_date, 'suppliercode'=>$branchcode]]);
           
           $curr_date = $vfpdate;          
           $trans=1;
           if ($data['tcost']>0)
             $ds['transcost'] = $data['tcost'];
           $ds['transcos'] = 0;
+          $ds['emp_meal'] = 0;
 
-          if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
+          //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
+          //  $ds['transcos'] = $data['tcost'];
+          if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
             $ds['transcos'] = $data['tcost'];
+            if (strtolower(substr($data['supno'], 2, 3))==strtolower($branchcode))
+              $ds['emp_meal'] = $data['tcost'];
+          } // else Non COS
           
           try {
             $c->info('del: '.$curr_date->format('Y-m-d'));
@@ -2572,6 +2610,7 @@ class PosUploadRepository extends Repository
         }
 
         //$c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
+
         
         $data['to'] = $this->deliveredTo(substr($data['supno'], 2, 3), $data);
         try {

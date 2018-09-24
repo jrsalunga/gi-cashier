@@ -139,6 +139,33 @@ class Purchase2Repository extends BaseRepository
     });
   }
 
+  public function aggCompByDr(Carbon $fr, Carbon $to, $branchid) {
+    return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
+      return $query
+                ->select(DB::raw('componentid, sum(qty) as qty, sum(tcost) as tcost, count(id) as trans'))
+                ->whereBetween('date', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('branchid', $branchid)
+                ->groupBy('componentid');
+    })->all();
+  }
+
+  public function aggExpByDr(Carbon $fr, Carbon $to, $branchid) {
+    return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
+      return $query
+                ->select(DB::raw('compcat.expenseid as expense_id, sum(purchase.qty) as qty, sum(purchase.tcost) as tcost, count(purchase.id) as trans, expense.ordinal as ordinal'))
+                ->leftJoin('component', 'component.id', '=', 'purchase.componentid')
+                ->leftJoin('compcat', 'compcat.id', '=', 'component.compcatid')
+                ->leftJoin('expense', 'expense.id', '=', 'compcat.expenseid')
+                ->whereBetween('purchase.date', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('purchase.branchid', $branchid)
+                ->groupBy('compcat.expenseid');
+    })->all();
+  }
+
 
 
 

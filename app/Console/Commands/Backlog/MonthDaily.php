@@ -7,6 +7,7 @@ use App\Helpers\Locator;
 use App\Models\DailySales as DS;
 use Illuminate\Console\Command;
 use App\Repositories\DailySalesRepository as DSRepo;
+use App\Repositories\DailySales2Repository as DSRepo2;
 use App\Repositories\SalesmtdRepository as SalesRepo;
 use App\Repositories\PosUploadRepository as PosUploadRepo;
 
@@ -34,13 +35,15 @@ class MonthDaily extends Command
 
   protected $sales;
   protected $ds;
+  protected $ds2;
   protected $posUploadRepo;
 
-  public function __construct(DSRepo $ds, SalesRepo $sales, PosUploadRepo $posUploadRepo)
+  public function __construct(DSRepo $ds, SalesRepo $sales, PosUploadRepo $posUploadRepo, DSRepo2 $ds2)
   {
     parent::__construct();
     $this->sales = $sales;
     $this->ds = $ds;
+    $this->ds2 = $ds2;
     $this->posUploadRepo = $posUploadRepo;
   }
 
@@ -68,18 +71,27 @@ class MonthDaily extends Command
       exit;
     }
 
+    $d = Carbon::parse($date);
     $f = Carbon::parse($date)->startOfMonth();
     $t = Carbon::parse($date)->endOfMonth();
 
     $this->info($f->format('Y-m-d'));
-    $this->info($t->format('Y-m-d'));
 
 
     $locator = new Locator('pos');
     $path = $br->code.DS.$t->format('Y').DS.$t->format('m').DS.'GC'.$t->format('mdy').'.ZIP';
     if (!$locator->exists($path)) {
-      $this->info('Backup '.$path.' do not exist.');
-      exit;
+      $t = $d;
+      $path = $br->code.DS.$t->format('Y').DS.$t->format('m').DS.'GC'.$t->format('mdy').'.ZIP';
+      if (!$locator->exists($path)) {
+        $t = $d;
+        $this->info('Backup '.$path.' do not exist.');
+        exit;
+      } else {
+        $this->info($t->format('Y-m-d'));
+      }
+    } else {
+      $this->info($t->format('Y-m-d'));
     }
     $this->info($path);
 
@@ -91,6 +103,12 @@ class MonthDaily extends Command
 
     $this->info('start processing...');
 
+    $backup = \App\Models\Backup::where('branchid', $br->id)->where('filename', 'GC'.$t->format('mdy').'.ZIP')->first();
+
+    if (is_null($backup)) {
+      $this->info('No backup log found on '. $t->format('Y-m-d'));
+      exit;
+    }
     //$this->posUploadRepo->postNewDailySales($br->id, Carbon::parse($date), $this);
 
     
@@ -105,6 +123,7 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
+
     
     $this->info('extracting trasfer...');
     try {
@@ -115,6 +134,8 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
+
+   
     
     $this->info('extracting cash audit...');
     try {
@@ -145,6 +166,14 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
+
+    event(new \App\Events\Backup\DailySalesSuccess($backup));
+    event(new \App\Events\Process\AggregateComponentMonthly($backup->date, $backup->branchid));
+    event(new \App\Events\Process\AggregateMonthlyExpense($backup->date, $backup->branchid));
+    event(new \App\Events\Process\AggregatorMonthly('product', $backup->date, $backup->branchid)); // recompute Monthly Expense
+    event(new \App\Events\Process\AggregatorMonthly('prodcat', $backup->date, $backup->branchid)); 
+    event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
+
     
     DB::commit();
     
