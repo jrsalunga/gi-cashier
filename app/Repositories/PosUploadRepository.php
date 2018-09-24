@@ -162,8 +162,6 @@ class PosUploadRepository extends Repository
       } else {
         throw new Exception("Cannot locate ORDERS.DBF"); 
       }
-
-
       
       $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
       if (file_exists($dbf_file)) { 
