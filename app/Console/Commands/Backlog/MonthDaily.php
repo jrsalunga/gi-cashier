@@ -173,7 +173,7 @@ class MonthDaily extends Command
     event(new \App\Events\Process\AggregatorMonthly('product', $backup->date, $backup->branchid)); // recompute Monthly Expense
     event(new \App\Events\Process\AggregatorMonthly('prodcat', $backup->date, $backup->branchid)); 
     event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
-
+    event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
     
     DB::commit();
     

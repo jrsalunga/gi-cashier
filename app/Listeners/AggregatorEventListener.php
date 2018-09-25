@@ -135,6 +135,38 @@ class AggregatorEventListener
       ], ['date', 'branch_id', 'code']);
     }
   }
+
+  public function rankMonthlyProduct($event) {
+
+    try {
+      $datas = $this->product->rank($event->date->copy()->lastOfMonth(), $event->branchid);
+    } catch (\Exception $e) { 
+      /*
+      //logAction('onDailySalesSuccess Error', $e->getMessage());
+      $data = [
+        'user'      => request()->user()->name,
+        'cashier'   => $event->backup->cashier,
+        'filename'  => $event->backup->filename,
+        'body'      => 'Error onDailySalesSuccess '.$event->backup->branchid.' '.$event->backup->filedate,
+      ];
+
+      $this->mailer->queue('emails.notifier', $data, function ($message) use ($event){
+        $message->subject('Backup Upload DailySales Process Error');
+        $message->from($event->user->email, $event->user->name.' ('.$event->user->email.')');
+        $message->to('giligans.app@gmail.com');
+      });
+    
+    } finally {
+      if (!is_null($month)) {
+        
+      //logAction('onDailySalesSuccess', $event->backup->filedate->format('Y-m-d').' '.request()->user()->branchid.' '.json_encode($month));
+      $this->ms->firstOrNewField(array_except($month->toArray(), ['year', 'month']), ['date', 'branch_id']);
+      //logAction('onDailySalesSuccess', 'rank');
+      $this->ms->rank($month->date);
+      }
+      */
+    }
+  }
   
   
 
@@ -142,6 +174,11 @@ class AggregatorEventListener
     $events->listen(
       'App\Events\Process\AggregatorMonthly',
       'App\Listeners\AggregatorEventListener@aggregateMonthly'
+    );
+
+     $events->listen(
+      'App\Events\Process\RankMonthlyProduct',
+      'App\Listeners\AggregatorEventListener@rankMonthlyProduct'
     );
   }
 

@@ -89,5 +89,40 @@ trait Repository {
         })
         ->first();
   }
+
+
+  public function rank($date=null, $field) {
+
+    if ($date instanceof Carbon)
+      return $this->generateRank($date, $field);
+    elseif (is_iso_date($date))
+      return $this->generateRank(c($date), $field);
+    else
+      return $this->generateRank(c(), $field);
+  }
+
+  public function generateRank(Carbon $date, $field) {
+    
+    $ms = $this->skipCache()
+            ->scopeQuery(function($query) use ($date) {
+              return $query->where(DB::raw('MONTH(date)'), $date->format('m'))
+                          ->where(DB::raw('YEAR(date)'), $date->format('Y'));
+            })
+            ->orderBy($field, 'DESC')
+            ->all();
+
+    if (count($ms)<=0)
+      return false;
+    
+    foreach ($ms as $key => $m) {
+      //$this->update(['rank'=>($key+1)], $m->id);
+      $m->rank = ($key+1);
+      if ($m->{$field}>0)
+        $m->save();
+
+    }
+    return true;
+    
+  }
   
 }
