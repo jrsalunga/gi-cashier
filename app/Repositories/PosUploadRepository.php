@@ -1192,7 +1192,7 @@ class PosUploadRepository extends Repository
         
         // $this->ds->skipFilters()  // added bec no session('user.branchid')
         //$d =  $this->ds->skipFilters()->findWhere(['branchid'=>$backup->branchid, 
-        $d =  $this->ds2->skipCritera()->findWhere(['branchid'=>$backup->branchid, 
+        $d =  $this->ds2->skipCriteria()->findWhere(['branchid'=>$backup->branchid, 
                               'date'=>$date->format('Y-m-d')],
                               ['sales'])->first();
           
