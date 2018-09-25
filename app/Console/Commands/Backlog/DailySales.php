@@ -162,6 +162,13 @@ class DailySales extends Command
 
 
     event(new \App\Events\Backup\DailySalesSuccess($bckup));
+    event(new \App\Events\Backup\DailySalesSuccess($bckup)); // recompute Monthlysales
+    event(new \App\Events\Process\AggregateComponentMonthly($bckup->date, $bckup->branchid)); // recompute Monthly Component
+    event(new \App\Events\Process\AggregateMonthlyExpense($bckup->date, $bckup->branchid)); // recompute Monthly Expense
+    event(new \App\Events\Process\AggregatorMonthly('product', $bckup->date, $bckup->branchid)); // recompute Monthly Expense
+    event(new \App\Events\Process\AggregatorMonthly('prodcat', $bckup->date, $bckup->branchid)); 
+    event(new \App\Events\Process\AggregatorMonthly('groupies', $bckup->date, $bckup->branchid));
+    event(new \App\Events\Process\RankMonthlyProduct($bckup->date, $bckup->branchid));
    
 
     //DB::rollback();
