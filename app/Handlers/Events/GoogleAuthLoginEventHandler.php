@@ -40,7 +40,7 @@ class GoogleAuthLoginEventHandler
 
 
         Mail::queue('emails.loggedin', $data, function ($message) {
-            $message->subject('User Logged In');
+            $message->subject('User Logged In [google.login]');
             $message->from('no-reply@giligansrestaurant.com', 'GI App - Cashier');
             $message->to('giligans.app@gmail.com');
         });
