@@ -35,7 +35,7 @@ class MonthProductRepository extends BaseRepository implements CacheableInterfac
 	    
 		  foreach ($p as $key => $o) {
 		  	$o->rank = ($key+1);
-		  	test_log($o->qty.' '.($key+1));
+		  	//test_log($o->qty.' '.($key+1));
 	      $o->save();
 	    }  
 	  }  

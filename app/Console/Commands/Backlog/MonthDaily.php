@@ -166,18 +166,28 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
+    
 
+    
+    $this->info('working on events...');
+    $this->info('DailySalesSuccess');
     event(new \App\Events\Backup\DailySalesSuccess($backup));
+    $this->info('AggregateComponentMonthly');
     event(new \App\Events\Process\AggregateComponentMonthly($backup->date, $backup->branchid));
+    $this->info('AggregateMonthlyExpense');
     event(new \App\Events\Process\AggregateMonthlyExpense($backup->date, $backup->branchid));
+    $this->info('AggregatorMonthly product');
     event(new \App\Events\Process\AggregatorMonthly('product', $backup->date, $backup->branchid)); // recompute Monthly Expense
+    $this->info('AggregatorMonthly prodcat');
     event(new \App\Events\Process\AggregatorMonthly('prodcat', $backup->date, $backup->branchid)); 
+    $this->info('AggregatorMonthly groupies');
     event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
+    $this->info('RankMonthlyProduct');
     event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
     
-    DB::commit();
     
 
+    DB::commit();
 
     $this->info('done');
     $this->removeExtratedDir();
