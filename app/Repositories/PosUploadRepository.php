@@ -1573,6 +1573,7 @@ class PosUploadRepository extends Repository
 
       $ds['transcost'] = 0;
       $ds['transcos'] = 0;
+      $ds['transncos'] = 0;
       $ds['emp_meal'] = 0;
       $ds['branchid'] = $branchid;
       $test_cos = 0;
@@ -1614,7 +1615,10 @@ class PosUploadRepository extends Repository
               $ds['transcos'] += $data['tcost'];
               if (strtolower(substr($data['supno'], 2, 3))==strtolower(session('user.branchcode')))
                 $ds['emp_meal'] += $data['tcost'];
-            } // else Non COS
+            } 
+            if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
+              $ds['transncos'] += $data['tcost'];
+
 
             if ($i==$recno) {
               // $cospct = $d->sales>0 ? ($food_cost/$d->sales)*100 : 0;
@@ -1645,13 +1649,16 @@ class PosUploadRepository extends Repository
             if ($data['tcost']>0)
              $ds['transcost'] = $data['tcost'];
             $ds['transcos'] = 0;
+            $ds['transncos'] = 0;
             $ds['emp_meal'] = 0;
 
             if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
               $ds['transcos'] = $data['tcost'];
               if (strtolower(substr($data['supno'], 2, 3))==strtolower(session('user.branchcode')))
                 $ds['emp_meal'] = $data['tcost'];
-            } // else Non COS
+            } 
+            if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
+              $ds['transncos'] = $data['tcost'];
             
             try {
               $this->transfer->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
@@ -2521,6 +2528,7 @@ class PosUploadRepository extends Repository
 
       $ds['transcost'] = 0;
       $ds['transcos'] = 0;
+      $ds['transncos'] = 0;
       $ds['emp_meal'] = 0;
       $ds['branchid'] = $branchid;
 
@@ -2565,7 +2573,9 @@ class PosUploadRepository extends Repository
             $ds['transcos'] += $data['tcost'];
             if (strtolower(substr($data['supno'], 2, 3))==strtolower($branchcode))
               $ds['emp_meal'] += $data['tcost'];
-          } // else Non COS
+          } 
+          if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
+            $ds['transncos'] += $data['tcost'];
           
           if ($i==$recno) {
             $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' '.$ds['transcos']);
@@ -2588,6 +2598,7 @@ class PosUploadRepository extends Repository
           if ($data['tcost']>0)
             $ds['transcost'] = $data['tcost'];
           $ds['transcos'] = 0;
+          $ds['transncos'] = 0;
           $ds['emp_meal'] = 0;
 
           //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
@@ -2596,7 +2607,10 @@ class PosUploadRepository extends Repository
             $ds['transcos'] = $data['tcost'];
             if (strtolower(substr($data['supno'], 2, 3))==strtolower($branchcode))
               $ds['emp_meal'] = $data['tcost'];
-          } // else Non COS
+          } 
+          if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
+            $ds['transncos'] = $data['tcost'];
+
           
           try {
             $c->info('del: '.$curr_date->format('Y-m-d'));
