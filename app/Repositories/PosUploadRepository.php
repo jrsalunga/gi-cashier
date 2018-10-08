@@ -1288,6 +1288,7 @@ class PosUploadRepository extends Repository
       $ctr = 0;
       $ds = [];
       $ds['slsmtd_totgrs'] = 0;
+      $ds['food_sales'] = 0;
       $ds['date']       = $date->format('Y-m-d');
       $ds['branchid']   = $backup->branchid;
       
@@ -1326,6 +1327,9 @@ class PosUploadRepository extends Repository
             return false;   
           }
           $ds['slsmtd_totgrs'] += $data['grsamt'];
+
+          if (strtolower($data['prodcat'])=='foods')
+            $ds['food_sales'] += $data['grsamt'];
 
           $ctr++;
         }
@@ -2015,6 +2019,7 @@ class PosUploadRepository extends Repository
       $ds = [];
 
       $ds['slsmtd_totgrs'] = 0;
+      $ds['food_sales'] = 0;
       $ds['branchid'] = $branchid;
 
       for ($i=1; $i<=$recno; $i++) {
@@ -2053,6 +2058,12 @@ class PosUploadRepository extends Repository
         if ($vfpdate->eq($curr_date)) {
           $ds['slsmtd_totgrs'] += $data['grsamt'];
 
+          $c->info($data['prodcat'].' '.$data['product'].' '.$data['cslipno']);
+          if (strtolower($data['prodcat'])=='foods') {
+            $c->info('fc: '.$data['prodcat'].' '.$data['grsamt']);
+            $ds['food_sales'] += $data['grsamt'];
+          }
+
           if (c($ds['opened_at'])->gt(c($data['ordtime'])))
             $ds['opened_at'] = $data['ordtime'];
 
@@ -2070,6 +2081,7 @@ class PosUploadRepository extends Repository
             */
             
             $c->info('ds : '.$vfpdate->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
+            $c->info('fc: '.$curr_date->format('Y-m-d').' '.$ds['food_sales']);
             $ds['date'] = $vfpdate->format('Y-m-d');
             $this->ds->firstOrNewField($ds, ['date', 'branchid']);
           }
@@ -2085,14 +2097,24 @@ class PosUploadRepository extends Repository
           */
           
           $c->info('ds : '.$curr_date->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
+          $c->info('fc: '.$curr_date->format('Y-m-d').' '.$ds['food_sales']);
           $ds['date'] = $curr_date->format('Y-m-d');
           $this->ds->firstOrNewField($ds, ['date', 'branchid']);
 
           $ds['slsmtd_totgrs'] = $data['grsamt'];
           $curr_date = $vfpdate;
           $trans=0;
+          $ds['food_sales'] = 0;
+          
           $ds['opened_at'] = $data['ordtime'];
           $ds['closed_at'] = $data['ordtime'];
+
+          
+           $c->info($data['prodcat'].' '.$data['product'].' '.$data['cslipno']);
+          if (strtolower($data['prodcat'])=='foods') {
+            $c->info('fc: '.$data['prodcat'].' '.$data['grsamt']);
+            $ds['food_sales'] = $data['grsamt'];
+          }
           
           $c->info('del: '.$curr_date->format('Y-m-d'));
           try {

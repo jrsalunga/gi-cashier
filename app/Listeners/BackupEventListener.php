@@ -75,21 +75,26 @@ class BackupEventListener
     //$ds = $this->ds->findWhere(['date'=>'2018-08-31', 'branchid'=>'0C2D132F78A711E587FA00FF59FBB323'], ['opex', 'emp_meal'])->first();
     $s = \App\Models\Supplier::where(['code'=>$data['suppliercode']])->first();
     
-    $attrs = [
-      'date'        => $data['date']->format('Y-m-d'),
-      'componentid' => '11E8BB3635ABF63DAEF21C1B0D85A7E0',
-      'qty'       => 1,
-      'ucost'     => $ds->emp_meal,
-      'tcost'     => $ds->emp_meal,
-      'terms'     => 'C',
-      'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
-      'branchid'  => $data['branch_id']
-    ];
+    if (abs($ds->emp_meal)==0) {
+      // skip
+    } else {
+      
+      $attrs = [
+        'date'        => $data['date']->format('Y-m-d'),
+        'componentid' => '11E8BB3635ABF63DAEF21C1B0D85A7E0',
+        'qty'       => 1,
+        'ucost'     => $ds->emp_meal,
+        'tcost'     => $ds->emp_meal,
+        'terms'     => 'C',
+        'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
+        'branchid'  => $data['branch_id']
+      ];
 
-    try {
-      $this->purchase->create($attrs);
-    } catch(Exception $e) {
-      throw $e;    
+      try {
+        $this->purchase->create($attrs);
+      } catch(Exception $e) {
+        throw $e;    
+      }
     }
     
             

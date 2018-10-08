@@ -8,12 +8,13 @@ class DailySales extends BaseModel {
 	//protected $connection = 'boss';
 	protected $table = 'dailysales';
 	public $timestamps = false;
- 	protected $fillable = ['date', 'branchid', 'managerid', 'sales', 'cos', 'tips', 'custcount', 'crew_din', 'crew_kit', 'empcount', 
+ 	protected $fillable = ['date', 'branchid', 'managerid', 'sales', 'food_sales', 'cos', 'tips', 'custcount', 'crew_din', 'crew_kit', 'empcount', 
         'mancost', 'headspend', 'tipspct', 'mancostpct', 'cospct', 'purchcost', 'salesemp', 'slsmtd_totgrs', 
         'chrg_total', 'chrg_csh', 'chrg_chrg', 'chrg_othr', 'bank_totchrg', 'disc_totamt', 'opened_at', 'closed_at', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig','transcost', 'transcos', 'transncos', 'opex', 'depslpk', 'depslpc', 'setslp', 'emp_meal'];
 	//protected $guarded = ['id'];
 	protected $casts = [
     'sales' => 'float',
+    'food_sales' => 'float',
     'cos' => 'float',
     'tips' => 'float',
     'crew_din' => 'integer',

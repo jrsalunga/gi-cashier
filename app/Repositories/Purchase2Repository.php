@@ -31,26 +31,32 @@ class Purchase2Repository extends BaseRepository
   // verify-create component and supplier if not found 
   public function verifyAndCreate($data) {
 
-    $component = $this->component->verifyAndCreate(array_only($data, ['comp', 'ucost', 'unit', 'supno', 'catname']));
-    $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin']));
-    $attr = [
-      'date' => $data['date'],
-      'componentid' => $component->id,
-      'qty' => $data['qty'],
-      //'unit' => $data['unit'],
-      'ucost' => $data['ucost'],
-      'tcost' => $data['tcost'],
-      'terms' => $data['terms'],
-      'supprefno' => $data['supprefno'],
-      'vat' => $data['vat'],
-      'supplierid' => $supplier->id,
-      'branchid' => $data['branchid']
-    ];
+    if (abs($data['ucost'])==0 && abs($data['qty'])==0 && empty($data['comp'])) {
+      // dont create record
+    } else {
 
-    try {
-  	  $this->create($attr);
-    } catch(Exception $e) {
-      throw new Exception($e->getMessage());    
+      $component = $this->component->verifyAndCreate(array_only($data, ['comp', 'ucost', 'unit', 'supno', 'catname']));
+      $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin']));
+      $attr = [
+        'date' => $data['date'],
+        'componentid' => $component->id,
+        'qty' => $data['qty'],
+        //'unit' => $data['unit'],
+        'ucost' => $data['ucost'],
+        'tcost' => $data['tcost'],
+        'terms' => $data['terms'],
+        'supprefno' => $data['supprefno'],
+        'vat' => $data['vat'],
+        'supplierid' => $supplier->id,
+        'branchid' => $data['branchid']
+      ];
+
+      try {
+        $this->create($attr);
+      } catch(Exception $e) {
+        throw new Exception($e->getMessage());    
+      }
+      
     }
     
     /*

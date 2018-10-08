@@ -113,7 +113,7 @@ class MonthDaily extends Command
 
     
     DB::beginTransaction();
-    
+    /*
     $this->info('extracting purchased...');
     try {
       $r = $this->backlogPurchased($br->id, $f, $t, $this);
@@ -146,7 +146,7 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
-    
+    */
     $this->info('extracting salesmtd...');
     try {
       $r = $this->backlogSalesmtd($br->id, $f, $t, $this);
@@ -156,7 +156,7 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
-
+    /*
     $this->info('extracting charges...');
     try {
       $r = $this->backlogCharges($br->id, $f, $t, $this);
@@ -184,6 +184,7 @@ class MonthDaily extends Command
     event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
     $this->info('RankMonthlyProduct');
     event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
+    */
     
     
 
