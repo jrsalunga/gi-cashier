@@ -9,7 +9,7 @@ class MonthlySales extends BaseModel {
 	protected $table = 'monthlysales';
 	public $timestamps = false;
   
- 	protected $fillable = ['date', 'branch_id', 'sales', 'cos', 'tips', 'custcount', 'crew_din', 'crew_kit', 'empcount', 
+ 	protected $fillable = ['date', 'branch_id', 'sales', 'cos', 'food_sales', 'fc', 'tips', 'custcount', 'crew_din', 'crew_kit', 'empcount', 
         'mancost', 'headspend', 'tipspct', 'mancostpct', 'cospct', 'purchcost', 'salesemp', 'slsmtd_totgrs', 
         'chrg_total', 'chrg_csh', 'chrg_chrg', 'chrg_othr', 'bank_totchrg', 'disc_totamt', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig','transcost', 'transcos', 'transncos', 'opex', 'record_count', 'depslpk', 'depslpc', 'setslp'];
 	
@@ -18,6 +18,8 @@ class MonthlySales extends BaseModel {
 	protected $casts = [
     'sales' => 'float',
     'cos' => 'float',
+    'fc' => 'float',
+    'food_sales' => 'float',
     'tips' => 'float',
     'crew_din' => 'integer',
     'crew_kit' => 'integer',
