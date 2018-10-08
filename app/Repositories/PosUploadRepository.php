@@ -2058,9 +2058,9 @@ class PosUploadRepository extends Repository
         if ($vfpdate->eq($curr_date)) {
           $ds['slsmtd_totgrs'] += $data['grsamt'];
 
-          $c->info($data['prodcat'].' '.$data['product'].' '.$data['cslipno']);
+          //$c->info($data['prodcat'].' '.$data['product'].' '.$data['cslipno']);
           if (strtolower($data['prodcat'])=='foods') {
-            $c->info('fc: '.$data['prodcat'].' '.$data['grsamt']);
+            //$c->info('fc: '.$data['prodcat'].' '.$data['grsamt']);
             $ds['food_sales'] += $data['grsamt'];
           }
 
@@ -2110,9 +2110,9 @@ class PosUploadRepository extends Repository
           $ds['closed_at'] = $data['ordtime'];
 
           
-           $c->info($data['prodcat'].' '.$data['product'].' '.$data['cslipno']);
+          //$c->info($data['prodcat'].' '.$data['product'].' '.$data['cslipno']);
           if (strtolower($data['prodcat'])=='foods') {
-            $c->info('fc: '.$data['prodcat'].' '.$data['grsamt']);
+            //$c->info('fc: '.$data['prodcat'].' '.$data['grsamt']);
             $ds['food_sales'] = $data['grsamt'];
           }
           
