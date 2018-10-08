@@ -88,7 +88,7 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
     $sql .= 'SUM(tips) AS tips, ';
     $sql .= 'SUM(opex) AS opex, SUM(transcost) AS transcost, SUM(transncos) AS transncos, SUM(transcos) AS transcos, SUM(emp_meal) AS emp_meal, ';
     $sql .= 'SUM(depslpc) AS depslpc, SUM(depslpk) AS depslpk, SUM(setslp) AS setslp, ';
-    $sql .= '((SUM(cos) - SUM(transcos))/SUM(food_sales))*100 as fc';
+    $sql .= 'SUM(food_sales) AS food_sales, ((SUM(cos) - SUM(transcos))/SUM(food_sales))*100 as fc';
     
 
     $res = $this->skipCache()
