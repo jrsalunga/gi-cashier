@@ -87,6 +87,7 @@ class BackupEventListener
         'tcost'     => $ds->emp_meal,
         'terms'     => 'C',
         'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
+        'supprefno' => $data['date']->format('mdy'),
         'branchid'  => $data['branch_id']
       ];
 
