@@ -62,6 +62,7 @@ class EventServiceProvider extends ServiceProvider
         SetslpEventListener::class,
         \App\Listeners\ProcessesEventListener::class,
         \App\Listeners\AggregatorEventListener::class,
+        \App\Listeners\AggregatorDailyEventListener::class,
     ];
     
     /**

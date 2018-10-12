@@ -105,6 +105,20 @@ class StockTransferRepository extends BaseRepository implements CacheableInterfa
     });
   }
 
+  public function aggExpByDr(Carbon $fr, Carbon $to, $branchid) {
+    return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
+      return $query
+                ->select(DB::raw('stocktransfer.date as date, compcat.expenseid as expense_id, sum(stocktransfer.qty) as qty, sum(stocktransfer.tcost) as tcost, count(stocktransfer.id) as trans'))
+                ->leftJoin('component', 'component.id', '=', 'stocktransfer.componentid')
+                ->leftJoin('compcat', 'compcat.id', '=', 'component.compcatid')
+                ->whereBetween('stocktransfer.date', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('stocktransfer.branchid', $branchid)
+                ->groupBy('compcat.expenseid');
+    })->skipCache()->all();
+  }
+
 
 	
 

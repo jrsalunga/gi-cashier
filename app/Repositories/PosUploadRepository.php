@@ -175,7 +175,7 @@ class PosUploadRepository extends Repository
          
           if ( $vfpdate->format('Y-m-d')==$backup->date->format('Y-m-d')) {
 
-            if (c()->diffInDays($backup->date) < 3) { // dont check if lagpas 3 days
+            if (c()->diffInDays($backup->date) < 1) { // dont check if lagpas 3 days
 
               $t = trim($row['TIP']);
               if (empty($t)) {
@@ -185,13 +185,13 @@ class PosUploadRepository extends Repository
               $k = trim($row['CREW_KIT']);
               if (empty($k)) {
                 array_push($a, 'CREW_KIT');
-                $valid = false;
+                $valid = true;
               }
 
               $d = trim($row['CREW_DIN']);
               if (empty($k)) {
                 array_push($a, 'CREW_DIN');
-                $valid = false;
+                $valid = true;
               }
             } 
           }
@@ -199,7 +199,7 @@ class PosUploadRepository extends Repository
         dbase_close($db);
 
         if (!$valid) {
-          throw new Exception("Validation Error: Invalid EoD backup. No encoded ".join(", ", $a)." on CSH_AUDT.DBF. Please upload the correct backup file."); 
+          throw new Exception("Validation Error: Invalid EoD backup. No encoded ".join(", ", $a)." on CSH_AUDT.DBF. Kindly backup after you encode the ".join(", ", $a). " and upload the backup file."); 
         }
         
 
@@ -2477,35 +2477,35 @@ class PosUploadRepository extends Repository
         if ($curr_date->eq($vfpdate)) {
 
           $trans++;
-          $ds['purchcost'] += $data['tcost'];
+          //$ds['purchcost'] += $data['tcost'];
           
-          if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
-            $ds['cos'] += $data['tcost'];
-          if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
-            $ds['opex'] += $data['tcost'];
+          //if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
+          //  $ds['cos'] += $data['tcost'];
+          //if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
+          //  $ds['opex'] += $data['tcost'];
 
           if ($i==$recno) {
             $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['purchcost'].' '.$ds['cos']);
             $ds['date'] = $curr_date->format('Y-m-d');
-            $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+            //$this->ds->firstOrNewField($ds, ['date', 'branchid']); /////////////////////////////////////////////////////////////////
           }
 
         } else {
           
           $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['purchcost'].' '.$ds['cos']); 
           $ds['date'] = $curr_date->format('Y-m-d');  
-          $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+          //$this->ds->firstOrNewField($ds, ['date', 'branchid']); ////////////////////////////////////////////////////////////////////
           
           $curr_date = $vfpdate;          
           $trans=1;
-          $ds['purchcost'] = $data['tcost'];
-          $ds['cos']=0;
-          $ds['opex']=0;
+          //$ds['purchcost'] = $data['tcost'];
+          //$ds['cos']=0;
+          //$ds['opex']=0;
           
-          if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
-            $ds['cos'] = $data['tcost'];
-          if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
-            $ds['opex'] = $data['tcost'];
+          //if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
+          //  $ds['cos'] = $data['tcost'];
+          //if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
+          //  $ds['opex'] = $data['tcost'];
 
           try {
             $c->info('del: '.$curr_date->format('Y-m-d'));

@@ -114,6 +114,8 @@ class MonthDaily extends Command
     
     DB::beginTransaction();
     
+
+    
     $this->info('extracting purchased...');
     try {
       $r = $this->backlogPurchased($br->id, $f, $t, $this);
@@ -122,9 +124,8 @@ class MonthDaily extends Command
       $this->removeExtratedDir();
       DB::rollback();
       exit;
-    }
+    } 
 
-    
     $this->info('extracting trasfer...');
     try {
       $r = $this->backlogTransfer($br->id, $f, $t, $this);
@@ -133,6 +134,9 @@ class MonthDaily extends Command
       $this->removeExtratedDir();
       DB::rollback();
       exit;
+    } finally {
+      foreach (dateInterval($f, $t) as $key => $date)
+        event(new \App\Events\Process\AggregatorDaily('purchase', $date, $backup->branchid));
     }
 
    
@@ -167,7 +171,6 @@ class MonthDaily extends Command
       exit;
     }
     
-
     
     $this->info('working on events...');
     $this->info('DailySalesSuccess');
@@ -176,6 +179,8 @@ class MonthDaily extends Command
     event(new \App\Events\Process\AggregateComponentMonthly($backup->date, $backup->branchid));
     $this->info('AggregateMonthlyExpense');
     event(new \App\Events\Process\AggregateMonthlyExpense($backup->date, $backup->branchid));
+    $this->info('AggregatorMonthly trans-expense');
+    event(new \App\Events\Process\AggregatorMonthly('trans-expense', $backup->date, $backup->branchid));
     $this->info('AggregatorMonthly product');
     event(new \App\Events\Process\AggregatorMonthly('product', $backup->date, $backup->branchid)); // recompute Monthly Expense
     $this->info('AggregatorMonthly prodcat');
@@ -184,6 +189,7 @@ class MonthDaily extends Command
     event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
     $this->info('RankMonthlyProduct');
     event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
+    
     
     
     

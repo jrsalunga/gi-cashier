@@ -91,6 +91,30 @@ trait Repository {
   }
 
 
+  public function sumFieldsByDate($field, Carbon $date, $branchid) {
+    
+    $select = '';
+    $arr = [];
+    if (is_array($field)) {
+      foreach ($field as $key => $value) {
+        $arr[$key] = 'sum('.$value.') as '.$value;
+      }
+      $select = join(',', $arr);
+    } else {
+      $select = 'sum('.$field.') as '.$field;
+    }
+
+    return $this
+        //->skipCache()
+        ->scopeQuery(function($query) use ($select, $date, $branchid) {
+          return $query->select(DB::raw($select))
+            ->where('date', $date->format('Y-m-d'))
+            ->where('branchid', $branchid);
+        })
+        ->first();
+  }
+
+
   public function rank($date=null, $field) {
 
     if ($date instanceof Carbon)

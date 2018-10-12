@@ -64,6 +64,8 @@ class ProcessesEventListener
       ? $value->component->compcat->expense->ordinal
       : 833;
 
+      //$ord = 883;
+
       $this->mc->firstOrNewField([
         'date'          => $event->date->copy()->lastOfMonth()->format('Y-m-d'),
         'component_id'  => $value->componentid,

@@ -8,12 +8,12 @@ use Prettus\Repository\Eloquent\BaseRepository;
 use Prettus\Repository\Traits\CacheableRepository;
 use Prettus\Repository\Contracts\CacheableInterface;
 use App\Repositories\CompledgerRepository as CompledgerRepo;
-
+use App\Traits\Repository as RepoTrait;
 
 //class Purchase2Repository extends BaseRepository implements CacheableInterface
 class Purchase2Repository extends BaseRepository 
 {
-  //use CacheableRepository;
+  use RepoTrait;
   private $supplier;
   private $component;
 
@@ -172,6 +172,33 @@ class Purchase2Repository extends BaseRepository
     })->all();
   }
 
+
+  public function getDailySalesData($date, $branchid) {
+    $arr = [
+      'date' => $date->format('Y-m-d'),
+      'branchid'  => $branchid
+    ];
+
+    $c = $this->sumFieldsByDate('tcost', $date, $branchid);
+    if (is_null($c))
+      $arr['purchcost'] = 0;
+    else
+      $arr['purchcost'] = $c->tcost;
+
+    $c = $this->getCos($branchid, $date, ["CK","FS","FV","GR","MP","RC","SS"])->all();
+    if (is_null($c->first()->tcost))
+      $arr['cos'] = 0;
+    else
+      $arr['cos'] = $c->first()->tcost;
+
+    $c = $this->getOpex($branchid, $date)->all();
+    if (is_null($c->first()->tcost))
+      $arr['opex'] = 0;
+    else
+      $arr['opex'] = $c->first()->tcost;
+
+    return $arr;
+  }
 
 
 

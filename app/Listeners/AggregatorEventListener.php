@@ -5,6 +5,8 @@ use App\Repositories\MonthProductRepository as Product;
 use App\Repositories\MonthProdcatRepository as Prodcat;
 use App\Repositories\MonthGroupiesRepository as Groupies;
 use App\Repositories\SalesmtdRepository as Salesmtd;
+use App\Repositories\StockTransferRepository as Transfer;
+use App\Repositories\MonthExpenseRepository as ME;
 
 class AggregatorEventListener
 {
@@ -14,13 +16,17 @@ class AggregatorEventListener
   private $prodcat;
   private $groupies;
   private $salesmtd;
+  private $transfer;
+  private $me;
 
-  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd) {
+  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ME $me) {
     $this->mailer = $mailer;
     $this->product = $product;
     $this->prodcat = $prodcat;
     $this->groupies = $groupies;
     $this->salesmtd = $salesmtd;
+    $this->transfer = $transfer;
+    $this->me = $me;
   }
 
   private function getRepo($table, $fr, $to, $branchid) {
@@ -33,6 +39,9 @@ class AggregatorEventListener
         break;
       case 'groupies':
         return $this->salesmtd->aggregateGroupiesByDr($fr, $to, $branchid);
+        break;
+      case 'trans-expense':
+        return $this->transfer->aggExpByDr($fr, $to, $branchid);
         break;
       default:
         throw new \Exception("Table not found!", 1);
@@ -90,6 +99,9 @@ class AggregatorEventListener
       case 'groupies':
         $this->saveGroupies($datas, $date, $branchid);
         break;
+      case 'trans-expense':
+        $this->saveTransExpense($datas, $date, $branchid);
+        break;
       default:
         
         break;
@@ -133,6 +145,17 @@ class AggregatorEventListener
         'trans'         => $value->trans,
         'branch_id'     => $branchid,
       ], ['date', 'branch_id', 'code']);
+    }
+  }
+
+  private function saveTransExpense($datas, $date, $branchid) {
+    foreach ($datas as $key => $value) {
+      $this->me->firstOrNewField([
+        'date'          => $date->format('Y-m-d'),
+        'xfred'         => $value->tcost,
+        'expense_id'    => $value->expense_id,
+        'branch_id'     => $branchid,
+      ], ['date', 'branch_id', 'expense_id']);
     }
   }
 
