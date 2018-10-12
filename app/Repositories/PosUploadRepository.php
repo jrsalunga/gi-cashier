@@ -142,8 +142,6 @@ class PosUploadRepository extends Repository
       
     }
 
-    
-
     public function isEoD($backup) {
 
       $dbf_file = $this->extracted_path.DS.'ORDERS.DBF';
