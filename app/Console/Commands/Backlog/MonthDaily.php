@@ -117,7 +117,6 @@ class MonthDaily extends Command
 
     
     $this->info('extracting purchased...');
-    /*
     try {
       $r = $this->backlogPurchased($br->id, $f, $t, $this);
     } catch (Exception $e) {
@@ -171,7 +170,7 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
-    */
+    
     
     $this->info('working on events...');
     $this->info('DailySalesSuccess');
