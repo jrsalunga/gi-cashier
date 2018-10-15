@@ -102,6 +102,9 @@ class BacklogMonth extends Command
       $process->processed = 3;
   		$process->save();
       exit;
+    } finally {
+      foreach (dateInterval($f, $t) as $key => $date)
+        event(new \App\Events\Process\AggregatorDaily('purchase', $date, $backup->branchid));
     }
     
     $this->info('extracting cash audit...');
@@ -139,6 +142,25 @@ class BacklogMonth extends Command
   		$process->save();
       exit;
     }
+
+
+    $this->info('working on events...');
+    $this->info('DailySalesSuccess');
+    event(new \App\Events\Backup\DailySalesSuccess($backup));
+    $this->info('AggregateComponentMonthly');
+    event(new \App\Events\Process\AggregateComponentMonthly($backup->date, $backup->branchid));
+    $this->info('AggregateMonthlyExpense');
+    event(new \App\Events\Process\AggregateMonthlyExpense($backup->date, $backup->branchid));
+    $this->info('AggregatorMonthly trans-expense');
+    event(new \App\Events\Process\AggregatorMonthly('trans-expense', $backup->date, $backup->branchid));
+    $this->info('AggregatorMonthly product');
+    event(new \App\Events\Process\AggregatorMonthly('product', $backup->date, $backup->branchid)); // recompute Monthly Expense
+    $this->info('AggregatorMonthly prodcat');
+    event(new \App\Events\Process\AggregatorMonthly('prodcat', $backup->date, $backup->branchid)); 
+    $this->info('AggregatorMonthly groupies');
+    event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
+    $this->info('RankMonthlyProduct');
+    event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
     
     DB::commit();
 
