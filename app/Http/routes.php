@@ -13,7 +13,7 @@ Route::get('timelog/daily', ['middleware' => 'auth', 'uses'=>'DashboardControlle
 
 /******* start middeware:auth ********/
 Route::group(['middleware' => 'auth'], function(){
-
+ 
 Route::get('settings/{param1?}/{param2?}', ['uses'=>'SettingsController@getIndex'])
   ->where(['param1'=>'password|rfid', 
           'param2'=>'week|[0-9]+']);

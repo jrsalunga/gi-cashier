@@ -100,6 +100,25 @@ class BackupEventListener
     
             
   }
+
+
+   public function onDailySalesSuccess2($event) {
+    
+    try {
+      $month = $this->ds->computeMonthTotal($event->date, $event->branchid);
+    } catch (\Exception $e) { 
+      logAction('onDailySalesSuccess Error', $e->getMessage());
+    } finally {
+      if (!is_null($month)) {
+        
+      //logAction('onDailySalesSuccess', $event->backup->filedate->format('Y-m-d').' '.request()->user()->branchid.' '.json_encode($month));
+      $this->ms->firstOrNewField(array_except($month->toArray(), ['year', 'month']), ['date', 'branch_id']);
+      //logAction('onDailySalesSuccess', 'rank');
+      $this->ms->rank($month->date);
+      }
+    }
+
+  }
   
 
   public function subscribe($events) {
@@ -111,6 +130,11 @@ class BackupEventListener
     $events->listen(
       'App\Events\Backup\DailySalesSuccess',
       'App\Listeners\BackupEventListener@onDailySalesSuccess'
+    );
+
+    $events->listen(
+      'App\Events\Backup\DailySalesSuccess2',
+      'App\Listeners\BackupEventListener@onDailySalesSuccess2'
     );
 
     $events->listen(

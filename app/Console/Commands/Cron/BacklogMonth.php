@@ -104,7 +104,7 @@ class BacklogMonth extends Command
       exit;
     } finally {
       foreach (dateInterval($f, $t) as $key => $date)
-        event(new \App\Events\Process\AggregatorDaily('purchase', $date, $backup->branchid));
+        event(new \App\Events\Process\AggregatorDaily('purchase', $date, $br->id));
     }
     
     $this->info('extracting cash audit...');
@@ -143,25 +143,30 @@ class BacklogMonth extends Command
       exit;
     }
 
+    foreach (dateInterval($f, $t) as $key => $date) {
 
-    $this->info('working on events...');
-    $this->info('DailySalesSuccess');
-    event(new \App\Events\Backup\DailySalesSuccess($backup));
-    $this->info('AggregateComponentMonthly');
-    event(new \App\Events\Process\AggregateComponentMonthly($backup->date, $backup->branchid));
-    $this->info('AggregateMonthlyExpense');
-    event(new \App\Events\Process\AggregateMonthlyExpense($backup->date, $backup->branchid));
-    $this->info('AggregatorMonthly trans-expense');
-    event(new \App\Events\Process\AggregatorMonthly('trans-expense', $backup->date, $backup->branchid));
-    $this->info('AggregatorMonthly product');
-    event(new \App\Events\Process\AggregatorMonthly('product', $backup->date, $backup->branchid)); // recompute Monthly Expense
-    $this->info('AggregatorMonthly prodcat');
-    event(new \App\Events\Process\AggregatorMonthly('prodcat', $backup->date, $backup->branchid)); 
-    $this->info('AggregatorMonthly groupies');
-    event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
-    $this->info('RankMonthlyProduct');
-    event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
+      $backup = \App\Models\Backup::where('branchid', $br->id)->where('filename', 'GC'.$date->format('mdy').'.ZIP')->first();
+
+      $this->info('working on events: '.$date);
+      $this->info('DailySalesSuccess');
+      event(new \App\Events\Backup\DailySalesSuccess2($date, $br->id));
+      $this->info('AggregateComponentMonthly');
+      event(new \App\Events\Process\AggregateComponentMonthly($date, $br->id));
+      $this->info('AggregateMonthlyExpense');
+      event(new \App\Events\Process\AggregateMonthlyExpense($date, $br->id));
+      $this->info('AggregatorMonthly trans-expense');
+      event(new \App\Events\Process\AggregatorMonthly('trans-expense', $date, $br->id));
+      $this->info('AggregatorMonthly product');
+      event(new \App\Events\Process\AggregatorMonthly('product', $date, $br->id)); 
+      $this->info('AggregatorMonthly prodcat');
+      event(new \App\Events\Process\AggregatorMonthly('prodcat', $date, $br->id)); 
+      $this->info('AggregatorMonthly groupies');
+      event(new \App\Events\Process\AggregatorMonthly('groupies', $date, $br->id));
+      $this->info('RankMonthlyProduct');
+      event(new \App\Events\Process\RankMonthlyProduct($date, $br->id));
     
+    }
+
     DB::commit();
 
 
