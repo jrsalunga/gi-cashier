@@ -44,6 +44,20 @@ class SalesmtdRepository extends BaseRepository implements CacheableInterface
     })->skipCache()->all();
   }
 
+  public function aggregateProdcatByDr2($fr, $to, $branchid) {
+    return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
+      return $query
+                ->select(DB::raw("product.prodcat_id, sum(salesmtd.qty) as qty, sum(salesmtd.netamt) as sales, (COUNT(salesmtd.id) - SUM(IF(salesmtd.qty<1, (ABS(salesmtd.qty)*2),0))) as trans, ((sum(salesmtd.netamt)/(SELECT sum(a.netamt) from salesmtd as a where a.branch_id = '".$branchid."' and a.orddate between '".$fr->format('Y-m-d')."' and '".$to->format('Y-m-d')."'))*100) as pct"))
+                ->leftJoin('product', 'product.id', '=', 'salesmtd.product_id')
+                ->whereBetween('salesmtd.orddate', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('salesmtd.branch_id', $branchid)
+                ->groupBy('product.prodcat_id')
+                ->orderBy('qty', 'desc');
+    })->skipCache()->all();
+  }
+
   public function aggregateGroupiesByDr($fr, $to, $branchid) {
   	 return DB::table(DB::raw("(select salesmtd.group as code, group_cnt AS qty, SUM(salesmtd.netamt) AS netamt from salesmtd where salesmtd.orddate between '".$fr->format('Y-m-d')."' and '".$to->format('Y-m-d')."'
         and salesmtd.branch_id = '".$branchid."' and salesmtd.group_cnt > 0

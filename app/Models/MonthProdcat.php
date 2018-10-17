@@ -12,7 +12,8 @@ class MonthProdcat extends BaseModel {
   protected $casts = [
     'sales' => 'float',
     'qty' => 'float',
-    'trans' => 'integer'
+    'trans' => 'integer',
+    'pct' => 'float'
   ];
 
   public function prodcat() {

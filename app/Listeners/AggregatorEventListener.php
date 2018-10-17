@@ -35,7 +35,7 @@ class AggregatorEventListener
         return $this->salesmtd->aggregateProductByDr($fr, $to, $branchid);
         break;
       case 'prodcat':
-        return $this->salesmtd->aggregateProdcatByDr($fr, $to, $branchid);
+        return $this->salesmtd->aggregateProdcatByDr2($fr, $to, $branchid);
         break;
       case 'groupies':
         return $this->salesmtd->aggregateGroupiesByDr($fr, $to, $branchid);
@@ -55,6 +55,7 @@ class AggregatorEventListener
     $table = strtolower($event->table);
     $datas = [];
     //return dd($this->getRepo($table));
+      $datas = $this->getRepo($table, $event->date->copy()->firstOfMonth(), $event->date->copy()->lastOfMonth(), $event->branchid);
     try {
       $datas = $this->getRepo($table, $event->date->copy()->firstOfMonth(), $event->date->copy()->lastOfMonth(), $event->branchid);
     } catch (\Exception $e) { 
@@ -130,6 +131,7 @@ class AggregatorEventListener
         'qty'           => $value->qty,
         'sales'         => $value->sales,
         'trans'         => $value->trans,
+        'pct'           => $value->pct,
         'branch_id'     => $branchid,
       ], ['date', 'branch_id', 'prodcat_id']);
     }
