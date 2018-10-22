@@ -1652,6 +1652,9 @@ class PosUploadRepository extends Repository
             $trans=1;
             if ($data['tcost']>0)
              $ds['transcost'] = $data['tcost'];
+            else 
+             $ds['transcost'] = 0;
+
             $ds['transcos'] = 0;
             $ds['transncos'] = 0;
             $ds['emp_meal'] = 0;
@@ -2619,6 +2622,9 @@ class PosUploadRepository extends Repository
           $trans=1;
           if ($data['tcost']>0)
             $ds['transcost'] = $data['tcost'];
+          else 
+            $ds['transcost'] = 0;
+
           $ds['transcos'] = 0;
           $ds['transncos'] = 0;
           $ds['emp_meal'] = 0;
