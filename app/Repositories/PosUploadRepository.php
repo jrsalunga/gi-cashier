@@ -1612,15 +1612,17 @@ class PosUploadRepository extends Repository
           if ($curr_date->eq($vfpdate)) {
 
             $trans++;
-            if ($data['tcost']>0)
+            //if ($data['tcost']>0)
               $ds['transcost'] += $data['tcost'];
 
-            if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
+            //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
+            if (in_array(substr($data['supno'], 0, 2), $this->expense_array)) {
               $ds['transcos'] += $data['tcost'];
               if (strtolower(substr($data['supno'], 2, 3))==strtolower(session('user.branchcode')))
                 $ds['emp_meal'] += $data['tcost'];
             } 
-            if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
+            //if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
+            if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array)) 
               $ds['transncos'] += $data['tcost'];
 
 
@@ -2588,18 +2590,22 @@ class PosUploadRepository extends Repository
         if ($curr_date->eq($vfpdate)) {
 
           $trans++;
-          if ($data['tcost']>0)
+          //if ($data['tcost']>0)
             $ds['transcost'] += $data['tcost'];
+          
+          $c->info('tcost:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' tcost:'.$data['tcost']);
 
           //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
           //  $ds['transcos'] += $data['tcost'];
 
-          if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
+          //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
+          if (in_array(substr($data['supno'], 0, 2), $this->expense_array)) {
             $ds['transcos'] += $data['tcost'];
             if (strtolower(substr($data['supno'], 2, 3))==strtolower($branchcode))
               $ds['emp_meal'] += $data['tcost'];
           } 
-          if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
+          //if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
+          if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array)) 
             $ds['transncos'] += $data['tcost'];
           
           if ($i==$recno) {
@@ -2620,23 +2626,29 @@ class PosUploadRepository extends Repository
           
           $curr_date = $vfpdate;          
           $trans=1;
+          /*
           if ($data['tcost']>0)
             $ds['transcost'] = $data['tcost'];
           else 
             $ds['transcost'] = 0;
+          */
+          $ds['transcost'] = $data['tcost'];
 
+          $c->info('tcost:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' tcost:'.$data['tcost']);
           $ds['transcos'] = 0;
           $ds['transncos'] = 0;
           $ds['emp_meal'] = 0;
 
           //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
           //  $ds['transcos'] = $data['tcost'];
-          if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
+          //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
+          if (in_array(substr($data['supno'], 0, 2), $this->expense_array)) {
             $ds['transcos'] = $data['tcost'];
             if (strtolower(substr($data['supno'], 2, 3))==strtolower($branchcode))
               $ds['emp_meal'] = $data['tcost'];
           } 
-          if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
+          //if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
+          if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array)) 
             $ds['transncos'] = $data['tcost'];
 
           
