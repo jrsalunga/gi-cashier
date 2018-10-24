@@ -51,10 +51,17 @@ class FoodSales extends Command
     $fr = Carbon::parse($fr);
     $to = Carbon::parse($to);
 
+    $branches = ['AFV', 'AMK', 'ANO', 'ARA', 'ASP', 'ATC', 'AVA', 'AVE', 'BAC'];
+
+    foreach ($branches as $key => $code) {
+      $br = \App\Models\Branch::where('code', $code)->first();
+      foreach (dateInterval($fr, $to) => $date) {
+        event(new \App\Events\Backup\DailySalesSuccess2($date, $br->id));
+      }
+    }
 
 
-
-
+    /*
 
     $dss = \App\Models\DailySales::select('date', 'branchid', 'id')
               ->whereBetween('date', [$fr->format('Y-m-d'), $to->format('Y-m-d')])
@@ -84,8 +91,9 @@ class FoodSales extends Command
         event(new \App\Events\Process\AggregatorMonthly('prodcat', $ds->date, $ds->branchid));
 
       }
-
     }
+
+    */
 
   }
 
