@@ -51,7 +51,7 @@ class FoodSales extends Command
     $fr = Carbon::parse($fr);
     $to = Carbon::parse($to);
 
-    $branches = ['AFV', 'AMK', 'ANO', 'ARA', 'ASP', 'ATC', 'AVA', 'AVE', 'BAC'];
+    $branches = ['MOA', 'MOR'];
 
     foreach ($branches as $key => $code) {
       $br = \App\Models\Branch::where('code', $code)->first();
