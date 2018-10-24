@@ -55,7 +55,9 @@ class FoodSales extends Command
 
     foreach ($branches as $key => $code) {
       $br = \App\Models\Branch::where('code', $code)->first();
+      $this->info($br->code);
       foreach (dateInterval($fr, $to) as $date) {
+        $this->info($date);
         event(new \App\Events\Backup\DailySalesSuccess2($date, $br->id));
       }
     }
