@@ -56,16 +56,35 @@ class FoodSales extends Command
 
 
 
-    $dss = DB::table('dailysales')
-              ->select('date', 'branchid')
+    $dss = \App\Models\DailySales::select('date', 'branchid', 'id')
               ->whereBetween('date', [$fr->format('Y-m-d'), $to->format('Y-m-d')])
               ->where('food_sales', '<', 1)
               ->where('sales', '>', 0)
               ->get();
 
+    $prodcatid = app()->environment()=='local' ? '6270B37CBDF211E6978200FF18C615EC':'E838DA36BC3711E6856EC3CDBB4216A7';
 
     foreach ($dss as $key => $ds) {
-      $this->info($key.': '.$ds->date.' '.$ds->branchid);
+      $this->info($key.': '.$ds->date->format('Y-m-d').' '.$ds->branch->code);
+
+      $obj = \App\Models\Salesmtd::select(DB::raw('sum(salesmtd.netamt) as netamt'))
+              ->join('product', 'product.id', '=', 'salesmtd.product_id')
+              ->where('salesmtd.branch_id', $ds->branchid)
+              ->where('salesmtd.orddate', $ds->date->format('Y-m-d'))
+              ->where('product.prodcat_id', $prodcatid)
+              ->first();
+
+      if (is_null($obj)) {
+        $this->info('NULL');
+      } else {
+        $this->info($obj->netamt);
+
+        $new = \App\Models\DailySales::where('id', $ds->id)->update(['food_sales' => $obj->netamt]);
+
+        event(new \App\Events\Process\AggregatorMonthly('prodcat', $ds->date, $ds->branchid));
+
+      }
+
     }
 
   }
