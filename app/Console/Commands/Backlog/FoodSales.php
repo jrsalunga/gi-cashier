@@ -58,7 +58,8 @@ class FoodSales extends Command
       $this->info($br->code);
       foreach (monthInterval($fr, $to) as $date) {
         $this->info($date->endOfMonth());
-        event(new \App\Events\Backup\DailySalesSuccess2($date, $br->id));
+        //event(new \App\Events\Backup\DailySalesSuccess2($date, $br->id));
+        event(new \App\Events\Process\AggregatorMonthly('prodcat', $date, $br->id));
       }
     }
 
