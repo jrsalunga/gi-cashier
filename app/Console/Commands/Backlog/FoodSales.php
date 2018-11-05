@@ -51,6 +51,11 @@ class FoodSales extends Command
     $fr = Carbon::parse($fr);
     $to = Carbon::parse($to);
 
+
+
+    /*
+    
+
     $branches = ['ABZ', 'ANG'];
 
     foreach ($branches as $key => $code) {
@@ -62,9 +67,10 @@ class FoodSales extends Command
         event(new \App\Events\Process\AggregatorMonthly('prodcat', $date, $br->id));
       }
     }
+    */
 
 
-    /*
+    
 
     $dss = \App\Models\DailySales::select('date', 'branchid', 'id')
               ->whereBetween('date', [$fr->format('Y-m-d'), $to->format('Y-m-d')])
@@ -96,7 +102,7 @@ class FoodSales extends Command
       }
     }
 
-    */
+    
 
   }
 
