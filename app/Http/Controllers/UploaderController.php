@@ -269,6 +269,16 @@ class UploaderController extends Controller
 					}
 					//$this->logAction('success:process:charges', $log_msg.$msg);
 
+					try {
+						$this->processPurchased($backup->date);
+					} catch (Exception $e) {
+						$msg =  'Process Purchased: '.$e->getMessage();
+						//$res = $this->movedErrorProcessing($filepath, $storage_path);
+						$this->updateBackupRemarks($backup, $msg);
+						//$this->logAction('error:process:purchased', $log_msg.$msg);
+						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+					}
+
 
 					try {
 						$this->processTransfer($backup->branchid, $backup->date);
@@ -284,15 +294,7 @@ class UploaderController extends Controller
 					event('transfer.empmeal', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date, 'suppliercode'=>session('user.branchcode')]]);
 					//$this->logAction('success:process:purchased', $log_msg.$msg);
 
-					try {
-						$this->processPurchased($backup->date);
-					} catch (Exception $e) {
-						$msg =  'Process Purchased: '.$e->getMessage();
-						//$res = $this->movedErrorProcessing($filepath, $storage_path);
-						$this->updateBackupRemarks($backup, $msg);
-						//$this->logAction('error:process:purchased', $log_msg.$msg);
-						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
-					}
+					
 
 					// added 2017-06-09 to backlog DS trans_cnt, man_pay, man_hrs
 					// one time transaction
