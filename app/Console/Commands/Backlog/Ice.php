@@ -70,7 +70,8 @@ class Ice extends Command
         //event(new \App\Events\Process\AggregateMonthlyExpense($backup->date, $backup->branchid)); // recompute Monthly Expense
         //event(new \App\Events\Process\AggregatorMonthly('trans-expense', $backup->date, $backup->branchid));
       }
-      event(new \App\Events\Process\AggregateMonthlyExpense($m->date, $m->branch_id)); // recompute Monthly Expense
+      //event(new \App\Events\Process\AggregateMonthlyExpense($m->date, $m->branch_id)); // recompute Monthly Expense
+      event(new \App\Events\Backup\DailySalesSuccess2($m->date, $m->branch_id));
     }
 
 
