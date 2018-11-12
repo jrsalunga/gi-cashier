@@ -2469,6 +2469,13 @@ class PosUploadRepository extends Repository
           $curr_date = $vfpdate;
           $trans = 1;
 
+        try {
+          $this->purchase->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw $e;    
+        }
+
           try {
             $c->info('del: '.$curr_date->format('Y-m-d'));
             $this->purchase2->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
@@ -2511,6 +2518,13 @@ class PosUploadRepository extends Repository
           //  $ds['cos'] = $data['tcost'];
           //if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
           //  $ds['opex'] = $data['tcost'];
+
+          try {
+            $this->purchase->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
 
           try {
             $c->info('del: '.$curr_date->format('Y-m-d'));
