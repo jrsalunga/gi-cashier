@@ -2455,7 +2455,14 @@ class PosUploadRepository extends Repository
 
       for ($i=1; $i<=$recno; $i++) {
         $row = dbase_get_record_with_names($db, $i);
-        $data = $this->purchase2->associateAttributes($row);
+
+        try {
+          $data = $this->purchase2->associateAttributes($row);
+        } catch(Exception $e) {
+          // log on error
+          continue;
+        }
+
         $data['branchid'] = $branchid;
 
         try {
