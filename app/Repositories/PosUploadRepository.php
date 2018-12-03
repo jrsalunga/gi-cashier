@@ -32,7 +32,7 @@ class PosUploadRepository extends Repository
   public $purchase2;
   public $charges;
   public $transfer;
-  private $sysinfo = null;
+  public $sysinfo = null;
   protected $salesmtdCtrl;
   protected $expense_array = [];
   protected $non_cos_array = [];

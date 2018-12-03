@@ -34,6 +34,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\MakeBranch::class,
         \App\Console\Commands\Backlog\FoodSales::class,
         \App\Console\Commands\Backlog\Ice::class,
+        \App\Console\Commands\Checker\PosVersion::class,
     ];
 
     /**
