@@ -67,13 +67,12 @@ class PosVersion extends Command
 
 
     foreach (Branch::orderBy('code')->get() as $key => $br) {
-      $this->info($br->code);
 
       $locator = new Locator('pos');
       $path = $br->code.DS.$to->format('Y').DS.$to->format('m').DS.'GC'.$to->format('mdy').'.ZIP';
       //$this->info($path);
       if (!$locator->exists($path)) {
-        //$this->info('Backup '.$path.' do not exist.');
+        $this->info($br->code.' - backup '.$path.' do not exist.');
       } else {
         
         //$this->info('Backup '.$path);
@@ -87,7 +86,7 @@ class PosVersion extends Command
 
         $this->loadSysinfo();
 
-        $this->info($this->getSysinfo()->posupdate);
+        $this->info($br->code.' - '.$this->getSysinfo()->posupdate);
 
         $v = $this->getSysinfo()->posupdate;
         if (array_key_exists($v, $arr)) {
@@ -105,7 +104,11 @@ class PosVersion extends Command
       }
     }  
 
-    $this->info(json_encode($arr));
+    foreach ($arr as $v => $value) {
+      # code...
+    $this->info($v.': '.$arr[$v]['ctr']);
+    $this->info(json_encode($arr[$v]['branch']));
+    }
 
 
 
