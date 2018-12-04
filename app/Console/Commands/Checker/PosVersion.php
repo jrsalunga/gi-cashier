@@ -104,6 +104,8 @@ class PosVersion extends Command
       }
     }  
 
+
+    $this->info(' ');
     foreach ($arr as $v => $value) {
       # code...
     $this->info($v.': '.$arr[$v]['ctr']);
