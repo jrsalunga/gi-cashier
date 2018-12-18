@@ -14,13 +14,13 @@ class ProductRepository extends BaseRepository implements CacheableInterface
   use CacheableRepository, RepoTrait;
 
   protected $menucat;
-	protected $prodcat;
-	protected $order = ['descriptor'];
+  protected $prodcat;
+  protected $order = ['descriptor'];
 
   public function __construct(MenucatRepo $menucat, ProdcatRepo $prodcat) {
     parent::__construct(app());
     $this->menucat = $menucat;
-		$this->prodcat = $prodcat;
+    $this->prodcat = $prodcat;
   }
 
 
@@ -34,18 +34,18 @@ class ProductRepository extends BaseRepository implements CacheableInterface
     $menucat = $this->menucat->verifyAndCreate(array_only($data, ['menucat']));
     
     $attr = [
-      'code' 				=> $data['productcode'],
+      'code'        => $data['productcode'],
       'descriptor'  => $data['product'],
-      'prodcat_id' 	=> $prodcat->id,
-      'menucat_id' 	=> $menucat->id
+      'prodcat_id'  => $prodcat->id,
+      'menucat_id'  => $menucat->id
     ];
 
     try {
-  	  //$this->create($attr);
-  	  return $this->findOrNew($attr, ['code', 'descriptor']); //  find or create
+      //$this->create($attr);
+      return $this->findOrNew($attr, ['code', 'descriptor']); //  find or create
       //return $this->firstOrNew($attr, ['code', 'descriptor']); // update when find or create
     } catch(Exception $e) {
-     	throw new Exception('product: '.$e->getMessage());
+      throw new Exception('product: '.$e->getMessage());
     }
   }
 
