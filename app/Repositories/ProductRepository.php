@@ -30,14 +30,28 @@ class ProductRepository extends BaseRepository implements CacheableInterface
 
   public function verifyAndCreate($data) {
 
-    $prodcat = $this->prodcat->verifyAndCreate(array_only($data, ['prodcat']));
-    $menucat = $this->menucat->verifyAndCreate(array_only($data, ['menucat']));
+    //$prodcat = $this->prodcat->verifyAndCreate(array_only($data, ['prodcat']));
+    //$menucat = $this->menucat->verifyAndCreate(array_only($data, ['menucat']));
+
+    if (empty(trim($data['prodcat'])))
+      $prodcatid = app()->environment('local') ? '625E2E18BDF211E6978200FF18C615EC' : 'E841F22BBC3711E6856EC3CDBB4216A7';
+    else {
+      $prodcat = $this->prodcat->verifyAndCreate(array_only($data, ['prodcat']));
+      $prodcatid = $prodcat->id;
+    }
+
+    if (empty(trim($data['menucat'])))
+      $menucatid = app()->environment('local') ? '11E7509A985A1C1B0D85A7E0C073910B' : 'A197E8FFBC7F11E6856EC3CDBB4216A7';
+    else {
+      $menucat = $this->menucat->verifyAndCreate(array_only($data, ['menucat']));
+      $menucatid = $menucat->id;
+    }
     
     $attr = [
       'code'        => $data['productcode'],
       'descriptor'  => $data['product'],
-      'prodcat_id'  => $prodcat->id,
-      'menucat_id'  => $menucat->id
+      'prodcat_id'  => $prodcatid,
+      'menucat_id'  => $menucatid
     ];
 
     try {
@@ -52,16 +66,28 @@ class ProductRepository extends BaseRepository implements CacheableInterface
 
   public function importAndCreate($data) {
 
-    $prodcat = $this->prodcat->verifyAndCreate(array_only($data, ['prodcat']));
-    $menucat = $this->menucat->verifyAndCreate(array_only($data, ['menucat']));
+    if (empty($data['prodcat'])) 
+      $prodcatid = app()->environment('local') ? '625E2E18BDF211E6978200FF18C615EC' : 'E841F22BBC3711E6856EC3CDBB4216A7';
+    else {
+      $prodcat = $this->prodcat->verifyAndCreate(array_only($data, ['prodcat']));
+      $prodcatid = $prodcat->id;
+    }
+    
+
+    if (empty($data['menucat'])) 
+      $menucatid = app()->environment('local') ? '62605A33BDF211E6978200FF18C615EC' : 'E84204C8BC3711E6856EC3CDBB4216A7';
+    else {
+      $menucat = $this->menucat->verifyAndCreate(array_only($data, ['menucat']));
+      $menucatid = $menucat->id;
+    }
     
     $attr = [
       'code'        => $data['productcode'],
       'descriptor'  => $data['product'],
       'ucost'       => $data['ucost'],
       'uprice'      => $data['uprice'],
-      'prodcat_id'  => $prodcat->id,
-      'menucat_id'  => $menucat->id
+      'prodcat_id'  => $prodcatid,
+      'menucat_id'  => $menucatid
     ];
 
     try {

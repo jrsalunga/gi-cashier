@@ -125,9 +125,15 @@ class AggregatorEventListener
 
   private function saveProdcat($datas, $date, $branchid) {
     foreach ($datas as $key => $value) {
+
+      if (empty($value->prodcat_id)) 
+        $prodcat_id = app()->environment('local') ? '625E2E18BDF211E6978200FF18C615EC' : 'E841F22BBC3711E6856EC3CDBB4216A7';
+      else 
+        $prodcat_id = $value->prodcat_id;
+
       $this->prodcat->firstOrNewField([
         'date'          => $date->format('Y-m-d'),
-        'prodcat_id'    => $value->prodcat_id,
+        'prodcat_id'    => $prodcat_id,
         'qty'           => $value->qty,
         'sales'         => $value->sales,
         'trans'         => $value->trans,
