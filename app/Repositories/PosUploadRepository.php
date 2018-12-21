@@ -185,7 +185,7 @@ class PosUploadRepository extends Repository
               $k = trim($row['CREW_KIT']);
               if (empty($k)) {
                 array_push($a, 'CREW_KIT');
-                $valid = fasle;
+                $valid = false;
               }
 
               $d = trim($row['CREW_DIN']);
