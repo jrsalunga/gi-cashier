@@ -31,7 +31,9 @@
   @else
 
     @if($ds->sales!=$ds->chrg_total)
-    <div class="alert alert-important alert-warning"><b>Warning:</b> The backup file you uploaded is possibly not the end-of-day backup. Please reupload the actual EoD/EoM backup.<br>You can ignore this if you're not sending EoD/EoM backup like sending Payroll Backup.</div>
+      @if($ds->sales!=($ds->chrg_total-$ds->chrg_othr)
+      <div class="alert alert-important alert-warning"><b>Warning:</b> The backup file you uploaded is possibly not the end-of-day backup. Please reupload the actual EoD/EoM backup.<br>You can ignore this if you're not sending EoD/EoM backup like sending Payroll Backup.</div>
+      @endif
     @endif
 
     <h3>Upload summary of POS backup GC{{ $date->format('mdy') }}.ZIP <em>({{ $date->format('D M d, Y') }})</em></h3>
