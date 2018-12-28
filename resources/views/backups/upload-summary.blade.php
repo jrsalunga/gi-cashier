@@ -39,7 +39,6 @@
     <h3>Upload summary of POS backup GC{{ $date->format('mdy') }}.ZIP <em>({{ $date->format('D M d, Y') }})</em></h3>
     <p>&nbsp;</p>
 
-
     
     <div class="row">
       <!--
