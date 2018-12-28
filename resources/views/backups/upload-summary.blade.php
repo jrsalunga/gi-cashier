@@ -31,7 +31,7 @@
   @else
 
     @if($ds->sales!=$ds->chrg_total)
-      @if($ds->sales!=($ds->chrg_total-$ds->chrg_othr)
+      @if($ds->sales!=($ds->chrg_total-$ds->chrg_othr))
       <div class="alert alert-important alert-warning"><b>Warning:</b> The backup file you uploaded is possibly not the end-of-day backup. Please reupload the actual EoD/EoM backup.<br>You can ignore this if you're not sending EoD/EoM backup like sending Payroll Backup.</div>
       @endif
     @endif
