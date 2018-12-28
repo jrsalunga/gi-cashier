@@ -113,7 +113,9 @@ class BackupRepository extends BaseRepository
     $data = $this->aggregateDailyLogs($fr, $to);
     $d = new \App\Repositories\DailySales2Repository;
 
-    $dss = $d->skipCache()->findWhere([['date','like', $date->format('Y-m-').'%']], ['date', 'sales', 'chrg_total', 'chrg_othr']);
+    $dss = $d->findWhere([['date','like', $date->format('Y-m-').'%']], ['date', 'sales', 'chrg_total', 'chrg_othr']);
+
+    return $dss;
 
     for ($i=0; $i < $date->daysInMonth; $i++) { 
 
