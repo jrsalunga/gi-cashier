@@ -108,6 +108,9 @@ class BackupRepository extends BaseRepository
     $arr = [];
     $fr = $date->firstOfMonth();
     $to = $date->copy()->lastOfMonth();
+    $m = false;
+    $b = NULL;
+    $e = false;
     
     
     $data = $this->aggregateDailyLogs($fr, $to);
