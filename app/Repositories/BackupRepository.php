@@ -143,7 +143,7 @@ class BackupRepository extends BaseRepository
       else {
         $m = number_format($ds->sales, 2, '.', '') === number_format($ds->chrg_total, 2, '.', '') ? true:false;
          if (!$m)
-          $m = number_format($ds->sales, 2, '.', '') === number_format($ds->chrg_total+$ds->chrg_othr, 2, '.', '') ? true:false;
+          $m = number_format($ds->sales, 2, '.', '') === number_format($ds->chrg_total-$ds->chrg_othr, 2, '.', '') ? true:false;
       }
       
       array_push($arr, [ 
