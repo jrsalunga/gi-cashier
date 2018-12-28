@@ -140,8 +140,11 @@ class BackupRepository extends BaseRepository
 
       if(is_null($ds))
         $m = false;
-      else 
+      else {
         $m = number_format($ds->sales, 2, '.', '') === number_format($ds->chrg_total, 2, '.', '') ? true:false;
+         if (!$m)
+          $m = number_format($ds->sales, 2, '.', '') === number_format($ds->chrg_total+$ds->chrg_othr, 2, '.', '') ? true:false;
+      }
       
       array_push($arr, [ 
           'date'=>$date,
