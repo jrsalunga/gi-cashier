@@ -26,7 +26,7 @@
 
   @include('_partials.alerts')
 
-  @if(is_null($date))
+  @if(is_null($date) || is_null($ds))
     no data
   @else
 
