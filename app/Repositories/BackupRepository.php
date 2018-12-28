@@ -115,8 +115,6 @@ class BackupRepository extends BaseRepository
 
     $dss = $d->findWhere([['date','like', $date->format('Y-m-').'%']], ['date', 'sales', 'chrg_total', 'chrg_othr']);
 
-    return $dss;
-
     for ($i=0; $i < $date->daysInMonth; $i++) { 
 
       $date = $fr->copy()->addDays($i);
