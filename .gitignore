@@ -31,3 +31,6 @@ bower_components
 /app/Repositories/Rmis/_Orpaydtl.php
 /app/Http/Controllers/UploaderController.php
 /public/images/employees
+/app/Models/UstSalesmtd.php
+/app/Console/Commands/Backlog/UstImport.php
+
