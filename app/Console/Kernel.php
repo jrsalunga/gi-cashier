@@ -35,8 +35,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Backlog\FoodSales::class,
         \App\Console\Commands\Backlog\Ice::class,
         \App\Console\Commands\Checker\PosVersion::class,
-        \App\Console\Commands\Fixer\Invdtl::class,
-        \App\Console\Commands\Reports\Reading::class,
+        //\App\Console\Commands\Fixer\Invdtl::class,
+        //\App\Console\Commands\Reports\Reading::class,
         \App\Console\Commands\Backlog\RecomputeVat::class,
     ];
 
