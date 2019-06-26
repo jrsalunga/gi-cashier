@@ -162,7 +162,7 @@ class PosUploadRepository extends Repository
       } else {
         throw new Exception("Cannot locate ORDERS.DBF"); 
       }
-      
+
       $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
       if (file_exists($dbf_file)) { 
         $db = dbase_open($dbf_file, 0);
@@ -175,7 +175,7 @@ class PosUploadRepository extends Repository
          
           if ( $vfpdate->format('Y-m-d')==$backup->date->format('Y-m-d')) {
 
-            if (c()->diffInDays($backup->date) < 1) { // dont check if lagpas 3 days
+            if (c()->diffInDays($backup->date) < 3) { // dont check if lagpas 3 days
 
               $t = trim($row['TIP']);
               if (empty($t)) {
@@ -193,6 +193,7 @@ class PosUploadRepository extends Repository
                 array_push($a, 'CREW_DIN');
                 $valid = false;
               }
+            
             } 
           }
         }
