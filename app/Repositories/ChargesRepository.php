@@ -30,12 +30,12 @@ class ChargesRepository extends BaseRepository implements CacheableInterface
       $cuscount = ($r['SR_TCUST'] + $r['SR_BODY']);
     
     $disc_type = NULL;
-    $disc_amt = NULL;
+    $disc_amt = 0;
     $a = ['DIS_GPC', 'DIS_VIP', 'DIS_PWD', 'DIS_EMP', 'DIS_SR', 'DIS_UDISC', 'DIS_PROM', 'DIS_G', 'DIS_H', 'DIS_I', 'DIS_J', 'DIS_K', 'DIS_L', 'DIS_VX'];
     foreach ($a as $key => $value) {
     	if (isset($r[$value]) && $r[$value]>0) {
-    		$disc_type = explode('_', $value)[1];
-    		$disc_amt = $r[$value];
+    		$disc_type = strpos($disc_type, '|') ? $disc_type.'|' : ($disc_amt>0 ? explode('_', $value)[1].'|' : explode('_', $value)[1]);
+    		$disc_amt += $r[$value];
     	} 
     }
 
@@ -50,6 +50,9 @@ class ChargesRepository extends BaseRepository implements CacheableInterface
 		$row['sr_body'] 			= trim($r['SR_BODY']);
 		$row['custcount'] 		= trim($cuscount);
 		$row['sr_disc'] 			= trim($r['SR_DISC']);
+		$row['promo_amt'] 		= trim($r['PROMO_AMT']);
+		$row['othdisc'] 		  = trim($r['OTHDISC']);
+		$row['udisc'] 		    = trim($r['UDISC']);
 		$row['vat'] 					= trim($r['VAT']);
 		$row['bank_chrg'] 		= trim($r['BANKCHARG']);
 		$row['tot_chrg'] 			= trim($r['TOTCHRG']);
