@@ -34,8 +34,12 @@ class ChargesRepository extends BaseRepository implements CacheableInterface
     $a = ['DIS_GPC', 'DIS_VIP', 'DIS_PWD', 'DIS_EMP', 'DIS_SR', 'DIS_UDISC', 'DIS_PROM', 'DIS_G', 'DIS_H', 'DIS_I', 'DIS_J', 'DIS_K', 'DIS_L', 'DIS_VX'];
     foreach ($a as $key => $value) {
     	if (isset($r[$value]) && $r[$value]>0) {
-    		$disc_type = strpos($disc_type, '|') ? $disc_type.'|' : ($disc_amt>0 ? explode('_', $value)[1].'|' : explode('_', $value)[1]);
-    		$disc_amt += $r[$value];
+
+   			$disc_type = (is_null($disc_type)) ? explode('_', $value)[1] : $disc_type.'|'.explode('_', $value)[1];
+
+   			if(trim($r['TERMS'])!='SIGNED')
+    			$disc_amt += $r[$value];
+
     	} 
     }
 
