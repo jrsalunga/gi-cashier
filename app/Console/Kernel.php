@@ -37,7 +37,11 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Checker\PosVersion::class,
         //\App\Console\Commands\Fixer\Invdtl::class,
         //\App\Console\Commands\Reports\Reading::class,
+        
         \App\Console\Commands\Backlog\RecomputeVat::class,
+        \App\Console\Commands\Backlog\Charges::class,
+        \App\Console\Commands\Import\BacklogCharges::class,
+        \App\Console\Commands\Cron\BacklogCharges::class,
     ];
 
     /**
