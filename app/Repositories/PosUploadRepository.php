@@ -2188,9 +2188,6 @@ class PosUploadRepository extends Repository
           continue;
         }
 
-
-       
-
         $x = trim($row['COMP4']);
 
         if (!empty($x)) {
@@ -2198,7 +2195,7 @@ class PosUploadRepository extends Repository
           if (is_null($curr_date)) {
             $curr_date = $vfpdate;
             
-            $c->info('del: '.$curr_date->format('Y-m-d'));
+            //$c->info('del: '.$curr_date->format('Y-m-d'));
             try {
               $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
             } catch(Exception $e) {
@@ -2211,8 +2208,8 @@ class PosUploadRepository extends Repository
 
           } else {
             $curr_date = $vfpdate;
-            
-            $c->info('del: '.$curr_date->format('Y-m-d'));
+
+            //$c->info('del: '.$curr_date->format('Y-m-d'));
             try {
               $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
             } catch(Exception $e) {
@@ -2221,7 +2218,7 @@ class PosUploadRepository extends Repository
             }
           }
 
-          $c->info($x);
+          //$c->info($x);
 
           $k = 0;
           $ci = [];
@@ -2232,7 +2229,7 @@ class PosUploadRepository extends Repository
           foreach (explode(' ', $x) as $key => $prod) {
 
             if (!empty($prod)) {
-              $c->info($key.' = '.$prod);
+              //$c->info($key.' = '.$prod);
           
               preg_match_all('/(\d+(?:\.\d+)?)([A-Z0-9]+)/m', $x, $matches, PREG_SET_ORDER, 0);
               
@@ -2250,24 +2247,17 @@ class PosUploadRepository extends Repository
             }
           }
 
+          //$c->info(print_r($ci));
 
-
-
-          
-          $c->info(print_r($ci));
-
-          $this->changeItem->verifyAndCreate($ci);
-
-
+          try {
+            $this->changeItem->verifyAndCreate($ci);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
 
           $update++;
         }
-       
-        
-
-       
-
-      
       }
 
       $c->info($update);
