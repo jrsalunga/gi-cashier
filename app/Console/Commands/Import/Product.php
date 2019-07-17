@@ -62,11 +62,12 @@ class Product extends Command
       exit;
     }
 
-
-    $bckup = $this->posUploadRepo->findWhere(['branchid'=>$br->id, 'filename'=>$backup])->first();
-    if (!$bckup) {
-      $this->info('No record found on database.'); 
-      exit;
+    if (app()->environment('production')) {
+      $bckup = $this->posUploadRepo->findWhere(['branchid'=>$br->id, 'filename'=>$backup])->first();
+      if (!$bckup) {
+        $this->info('No record found on database.'); 
+        exit;
+      }
     }
 
     $this->info(' Extracting...');
