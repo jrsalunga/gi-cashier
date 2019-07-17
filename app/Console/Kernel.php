@@ -44,6 +44,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Cron\BacklogCharges::class,
 
         \App\Console\Commands\Backlog\MonthlyChangeItem::class
+        \App\Console\Commands\Import\ChangeItem::class,
+        \App\Console\Commands\Cron\ChangeItem::class,
         ,
     ];
 
