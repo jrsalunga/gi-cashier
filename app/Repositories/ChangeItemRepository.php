@@ -42,7 +42,7 @@ class ChangeItemRepository extends BaseRepository implements CacheableInterface
     ];
 
     try {
-      $this->create($attr);
+      return $this->create($attr);
     } catch(Exception $e) {
       throw new Exception($e->getMessage());    
     }    

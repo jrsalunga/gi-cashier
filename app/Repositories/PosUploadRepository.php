@@ -2189,6 +2189,7 @@ class PosUploadRepository extends Repository
         }
 
         $x = trim($row['COMP4']);
+        $gr = trim($row['COMP2']);
 
         if (!empty($x)) {
 
@@ -2209,7 +2210,9 @@ class PosUploadRepository extends Repository
           } else {
             $curr_date = $vfpdate;
 
-            //$c->info('del: '.$curr_date->format('Y-m-d'));
+            if (app()->environment('local'))
+              $c->info('del: '.$curr_date->format('Y-m-d'));
+            
             try {
               $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
             } catch(Exception $e) {
@@ -2218,45 +2221,57 @@ class PosUploadRepository extends Repository
             }
           }
 
-          //$c->info($x);
+          if (app()->environment('local'))
+            $c->info($gr.' - '.$x);
 
           $k = 0;
           $ci = [];
           $ci['date'] = $vfpdate->format('Y-m-d');
           $ci['cslipno'] = trim($row['CSLIPNO']);
           $ci['branch_id'] = $branchid;
-          
-          foreach (explode(' ', $x) as $key => $prod) {
 
-            if (!empty($prod)) {
-              //$c->info($key.' = '.$prod);
-          
-              preg_match_all('/(\d+(?:\.\d+)?)([A-Z0-9]+)/m', $x, $matches, PREG_SET_ORDER, 0);
-              
-              if ($k==0) {
-                $ci['fr_qty']  = $matches[$k][1];
-                $ci['fr_code'] = $matches[$k][2];
+          $len = explode(' ', $x);
+
+          if (app()->environment('local'))
+            $c->info('len - '.count($len));
+
+          if (count($len)>1) {
+
+            foreach ($len as $key => $prod) {
+
+              if (!empty($prod)) {
+                
+                if (app()->environment('local'))
+                  $c->info($key.' = '.$prod);
+            
+                preg_match_all('/(\d+(?:\.\d+)?)([A-Z0-9]+)/m', $x, $matches, PREG_SET_ORDER, 0);
+                
+                if ($k==0) {
+                  $ci['fr_qty']  = $matches[$k][1];
+                  $ci['fr_code'] = $matches[$k][2];
+                }
+
+                if ($k==1) {
+                  $ci['to_qty']  = $matches[$k][1];
+                  $ci['to_code'] = $matches[$k][2];
+                } 
+
+                $k++;
               }
-
-              if ($k==1) {
-                $ci['to_qty']  = $matches[$k][1];
-                $ci['to_code'] = $matches[$k][2];
-              } 
-
-              $k++;
             }
-          }
 
-          //$c->info(print_r($ci));
+            if (app()->environment('local'))
+              $c->info(print_r($ci));
 
-          try {
-            $this->changeItem->verifyAndCreate($ci);
-          } catch(Exception $e) {
-            dbase_close($db);
-            throw $e;    
-          }
+            try {
+              $this->changeItem->verifyAndCreate($ci);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw $e;    
+            }
 
-          $update++;
+            $update++;
+          } // end if (count($len))
         }
       }
 
