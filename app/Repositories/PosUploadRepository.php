@@ -2189,7 +2189,6 @@ class PosUploadRepository extends Repository
         }
 
         $x = trim($row['COMP4']);
-        $gr = trim($row['COMP2']);
 
         if (!empty($x)) {
 
@@ -2222,7 +2221,7 @@ class PosUploadRepository extends Repository
           }
 
           if (app()->environment('local'))
-            $c->info($gr.' - '.$x);
+            $c->info($x);
 
           $k = 0;
           $ci = [];
@@ -2237,6 +2236,8 @@ class PosUploadRepository extends Repository
 
           if (count($len)>1) {
 
+            $ci['group'] = trim($row['COMP2']);
+            
             foreach ($len as $key => $prod) {
 
               if (!empty($prod)) {
