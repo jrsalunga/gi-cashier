@@ -31,6 +31,7 @@ class ChangeItemRepository extends BaseRepository implements CacheableInterface
     $attr = [
       'date'          => $data['date'],
       'cslipno'       => $data['cslipno'],
+      'group'         => $data['group'],
       'branch_id'     => $data['branch_id'],
       'fr_product_id' => $fr->id,
       'fr_qty'        => $data['fr_qty'],

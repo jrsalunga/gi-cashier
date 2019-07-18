@@ -8,7 +8,7 @@ class ChangeItem extends BaseModel {
 	public $timestamps = false;
 	//protected $appends = ['date'];
   protected $dates = ['date'];
- 	//protected $fillable = ['date', 'cslipno', 'branch_id', 'fr_product_id', 'fr_qty', 'fr_price', 'to_product_id', 'to_qty', 'to_price', 'diff'];
+ 	//protected $fillable = ['date', 'cslipno', 'group', 'branch_id', 'fr_product_id', 'fr_qty', 'fr_price', 'to_product_id', 'to_qty', 'to_price', 'diff'];
 	protected $guarded = ['id'];
 	protected $casts = [
     'fr_price' 	=> 'float',
