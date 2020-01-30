@@ -57,6 +57,7 @@ class KitchenLog extends Command
     }
 
     $c = 0;
+    $ctr = 1;
     do {
 
       $d = $this->date->copy()->addDays($c);
@@ -64,10 +65,12 @@ class KitchenLog extends Command
 
       foreach ($br as $key => $b) {
 
-        $this->extract($b->code, $d, true);
+        if ($this->extract($b->code, $d, true)==1)
+          $ctr++;
       }
       $this->line('******************');
-      $this->line(' ');
+      $this->line($ctr);
+      $this->line('******************');
 
       $c++;
     } while ($c <= $count); 
@@ -98,6 +101,8 @@ class KitchenLog extends Command
       return 0;
 
     $this->extractor->clean();   
+    
+  return 1;
     // $this->info('clean: '.$this->extractor->clean());   
     
   }
