@@ -64,7 +64,7 @@ class KitchenLog extends Command
 
       foreach ($br as $key => $b) {
 
-        $this->extract($b->code, $d, false);
+        $this->extract($b->code, $d, true);
       }
       $this->line('******************');
       $this->line(' ');
@@ -87,7 +87,7 @@ class KitchenLog extends Command
     
     $file = $date->format('Ymd').'.LOG';
     if (file_exists($this->extractor->getExtractedPath().DS.$file)) {
-      $this->info($this->extractor->getExtractedPath()); 
+      // $this->info($this->extractor->getExtractedPath()); 
       $this->info($brcode.' - '.$file);
     } else
       if ($show)
