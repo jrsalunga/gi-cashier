@@ -91,7 +91,10 @@ class KitchenLog extends Command
       $this->info($brcode.' - '.$file);
     } else
       if ($show)
-        $this->error($brcode);
+        if ($this->extractor->has_backup($brcode, $date)==0)
+          $this->question($brcode);
+        else
+          $this->error($brcode);
       return 0;
 
     $this->extractor->clean();   
