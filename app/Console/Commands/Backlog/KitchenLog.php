@@ -57,12 +57,12 @@ class KitchenLog extends Command
     }
 
     $c = 0;
-    $ctr = 1;
     do {
 
       $d = $this->date->copy()->addDays($c);
       $this->line($d->format('Y-m-d'));
 
+      $ctr = 0;
       foreach ($br as $key => $b) {
 
         if ($this->extract($b->code, $d, true)==1)
@@ -92,17 +92,18 @@ class KitchenLog extends Command
     if (file_exists($this->extractor->getExtractedPath().DS.$file)) {
       // $this->info($this->extractor->getExtractedPath()); 
       $this->info($brcode.' - '.$file);
-    } else
+    } else {
+
       if ($show)
         if ($this->extractor->has_backup($brcode, $date)==0)
           $this->question($brcode);
         else
           $this->error($brcode);
       return 0;
-
+    }
     $this->extractor->clean();   
+    return 1;
     
-  return 1;
     // $this->info('clean: '.$this->extractor->clean());   
     
   }
