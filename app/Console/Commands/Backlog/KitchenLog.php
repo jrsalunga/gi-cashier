@@ -12,6 +12,10 @@ use Illuminate\Console\Command;
 class KitchenLog extends Command
 {
 
+  /*
+  table: boss.for_process.type=6
+  */
+
 	protected $signature = 'checker:kitchen-log {date : YYYY-MM-DD} {--brcode=ALL : Branch Code} {--dateTo=NULL : YYYY-MM-DD}';
   protected $description = 'check whether there is a kitchen log on a backup.';
 
@@ -62,11 +66,24 @@ class KitchenLog extends Command
       $d = $this->date->copy()->addDays($c);
       $this->line($d->format('Y-m-d'));
 
+      $del = Process::where('type', 6)->delete();
+      $this->line('for_process deleted: '.$del);
+
       $ctr = 0;
       foreach ($br as $key => $b) {
 
-        if ($this->extract($b->code, $d, true)==1)
+        if ($this->extract($b->code, $d, true)==1) {
+          Process::firstOrCreate([
+            'filename'  => 'GC'.$d->format('mdy').'.ZIP',
+            'filedate'  => $d->format('Y-m-d'),
+            'code'      => $b->code,
+            'path'      => $b->code.DS.$d->format('Y').DS.$d->format('m').DS.'GC'.$d->format('mdy').'.ZIP',
+            'type'      => 6,
+            'processed' => 3,
+            'note'      => 'import:kitchen-log '.stl($b->code).' '.$d->format('Y-m-d'),
+          ]);
           $ctr++;
+        }
       }
       $this->line('******************');
       $this->line($ctr);
