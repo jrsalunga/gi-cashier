@@ -86,12 +86,13 @@ class KitchenLog extends Command
     // $this->info('extract: '.$this->extractor->extract($brcode, $date->format('Y-m-d'), 'admate'));   
     
     $file = $date->format('Ymd').'.LOG';
-    // $this->info($this->extractor->getExtractedPath()); 
-    if (file_exists($this->extractor->getExtractedPath().DS.$file))
+    if (file_exists($this->extractor->getExtractedPath().DS.$file)) {
+      $this->info($this->extractor->getExtractedPath()); 
       $this->info($brcode.' - '.$file);
-    else
+    } else
       if ($show)
         $this->error($brcode);
+      return 0;
 
     $this->extractor->clean();   
     // $this->info('clean: '.$this->extractor->clean());   

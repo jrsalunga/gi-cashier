@@ -100,7 +100,8 @@ class BackupExtractor
         return 1;
       }
     }
-
+    $this->extracting = false;
+    $this->extracted_path = NULL;
     //throw new \Exception('ZipArchive error code: '.$zip_status);
     return 0;
   }
@@ -140,6 +141,8 @@ class BackupExtractor
       return true;
     } else
       return false;
+    
+    
   }
 
 
