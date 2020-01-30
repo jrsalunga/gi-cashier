@@ -574,6 +574,33 @@ if (!function_exists('monthInterval')) {
 }
 
 
+if (!function_exists('nf')) {
+  function nf($x='0.00', $d=2) {
+    if ($x==0)
+      return '';
+    return number_format($x, $d);
+  }
+}
+
+if (!function_exists('clean_number_format')) {
+  function clean_number_format($x='0.00') {
+    return floatval(preg_replace('/[^\d.]/', '', $x));
+  }
+}
+
+if (!function_exists('is_carbon')) {
+  function is_carbon($date, $transform=false) {
+    if ($date instanceof \Carbon\Carbon)
+      return $date;
+    else
+      if ($transform) 
+        return carbonCheckorNow($date);
+      else
+        return false;
+  }
+}
+
+
 
 
 
