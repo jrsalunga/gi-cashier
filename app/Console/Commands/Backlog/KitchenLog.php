@@ -99,7 +99,6 @@ class KitchenLog extends Command
   public function extract($brcode, $date, $show=true) {
 
     // $this->info('has_backup: '.$this->extractor->has_backup($brcode, $date->format('Y-m-d')));
-
     // $this->info($this->extractor->getFilePath());   
 
     $this->extractor->extract($brcode, $date->format('Y-m-d'), 'admate');
@@ -119,10 +118,7 @@ class KitchenLog extends Command
       return 0;
     }
     $this->extractor->clean();   
-    return 1;
-    
-    // $this->info('clean: '.$this->extractor->clean());   
-    
+    return 1;    
   }
   
   private function notify($msg) {
