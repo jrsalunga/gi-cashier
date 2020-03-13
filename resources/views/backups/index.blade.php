@@ -33,8 +33,9 @@
           @endif
           <th>Filename</th>
           <th>Uploaded</th>
-          <th class="">Cashier</th>
-          <th class="">Status</th>
+          <th>Cashier</th>
+          <th class="text-center">Status</th>
+          <th class="text-center">Kitchen Log</th>
           <th>Remarks</th>
           <th>IP Address</th>
         </tr>
@@ -62,7 +63,6 @@
           </td>
           <td>{{ $backup->cashier }} </td>
           <td class="text-center">
-
             @if($backup->processed=='0')
               <span class="glyphicon glyphicon-remove"></span>
             @elseif($backup->processed=='1')
@@ -72,8 +72,15 @@
             @else
 
             @endif
+          </td>
+          <td class="text-center">
+            @if($backup->kitlog=='0')
+              <span class="glyphicon glyphicon-remove"></span>
+            @elseif($backup->kitlog=='1')
+              <span class="glyphicon glyphicon-ok"></span>
+            @else
 
-
+            @endif
           </td>
           <?php  $x = explode(':', $backup->remarks) ?>
           <td>
