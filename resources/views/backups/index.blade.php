@@ -84,7 +84,6 @@
           </td>
           <?php  $x = explode(':', $backup->remarks) ?>
           <td>
-
             @if($backup->remarks)
               {{ $backup->remarks }} 
             @else
@@ -104,7 +103,6 @@
                 GI PAY Payroll Backup
               @endif
             @endif
-
           </td>
           <td>
             {{ $backup->terminal }} 
