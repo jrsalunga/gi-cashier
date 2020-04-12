@@ -23,7 +23,7 @@ Homestead.json
 /storage
 /config
 /notes
-
+/config/app.php
 
 .env.example
 bower_components
