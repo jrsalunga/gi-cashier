@@ -47,6 +47,10 @@ class Employee extends BaseModel {
     return $this->hasMany('App\Models\Dtr', 'employeeid');
   }
 
+  public function statutory() {
+    return $this->hasOne('App\Models\Statutory');
+  }
+
 
 
   public function hasPhoto(){

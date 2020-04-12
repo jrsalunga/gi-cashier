@@ -7,6 +7,7 @@ use App\User;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\Request;
+use Mail;
 
 class ChangePasswordEventHandler
 {
@@ -36,7 +37,7 @@ class ChangePasswordEventHandler
             'to' => $event->request->input('password'),
         ];
 
-        \Mail::queue('emails.change_password', $data, function ($message) {
+        Mail::queue('emails.change_password', $data, function ($message) {
             $message->subject('User Change Password');
             $message->from('no-reply@giligansrestaurant.com', 'GI App - Cashier');
             $message->to('giligans.app@gmail.com');

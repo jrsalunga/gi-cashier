@@ -1,5 +1,6 @@
 <?php namespace App\Console\Commands\Backlog;
 
+use App\Events\Backup\DailySalesSuccess2;
 use DB;
 use Carbon\Carbon;
 use App\Models\Branch;
@@ -71,7 +72,7 @@ class Ice extends Command
         //event(new \App\Events\Process\AggregatorMonthly('trans-expense', $backup->date, $backup->branchid));
       }
       //event(new \App\Events\Process\AggregateMonthlyExpense($m->date, $m->branch_id)); // recompute Monthly Expense
-      event(new \App\Events\Backup\DailySalesSuccess2($m->date, $m->branch_id));
+      event(new DailySalesSuccess2($m->date, $m->branch_id));
     }
 
 

@@ -29,7 +29,7 @@ class Invdtl extends BaseRepository implements CacheableInterface
   									->from('invdtl as i')
                     ->leftJoin('invhdr as a', 'a.id', '=', 'i.invhdrid')
                     ->leftJoin('orderhdr as b', 'a.id', '=', 'b.invhdrid')
-                    ->select(DB::raw('i.*, (a.vtotal+a.xtotal+a.ztotal) as subtotal, a.refno, a.date, a.timestop, a.tableno, a.tablename, a.pax, a.saletype, a.scpax, a.scdisc, a.pwddisc, a.vatamount, a.svcamount, a.uidcreate, a.vtotal, a.discountid, a.discamount, b.refno as ordrefno, a.timestart as ordtime'))
+                    ->select(DB::raw('i.*, (a.vtotal+a.xtotal+a.ztotal) as subtotal, a.refno, a.date, a.bizdate, a.timestop, a.tableno, a.tablename, a.pax, a.saletype, a.scpax, a.scdisc, a.pwddisc, a.vatamount, a.svcamount, a.uidcreate, a.vtotal, a.discountid, a.discamount, b.refno as ordrefno, a.timestart as ordtime'))
                     ->groupBy('i.id')
                     ->orderBy('a.refno')
                     ->orderBy('i.lineno');

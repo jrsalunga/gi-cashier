@@ -5,6 +5,7 @@ use Carbon\Carbon;
 use App\Models\Branch;
 use App\Helpers\Locator;
 use App\Models\DailySales as DS;
+use Exception;
 use Illuminate\Console\Command;
 use App\Repositories\DailySales2Repository as DSRepo;
 use App\Repositories\MonthlySalesRepository as MSRepo;
@@ -77,7 +78,7 @@ class MonthlySales extends Command
         
         try {
           $ms = $this->ds->computeMonthTotal($date, $br->id);
-        } catch (\Exception $e) { 
+        } catch (Exception $e) {
           $this->info($e->getMessage());
         }
         
@@ -99,7 +100,7 @@ class MonthlySales extends Command
 
     try {
       $month = $this->ds->computeMonthTotal($event->backup->filedate, $event->backup->branchid);
-    } catch (\Exception $e) { 
+    } catch (Exception $e) {
       //logAction('onDailySalesSuccess Error', $e->getMessage());
       $data = [
         'user'      => request()->user()->name,

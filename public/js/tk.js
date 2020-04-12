@@ -28,7 +28,7 @@ var getEmployeeTimelogs = function(id){
     });	
 	
 	//return aData;
-}
+};
 
 var htmlEmployeeTimelogs2 = function(data){
 	//console.log(data);
@@ -60,7 +60,7 @@ var htmlEmployeeTimelogs2 = function(data){
 		
 		$('.tk-tb').prepend(h);	
 	}
-}
+};
 
 
 var htmlEmployeeTimelogs = function(data){
@@ -93,7 +93,7 @@ var htmlEmployeeTimelogs = function(data){
 	
 	
 	return html;
-}
+};
 
 
 
@@ -104,12 +104,12 @@ var appendToTkList = function(data){
 	var c = moment(data.data.date+' '+data.data.time).format('MMM DD');
 	
 		var html = '<tr class="txncode'+ data.data.txncode +'"><td>'+ data.data.empno +'</td>';
-			html += '<td>'+ data.data.lastname +', '+ data.data.firstname +'</td>'
-			html += '<td><span> '+ c +' </span>&nbsp; '+ d +' </td>'
+			html += '<td>'+ data.data.lastname +', '+ data.data.firstname +'</td>';
+			html += '<td><span> '+ c +' </span>&nbsp; '+ d +' </td>';
 			html += '<td>'+ data.data.txnname;
 			//html += '<span id="'+ data.data.timelogid +'" ';
 			//html += 'class="glyphicon glyphicon-remove-circle pull-right" style="opacity: .5;"></span>';
-			html += '<td>'+ data.data.branch +'</td>'
+			html += '<td>'+ data.data.branch +'</td>';
 			html += '</td></tr>';
 			
 		if($('.emp-tk-list tr').length >= 15){
@@ -121,7 +121,7 @@ var appendToTkList = function(data){
 			.prev().find('td').each(function(){
 				$(this).effect("highlight", {}, 1000);
 			});
-}
+};
 
 var updateEmpView = function(data){
 
@@ -130,7 +130,7 @@ var updateEmpView = function(data){
 	$('#emp-name').text(data.data.lastname +', '+ data.data.firstname);
 	$('#emp-pos').text(data.data.position);
 
-}
+};
 
 var updateEmpViewModal = function(data){
 	$('#mdl-emp-img').attr('src', 'images/employees/'+ data.data.code +'.jpg');
@@ -138,7 +138,7 @@ var updateEmpViewModal = function(data){
 	$('#mdl-emp-name').text(data.data.lastname +', '+ data.data.firstname);
 	$('#mdl-emp-pos').text(data.data.position.descriptor);
 	
-}
+};
 
 
 var updateTK = function(data){
@@ -165,7 +165,7 @@ var updateTK = function(data){
 	} else {
 		console.log('error');
 	}
-}
+};
 
 var updateTKmodal = function(data){
 	//console.log(data);
@@ -184,11 +184,11 @@ var updateTKmodal = function(data){
 	} else {
 		console.log('error');
 	}
-}
+};
 
 var isInt = function(n) {	
    return n % 1 === 0;
-}
+};
 
 var validateEmpno = function(empno){
 	if(empno!=undefined && isInt(empno) && empno.length==10){
@@ -205,7 +205,7 @@ var validateEmpno = function(empno){
 		},3000);
 		return false;
 	}
-}
+};
 
 var saveEmpTimelog = function(empno, txncode, location){
 	if(validateEmpno(empno)){
@@ -215,7 +215,7 @@ var saveEmpTimelog = function(empno, txncode, location){
 			$('#TKModal').modal('hide');
 		});
 	}		
-}
+};
 
 // send a curl request 
 var replicate = function(data){
@@ -224,7 +224,7 @@ var replicate = function(data){
 
 	var formData = {
 		timelogid : data.data.timelogid
-	}
+	};
 	
 	return $.ajax({
         type: 'POST',
@@ -248,7 +248,7 @@ var replicate = function(data){
             //alert(textStatus + ' Failed on posting data');
         }
     });	
-}
+};
 
 var beforeSync = function(){
 	el = $('.emp-tk-list tr:first-child td:last-child span');
@@ -256,7 +256,7 @@ var beforeSync = function(){
 	el.addClass('rotate');
 	el.addClass('glyphicon-refresh');
 	delete el;
-}
+};
 
 var synced = function(data){
 	el = $('.emp-tk-list tr:first-child td:last-child span');
@@ -272,7 +272,7 @@ var synced = function(data){
 	el.parent().effect("highlight", {}, 1000);
 	delete el;
 	console.log('synced!');
-}
+};
 
 var preparePostTimelogData = function(empno, tc){
 
@@ -284,7 +284,7 @@ var preparePostTimelogData = function(empno, tc){
 		//terminalid: 'plant' gethostname
 	}
 
-}
+};
 
 var postTimelog = function(data, source){
 	//var aData;
@@ -320,7 +320,7 @@ var postTimelog = function(data, source){
             //console.log(jqXHR);
         }
     });	
-}
+};
 
 
 var getEmployee = function(empno){
@@ -346,7 +346,7 @@ var getEmployee = function(empno){
     });	
 	
 	//return aData;
-}
+};
 
 
 var keypressInit = function(){
@@ -532,7 +532,7 @@ var keypressInit = function(){
 			
 		}	
 	});
-}
+};
 
 
 var InitClock = function(){
@@ -568,7 +568,7 @@ var InitClock = function(){
 	//},3600000); 
 	
 	
-}
+};
 
 
 
@@ -599,11 +599,11 @@ function geoFindMe() {
     //img.src = "https://maps.googleapis.com/maps/api/staticmap?center=" + latitude + "," + longitude + "&zoom=13&size=300x300&sensor=false";
 
     //output.appendChild(img);
-  };
+  }
 
   function error() {
     output.innerHTML = "Unable to retrieve your location";
-  };
+  }
 
   output.innerHTML = "<p>Locating…</p>";
 
@@ -611,7 +611,7 @@ function geoFindMe() {
 	  //enableHighAccuracy: true,
 	  //timeout: 5000,
 	  //maximumAge: 0
-	}
+	};
 
   navigator.geolocation.getCurrentPosition(success, error, opt);
 }
@@ -640,11 +640,11 @@ var drawLocation = function(){
 
     output.appendChild(img);
 
-  };
+  }
 
   function error() {
     output.innerHTML = "Unable to retrieve your location";
-  };
+  }
 
   output.innerHTML = "<p>Locating…</p>";
 
@@ -652,11 +652,11 @@ var drawLocation = function(){
 	  enableHighAccuracy: true,
 	  timeout: 5000,
 	  maximumAge: 0
-	}
+	};
 
   navigator.geolocation.getCurrentPosition(success, error, opt);
 
-}
+};
 
 
 
@@ -689,13 +689,13 @@ var getLocation = function(){
 
     return response;
 
-  };
+  }
 
   function error() {
     //output.innerHTML = "Unable to retrieve your location";
     response.status = 'error';
     return response;
-  };
+  }
 
   //output.innerHTML = "<p>Locating…</p>";
 
@@ -703,11 +703,11 @@ var getLocation = function(){
 	  enableHighAccuracy: true,
 	  timeout: 5000,
 	  maximumAge: 0
-	}
+	};
 
   navigator.geolocation.getCurrentPosition(success, error, opt);
 
-}
+};
 
 var marker, pos, info;
 

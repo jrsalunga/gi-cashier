@@ -7,7 +7,7 @@ class Orpaydtl extends BaseModel {
 	protected $connection = 'rmis';
   protected $table = 'orpaydtl';
 	protected $guarded = ['id'];
-	protected $dates = ['date'];
+	protected $dates = ['date', 'bizdate'];
 
 	public function invhdr() {
     return $this->belongsTo('App\Models\Rmis\Invhdr', 'invhdrid');

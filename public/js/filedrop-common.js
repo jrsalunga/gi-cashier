@@ -8,10 +8,10 @@ $(function(){
 		$('#dropbox').html('<span class="message">You can \'Drag and Drop\' or \'Click\' here to attach your file.  <br>'
                 +'<i>(they will only be visible to you)</i>'
                 +'</span>');
-	}
+	};
 
 	var backupVerifyFilename = function(filename){
-		var res = false
+		var res = false;
 		if(filename.length!==12) {
 			return res;
 		}
@@ -24,8 +24,14 @@ $(function(){
 		if(filename.match(pr)) {
 			res = true;
 		}
+
+		var pr = /EX(?!0{6})\d{6}\.REQ/gi; 
+		if(filename.match(pr)) {
+			res = true;
+		}
+
 		return res;
-	}
+	};
 
 	var dropbox = $('#dropbox'),
 			message = $('.message', dropbox);
@@ -48,12 +54,16 @@ $(function(){
 		
 		uploadFinished:function(i,file,response){
 			// response is the JSON object that post_file.php returns
-			console.log('done uploading!')
+			var input = $('#'+$('#'+this.fallback_id).data('input-value'));
+			console.log('done uploading!');
 			console.log(response);
+			console.log('THIS');
+			console.log(input);
 			console.log($('#month')[0].value);
 			if(response.status === 'success'){
 				$.data(file).addClass('done');
-				$('#filename').val(file.name);
+				//$('#filename').val(file.name);
+				input.val(file.name);
 				$('#btn-upload')[0].disabled = false;
 			} else {
 				//$('#filename').val('Ooops! something went wrong while uploading....');
@@ -77,15 +87,15 @@ $(function(){
   	error: function(err, file) {
 		 switch(err) {
           case 'BrowserNotSupported':
-          		console.log('browser does not support HTML5 drag and drop')
+          		console.log('browser does not support HTML5 drag and drop');
               //alert('browser does not support HTML5 drag and drop')
               break;
           case 'TooManyFiles':
-          	alert('Too Many Files')
+          	alert('Too Many Files');
               // user uploaded more than 'maxfiles'
               break;
           case 'FileTooLarge':
-          	alert('File Too Large')
+          	alert('File Too Large');
               // program encountered a file whose size is greater than 'maxfilesize'
               // FileTooLarge also has access to the file which was too large
               // use file.name to reference the filename of the culprit file
@@ -106,7 +116,7 @@ $(function(){
 		},
 		//allowedfiletypes: ['image/jpg', 'image/jpeg','image/png','image/gif', 'application/zip'],   // filetypes allowed by Content-Type.  Empty array means no restrictions
     //allowedfileextensions: ['.ZIP','.zip'], // file extensions allowed. Empty array means no restrictions
-    allowedfileextensions: ['.ZIP','.zip','.PNG','.png','.JPG','.jpg', '.JPEG','.jpeg', '.PDF','.pdf'], // file extensions allowed. Empty array means no restrictions
+    allowedfileextensions: ['.ZIP','.zip','.PNG','.png','.JPG','.jpg', '.JPEG','.jpeg', '.PDF','.pdf', '.REQ', '.req'], // file extensions allowed. Empty array means no restrictions
     
 		// Called before each upload is started
 		beforeEach: function(file){
@@ -124,10 +134,19 @@ $(function(){
 			if (!file.type.match(/^image\//)) {
 				console.log('file is not an image!');
 				
-				if (ext !=='zip'){
-					console.log('File not supported!');
-					return false;
+				switch(ext) {
+				  case 'zip':
+						console.log('ZIP File');
+				    break;
+				  case 'req':
+						console.log('Request File');
+				    break;
+				  default:
+				    return false;
 				}
+
+				
+
 				console.log('but a zip file!');
 				// Returning false will cause the
 				// file to be rejected
@@ -135,7 +154,9 @@ $(function(){
 				if(!backupVerifyFilename(file.name)) {
 					swal("Ooops! Invalid backup file!", "Kindly check the file "+ file.name +".", "error");
 					//alertMessage($('#nav-action'), 'danger', '<b>Ooops! '+ file.name +'</b> invalid backup! ');
-					$('#filename').val(file.name);
+					var input = $('#'+$('#'+this.fallback_id).data('input-value'));
+					//$('#filename').val(file.name);
+					input.val(file.name);
 					console.log($(this));
 					console.log(dropbox);
 					//$('#dropbox').html('<span class="message">You can \'Drag and Drop\' or \'Click\' here to attach your file.  <br>'
@@ -144,8 +165,16 @@ $(function(){
 					resetForm();
 					return false;
 				} else {
-					console.log($('#filetype').val());
-					$('#filetype').val('backup').trigger('change');
+					console.log('trigger '+$('#filetype').val());
+					switch(ext) {
+					  case 'zip':
+							$('#filetype').val('backup').trigger('change');
+					    break;
+					  case 'req':
+							$('#filetype').val('exportreq-etrf').trigger('change');
+					    break;
+					}
+					
 					return true;
 				}
 			}
@@ -165,7 +194,9 @@ $(function(){
 		
 		uploadStarted:function(i, file, len){
 			console.log('started!');
-			$('#filename').val('attaching file...');
+			//$('#filename').val('attaching file...');
+			var input = $('#'+$('#'+this.fallback_id).data('input-value'));
+			input.val('attaching file...');
 			//$('#attached > span').removeClass('')
 			createImage(file);
 			//alertRemove();
@@ -209,18 +240,16 @@ $(function(){
 		
 		reader.onload = function(e){
 			console.log(ext);
+			console.log('start: '+file.name.startsWith("EX"));
 			// e.target.result holds the DataURL which
 			// can be used as a source of the image:
 			if (ext.toLowerCase() === 'zip') {
-
 				var s = '/images/Zip-File.png';
-			}
-			else if (ext.toLowerCase() === 'pdf') {
-
+			} else if (ext.toLowerCase() === 'pdf') {
 				var s = '/images/Pdf-File.png';
-			} 
-			else {
-
+			} else if (file.name.startsWith("EX")) {
+				var s = '/images/export.png';
+			} else {
 				var s = e.target.result;
 			}
 			image.attr('src', s);
@@ -269,8 +298,8 @@ $(function(){
 		console.log(oFile.name);
 
 		var whatEverString = "SETSLt  ";
-    var pattern = /^depslp/i
-    var pattern2 = /^setslp/i
+    var pattern = /^depslp/i;
+    var pattern2 = /^setslp/i;
     var result = pattern.test(oFile.name);
     if(result===true)
     	$('#filetype').val('depslp').trigger('change');

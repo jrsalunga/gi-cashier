@@ -44,7 +44,7 @@ class UploaderController extends Controller
 	protected $orpaydtl;
 	protected $invhdr;
 
-	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, SetslpRepo $setslp, DSRepo $ds, Invdtl$invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
+	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, SetslpRepo $setslp, DSRepo $ds, Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
 		$this->posUploadRepo = $posUploadRepo;
 		$this->fileUploadRepo = $fileUploadRepo;
 		$this->depslip = $depslip;

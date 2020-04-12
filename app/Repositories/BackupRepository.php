@@ -114,7 +114,7 @@ class BackupRepository extends BaseRepository
     
     
     $data = $this->aggregateDailyLogs($fr, $to);
-    $d = new \App\Repositories\DailySales2Repository;
+    $d = new DailySales2Repository;
 
     $dss = $d->findWhere([['date','like', $date->format('Y-m-').'%']], ['date', 'sales', 'chrg_total', 'chrg_othr']);
 

@@ -78,6 +78,16 @@ class Purchase2Repository extends BaseRepository
   }
 
   public function deleteWhere(array $where){
+    /*
+    if (app()->environment('local')) {
+
+      $table = $this->model->getTable();
+      $yr = Carbon::parse($where['date'])->format('Y');
+
+      $this->model->setTable($table.$yr);
+      //test_log($this->getTable());
+    }
+    */
   	return $this->model->where($where)->delete();
   }
 

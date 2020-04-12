@@ -2,7 +2,12 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\RedirectIfAuthenticated;
+use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class Kernel extends HttpKernel
 {
@@ -15,9 +20,10 @@ class Kernel extends HttpKernel
         //\Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
         //\App\Http\Middleware\EncryptCookies::class,
         //\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-        \Illuminate\Session\Middleware\StartSession::class,
-        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        StartSession::class,
+        ShareErrorsFromSession::class,
         //\App\Http\Middleware\VerifyCsrfToken::class,
+        //'Fideloper\Proxy\TrustProxies',
     ];
 
     /**
@@ -26,8 +32,8 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'auth' => \App\Http\Middleware\Authenticate::class,
-        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'auth' => Authenticate::class,
+        'auth.basic' => AuthenticateWithBasicAuth::class,
+        'guest' => RedirectIfAuthenticated::class,
     ];
 }

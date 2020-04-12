@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use DB;
+use Exception;
 use Illuminate\Console\Command;
 use App\Repositories\BackupRepository;
 use App\Repositories\PosUploadRepository;
@@ -148,7 +149,7 @@ class BackupProcess extends Command
         $this->comment('to storage path: '.$storage_path);
         try {
           $this->pos->moveFile($path, $storage_path, false); // false = override file!
-        } catch(\Exception $e){
+        } catch(Exception $e){
           $msg =  $e->getMessage();
           $this->comment($msg);
           DB::rollBack();

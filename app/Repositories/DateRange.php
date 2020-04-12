@@ -24,14 +24,14 @@ class DateRange {
   	
   	try {
 			$this->fr = Carbon::parse($request->input('fr').' 00:00:00');
-		} catch(\Exception $e) {
+		} catch(Exception $e) {
 			//$this->fr = Carbon::parse($this->date->year.'-'.$this->date->month.'-01 00:00:00');
 			$this->fr = $this->date;
 		}
 		
 		try {
 			$this->to = Carbon::parse($request->input('to').' 00:00:00');
-		} catch(\Exception $e) {
+		} catch(Exception $e) {
 			//$this->to = Carbon::parse($this->date->year.'-'.$this->date->month.'-'.$this->date->daysInMonth.' 00:00:00');
 			$this->to = $this->date;
 		}

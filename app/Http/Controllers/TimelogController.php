@@ -1,5 +1,7 @@
 <?php namespace App\Http\Controllers;
 
+use App\Helpers\Timesheet;
+use Exception;
 use Validator;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -74,7 +76,7 @@ class TimelogController extends Controller {
 		
 		try {
 			$datetime = Carbon::parse($request->input('date').' '.$request->input('time'));
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			return redirect('/timelog/add')->withErrors(
 				['message'=>'The time does not match the format 12 Hrs (01:30 PM) or 24 Hrs (13:30)']);
 		}
@@ -289,7 +291,7 @@ class TimelogController extends Controller {
 
 		$timelogs = $this->repository->employeeTimelogs($employee, $date);
 
-		$ts = new \App\Helpers\Timesheet;
+		$ts = new Timesheet;
 		$timesheet = $ts->generate($employee->id, $date, $timelogs);
 		//return dd($timesheet);
 		return view('timelog.employee')

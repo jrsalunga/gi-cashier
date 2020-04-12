@@ -152,11 +152,11 @@
       //output.innerHTML = 'Latitude is ' + latitude + '° <br>Longitude is ' + longitude + '°';
       //output.innerHTML = '<div class="alert alert-success alert-important" role="alert">Latitude is ' + latitude + '° <br>Longitude is ' + longitude + '°</div>';
       output.innerHTML = '';
-    };
+    }
 
     function error() {
       //output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Unable to retrieve your location. Kindly refresh and allow the browser\'s location notification.</div>';
-    };
+    }
 
     //output.innerHTML = '<div class="alert alert-warning alert-important" role="alert">Loading...</div>';                                  
 
@@ -164,10 +164,10 @@
       //enableHighAccuracy: true,
       //timeout: 5000,
       //maximumAge: 0
-    }
+    };
 
     navigator.geolocation.getCurrentPosition(success, error, opt);
-  }
+  };
 
 
 
@@ -179,7 +179,7 @@
 
   $('.toggle-note').on('click', function(){
     $('.container-note').toggle();
-  })
+  });
 
 
   $('#cashier').on('blur', function(e){

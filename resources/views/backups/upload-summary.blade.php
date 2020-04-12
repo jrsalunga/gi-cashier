@@ -51,7 +51,7 @@
         <h3 class="text-muted">{{ number_format($ds->slsmtd_totgrs, 2) }}</h3>
       </div><!-- end: .col-md-3-->
       <div class="col-md-3 col-xs-6">
-        Net Sales:
+        Daily Sales:
         <h3 class="text-success">{{ number_format($ds->sales, 2) }}</h3>
       </div><!-- end: .col-md-3-->
       <div class="col-md-3 col-xs-6">
@@ -85,13 +85,13 @@
        <div class="col-md-3">
         <ul class="list-group">
           <li class="list-group-item"><span class="pull-right"><strong>{{ number_format($ds->mancost,2) }}</strong></span> Man Cost</li>
-          <li class="list-group-item"><span class="pull-right"><strong>{{ $ds->get_mancostpct() }}</strong></span> Man Cost %</li>
+          <li class="list-group-item"><span class="pull-right"><strong>{{ $ds->get_mancostpct() }}%</strong></span> Man Cost %</li>
         </ul>
       </div>
       <div class="col-md-3">
         <ul class="list-group">
           <li class="list-group-item">Tips <span class="pull-right"><strong>{{ number_format($ds->tips, 2) }}</strong></span></li>
-          <li class="list-group-item">Tips % <span class="pull-right"><strong>{{ number_format($ds->get_tipspct(), 2) }}</strong></span></li>
+          <li class="list-group-item">Tips %<span class="pull-right"><strong>{{ number_format($ds->get_tipspct(), 2) }}%</strong></span></li>
         </ul>
       </div>
       

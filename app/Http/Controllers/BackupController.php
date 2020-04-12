@@ -14,6 +14,7 @@ use App\Repositories\Filters\ByBranch;
 use App\Repositories\Filters\ByUploaddate;
 use App\Models\Backup;
 use App\Models\DailySales;
+use Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException as Http404;
 use Vinkla\Pusher\Facades\Pusher;
 use Vinkla\Pusher\PusherManager;
@@ -292,7 +293,7 @@ class BackupController extends Controller
 
 				try {
 		     	$this->pos->moveFile($this->web->realFullPath($filepath), $storage_path, false); // false = override file!
-		    }catch(\Exception $e){
+		    }catch(Exception $e){
 		    		DB::rollBack();
 						$this->logAction('error:move:backup', $log_msg.$e->getMessage());
 						return redirect('/backups/upload')->with('alert-error', 'Error on saving file! Please upload again.');
@@ -448,14 +449,14 @@ class BackupController extends Controller
   public function verifyBackup(Request $request) {
   	try {
   		$code = $this->backup->getBackupCode(); 
-  	} catch (\Exception $e) {
-  		throw new \Exception($e->getMessage());
+  	} catch (Exception $e) {
+  		throw new Exception($e->getMessage());
   	}
   	
   	if(strtolower($code)===strtolower($request->user()->branch->code)) {
   		return $code;
   	} else {
-  		throw new \Exception("Backup file is property of ". $code .' not '.$request->user()->branch->code);
+  		throw new Exception("Backup file is property of ". $code .' not '.$request->user()->branch->code);
   	}
   }
 
@@ -528,7 +529,7 @@ class BackupController extends Controller
 		$file = $storage->get($path);
 		$mimetype = $storage->fileMimeType($path);
 
-    $response = \Response::make($file, 200);
+    $response = Response::make($file, 200);
 	 	$response->header('Content-Type', $mimetype);
   	$response->header('Content-Disposition', 'attachment; filename="'.$p5.'"');
 

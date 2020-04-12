@@ -18,7 +18,7 @@ $(function(){
 			return false;
 		} 
 		return true;
-	}
+	};
 
 	var dropbox = $('#dropbox'),
 			message = $('.message', dropbox);
@@ -41,7 +41,7 @@ $(function(){
 		
 		uploadFinished:function(i,file,response){
 			// response is the JSON object that post_file.php returns
-			console.log('done uploading!')
+			console.log('done uploading!');
 			console.log(response);
 			console.log($('#month')[0].value);
 			if(response.status === 'success'){
@@ -57,24 +57,24 @@ $(function(){
   	error: function(err, file) {
 		 switch(err) {
           case 'BrowserNotSupported':
-              alert('browser does not support HTML5 drag and drop')
+              alert('browser does not support HTML5 drag and drop');
               break;
           case 'TooManyFiles':
-          	alert('Too Many Files')
+          	alert('Too Many Files');
               // user uploaded more than 'maxfiles'
               break;
           case 'FileTooLarge':
-          	alert('File Too Large')
+          	alert('File Too Large');
               // program encountered a file whose size is greater than 'maxfilesize'
               // FileTooLarge also has access to the file which was too large
               // use file.name to reference the filename of the culprit file
               break;
           case 'FileTypeNotAllowed':
-          	alert('File Type Not Allowed')
+          	alert('File Type Not Allowed');
               // The file type is not in the specified list 'allowedfiletypes'
               break;
           case 'FileExtensionNotAllowed':
-          	alert('File Extension Not Allowed')
+          	alert('File Extension Not Allowed');
               // The file extension is not in the specified list 'allowedfileextensions'
               break;
           default:

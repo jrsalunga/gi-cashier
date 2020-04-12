@@ -1,5 +1,6 @@
 <?php namespace App\Listeners;
 
+use Exception;
 use Illuminate\Contracts\Mail\Mailer;
 use App\Repositories\DailySales2Repository as DS;
 use App\Repositories\Purchase2Repository as PR;
@@ -31,7 +32,7 @@ class ProcessesEventListener
   public function aggregateComponentMonthly($event) {
     try {
       $month = $this->purchase->aggCompByDr($event->date->copy()->firstOfMonth(), $event->date->copy()->lastOfMonth(), $event->branchid);
-    } catch (\Exception $e) { 
+    } catch (Exception $e) {
       /*
       //logAction('onDailySalesSuccess Error', $e->getMessage());
       $data = [
@@ -84,7 +85,7 @@ class ProcessesEventListener
   public function aggregateMonthlyExpense($event) {
     try {
       $month = $this->purchase->aggExpByDr($event->date->copy()->firstOfMonth(), $event->date->copy()->lastOfMonth(), $event->branchid);
-    } catch (\Exception $e) { 
+    } catch (Exception $e) {
       /*
       //logAction('onDailySalesSuccess Error', $e->getMessage());
       $data = [

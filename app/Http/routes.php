@@ -30,6 +30,8 @@ Route::get('backups/log', ['uses'=>'BackupController@getHistory']);
 Route::get('backups/{param1?}/{param2?}', ['uses'=>'BackupController@getIndex']);
 Route::post('upload/postfile', ['as'=>'upload.postfile', 'uses'=>'BackupController@postfile']); // upload to web
 Route::put('upload/postfile', ['as'=>'upload.putfile', 'uses'=>'BackupController@putfile']); // move from web to storage
+
+Route::get('download/passkey/{id}', ['uses'=>'Uploader\EmployeeTransferController@getPasskeyDownload']);
 Route::get('download/{param1?}/{param2?}/{param3?}/{param4?}/{param5?}', ['uses'=>'BackupController@getDownload']);
 
 
@@ -68,6 +70,7 @@ Route::get('uploader/backup', ['uses'=>'UploaderController@getBackupIndex']);
 Route::put('uploader/postfile', ['uses'=>'UploaderController@putFile']);
 Route::get('uploader/deposit-slip', ['uses'=>'UploaderController@getDepositIndex']);
 Route::get('{brcode}/upload/summary', ['as'=>'upload-summary', 'uses'=>'UploaderController@getUploadSummary']);
+
 
 /******* start prefix:api     ********/
 Route::group(['prefix'=>'api'], function(){  /******* begin prefix:api ********/

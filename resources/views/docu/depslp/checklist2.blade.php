@@ -123,7 +123,7 @@
               <!--
               {{ number_format($pos['amount'],2) }}
             -->
-            <span class="glyphicon glyphicon-ok text-success"></span>
+            <span class="fa fa-bank text-success" title="Deposit was declared on POS" style="cursor: help;"></span>
               <?php
               if ($kp==0)
                 $gtp_cash += $pos['amount'];

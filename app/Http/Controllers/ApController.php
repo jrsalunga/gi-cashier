@@ -1,5 +1,7 @@
 <?php namespace App\Http\Controllers;
 use Event;
+use Exception;
+use Response;
 use StdClass;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -59,9 +61,9 @@ class ApController extends Controller {
   		} else {
   			$data[$key]['exist'] = false;
   		}
-  	};
+  	}
 
-  	#if (app()->environment()==='production')
+        #if (app()->environment()==='production')
     #	event(new Notifier(session('user.fullname').' accessed Payables Checklist'));
 
 		return view('docu.ap.checklist')->with('date', $date)->with('data', $data);
@@ -378,14 +380,14 @@ class ApController extends Controller {
 			$file = $this->files->get($path);
 			$mimetype = $this->files->fileMimeType($path);
 
-	    $response = \Response::make($file, 200);
+	    $response = Response::make($file, 200);
 		 	$response->header('Content-Type', $mimetype);
 	  	
 	  	//if ($request->has('download') && $request->input('download')=='true')
 	  	$response->header('Content-Disposition', 'attachment; filename="'.$p6.'"');
 
 		  return $response;
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			return abort('404');
 		}
 	}

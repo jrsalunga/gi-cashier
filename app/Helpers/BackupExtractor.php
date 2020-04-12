@@ -1,6 +1,9 @@
 <?php namespace App\Helpers;
 
 use App\Helpers\Locator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ZipArchive;
 
 class BackupExtractor
 {
@@ -72,7 +75,7 @@ class BackupExtractor
     if ($this->has_backup($brcode, $date)) {
 
 
-      $zip = new \ZipArchive();
+      $zip = new ZipArchive();
       $zip_status = $zip->open($this->filepath);
 
       if($zip_status === true) {
@@ -125,9 +128,9 @@ class BackupExtractor
   }
 
   public function removeDir($dir){
-    $it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
-    $files = new \RecursiveIteratorIterator($it,
-                 \RecursiveIteratorIterator::CHILD_FIRST);
+    $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+    $files = new RecursiveIteratorIterator($it,
+                 RecursiveIteratorIterator::CHILD_FIRST);
     foreach($files as $file) {
       if ($file->isDir()){
         rmdir($file->getRealPath());

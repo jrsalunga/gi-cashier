@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use App\Models\Branch;
 use App\Models\Rmis\Product;
 use App\Models\Rmis\Invdtl as InvdtlModel;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Inspiring;
 use App\Http\Controllers\SalesmtdController as SalesmtdCtrl;
@@ -12,6 +13,7 @@ use App\Repositories\Rmis\Orpaydtl;
 use App\Repositories\Rmis\Invhdr;
 use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\Printer;
+use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 
 class EndOfDay extends Command
 {
@@ -60,6 +62,7 @@ protected $terminal = false;
 
 protected $zread_lines = [];
 protected $zread_gross = 0;
+protected $summar;
 
 public function __construct(Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
   parent::__construct();
@@ -122,7 +125,7 @@ public function handle()
 
       $this->info('');
       $this->info("\tPROCESSING SALESMTD");
-      
+     
       $this->salesmtd($date);
 
       $t = 0;
@@ -133,7 +136,7 @@ public function handle()
       }
       $this->info('-----------------');
       $this->info(str_pad(number_format($t,2),15,' ',STR_PAD_LEFT));
-
+      
       $this->info('');
       $this->info('*******************************************');
       $this->info("\tPROCESSING PAYMENTS");
@@ -239,7 +242,8 @@ public function handle()
     if (is_null($array)) 
       return false;
 
-    $printer = new Printer(new FilePrintConnector("lpt1"));
+    $printer = new Printer(new WindowsPrintConnector("lpt1"));
+    //$printer = new Printer(new FilePrintConnector("lpt1"));
 
     foreach ($array as $key => $content) {
       $printer->text($content.PHP_EOL); 
@@ -416,6 +420,106 @@ public function handle()
     return $lines;
   }
 
+
+  private function getLines2($date, $invhdr, $orpaydtls, $terminalid=NULL, $page=NULL) {
+
+    $csh = 0;
+    $chgr = 0;
+    $gc = 0;
+    $sign = 0;
+
+    if (!is_null($orpaydtls)) {
+      foreach ($orpaydtls as $key => $pay) {
+        switch ($pay->paytype) {
+          case '1':
+            $csh = $pay->amount;
+            break;
+          case '2':
+            $chgr = $pay->amount;
+            break;
+          case '3':
+            $gc = $pay->amount;
+            break;
+          case '4':
+            $sign = $pay->amount;
+            break;
+        }
+      }
+    }
+
+    $title = is_null($terminalid)
+      ? 'Z-READING'
+      : 'Z-READING ('.$terminalid.')';
+
+    $lines = [];
+
+
+    $svc = $invhdr->svcamount;
+    $sig = $gc + $sign;
+
+    array_push($lines, bpad($title, 40));
+    array_push($lines, bpad($date->format('M-d-Y'), 40));
+    array_push($lines, bpad(' ', 40));
+    array_push($lines, bpad('=', 40, '='));
+    array_push($lines, bpad(' ', 40));
+    
+    array_push($lines, rpad('GROSS SALES', 40));
+    array_push($lines, rpad('  VAT Sales', 28).lpad(number_format($invhdr->vtotal-$sig, 2), 12));
+    array_push($lines, rpad('  VAT Exempt Sales', 28).lpad(number_format($invhdr->xtotal, 2), 12));
+    array_push($lines, rpad('  Zero Rated Sales', 28).lpad(number_format($invhdr->ztotal, 2), 12));
+    array_push($lines, rpad('  (-) Discount', 28).lpad(number_format($invhdr->discamount, 2), 12));
+    array_push($lines, '  --------------------------------------');
+    array_push($lines, rpad('  TOTAL GROSS SALES', 28).lpad(number_format(($invhdr->vtotal+$invhdr->xtotal+$invhdr->ztotal)-$invhdr->discamount-$sig, 2), 12));
+    array_push($lines, bpad(' ', 40));
+
+    $net = 0;
+    array_push($lines, rpad('NET SALES', 40));
+    array_push($lines, $this->t('  VAT Sales', $invhdr->vatsales-$sig));           $net += $invhdr->vatsales-$sig;
+    array_push($lines, $this->t('  VAT Exempt Sales', $invhdr->vatxsales));   $net += $invhdr->vatxsales;
+    array_push($lines, $this->t('  Zero Rated Sales', $invhdr->vatzsales));   $net += $invhdr->vatzsales;
+    array_push($lines, $this->t('  VAT Amount', $invhdr->vatamount));         $net += $invhdr->vatamount;
+    //array_push($lines, $this->t('(+) Service Charge', $invhdr->svcamount));   $net += $invhdr->svcamount;
+    array_push($lines, $this->t('(+) Tax', $invhdr->taxamount));              $net += $invhdr->taxamount;
+    array_push($lines, $this->t('(-) Senior Discount', $invhdr->scdisc));     $net -= $invhdr->scdisc;
+    array_push($lines, $this->t('(-) PWD Discount', $invhdr->pwddisc));       $net -= $invhdr->pwddisc;
+    array_push($lines, '  --------------------------------------');
+    array_push($lines, $this->t('  TOTAL NET SALES', $net));
+    array_push($lines, bpad(' ', 40));
+
+    $tender = 0;
+    array_push($lines, rpad('TENDERS', 40));
+    array_push($lines, $this->t('  Cash', $csh-$svc));             $tender += $csh-$svc;
+    array_push($lines, $this->t('  Credit Card', $chgr));     $tender += $chgr;
+    //array_push($lines, $this->t('  Gift Certificate', $gc));  $tender += $gc;
+    //array_push($lines, $this->t('  Signed Chit', $sign));     $tender += $sign;
+    array_push($lines, '  --------------------------------------');
+    array_push($lines, $this->t('  TOTAL TENDERS', $tender));
+    array_push($lines, bpad(' ', 40));
+    
+    array_push($lines, rpad('CASH FROM SALES', 40));
+    array_push($lines, $this->t('  Cash', $csh-$svc));
+    array_push($lines, $this->t('(-) Change', $invhdr->totchange));
+    array_push($lines, '  --------------------------------------');
+    array_push($lines, $this->t('  TOTAL CASH FROM SALES', (($csh-$svc)-$invhdr->totchange)));
+    array_push($lines, bpad(' ', 40));
+
+    array_push($lines, '----------------------------------------');
+    array_push($lines, $this->t('Posted Txn Count', $invhdr->txncount));
+    array_push($lines, $this->t('Cancelled Txn Count', $invhdr->txncancel));
+    array_push($lines, $this->t('Total Pax', $invhdr->pax));
+    array_push($lines, $this->t('SC Pax', $invhdr->scpax));
+    array_push($lines, $this->t('PWD Pax', $invhdr->pwdpax));
+    array_push($lines, '----------------------------------------');
+
+
+    array_push($lines, bpad('* END OF Z-REPORT *', 40));
+    array_push($lines, bpad(c()->format('m/d/Y H:i:s'), 40));
+    if (!is_null($page))
+      array_push($lines, bpad($page, 40));
+
+    return $lines;
+  }
+
   private function zreadLines(Carbon $date) {
 
     $a = 0;
@@ -545,6 +649,7 @@ public function handle()
       
       foreach ($orpaydtls as $key => $orpaydtl) {
         $true_charge = 0;
+        $this->info($orpaydtl->paytype);
         if (in_array($orpaydtl->paytype, [1,2])) {
           $this->add_record($dbf_c,  $this->setOrpaydtl($orpaydtl));
           if ($orpaydtl->paytype=='1') {
@@ -654,15 +759,15 @@ public function handle()
   private function createDBF($filename=null, $fields=null) {
 
     if (is_null($filename)) 
-      throw new \Exception('No filename set on createDBF');
+      throw new Exception('No filename set on createDBF');
 
     if (is_null($fields)) 
-      throw new \Exception('No fields set on createDBF');
+      throw new Exception('No fields set on createDBF');
 
     $dbf = $this->temp_path.DS.$filename.'.DBF';
    
     if (!dbase_create($dbf, $fields)) 
-      throw new \Exception('Unable to create DBF');
+      throw new Exception('Unable to create DBF');
     
     return $dbf;
   }
@@ -680,7 +785,7 @@ public function handle()
         ->whereDate($date)
         ->with([
           'invhdr'=>function($q) {
-            $q->select(['refno', 'date', 'tableno', 'timestart','uidcreate','pax','id']);
+            $q->select(['refno', 'date', 'bizdate', 'tableno', 'timestart','uidcreate','pax','id']);
           }, 
           'product'=>function($q) {
             $q->select(['code', 'shortdesc', 'prodcatid', 'sectionid', 'id'])
@@ -776,6 +881,7 @@ public function handle()
     $terms = '';
     //$true_charge = number_format(0,2);
 
+
     if ($orpaydtl->paytype=='1') { //cash
       $cusno = $orpaydtl->tableno;
       $pdamt = $orpaydtl->amounts;
@@ -794,8 +900,11 @@ public function handle()
     if ($orpaydtl->paytype=='2') {//charge
 
       $orpaydtl->load('bankcard');
+
       $cusno = $orpaydtl->tableno;
-      $cusname = $orpaydtl->bankcard->descriptor;
+      $cusname = empty($orpaydtl->bankcard->descriptor)
+                ? 'NOT ENCODED'
+                : $orpaydtl->bankcard->descriptor;
       $bnkchrg = number_format(($orpaydtl->amounts*$orpaydtl->bankrate)/100,2);
       $terms = 'CHARGE';
       $true_charge = $orpaydtl->amounts;
@@ -816,7 +925,8 @@ public function handle()
 
     return [
       substr($orpaydtl->invrefno,4), //CSLIPNO 
-      $orpaydtl->date->format('Ymd'), //ORDDATE 
+      //$orpaydtl->date->format('Ymd'), //ORDDATE 
+      $orpaydtl->bizdate->format('Ymd'), //ORDDATE 
       $orpaydtl->timestop.':00', //ORDTIME 
       $cusno, //CUSNO 
       $cusname, //CUSNAME 
@@ -872,21 +982,29 @@ public function handle()
     ];
   }
 
-  private function setToArray($is_new, $key, $invdtl, $combo=null, $table='invdtl', $cancelled=false) {
+  /*
+  * param
+  *   $is_new - flag/identifier if it is the 1st item of the receipt
+  *   $idx - identify the groupies index, always '0' if not groupies.
+  *   $invdtl - the actual INVDTL Object
+  *   $combo - the actual COMBO Object
+  *   $table - identifier if the record is came from invdtl table or combo table. ('invdtl' or 'combo' only)
+  *   $cancelled - invdtl.cancelled
+  * return - array of salesmtd
+  */
+  private function setToArray($is_new, $idx, $invdtl, $combo=null, $table='invdtl', $cancelled=false) {
 
-    if (!is_null($combo)) {
+    if (!is_null($combo)) { // invdtl.iscombo = true
       $uprice = $combo->product->unitprice;
       $qty = $cancelled
-        ? number_format(-1*abs($combo->qty*$invdtl->qty),2)
+        ? number_format(-1*abs($combo->qty*$invdtl->qty),2) // if the item is cancelled, negate combo qty
         : number_format($combo->qty*$invdtl->qty,2);
-      $comp2 = $invdtl->product->code;
-      $comp3 = number_format($invdtl->qty, 0);
-
-      $this->info(' '.($combo->qty+0).' '.$combo->product->shortdesc);
-       $sec = lpad($invdtl->lineno.$combo->seqno, 2, '0');
+      $comp2 = $invdtl->product->code; // groupies code (S1, F1, F6)
+      $comp3 = number_format($invdtl->qty, 0); // groupies qty
+      $sec = lpad($invdtl->lineno.$combo->seqno, 2, '0');
     } else {
       $uprice = $invdtl->unitprice;
-      $qty = $cancelled 
+      $qty = $cancelled // if the item is cancelled, negate qty
         ? number_format(-1*abs($invdtl->qty),2)
         : number_format($invdtl->qty,2);
       $comp2 = '';
@@ -894,12 +1012,12 @@ public function handle()
       $sec = lpad($invdtl->lineno, 2, '0');
     }
     
-    $grsamt = $cancelled
-      ? number_format(-1*abs($uprice*$qty),2,'.','')
+    $grsamt = $cancelled // invdtl.cancelled
+      ? number_format(-1*abs($uprice*$qty),2,'.','') // negate price
       : number_format($uprice*$qty,2,'.','');
     
-    if ($is_new && $key==0) {
-      $pax = $invdtl->invhdr->pax.'|1';
+    if ($is_new && $idx==0) { // if first item on receipt
+      $pax = $invdtl->invhdr->pax.'I1';
       $custno = '';
     } else {
       $pax = '';
@@ -908,17 +1026,17 @@ public function handle()
     
     $catname = ucwords(strtolower($$table->product->prodcat->descriptor), " \t\r\n\f\v-");
 
-    if (array_key_exists($catname, $this->prodtype_breakdown)) {
+    if (array_key_exists($catname, $this->prodtype_breakdown))
       $this->prodtype_breakdown[$catname] += $grsamt;
-      //$this->info('*************************************************************+');
-    }
-    else {
+    else
       $this->prodtype_breakdown[$catname] = $grsamt;
-      //$this->info('*************************************************************=');
+
+    $menucat = '';
+    try {
+      $menucat = $$table->product->menuprod->menucat->descriptor;
+    } catch (Exception $e) {
+      $menucat = 'MISC';
     }
-
-
-      
 
     return [
       $invdtl->invhdr->tableno, //TBLNO
@@ -933,7 +1051,8 @@ public function handle()
       $grsamt, //GRSAMT
       '0.00', //DISC
       $grsamt, //NETAMT
-      $invdtl->invhdr->date->format('Ymd'), //ORDDATE
+      //$invdtl->invhdr->date->format('Ymd'), //ORDDATE
+      $invdtl->invhdr->bizdate->format('Ymd'), //ORDDATE
       $invdtl->ordtime.':'.$sec,  //ORDTIME
       '', //CATNO
       $catname,  //CATNAME
@@ -951,8 +1070,8 @@ public function handle()
       '', //COMPQTY4
       '', //COMPQTY5
       '', //COMPUNIT1
-      substr($$table->product->menuprod->menucat->descriptor or '', 0, 6), //COMPUNIT2
-      substr($$table->product->menuprod->menucat->descriptor or '', 6, 6), //COMPUNIT3
+      substr($menucat, 0, 6), //COMPUNIT2
+      substr($menucat, 6, 6), //COMPUNIT3
       $invdtl->product->sectionid, //COMPUNIT4
       '' //COMPUNIT5
     ];
@@ -1010,10 +1129,6 @@ public function handle()
 
     }
   }
-
-   
-
-    
 
 
   private function salesmtd_fields() {
@@ -1112,6 +1227,8 @@ public function handle()
     ];
   }
 
+
+
   private function  data_check(Carbon $date) {
 
     $invhdrs = $this->invhdr
@@ -1126,7 +1243,7 @@ public function handle()
                   'orpaydtls',
                   'orderhdrs.orderdtls'
                 ])
-                ->findWhere(['date'=>$date->format('Y-m-d'), 'posted'=>1, 'cancelled'=>0]);
+                ->findWhere(['bizdate'=>$date->format('Y-m-d'), 'posted'=>1, 'cancelled'=>0]);
 
     //$this->info(count($invhdrs));
     $this->initSummary();
@@ -1178,7 +1295,7 @@ public function handle()
     //$this->info($invhdr->totinvline.'-'.count($invhdr->invdtls));
 
     if (count($invhdr->invdtls)<=0 || is_null($invhdr->invdtls))
-      $assert->addError($invhdr->srefno().': No invdtl');
+      $assert->addError($invhdr->srefno().": No invdtl. Pls run 'invdtl ".$invhdr->srefno()."' to fix this error");
 
     if ($invhdr->totinvline > count($invhdr->invdtls))
       $assert->addError($invhdr->srefno().': Totinvline is greater than actual invdtl');
@@ -1253,7 +1370,6 @@ public function handle()
         }
       }
     }
-
     if (number_format($ctr_gross,2)!==number_format($invhdr->vtotal,2)) {
       
       //if ($invhdr->date->gte(c('2017-12-16')))
@@ -1348,7 +1464,7 @@ public function handle()
       }
 
       if ($invhdr->scpax < $ctr)
-        $assert->addError($invhdr->srefno().': Actual scinfo do not match scpax');
+        $assert->addError($invhdr->srefno().": Actual scinfo do not match scpax. Pls run 'sc ".$invhdr->srefno()."' to fix this error");
     }
 
     if ($invhdr->scdisc>0 && $invhdr->scpax<=0)
@@ -1447,3 +1563,4 @@ class AssertBag {
     return $this->getAssert();
   }
 }
+

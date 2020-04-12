@@ -1,5 +1,6 @@
 <?php namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Dflydev\ApacheMimeTypes\PhpRepository;
 use Illuminate\Console\Command;
 use App\Repositories\DateRange;
@@ -69,8 +70,8 @@ class ProcessBackup extends Command
           exit;
         }
 
-        $from = \Carbon\Carbon::parse($from);
-        $to = \Carbon\Carbon::parse($to);
+        $from = Carbon::parse($from);
+        $to = Carbon::parse($to);
 
         if ($from->gt($to)) {
           $this->comment('invalid date range: --from is greater than --to');

@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use Dflydev\ApacheMimeTypes\PhpRepository;
+use FilesystemIterator;
 use Illuminate\Support\Facades\Storage;
 use File;
 use Exception;
@@ -339,7 +340,7 @@ class StorageRepository {
   }
 
   public function fileCount($dir) {
-    return iterator_count(new \FilesystemIterator($dir, \FilesystemIterator::SKIP_DOTS));
+    return iterator_count(new FilesystemIterator($dir, FilesystemIterator::SKIP_DOTS));
   }
 
   

@@ -1,5 +1,6 @@
 <?php namespace App\Console\Commands\Backlog;
 
+use App\Models\Backup;
 use DB;
 use Carbon\Carbon;
 use App\Models\Branch;
@@ -83,7 +84,7 @@ class RecomputeVat extends Command
 
     $this->info('start processing...');
 
-    $backup = \App\Models\Backup::where('branchid', $br->id)->where('filename', 'GC'.$t->format('mdy').'.ZIP')->first();
+    $backup = Backup::where('branchid', $br->id)->where('filename', 'GC'.$t->format('mdy').'.ZIP')->first();
 
     if (is_null($backup)) {
       $this->info('No backup log found on '. $t->format('Y-m-d'));

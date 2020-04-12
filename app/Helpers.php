@@ -1,5 +1,7 @@
 <?php
 
+//use Carbon\Carbon;
+
 function is_day($value){
 	return  preg_match("/^(0[1-9]|[1-2][0-9]|3[0-1])$/", $value);
 }
@@ -117,7 +119,7 @@ function clientIP(){
 
 function lastWeekOfYear($year='') {
 	$year = empty($year) ? date('Y', strtotime('now')):$year;
-  $date = new \DateTime;
+  $date = new DateTime;
   $date->setISODate($year, 53);
   return ($date->format("W") === "53" ? 53 : 52);
 }
@@ -170,7 +172,7 @@ function carbonCheckorNow($date=NULL) {
 
 	try {
 		$d = Carbon\Carbon::parse($date); 
-	} catch(\Exception $e) {
+	} catch(Exception $e) {
 		return Carbon\Carbon::now(); 
 	}
 	return $d;
@@ -523,14 +525,14 @@ if (!function_exists('dateInterval')) {
 
     try {
       $fr = Carbon\Carbon::parse($fr);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
       throw $e;
       return false;
     }
 
     try {
       $to = Carbon\Carbon::parse($to);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
       throw $e;
       return false;
     }
@@ -551,14 +553,14 @@ if (!function_exists('monthInterval')) {
 
     try {
       $fr = Carbon\Carbon::parse($fr);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
       throw $e;
       return false;
     }
 
     try {
       $to = Carbon\Carbon::parse($to);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
       throw $e;
       return false;
     }
@@ -590,7 +592,7 @@ if (!function_exists('clean_number_format')) {
 
 if (!function_exists('is_carbon')) {
   function is_carbon($date, $transform=false) {
-    if ($date instanceof \Carbon\Carbon)
+    if ($date instanceof Carbon)
       return $date;
     else
       if ($transform) 

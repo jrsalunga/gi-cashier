@@ -8,6 +8,7 @@ use Exception;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Repositories\CompanyRepository as CompanyRepo;
+use Response;
 
 class RemittanceController extends Controller 
 {
@@ -45,13 +46,13 @@ class RemittanceController extends Controller
 
 		try {
 			$e = Excel::selectSheetsByIndex(0)->load($file);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			return redirect('/remittance/philhealth')->withErrors('Something went wrong! '. $e->getMessage());
 		}
 
 		try {
 			$company = $this->company->find($request->input('company_id'));
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			return redirect('/remittance/philhealth')->withErrors('Invalid company!');
 		}
 
@@ -144,7 +145,7 @@ class RemittanceController extends Controller
 		    });
 			})->store('csv', public_path('downloads'.DS.'remittance'));
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			return redirect('/remittance/philhealth')->withErrors('Something went wrong! '. $e->getMessage());
 		}
 		
@@ -178,7 +179,7 @@ class RemittanceController extends Controller
 
    return response()->download($file, $dl, ['Content-Type'=>'text/csv', 'Content-Disposition'=>'attachment; filename="'.$dl.'"']);
 
-    $response = \Response::make($file, 200);
+    $response = Response::make($file, 200);
 	 	$response->header('Content-Type', 'text/csv');
   	$response->header('Content-Disposition', 'attachment; filename="'.$dl.'"');
 

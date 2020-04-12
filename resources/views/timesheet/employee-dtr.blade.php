@@ -299,7 +299,7 @@ $(function() {
   .on('apply.daterangepicker', function(ev, picker) {
   	//console.log(ev);
   	var url = "/{{brcode()}}/timesheet/{{$employee->lid()}}?fr="+ picker.startDate.format('YYYY-MM-DD') +"&to="+ picker.endDate.format('YYYY-MM-DD');
-  	window.location.replace(url)
+  	window.location.replace(url);
   	console.log(picker.startDate.format('MM/DD/YYYY'));
   	console.log(picker.endDate.format('MM/DD/YYYY'));
   });

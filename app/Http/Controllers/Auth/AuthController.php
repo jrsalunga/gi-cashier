@@ -81,8 +81,6 @@ class AuthController extends Controller
 
     public function postLogin(Request $request) {
 
-        //return dd('fdsafasfas');
-        
         // $request->input('email') is from the form
         $login_type = filter_var($request->input('email'), FILTER_VALIDATE_EMAIL ) ? 'email' : 'username';
 

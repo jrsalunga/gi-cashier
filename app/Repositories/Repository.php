@@ -5,6 +5,8 @@ use App\Repositories\Filters\Filters;
 use App\Repositories\Contracts\RepositoryInterface;
 use App\Repositories\Exceptions\RepositoryException;
 
+use Closure;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Container\Container as App;
@@ -38,7 +40,7 @@ abstract class Repository implements RepositoryInterface, FiltersInterface {
     /**
      * @param App $app
      * @param Collection $collection
-     * @throws \App\Repositories\Exceptions\RepositoryException
+     * @throws RepositoryException
      */
     public function __construct(App $app, Collection $collection) {
         $this->app = $app;
@@ -201,7 +203,7 @@ abstract class Repository implements RepositoryInterface, FiltersInterface {
         $model = $this->model;
 
         foreach ($where as $field => $value) {
-            if ($value instanceof \Closure) {
+            if ($value instanceof Closure) {
                 $model = (! $or)
                     ? $model->where($value)
                     : $model->orWhere($value);
@@ -251,7 +253,7 @@ abstract class Repository implements RepositoryInterface, FiltersInterface {
 
 
     /**
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      * @throws RepositoryException
      */
     public function makeModel() {

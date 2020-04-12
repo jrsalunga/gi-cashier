@@ -3,6 +3,7 @@
 namespace App\Providers;
 use DB;
 use Auth;
+use Validator;
 use App\User;
 use Illuminate\Support\ServiceProvider;
 
@@ -41,6 +42,23 @@ class AppServiceProvider extends ServiceProvider
             test_log(join(',', $bindings));
         });
         */
+
+        Validator::extend('alpha_spaces', function ($attribute, $value) {
+            // This will only accept alpha and spaces. 
+            // If you want to accept hyphens use: /^[\pL\s-]+$/u.
+            //return preg_match('/^[\pL\s]+$/u', $value); 
+            return preg_match('/^[\pL\s-]+$/u', $value); 
+        });
+
+        // alpha numeric space hypen underscore period comma
+        Validator::extend('anshupc', function ($attribute, $value) {
+            return preg_match('/^[0-9\pL\s-_.,]+$/u', $value); 
+        });
+
+        // export request file
+        Validator::extend('exportreq', function ($attribute, $value) {
+            return preg_match('/EX(?!0{6})\d{6}\.REQ/u', $value); 
+        });
     }
 
     /**

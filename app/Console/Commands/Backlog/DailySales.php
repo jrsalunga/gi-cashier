@@ -1,5 +1,12 @@
 <?php namespace App\Console\Commands\Backlog;
 
+use App\Events\Backup\DailySalesSuccess;
+use App\Events\Posting\SalesmtdSuccess;
+use App\Events\Process\AggregateComponentMonthly;
+use App\Events\Process\AggregateMonthlyExpense;
+use App\Events\Process\AggregatorDaily;
+use App\Events\Process\AggregatorMonthly;
+use App\Events\Process\RankMonthlyProduct;
 use DB;
 use Carbon\Carbon;
 use App\Models\Branch;
@@ -135,7 +142,7 @@ class DailySales extends Command
     	DB::rollback();
     	exit;
 		} finally {
-      event(new \App\Events\Posting\SalesmtdSuccess($bckup));
+      event(new SalesmtdSuccess($bckup));
     }
 
     $this->info('extracting charges...');
@@ -159,18 +166,18 @@ class DailySales extends Command
       exit;
     }
 
-    event(new \App\Events\Process\AggregatorDaily('purchase', $bckup->date, $bckup->branchid));
+    event(new AggregatorDaily('purchase', $bckup->date, $bckup->branchid));
 
 
 
-    event(new \App\Events\Backup\DailySalesSuccess($bckup)); // recompute Monthlysales
-    event(new \App\Events\Process\AggregateComponentMonthly($bckup->date, $bckup->branchid)); // recompute Monthly Component
-    event(new \App\Events\Process\AggregateMonthlyExpense($bckup->date, $bckup->branchid)); // recompute Monthly Expense
-    event(new \App\Events\Process\AggregatorMonthly('trans-expense', $bckup->date, $bckup->branchid));
-    event(new \App\Events\Process\AggregatorMonthly('product', $bckup->date, $bckup->branchid)); // recompute Monthly Expense
-    event(new \App\Events\Process\AggregatorMonthly('prodcat', $bckup->date, $bckup->branchid)); 
-    event(new \App\Events\Process\AggregatorMonthly('groupies', $bckup->date, $bckup->branchid));
-    event(new \App\Events\Process\RankMonthlyProduct($bckup->date, $bckup->branchid));
+    event(new DailySalesSuccess($bckup)); // recompute Monthlysales
+    event(new AggregateComponentMonthly($bckup->date, $bckup->branchid)); // recompute Monthly Component
+    event(new AggregateMonthlyExpense($bckup->date, $bckup->branchid)); // recompute Monthly Expense
+    event(new AggregatorMonthly('trans-expense', $bckup->date, $bckup->branchid));
+    event(new AggregatorMonthly('product', $bckup->date, $bckup->branchid)); // recompute Monthly Expense
+    event(new AggregatorMonthly('prodcat', $bckup->date, $bckup->branchid));
+    event(new AggregatorMonthly('groupies', $bckup->date, $bckup->branchid));
+    event(new RankMonthlyProduct($bckup->date, $bckup->branchid));
    
 
     //DB::rollback();

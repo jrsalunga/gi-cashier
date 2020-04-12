@@ -1,6 +1,7 @@
 <?php namespace App\Models;
 
 use App\Models\BaseModel;
+use DB;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -82,7 +83,7 @@ class Manskedhdr extends BaseModel {
 
 
   public function filledManday(){
-    $res = $this->query()->select(\DB::raw('count(manskedday.empcount) as filled'))
+    $res = $this->query()->select(DB::raw('count(manskedday.empcount) as filled'))
                           ->join('manskedday', function($join){
                             $join->on('manskedday.manskedid', '=', 'manskedhdr.id')
                                 ->where('manskedhdr.branchid', '=', session('user.branchid'));
@@ -165,13 +166,13 @@ class Manskedhdr extends BaseModel {
 
 
   public static function getWeeks($year) {
-  	$mw = Manskedhdr::select('weekno')->where(\DB::raw('YEAR(date)'), '=',  $year)->get();
+  	$mw = Manskedhdr::select('weekno')->where(DB::raw('YEAR(date)'), '=',  $year)->get();
   	$m = $mw->pluck('weekno')->toArray();
   	
   	for($week_ctr = 0; $week_ctr <= (date("W", mktime(0,0,0,12,28,$year))+1);  $week_ctr++){
 			//array_push($weeks, $week_ctr+1);
-			$weeks[$week_ctr]['week'] = $week_ctr + 1;;
-			$weeks[$week_ctr]['created'] = in_array($week_ctr, $m) ? 'yes':'no';
+			$weeks[$week_ctr]['week'] = $week_ctr + 1;
+        $weeks[$week_ctr]['created'] = in_array($week_ctr, $m) ? 'yes':'no';
 		}
 		return $weeks;
   }

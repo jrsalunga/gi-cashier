@@ -15,6 +15,7 @@ class Branch extends BaseModel {
     parent::__construct($attributes);
     if (app()->environment()==='production')
       $this->setConnection('mysql-hr');
+    $this->setConnection('hr');
   }
 
 	public function employee() {
@@ -31,6 +32,10 @@ class Branch extends BaseModel {
 
   public function opendate() {
     return Carbon::parse($this->opendate);
+  }
+
+  public function branch_to() {
+    return $this->hasOne('App\Models\EmploymentActivity', 'to_branch_id');
   }
 
 

@@ -1,9 +1,12 @@
 <?php namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use DateTime;
+use DB;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Arr;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 
 abstract class BaseModel extends Model {
@@ -11,57 +14,54 @@ abstract class BaseModel extends Model {
 	public $timestamps = false;
 	public $incrementing = false;
 
-
-
 	/******* this is a substitute from Illuminate\Database\Eloquent\Model ******
-     * Perform a model insert operation.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  array  $options
-     * @return bool
-     */
-    protected function performInsert(Builder $query, array $options = [])
-    {
-        if ($this->fireModelEvent('creating') === false) {
-            return false;
-        }
-
-        // First we'll need to create a fresh query instance and touch the creation and
-        // update timestamps on this model, which are maintained by us for developer
-        // convenience. After, we will just continue saving these model instances.
-        if ($this->timestamps && Arr::get($options, 'timestamps', true)) {
-            $this->updateTimestamps();
-        }
-
-        // If the model has an incrementing key, we can use the "insertGetId" method on
-        // the query builder, which will give us back the final inserted ID for this
-        // table from the database. Not all tables have to be incrementing though.
-        $attributes = $this->attributes;
-        $attributes['id'] = $this->get_uid();
-        $this->setAttribute('id', $attributes['id']);
-
-        if ($this->incrementing) {
-            $this->insertAndSetId($query, $attributes);
-        } 
-
-        // If the table isn't incrementing we'll simply insert these attributes as they
-        // are. These attribute arrays must contain an "id" column previously placed
-        // there by the developer as the manually determined key for these models.
-        else {
-            $query->insert($attributes);
-        }
-
-        // We will go ahead and set the exists property to true, so that it is set when
-        // the created event is fired, just in case the developer tries to update it
-        // during the event. This will allow them to do so and run an update here.
-        $this->exists = true;
-
-        $this->wasRecentlyCreated = true;
-
-        $this->fireModelEvent('created', false);
-
-        return true;
+ * Perform a model insert operation.
+ *
+ * @param Builder $query
+ * @param  array  $options
+ * @return bool
+ */
+  protected function performInsert(Builder $query, array $options = []) {
+    if ($this->fireModelEvent('creating') === false) {
+      return false;
     }
+
+    // First we'll need to create a fresh query instance and touch the creation and
+    // update timestamps on this model, which are maintained by us for developer
+    // convenience. After, we will just continue saving these model instances.
+    if ($this->timestamps && Arr::get($options, 'timestamps', true)) {
+       $this->updateTimestamps();
+    }
+
+    // If the model has an incrementing key, we can use the "insertGetId" method on
+    // the query builder, which will give us back the final inserted ID for this
+    // table from the database. Not all tables have to be incrementing though.
+    $attributes = $this->attributes;
+    $attributes['id'] = $this->get_uid();
+    $this->setAttribute('id', $attributes['id']);
+
+    if ($this->incrementing) {
+      $this->insertAndSetId($query, $attributes);
+    } 
+
+    // If the table isn't incrementing we'll simply insert these attributes as they
+    // are. These attribute arrays must contain an "id" column previously placed
+    // there by the developer as the manually determined key for these models.
+    else {
+      $query->insert($attributes);
+    }
+
+    // We will go ahead and set the exists property to true, so that it is set when
+    // the created event is fired, just in case the developer tries to update it
+    // during the event. This will allow them to do so and run an update here.
+    $this->exists = true;
+
+    $this->wasRecentlyCreated = true;
+
+    $this->fireModelEvent('created', false);
+
+    return true;
+  }
 
 	
 
@@ -81,9 +81,6 @@ abstract class BaseModel extends Model {
 	}
 
 	public static function raw_uid() {
-		//$id = \DB::select('SELECT UUID() as id');
-		//$id = array_shift($id);
-		//return $id->id;
 
 		// Ramsey\Uuid\Uuid not gererating sequence id
 		try {
@@ -106,8 +103,7 @@ abstract class BaseModel extends Model {
 		 	*/
 		} catch (UnsatisfiedDependencyException $e) {
 		 
-		 	//throw $e;
-		  $id = \DB::select('SELECT CONCAT(substr(UUID(),15,4),substr(UUID(),10,4),substr(UUID(),25,12),substr(UUID(),1,8),substr(UUID(),20,4)) as id');
+		  $id = DB::select('SELECT CONCAT(substr(UUID(),15,4),substr(UUID(),10,4),substr(UUID(),25,12),substr(UUID(),1,8),substr(UUID(),20,4)) as id');
 			$id = array_shift($id);
 			return $id->id;
 		}
@@ -115,13 +111,13 @@ abstract class BaseModel extends Model {
 	}
 
 	public static function get_uid2(){
-		$id = \DB::select('SELECT CONCAT(SUBSTR(uuid(), 15, 4),SUBSTR(uuid(), 10, 4),SUBSTR(uuid(), 1, 8),SUBSTR(uuid(), 20, 4),SUBSTR(uuid(), 25)) as id');
+		$id = DB::select('SELECT CONCAT(SUBSTR(uuid(), 15, 4),SUBSTR(uuid(), 10, 4),SUBSTR(uuid(), 1, 8),SUBSTR(uuid(), 20, 4),SUBSTR(uuid(), 25)) as id');
 		$id = array_shift($id);
 		return strtoupper($id->id);
 	}
 
 	public static function get_uid_old(){
-		$id = \DB::select('SELECT UUID() as id');
+		$id = DB::select('SELECT UUID() as id');
 		$id = array_shift($id);
 		return strtoupper(str_replace("-", "", $id->id));
 	}
@@ -184,7 +180,7 @@ abstract class BaseModel extends Model {
 
 	public function lastWeekOfYear($year='') {
 		$year = empty($year) ? date('Y', strtotime('now')):$year;
-    $date = new \DateTime;
+    $date = new DateTime;
     $date->setISODate($year, 53);
     return ($date->format("W") === "53" ? 53 : 52);
 	}
@@ -224,7 +220,7 @@ abstract class BaseModel extends Model {
 
 
 	public function getRefno($len = 8){
- 		return str_pad((intval(\DB::table($this->table)->max('refno')) + 1), $len, '0', STR_PAD_LEFT);
+ 		return str_pad((intval(DB::table($this->table)->max('refno')) + 1), $len, '0', STR_PAD_LEFT);
  	}
 	
 }

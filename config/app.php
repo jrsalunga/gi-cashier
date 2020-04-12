@@ -26,7 +26,7 @@ return [
     |
     */
 
-    'url' => 'http://gi-cashier.dev',
+    'url' => 'http://gi-cashier.loc',
 
     /*
     |--------------------------------------------------------------------------
@@ -153,6 +153,9 @@ return [
         GrahamCampbell\Flysystem\FlysystemServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        #Fideloper\Proxy\TrustedProxyServiceProvider::class,
+        
+        App\Providers\LocatorServiceProvider::class,
 
     ],
 
@@ -204,14 +207,14 @@ return [
         'View'      => Illuminate\Support\Facades\View::class,
 
 
-        'Zipper' => Chumper\Zipper\Zipper::class,
-        'Form' => Collective\Html\FormFacade::class,
-        'Html' => Collective\Html\HtmlFacade::class,
-        //'Pusher' => Vinkla\Pusher\Facades\Pusher::class,
-        'Debugbar' => Barryvdh\Debugbar\Facade::class,
+        'Zipper'    => Chumper\Zipper\Zipper::class,
+        'Form'      => Collective\Html\FormFacade::class,
+        'Html'      => Collective\Html\HtmlFacade::class,
+        //'Pusher'  => Vinkla\Pusher\Facades\Pusher::class,
+        'Debugbar'  => Barryvdh\Debugbar\Facade::class,
         'Flysystem' => GrahamCampbell\Flysystem\Facades\Flysystem::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
-        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'Excel'     => Maatwebsite\Excel\Facades\Excel::class,
     ],
 
 ];

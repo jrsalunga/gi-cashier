@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Listeners\AggregatorDailyEventListener;
+use App\Listeners\AggregatorEventListener;
+use App\Listeners\EmploymentActivityEventListener;
+use App\Listeners\KitlogAggregatorEventListener;
+use App\Listeners\ProcessesEventListener;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -60,15 +65,17 @@ class EventServiceProvider extends ServiceProvider
         NotifierEventListener::class,
         ApEventListener::class,
         SetslpEventListener::class,
-        \App\Listeners\ProcessesEventListener::class,
-        \App\Listeners\AggregatorEventListener::class,
-        \App\Listeners\AggregatorDailyEventListener::class,
+        ProcessesEventListener::class,
+        AggregatorEventListener::class,
+        AggregatorDailyEventListener::class,
+        EmploymentActivityEventListener::class,
+        KitlogAggregatorEventListener::class,
     ];
     
     /**
      * Register any other events for your application.
      *
-     * @param  \Illuminate\Contracts\Events\Dispatcher  $events
+     * @param DispatcherContract $events
      * @return void
      */
     public function boot(DispatcherContract $events)

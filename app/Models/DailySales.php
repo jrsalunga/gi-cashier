@@ -48,7 +48,6 @@ class DailySales extends BaseModel {
     'setslp' => 'float',
   ];
 
-
 	public function branch() {
     return $this->belongsTo('App\Models\Branch', 'branchid');
   }

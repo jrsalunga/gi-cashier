@@ -24,7 +24,7 @@ class BacklogMonth extends Command
    *
    * @var string
    */
-  protected $description = 'Import backlog month';
+  protected $description = 'Import backlog month of a branch on CRON';
 
   protected $process;
 

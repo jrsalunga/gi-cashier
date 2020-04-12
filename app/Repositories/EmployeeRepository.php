@@ -3,6 +3,7 @@
 use App\Models\Employee;
 use App\Repositories\Criterias\ByBranchCriteria;
 use App\Repositories\Repository;
+use Closure;
 use Prettus\Repository\Eloquent\BaseRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Container\Container as App;
@@ -56,7 +57,7 @@ class EmployeeRepository extends BaseRepository implements CacheableInterface
     $model = $this->model;
 
     foreach ($where as $field => $value) {
-      if ($value instanceof \Closure) {
+      if ($value instanceof Closure) {
           $model = (! $or)
               ? $model->where($value)
               : $model->orWhere($value);
@@ -88,7 +89,7 @@ class EmployeeRepository extends BaseRepository implements CacheableInterface
     $model = $this->model;
 
     foreach ($where as $field => $value) {
-      if ($value instanceof \Closure) {
+      if ($value instanceof Closure) {
           $model = (! $or)
               ? $model->where($value)
               : $model->orWhere($value);

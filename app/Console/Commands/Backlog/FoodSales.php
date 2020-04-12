@@ -1,5 +1,7 @@
 <?php namespace App\Console\Commands\Backlog;
 
+use App\Events\Process\AggregatorMonthly;
+use App\Models\Salesmtd;
 use DB;
 use Carbon\Carbon;
 use App\Models\Branch;
@@ -72,7 +74,7 @@ class FoodSales extends Command
 
     
 
-    $dss = \App\Models\DailySales::select('date', 'branchid', 'id')
+    $dss = DS::select('date', 'branchid', 'id')
               ->whereBetween('date', [$fr->format('Y-m-d'), $to->format('Y-m-d')])
               ->where('food_sales', '<', 1)
               ->where('sales', '>', 0)
@@ -83,7 +85,7 @@ class FoodSales extends Command
     foreach ($dss as $key => $ds) {
       $this->info($key.': '.$ds->date->format('Y-m-d').' '.$ds->branch->code);
 
-      $obj = \App\Models\Salesmtd::select(DB::raw('sum(salesmtd.netamt) as netamt'))
+      $obj = Salesmtd::select(DB::raw('sum(salesmtd.netamt) as netamt'))
               ->join('product', 'product.id', '=', 'salesmtd.product_id')
               ->where('salesmtd.branch_id', $ds->branchid)
               ->where('salesmtd.orddate', $ds->date->format('Y-m-d'))
@@ -95,9 +97,9 @@ class FoodSales extends Command
       } else {
         $this->info($obj->netamt);
 
-        $new = \App\Models\DailySales::where('id', $ds->id)->update(['food_sales' => $obj->netamt]);
+        $new = DS::where('id', $ds->id)->update(['food_sales' => $obj->netamt]);
 
-        event(new \App\Events\Process\AggregatorMonthly('prodcat', $ds->date, $ds->branchid));
+        event(new AggregatorMonthly('prodcat', $ds->date, $ds->branchid));
 
       }
     }

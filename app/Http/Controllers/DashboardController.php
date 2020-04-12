@@ -1,5 +1,7 @@
 <?php namespace App\Http\Controllers;
 
+use App\Models\Branch;
+use App\Models\Purchase2;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -99,14 +101,14 @@ class DashboardController extends Controller
 
   	$data = [];
 
-  	$branches = \App\Models\Branch::orderBy('code')->get();
+  	$branches = Branch::orderBy('code')->get();
 
   	if($request->input('year')!='' && $request->input('branchid')!='') {
 
 	  	foreach ($components as $key => $value) {
-	  		$date = \Carbon\Carbon::parse($request->input('year').'-01-01');
+	  		$date = Carbon::parse($request->input('year').'-01-01');
 
-	  		$results = \App\Models\Purchase2::select(DB::raw('date, SUM(qty) AS qty, SUM(tcost) AS tcost'))
+	  		$results = Purchase2::select(DB::raw('date, SUM(qty) AS qty, SUM(tcost) AS tcost'))
 	  							->where('componentid', $value)
 	  							->where('branchid', $request->input('branchid'))
 	  							->where(DB::raw('YEAR(date)'), $request->input('year'))

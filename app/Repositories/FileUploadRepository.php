@@ -11,6 +11,10 @@ class FileUploadRepository extends BaseRepository implements CacheableInterface
 {
   use CacheableRepository, RepoTrait;
 
+  public function __construct() {
+  	parent::__construct(app());
+  }
+
   protected $order = ['uploaddate'];
 
   public function boot(){

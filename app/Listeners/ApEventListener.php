@@ -1,5 +1,6 @@
 <?php namespace App\Listeners;
 
+use Exception;
 use Illuminate\Contracts\Mail\Mailer;
 
 class ApEventListener
@@ -35,7 +36,7 @@ class ApEventListener
         $message->replyTo('gi.afd01@gmail.com', 'Giligans Accounting');
       });
 
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
 
     }
 

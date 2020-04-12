@@ -47,8 +47,9 @@
                   <select id="filetype" name="filetype" class="form-control" style="width: 100%; border-left: 1px solid #ccc;" required>
                     <option value="" disabled selected>-- Select document type --</option>
                     <option value="backup">Backup File</option>
-                    <option value="depslp">Depost Slip</option>
-                    <option value="setslp">Card Settlement Slip</option>
+                    <option value="depslp">Depost Slip (DEPSLP)</option>
+                    <option value="setslp">Card Settlement Slip (SETSLP)</option>
+                    <option value="exportreq-etrf">Export Request (EX*.REQ) + Emp Transfer Request Form (ETRF)</option>
                   </select>
                 </div><!-- /.col-lg-12 -->
               </div><!-- /.col-lg-12 -->
@@ -57,12 +58,12 @@
             <div class="row" style="margin-top: 20px;">
               <div class="col-lg-12">
                 <div class="input-group">
-                    <button id="attached" class="btn btn-default" type="button" title="Attach file">
+                    <button id="attached" class="btn btn-default" style="background-color: #188038; color: #fff;" type="button" title="Attach file">
                       <span class="glyphicon glyphicon-paperclip"></span> Attach File
                     </button>
                     <input type="hidden"  name="year" id="year" value="{{ now('Y') }}">
                     <input type="hidden"  name="month" id="month" value="{{ pad(now('M'),2) }}">
-                    <input type="file" id="file_upload" style="display: none" />
+                    <input type="file" id="file_upload" data-input-value="filename" style="display: none" />
                 </div><!-- /input-group -->
               </div><!-- /.col-lg-6 -->
             </div>
@@ -173,15 +174,17 @@
   <script type="text/javascript">
 
   $('#attached').on('click', function(){
-    //console.log($('.lbl-file_upload'));
+    $('#file_upload').data('input-value', 'filename');
     $('#file_upload').click();
   });
+
+  
 
   $(document).ready(function(){
 
     $('.toggle-note').on('click', function(){
       $('.container-note').toggle();
-    })
+    });
 
     $('#cashier').on('blur', function(e){
       e.preventDefault();
@@ -302,14 +305,14 @@
         html += '<div class="row" style="margin-top: 20px;"><span class="title">Choose Backup Type</span>'
             +'<div class="radio">'
               +'<label>'
-                +'<input type="radio" name="backup_type" id="backup_hr" value="hr">'
-                +'<strong><span class="gly gly-address-book"></span> POS Payroll Backup</strong> <small><em>(This will be emailed to Mam Aque but will (<span class="glyphicon glyphicon-remove"></span>) not process.)</em></small>'
+                +'<input type="radio" name="backup_type" id="backup_pos" value="pos" <?=app()->environment()==='local'?'checked':''?>>'
+                +'<strong><span class="fa fa-file-archive-o"></span> POS EoD Backup</strong> <small><em>(This will be saved on server and will (<span class="glyphicon glyphicon-ok"></span>) process.)</em></small>'
               +'</label>'
             +'</div>'
             +'<div class="radio">'
               +'<label>'
-                +'<input type="radio" name="backup_type" id="backup_pos" value="pos" <?=app()->environment()==='local'?'checked':''?>>'
-                +'<strong><span class="fa fa-file-archive-o"></span> POS EoD Backup</strong> <small><em>(This will be saved on server and will (<span class="glyphicon glyphicon-ok"></span>) process.)</em></small>'
+                +'<input type="radio" name="backup_type" id="backup_hr" value="hr">'
+                +'<strong><span class="gly gly-address-book"></span> POS Payroll Backup</strong> <small><em>(This will be emailed to HR but will (<span class="glyphicon glyphicon-remove"></span>) not process.)</em></small>'
               +'</label>'
             +'</div>'
             +'<div class="radio">'
@@ -318,6 +321,18 @@
                 +'<strong><span class="fa fa-file-powerpoint-o"></span> GI PAY Payroll Backup</strong> <small><em>(Backup generated from GI PAY. e.g. PR031517.ZIP)</em></small>'
               +'</label>'
             +'</div></div>';
+      } else if ($(this).val()==='exportreq-etrf') {
+        html +='<div class="row" style="margin-top: 20px;">'
+                +'<div class="input-group">'
+                  +'<button id="attach-etrf" class="btn btn-default" style="background-color: #188038; color: #fff;" type="button" title="Attach Employee Transfer Request Form">'
+                    +'<span class="glyphicon glyphicon-paperclip"></span> Attach Employee Transfer Request Form'
+                   +'</button></div></div>'
+                  +'<div class="row" style="margin-top: 20px;">'
+                    +'<div class="input-group">'
+                      +'<span class="input-group-addon" id="basic-addon1">'
+                        +'<span class="glyphicon glyphicon-file"></span> ERTF Filename</span>'
+                      +'<input type="text" class="form-control" id="etrf-filename" name="etrf-filename" readonly="" required="">'
+                    +'</div></div>';
             
       } else {
         html +='';
@@ -366,10 +381,10 @@
       }
       //if (!formValid) alert("Must check some option!");
       return formValid;
-    }
+    };
 
     $('.filetype-result').on('click', '[name="backup_type"]', function() {
-      $.inArray($(this).val(), ['pos', 'payroll'])
+      $.inArray($(this).val(), ['pos', 'payroll']);
         $('.filetype-result > div').removeClass('form-required');
     });
 
@@ -396,6 +411,12 @@
       //console.info('loader');
       return true;
       //e.preventDefault(); 
+    });
+
+
+     $('.filetype-result').on('click', '#attach-etrf', function() {
+      $('#file_upload').data('input-value', 'etrf-filename');
+      $('#file_upload').click();
     });
     
   });

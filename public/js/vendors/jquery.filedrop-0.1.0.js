@@ -257,7 +257,7 @@
       // for in process queue to complete
       var pause = function(timeout) {
         setTimeout(process, timeout);
-        return;
+
       };
 
       // Process an upload, recursive
@@ -316,7 +316,7 @@
                     default:
                         opts.error(errors[7]);
                         return false;
-                };
+                }
             };
 
             reader.onloadend = !opts.beforeSend ? send : function (e) {

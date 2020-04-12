@@ -7,7 +7,7 @@ class Invhdr extends BaseModel {
 	protected $connection = 'rmis';
   protected $table = 'invhdr';
 	protected $guarded = ['id'];
-  protected $dates = ['date'];
+  protected $dates = ['date', 'bizdate'];
 	protected $appends = ['vatxmpt'];
 
 

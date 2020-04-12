@@ -172,7 +172,7 @@
 
   $('.toggle-note').on('click', function(){
     $('.container-note').toggle();
-  })
+  });
 
 
   $('#cashier').on('blur', function(e){

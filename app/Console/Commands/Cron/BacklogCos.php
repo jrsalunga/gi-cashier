@@ -1,5 +1,6 @@
 <?php namespace App\Console\Commands\Cron;
 
+use App\Models\DailySales;
 use DB;
 use Carbon\Carbon;
 use App\Models\Branch;
@@ -61,7 +62,7 @@ class BacklogCos extends Command
         $this->info(' ');
         $this->info($date->format('Y-m-d'));
 
-        $ds = \App\Models\DailySales::where(['branchid'=>$br->id, 'date'=>$date->format('Y-m-d')])->first();
+        $ds = DailySales::where(['branchid'=>$br->id, 'date'=>$date->format('Y-m-d')])->first();
         
         $cos=0;
         $p = $this->purchase->getCos($br->id, $date, ["CK","FS","FV","GR","MP","RC","SS", "DN"])->all();
