@@ -1928,7 +1928,7 @@ class PosUploadRepository extends Repository
   public function postKitlog($branchid, Carbon $date) {
     
     // $cnt =  $this->kitlogImporter->import($branchid, $date, $this->extracted_path);
-    $kitlogImporter = $this->dbfImporter->new('kitlog');
+    $kitlogImporter = $this->dbfImporter->invoke('kitlog');
     // return dd($kitlogImporter);
     $cnt = $kitlogImporter->import($branchid, $date, $this->extracted_path);
 
@@ -1940,7 +1940,7 @@ class PosUploadRepository extends Repository
 
   public function postCashAudit2($branchid, Carbon $date) {
     
-    $kitlogImporter = $this->dbfImporter->new('cash_audit');
+    $kitlogImporter = $this->dbfImporter->invoke('cash_audit');
     $cnt = $kitlogImporter->importByDr($branchid, $date, $date, $this->extracted_path);
 
     return $cnt;
@@ -2898,7 +2898,7 @@ class PosUploadRepository extends Repository
 
   public function backlogCashAudit2($branchid, Carbon $from, Carbon $to, $c=NULL) {
 
-    $kitlogImporter = $this->dbfImporter->new('cash_audit');
+    $kitlogImporter = $this->dbfImporter->invoke('cash_audit');
     $cnt = $kitlogImporter->importByDr($branchid, $from, $to, $this->extracted_path, $c);
 
     return $cnt;
@@ -2906,7 +2906,7 @@ class PosUploadRepository extends Repository
 
   public function backlogKitlog($branchid, Carbon $from, Carbon $to, $c=NULL) {
 
-    $kitlogImporter = $this->dbfImporter->new('kitlog');
+    $kitlogImporter = $this->dbfImporter->invoke('kitlog');
     
     $gt = $cnt = 0;
     foreach (dateInterval($from, $to) as $key => $date) {

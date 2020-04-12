@@ -15,7 +15,7 @@ class DbfImporter extends Controller {
     $this->cash_audit = $cash_audit;
   }
 
-  public function new($table) {
+  public function invoke($table) {
     return $this->{$table};
   } 
 
