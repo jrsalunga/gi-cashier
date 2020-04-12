@@ -1,20 +1,15 @@
-<?php namespace App\Events\Backup;
+<?php namespace App\Events\Process;
 use Carbon\Carbon;
-use App\User;
 use App\Events\Event;
-use App\Models\Backup;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-/*
-* trigger: Cron\BacklogMonth
-* listener: BackupEventListener@onDailySalesSuccess2
-*/
-class DailySalesSuccess2 extends Event 
-//class DailySalesSuccess extends Event implements ShouldBroadcast
+class AggregatorKitlog extends Event 
+//class AggregatorKitlog extends Event implements ShouldBroadcast
 {
   use SerializesModels;
 
+  public $table;
   public $date;
   public $branchid;
   /**
@@ -22,10 +17,11 @@ class DailySalesSuccess2 extends Event
    *
    * @return void
    */
-  public function __construct(Carbon $date, $branchid)
+  public function __construct($table, Carbon $date, $branchid)
   {
     $this->date = $date;
     $this->branchid = $branchid;
+    $this->table = $table;
   }
 
   /**
@@ -35,14 +31,14 @@ class DailySalesSuccess2 extends Event
    */
   public function broadcastOn()
   {
-    return ['gi.backup'];
+    return ['gi.processes'];
   }
 
   public function broadcastWith()
   {
     return [
-      'title'=>'DailySalesSuccess', 
-      'message'=> 'Daily Sales Success'
+      'title'=>'Notify', 
+      'message'=> 'Processing AggregatorKitlog'
     ];
   }
 }

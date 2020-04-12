@@ -1,5 +1,12 @@
 <?php namespace App\Console\Commands\Backlog;
 
+use App\Events\Backup\DailySalesSuccess;
+use App\Events\Process\AggregateComponentMonthly;
+use App\Events\Process\AggregateMonthlyExpense;
+use App\Events\Process\AggregatorDaily;
+use App\Events\Process\AggregatorMonthly;
+use App\Events\Process\RankMonthlyProduct;
+use App\Models\Backup;
 use DB;
 use Carbon\Carbon;
 use App\Models\Branch;
@@ -103,18 +110,21 @@ class MonthDaily extends Command
 
     $this->info('start processing...');
 
-    $backup = \App\Models\Backup::where('branchid', $br->id)->where('filename', 'GC'.$t->format('mdy').'.ZIP')->first();
+    $backup = Backup::where('branchid', $br->id)->where('filename', 'GC'.$t->format('mdy').'.ZIP')->first();
 
     if (is_null($backup)) {
       $this->info('No backup log found on '. $t->format('Y-m-d'));
       exit;
     }
     //$this->posUploadRepo->postNewDailySales($br->id, Carbon::parse($date), $this);
+    
+
+    //return dd($this->posUploadRepo->extracted_path);
 
     
     DB::beginTransaction();
     
-
+    
     
     $this->info('extracting purchased...');
     try {
@@ -136,12 +146,10 @@ class MonthDaily extends Command
       exit;
     } finally {
       foreach (dateInterval($f, $t) as $key => $date)
-        event(new \App\Events\Process\AggregatorDaily('purchase', $date, $backup->branchid));
+        event(new AggregatorDaily('purchase', $date, $backup->branchid));
     }
-
-   
     
-    $this->info('extracting cash audit...');
+    $this->info('extracting dailysales on cash audit...');
     try {
       $r = $this->backlogDailySales($br->id, $f, $t, $this);
     } catch (Exception $e) {
@@ -151,6 +159,8 @@ class MonthDaily extends Command
       exit;
     }
     
+
+
     $this->info('extracting salesmtd...');
     try {
       $r = $this->backlogSalesmtd($br->id, $f, $t, $this);
@@ -160,7 +170,7 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
-    
+
     $this->info('extracting charges...');
     try {
       $r = $this->backlogCharges($br->id, $f, $t, $this);
@@ -170,25 +180,55 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
+
+    $this->info('extracting cash audit...');
+    try {
+      $this->backlogCashAudit2($br->id, $f, $t, $this);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    }
+    
+    
+    $this->info('extracting kitchen log...');
+    $kl = 0;
+    try {
+      $kl = $this->backlogKitlog($br->id, $f, $t, $this);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    }
+    // re Run the Backlog\Kitlog to process all 
+    // this will process only the kitlog on backup loaded on storage
+    if($kl>0) {
+      event(new \App\Events\Process\AggregatorKitlog('month_kitlog_food', $t, $br->id));
+      event(new \App\Events\Process\AggregatorKitlog('month_kitlog_area', $t, $br->id));
+    }
     
     
     $this->info('working on events...');
     $this->info('DailySalesSuccess');
-    event(new \App\Events\Backup\DailySalesSuccess($backup));
+    event(new DailySalesSuccess($backup));
     $this->info('AggregateComponentMonthly');
-    event(new \App\Events\Process\AggregateComponentMonthly($backup->date, $backup->branchid));
+    event(new AggregateComponentMonthly($backup->date, $backup->branchid));
     $this->info('AggregateMonthlyExpense');
-    event(new \App\Events\Process\AggregateMonthlyExpense($backup->date, $backup->branchid));
+    event(new AggregateMonthlyExpense($backup->date, $backup->branchid));
     $this->info('AggregatorMonthly trans-expense');
-    event(new \App\Events\Process\AggregatorMonthly('trans-expense', $backup->date, $backup->branchid));
+    event(new AggregatorMonthly('trans-expense', $backup->date, $backup->branchid));
     $this->info('AggregatorMonthly product');
-    event(new \App\Events\Process\AggregatorMonthly('product', $backup->date, $backup->branchid)); // recompute Monthly Expense
+    event(new AggregatorMonthly('product', $backup->date, $backup->branchid)); // recompute Monthly Expense
     $this->info('AggregatorMonthly prodcat');
-    event(new \App\Events\Process\AggregatorMonthly('prodcat', $backup->date, $backup->branchid)); 
+    event(new AggregatorMonthly('prodcat', $backup->date, $backup->branchid));
     $this->info('AggregatorMonthly groupies');
-    event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
+    event(new AggregatorMonthly('groupies', $backup->date, $backup->branchid));
+    $this->info('AggregatorMonthly');
+    event(new AggregatorMonthly('change_item', $backup->date, $backup->branchid));
     $this->info('RankMonthlyProduct');
-    event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
+    event(new RankMonthlyProduct($backup->date, $backup->branchid));
     
     
     
@@ -248,6 +288,22 @@ class MonthDaily extends Command
   public function backlogTransfer($branchid, $from, $to, $c) {
     try {
       return $this->posUploadRepo->backlogTransfer($branchid, $from, $to, $c);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+  public function backlogCashAudit2($branchid, $from, $to, $c) {
+    try {
+      return $this->posUploadRepo->backlogCashAudit2($branchid, $from, $to, $c);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+  public function backlogKitlog($branchid, $from, $to, $c) {
+    try {
+      return $this->posUploadRepo->backlogKitlog($branchid, $from, $to, $c);
     } catch(Exception $e) {
       throw $e;    
     }

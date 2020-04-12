@@ -1,6 +1,8 @@
 <?php namespace App\Repositories;
 
+use App\Repositories\Exceptions\RepositoryException;
 use File;
+use Illuminate\Database\QueryException;
 use StdClass;
 use Exception;
 use ZipArchive;
@@ -20,9 +22,11 @@ use App\Repositories\StockTransferRepository as TranferRepo;
 use App\Repositories\ChangeItemRepository as ChangeItemRepo;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-
 use Illuminate\Support\Collection;
 use Illuminate\Container\Container as App;
+use App\Services\KitlogImporter as KitlogImporter;
+use App\Services\DbfImporter;
+use App\Repositories\CashAuditRepository as CashAudit;
 
 class PosUploadRepository extends Repository
 {
@@ -38,15 +42,18 @@ class PosUploadRepository extends Repository
   protected $salesmtdCtrl;
   protected $expense_array = [];
   protected $non_cos_array = [];
+  public $kitlogImporter;
+  public $dbfImporter;
+  public $cashAudit;
 
     
 
   /**
-   * @param App $app
-   * @param Collection $collection
-   * @throws \App\Repositories\Exceptions\RepositoryException
-   */
-  public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, Purchase $purchase, PurchaseRepo $purchaserepo, SalesmtdCtrl $salesmtdCtrl, ChargesRepo $charges, TranferRepo $transfer, DS2 $ds2, ChangeItemRepo $changeItem) {
+  * @param App $app
+  * @param Collection $collection
+  * @throws RepositoryException
+  */
+  public function __construct(App $app, Collection $collection, DailySalesRepository $dailysales, Purchase $purchase, PurchaseRepo $purchaserepo, SalesmtdCtrl $salesmtdCtrl, ChargesRepo $charges, TranferRepo $transfer, DS2 $ds2, ChangeItemRepo $changeItem, KitlogImporter $kitlogImporter, DbfImporter $dbfImporter, CashAudit $cashAudit) {
     
     parent::__construct($app, $collection);
 
@@ -58,6 +65,9 @@ class PosUploadRepository extends Repository
     $this->charges = $charges;
     $this->transfer = $transfer;
     $this->changeItem = $changeItem;
+    $this->kitlogImporter = $kitlogImporter;
+    $this->dbfImporter = $dbfImporter;
+    $this->cashAudit = $cashAudit;
 
     //$this->get_foodcost();
     $this->expense_array = ["CK","FS","FV","GR","MP","RC","SS"]; // no "DN","DB","DA","CG","IC"
@@ -65,7 +75,7 @@ class PosUploadRepository extends Repository
   }
 
   private function get_foodcost() {
-    $expense = new \App\Repositories\ExpenseRepository;
+    $expense = new ExpenseRepository;
     $this->expense_array =  $expense->findWhere(['expscatid'=> '7208AA3F5CF111E5ADBC00FF59FBB323'], ['code'])->pluck('code')->toArray();
   }
 
@@ -73,628 +83,628 @@ class PosUploadRepository extends Repository
       return 'App\Models\Backup';
   }
 
-    public function extract($src, $pwd=NULL, $d=true, $brcode='ALL'){
-     
-      $dir = $d ? $this->realFullPath($src) : $src;
+  public function extract($src, $pwd=NULL, $d=true, $brcode='ALL'){
+   
+    $dir = $d ? $this->realFullPath($src) : $src;
 
-      $zip = new ZipArchive();
-      $zip_status = $zip->open($dir);
+    $zip = new ZipArchive();
+    $zip_status = $zip->open($dir);
 
-      if($zip_status === true) {
+    if($zip_status === true) {
 
-        if(!is_null($pwd))
-          $zip->setPassword($pwd);
-        
-        if (session('user.branchcode'))
-          $path = storage_path().DS.'backup'.DS.session('user.branchcode').DS.pathinfo($src, PATHINFO_FILENAME);
-        else
-          $path = storage_path().DS.'backup'.DS.$brcode.DS.pathinfo($src, PATHINFO_FILENAME);
-        
-        if(is_dir($path)) {
-          $this->removeDir($path);
-        }
-        mkdir($path, 0777, true);
-         
-        $this->extracted_path = $path;
+      if(!is_null($pwd))
+        $zip->setPassword($pwd);
+      
+      if (session('user.branchcode'))
+        $path = storage_path().DS.'backup'.DS.session('user.branchcode').DS.pathinfo($src, PATHINFO_FILENAME);
+      else
+        $path = storage_path().DS.'backup'.DS.$brcode.DS.pathinfo($src, PATHINFO_FILENAME);
+      
+      if(is_dir($path)) {
+        $this->removeDir($path);
+      }
+      mkdir($path, 0777, true);
+       
+      $this->extracted_path = $path;
 
-        if(!$zip->extractTo($path)) {
-          $zip->close();
-          return false;
-        }
-
+      if(!$zip->extractTo($path)) {
         $zip->close();
-
-        return true;
-      } else {
         return false;
       }
+
+      $zip->close();
+
+      return true;
+    } else {
+      return false;
     }
+  }
 
 
-    private function getSysinfo($r) {
-      $s = new StdClass;
-      foreach ($r as $key => $value) {
-        $f = strtolower($key);
-        $s->{$f} = isset($r[$key]) ? $r[$key] : NULL;
+  private function getSysinfo($r) {
+    $s = new StdClass;
+    foreach ($r as $key => $value) {
+      $f = strtolower($key);
+      $s->{$f} = isset($r[$key]) ? $r[$key] : NULL;
+    }
+    return $s;
+  }
+
+
+  public function getBackupCode() {
+    $dbf_file = $this->extracted_path.DS.'SYSINFO.DBF';
+
+    if (file_exists($dbf_file)) { 
+      $db = dbase_open($dbf_file, 0);
+      $row = dbase_get_record_with_names($db, 1);
+
+      $this->sysinfo = $this->getSysinfo($row);
+
+      $code = trim($row['GI_BRCODE']);
+
+      dbase_close($db);
+      if(empty($code)) {
+        throw new Exception("Cannot locate Branch Code on backup");
       }
-      return $s;
+      else 
+        return $code;
+    } else {
+      return NULL;
+      throw new Exception("Cannot locate SYSINFO"); 
     }
+    
+  }
 
+  public function isEoD($backup) {
 
-    public function getBackupCode() {
-      $dbf_file = $this->extracted_path.DS.'SYSINFO.DBF';
+    $dbf_file = $this->extracted_path.DS.'ORDERS.DBF';
+    if (file_exists($dbf_file)) { 
+      $db = dbase_open($dbf_file, 0);
+      $record_numbers = dbase_numrecords($db);
+      $grsamt = 0;
 
-      if (file_exists($dbf_file)) { 
-        $db = dbase_open($dbf_file, 0);
-        $row = dbase_get_record_with_names($db, 1);
-
-        $this->sysinfo = $this->getSysinfo($row);
-
-        $code = trim($row['GI_BRCODE']);
-
-        dbase_close($db);
-        if(empty($code)) {
-          throw new Exception("Cannot locate Branch Code on backup");
-        }
-        else 
-          return $code;
-      } else {
-        return NULL;
-        throw new Exception("Cannot locate SYSINFO"); 
+      for ($i = 1; $i <= $record_numbers; $i++) {
+        $row = dbase_get_record_with_names($db, $i);
+        $grsamt += $row['GRSAMT'];
       }
-      
+      dbase_close($db);
+    
+      if ($record_numbers>0 || $grsamt>0)
+        throw new Exception("Validation Error: Invalid EoD backup. ".$record_numbers." unsettled item(s) on ORDERS.DBF with total amount of ". number_format($grsamt, 2).". Please upload the correct backup file."); 
+
+    } else {
+      throw new Exception("Cannot locate ORDERS.DBF"); 
     }
 
-    public function isEoD($backup) {
-
-      $dbf_file = $this->extracted_path.DS.'ORDERS.DBF';
-      if (file_exists($dbf_file)) { 
-        $db = dbase_open($dbf_file, 0);
-        $record_numbers = dbase_numrecords($db);
-        $grsamt = 0;
-
-        for ($i = 1; $i <= $record_numbers; $i++) {
-          $row = dbase_get_record_with_names($db, $i);
-          $grsamt += $row['GRSAMT'];
-        }
-        dbase_close($db);
-      
-        if ($record_numbers>0 || $grsamt>0)
-          throw new Exception("Validation Error: Invalid EoD backup. ".$record_numbers." unsettled item(s) on ORDERS.DBF with total amount of ". number_format($grsamt, 2).". Please upload the correct backup file."); 
-
-      } else {
-        throw new Exception("Cannot locate ORDERS.DBF"); 
-      }
-
-      $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
-      if (file_exists($dbf_file)) { 
-        $db = dbase_open($dbf_file, 0);
-        $record_numbers = dbase_numrecords($db);
-        $a = [];
-        $valid = true;
-        for ($i = 1; $i <= $record_numbers; $i++) {
-          $row = dbase_get_record_with_names($db, $i);
-          $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
-         
-          if ( $vfpdate->format('Y-m-d')==$backup->date->format('Y-m-d')) {
-
-            if (c()->diffInDays($backup->date) < 3) { // dont check if lagpas 3 days
-
-              $t = trim($row['TIP']);
-              if (empty($t)) {
-                array_push($a, 'TIPS');
-              }
-
-              $k = trim($row['CREW_KIT']);
-              if (empty($k)) {
-                array_push($a, 'CREW_KIT');
-                $valid = false;
-              }
-
-              $d = trim($row['CREW_DIN']);
-              if (empty($k)) {
-                array_push($a, 'CREW_DIN');
-                $valid = false;
-              }
-            
-            } 
-          }
-        }
-        dbase_close($db);
-
-        if (!$valid) {
-          throw new Exception("Validation Error: Invalid EoD backup. No encoded ".join(", ", $a)." on CSH_AUDT.DBF. Kindly backup after you encode the ".join(", ", $a). " and upload the backup file."); 
-        }
-        
-
-      } else {
-        throw new Exception("Cannot locate CSH_AUDT.DBF"); 
-      }
-    }
-
-
-    private function getManCost() {
-      $this->getBackupCode();
-      return ($this->sysinfo->man_cost < 1 || empty($this->sysinfo->man_cost)) 
-      ? 650
-      : (int) trim($this->sysinfo->man_cost);
-    }
-
-    private function getDailySalesDbfRowData($r){
-      $row = [];
-
-      $kit = isset($r['CREW_KIT']) ? trim($r['CREW_KIT']):0;
-      $din = isset($r['CREW_DIN']) ? trim($r['CREW_DIN']):0;
-      $tip = isset($r['TIP']) ? trim($r['TIP']):0;
-      $trans_cnt = isset($r['TRAN_CNT']) ? trim($r['TRAN_CNT']):0;
-      $man_hrs = isset($r['MAN_HRS']) ? trim($r['MAN_HRS']):0;
-      $man_pay = isset($r['MAN_PAY']) ? trim($r['MAN_PAY']):0;
-      $depo_cash = isset($r['DEPOSIT']) ? trim($r['DEPOSIT']):0;
-      $depo_check = isset($r['DEPOSITK']) ? trim($r['DEPOSITK']):0;
-      $sale_csh = isset($r['CSH_SALE']) ? trim($r['CSH_SALE']):0;
-      $sale_chg = isset($r['CHG_SALE']) ? trim($r['CHG_SALE']):0;
-      $sale_sig = isset($r['SIG_SALE']) ? trim($r['SIG_SALE']):0;
-      $cuscnt = isset($r['CUST_CNT']) ? trim($r['CUST_CNT']):0;
-      $mcost = (isset($r['MAN_COST']) && (trim($r['MAN_COST']>0)))
-        ? trim($r['MAN_COST']) // mancost frm CHS_AUDT
-        : $this->getManCost(); // Mancosr frm SYSINFO
-      $mcost = ($mcost+0)==0 ? session('user.branchmancost'):$mcost;
-
-      $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
-      /*
-      try {
+    $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+    if (file_exists($dbf_file)) { 
+      $db = dbase_open($dbf_file, 0);
+      $record_numbers = dbase_numrecords($db);
+      $a = [];
+      $valid = true;
+      for ($i = 1; $i <= $record_numbers; $i++) {
+        $row = dbase_get_record_with_names($db, $i);
         $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
-      } catch(Exception $e) {
-        $vfpdate = Carbon::now()->subDay();
-      }
-      */
+       
+        if ( $vfpdate->format('Y-m-d')==$backup->date->format('Y-m-d')) {
 
+          if (c()->diffInDays($backup->date) < 3) { // dont check if lagpas 3 days
 
-      //$sales      = ($r['CSH_SALE'] + $r['CHG_SALE'] + $r['SIG_SALE']) + 0;
-      $sales      = ($r['CSH_SALE'] + $r['CHG_SALE']) + 0; // netsales: removed sign
-      $empcount   = ($kit + $din);
-      //$tips       = empty(trim($r['TIP'])) ? 0: trim($r['TIP']);
-      $tips       = $tip;
-      //$custcount  = empty(trim($r['CUST_CNT'])) ? 0 : trim($r['CUST_CNT']);
-      $custcount  = $cuscnt;
-      $headspend  = $custcount==0 ? 0:($sales/$custcount);
-      $tipspct    = $sales>0 ? ($tips/$sales)*100 : 0;
-      //$brmancost  = ($r['MAN_COST'] * $empcount);
-      $mancost    = $mcost*$empcount;
-
-      $mancostpct = $sales>0 ? ($mancost/$sales)*100 : 0;
-      $salesemp   = ($empcount=='0.00' || $empcount=='0') ? 0 : $sales/$empcount;
-
-      $row['branchid']  = session('user.branchid');
-      $row['managerid'] = session('user.id'); // cashierid actually
-      $row['date']      = $vfpdate->format('Y-m-d');
-      $row['sales']     = number_format($sales, 2, '.', ''); 
-      $row['crew_din']  = $din;
-      $row['crew_kit']  = $kit;
-      $row['empcount']  = $empcount;
-      $row['tips']      = $tips;
-      $row['custcount'] = $custcount;
-      $row['headspend'] = number_format($headspend, 2, '.', '');
-      $row['tipspct']   = number_format($tipspct, 2, '.', '');
-      $row['mancost']   = number_format($mancost, 2, '.', '');
-      $row['mancostpct']= number_format($mancostpct, 2, '.', '');
-      $row['salesemp']  = number_format($salesemp, 2, '.', '');
-      $row['trans_cnt'] = $trans_cnt;
-      $row['man_hrs']   = number_format($man_hrs, 2, '.', '');
-      $row['man_pay']   = number_format($man_pay, 2, '.', '');
-      $row['depo_cash'] = number_format($depo_cash, 2, '.', '');
-      $row['depo_check']= number_format($depo_check, 2, '.', '');
-      $row['sale_csh']  = number_format($sale_csh, 2, '.', '');
-      $row['sale_chg']  = number_format($sale_chg, 2, '.', '');
-      $row['sale_sig']  = number_format($sale_sig, 2, '.', '');
-      //$row['cospct']    = number_format(0, 2, '.', '');
-      return $row;
-    }
-
-
-    public function parseCustomerCount(Carbon $date) {
-      $dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
-
-      $cust_count = 0;
-      
-      if (file_exists($dbf_file)) {
-        $db = dbase_open($dbf_file, 0);
-        $header = dbase_get_header_info($db);
-        $record_numbers = dbase_numrecords($db);
-
-        for ($i = 1; $i <= $record_numbers; $i++) {
-          $row = dbase_get_record_with_names($db, $i);
-
-          $vfpdate = Carbon::parse($row['ORDDATE']);
-
-          if ($date->format('Y-m-d')==$vfpdate->format('Y-m-d')) {
-
-            if (($row['SR_TCUST']==$row['SR_BODY']) && ($row['SR_DISC']>0)) // 4 4 78.7
-              $cust_count += $row['SR_TCUST']; 
-            else if ($row['SR_TCUST']>0 && $row['SR_BODY']>0 && $row['SR_DISC']>0)
-              continue;
-            else
-              $cust_count += ($row['SR_TCUST'] + $row['SR_BODY']);
-
-          }
-        }
-        dbase_close($db);
-      }
-      return $cust_count;
-    }
-
-    //public function postNewDailySales($branchid, Carbon $date, $c){
-    public function postNewDailySales(Backup $backup){
-
-      $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
-      if (file_exists($dbf_file)) {
-        $db = dbase_open($dbf_file, 0);
-        $header = dbase_get_header_info($db);
-        $recno = dbase_numrecords($db);
-        $from = $backup->date->copy()->subDay();
-        $to = $backup->date;
-        //$from = $date->copy()->subDay();
-        //$to = $date;
-
-        for ($i=1; $i<=$recno; $i++) {
-          $row = dbase_get_record_with_names($db, $i);
-          $data = $this->getDailySalesDbfRowData($row);
-          $vfpdate = Carbon::parse($data['date']);
-          //$data['branchid'] = $branchid;
-          $data['branchid'] = $backup->branchid;
-
-          if ($vfpdate->gte($from) && $vfpdate->lte($to)) {
-            //$c->info($vfpdate->format('Y-m-d'));
-
-            if ($data['trans_cnt']<1) {
-              $this->postCharges($vfpdate, $backup, true);
+            $t = trim($row['TIP']);
+            if (empty($t)) {
+              array_push($a, 'TIPS');
             }
 
-            if ($data['custcount']<1) {
+            $k = trim($row['CREW_KIT']);
+            if (empty($k)) {
+              array_push($a, 'CREW_KIT');
+              $valid = false;
+            }
+
+            $d = trim($row['CREW_DIN']);
+            if (empty($k)) {
+              array_push($a, 'CREW_DIN');
+              $valid = false;
+            }
+          
+          } 
+        }
+      }
+      dbase_close($db);
+
+      if (!$valid) {
+        throw new Exception("Validation Error: Invalid EoD backup. No encoded ".join(", ", $a)." on CSH_AUDT.DBF. Kindly backup after you encode the ".join(", ", $a). " and upload the backup file."); 
+      }
+      
+
+    } else {
+      throw new Exception("Cannot locate CSH_AUDT.DBF"); 
+    }
+  }
+
+
+  private function getManCost() {
+    $this->getBackupCode();
+    return ($this->sysinfo->man_cost < 1 || empty($this->sysinfo->man_cost)) 
+    ? 650
+    : (int) trim($this->sysinfo->man_cost);
+  }
+
+  private function getDailySalesDbfRowData($r){
+    $row = [];
+
+    $kit = isset($r['CREW_KIT']) ? trim($r['CREW_KIT']):0;
+    $din = isset($r['CREW_DIN']) ? trim($r['CREW_DIN']):0;
+    $tip = isset($r['TIP']) ? trim($r['TIP']):0;
+    $trans_cnt = isset($r['TRAN_CNT']) ? trim($r['TRAN_CNT']):0;
+    $man_hrs = isset($r['MAN_HRS']) ? trim($r['MAN_HRS']):0;
+    $man_pay = isset($r['MAN_PAY']) ? trim($r['MAN_PAY']):0;
+    $depo_cash = isset($r['DEPOSIT']) ? trim($r['DEPOSIT']):0;
+    $depo_check = isset($r['DEPOSITK']) ? trim($r['DEPOSITK']):0;
+    $sale_csh = isset($r['CSH_SALE']) ? trim($r['CSH_SALE']):0;
+    $sale_chg = isset($r['CHG_SALE']) ? trim($r['CHG_SALE']):0;
+    $sale_sig = isset($r['SIG_SALE']) ? trim($r['SIG_SALE']):0;
+    $cuscnt = isset($r['CUST_CNT']) ? trim($r['CUST_CNT']):0;
+    $mcost = (isset($r['MAN_COST']) && (trim($r['MAN_COST']>0)))
+      ? trim($r['MAN_COST']) // mancost frm CHS_AUDT
+      : $this->getManCost(); // Mancosr frm SYSINFO
+    $mcost = ($mcost+0)==0 ? session('user.branchmancost'):$mcost;
+
+    $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
+    /*
+    try {
+      $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
+    } catch(Exception $e) {
+      $vfpdate = Carbon::now()->subDay();
+    }
+    */
+
+
+    //$sales      = ($r['CSH_SALE'] + $r['CHG_SALE'] + $r['SIG_SALE']) + 0;
+    $sales      = ($r['CSH_SALE'] + $r['CHG_SALE']) + 0; // netsales: removed sign
+    $empcount   = ((int)$kit + (int)$din);
+    //$tips       = empty(trim($r['TIP'])) ? 0: trim($r['TIP']);
+    $tips       = $tip;
+    //$custcount  = empty(trim($r['CUST_CNT'])) ? 0 : trim($r['CUST_CNT']);
+    $custcount  = $cuscnt;
+    $headspend  = $custcount==0 ? 0:($sales/$custcount);
+    $tipspct    = $sales>0 ? ($tips/$sales)*100 : 0;
+    //$brmancost  = ($r['MAN_COST'] * $empcount);
+    $mancost    = $mcost*$empcount;
+
+    $mancostpct = $sales>0 ? ($mancost/$sales)*100 : 0;
+    $salesemp   = ($empcount=='0.00' || $empcount=='0') ? 0 : $sales/$empcount;
+
+    $row['branchid']  = session('user.branchid');
+    $row['managerid'] = session('user.id'); // cashierid actually
+    $row['date']      = $vfpdate->format('Y-m-d');
+    $row['sales']     = number_format($sales, 2, '.', ''); 
+    $row['crew_din']  = $din;
+    $row['crew_kit']  = $kit;
+    $row['empcount']  = $empcount;
+    $row['tips']      = $tips;
+    $row['custcount'] = $custcount;
+    $row['headspend'] = number_format($headspend, 2, '.', '');
+    $row['tipspct']   = number_format($tipspct, 2, '.', '');
+    $row['mancost']   = number_format($mancost, 2, '.', '');
+    $row['mancostpct']= number_format($mancostpct, 2, '.', '');
+    $row['salesemp']  = number_format($salesemp, 2, '.', '');
+    $row['trans_cnt'] = $trans_cnt;
+    $row['man_hrs']   = number_format($man_hrs, 2, '.', '');
+    $row['man_pay']   = number_format($man_pay, 2, '.', '');
+    $row['depo_cash'] = number_format($depo_cash, 2, '.', '');
+    $row['depo_check']= number_format($depo_check, 2, '.', '');
+    $row['sale_csh']  = number_format($sale_csh, 2, '.', '');
+    $row['sale_chg']  = number_format($sale_chg, 2, '.', '');
+    $row['sale_sig']  = number_format($sale_sig, 2, '.', '');
+    //$row['cospct']    = number_format(0, 2, '.', '');
+    return $row;
+  }
+
+
+  public function parseCustomerCount(Carbon $date) {
+    $dbf_file = $this->extracted_path.DS.'CHARGES.DBF';
+
+    $cust_count = 0;
+    
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+
+      for ($i = 1; $i <= $record_numbers; $i++) {
+        $row = dbase_get_record_with_names($db, $i);
+
+        $vfpdate = Carbon::parse($row['ORDDATE']);
+
+        if ($date->format('Y-m-d')==$vfpdate->format('Y-m-d')) {
+
+          if (($row['SR_TCUST']==$row['SR_BODY']) && ($row['SR_DISC']>0)) // 4 4 78.7
+            $cust_count += $row['SR_TCUST']; 
+          else if ($row['SR_TCUST']>0 && $row['SR_BODY']>0 && $row['SR_DISC']>0)
+            continue;
+          else
+            $cust_count += ($row['SR_TCUST'] + $row['SR_BODY']);
+
+        }
+      }
+      dbase_close($db);
+    }
+    return $cust_count;
+  }
+
+    //public function postNewDailySales($branchid, Carbon $date, $c){
+  public function postNewDailySales(Backup $backup){
+
+    $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      $header = dbase_get_header_info($db);
+      $recno = dbase_numrecords($db);
+      $from = $backup->date->copy()->subDay();
+      $to = $backup->date;
+      //$from = $date->copy()->subDay();
+      //$to = $date;
+
+      for ($i=1; $i<=$recno; $i++) {
+        $row = dbase_get_record_with_names($db, $i);
+        $data = $this->getDailySalesDbfRowData($row);
+        $vfpdate = Carbon::parse($data['date']);
+        //$data['branchid'] = $branchid;
+        $data['branchid'] = $backup->branchid;
+
+        if ($vfpdate->gte($from) && $vfpdate->lte($to)) {
+          //$c->info($vfpdate->format('Y-m-d'));
+
+          if ($data['trans_cnt']<1) {
+            $this->postCharges($vfpdate, $backup, true);
+          }
+
+          if ($data['custcount']<1) {
+            $data['custcount'] = $this->parseCustomerCount($vfpdate);
+            $data['headspend'] = $data['custcount']==0 ? 0:($data['sales']/$data['custcount']);
+          }
+
+
+
+          //$c->info($data['date'].' '.$data['sales'].' '.$data['custcount'].' '.$data['trans_cnt'].' '.$data['empcount'].' '.$data['mancost'].' '.$data['mancostpct']);
+
+          $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig'];
+          
+          foreach (['sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig'] as $f) {
+            if ($data[$f]<0)
+              unset($data[$f]);
+          }
+
+          //$c->info(json_encode($data));
+          $this->ds->firstOrNewField($data, ['date', 'branchid']);
+        }
+      }
+
+      dbase_close($db);
+      return true;
+    }
+    return false;
+  }
+
+  public function postDailySales(Backup $backup){
+
+    //$this->logAction('function:postDailySales', '');
+    $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $last_ds = $this->ds->lastRecord();
+      $update = 0;
+      //$this->logAction('start:loop:ds', '');
+      for ($i = 1; $i <= $record_numbers; $i++) {
+
+        $row = dbase_get_record_with_names($db, $i);
+        $data = $this->getDailySalesDbfRowData($row);
+        $vfpdate = Carbon::parse($data['date']);
+
+        
+
+        //$this->logAction('loop:ds:'.$vfpdate->format('Y-m-d'), '');
+        // back job on posting purchased 
+        if ( $vfpdate->format('Y-m')==$backup->date->format('Y-m') // trans date equal year & mons of backup
+        && $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d') // if the backupdate = mon end date
+        && $backup->date->lte(Carbon::parse('2016-06-01'))) // only backup less than april 1
+        {
+          
+          try {
+            $this->postPurchased($vfpdate);
+          } catch(Exception $e) {
+            return false;
+            //throw new Exception($e->getMessage());    
+          }
+          
+          //$this->logAction($vfpdate->format('Y-m-d'), '', base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
+   
+        } 
+        //test_log('date: '. $vfpdate->format('Y-m-d'));
+        /*
+        // if backup is start of month, update end of last month
+        if($vfpdate->format('Y-m-d')==$backup->date->copy()->subDay()->format('Y-m-d')
+        && $backup->date->format('Y-m-d')==$backup->date->startOfMonth()->format('Y-m-d'))
+        {
+          test_log('date: '. $vfpdate->format('Y-m-d'));
+          try {
+            $this->postPurchased($vfpdate);
+          } catch(Exception $e) {
+            return false;
+            //throw new Exception($e->getMessage());    
+          }
+        }
+        */
+
+
+
+        //$this->logAction('ds:get_last', '');
+        if(is_null($last_ds)) {
+
+          if ($this->ds->firstOrNewField($data, ['date', 'branchid']));
+            $update++;
+        
+        } else {
+          /*
+          * commented: issue not update DS if the last DS is higher than backup
+          */
+          //if($last_ds->date->lte($vfpdate)) { //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
+          if( $vfpdate->format('Y-m') == $backup->date->format('Y-m')) 
+          {
+            // fix cust_count on boss module = 0     - 2016-11-06
+            if ($data['custcount']=='0') {
               $data['custcount'] = $this->parseCustomerCount($vfpdate);
               $data['headspend'] = $data['custcount']==0 ? 0:($data['sales']/$data['custcount']);
             }
+          
+            if($i==$record_numbers) {
 
 
+              if (isset($this->sysinfo->posupdate) 
+              && vfpdate_to_carbon($this->sysinfo->posupdate)->lt(Carbon::parse('2016-07-06')))  // before sysinfo.update
+              {
+                if ($this->ds->firstOrNewField(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid'])) {
+                  $update++;
+                }
+              } else {
+               
+                
+                if ($vfpdate->gt(Carbon::parse('2017-01-01')))
+                  $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check'];
+                else
+                  $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt'];
+                  
 
-            //$c->info($data['date'].' '.$data['sales'].' '.$data['custcount'].' '.$data['trans_cnt'].' '.$data['empcount'].' '.$data['mancost'].' '.$data['mancostpct']);
-
-            $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig'];
-            
-            foreach (['sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig'] as $f) {
-              if ($data[$f]<0)
-                unset($data[$f]);
+                if ($this->ds->firstOrNewField(array_only($data, $fields), ['date', 'branchid'])) {
+                  $update++;
+                  //test_log('last: '. $vfpdate->format('Y-m-d').' '.$data['custcount']);
+                }
+              }
+            } else {
+              //$this->logAction('single:lte:i!=record_numbers', '');
+              if ($this->ds->firstOrNewField($data, ['date', 'branchid']))
+                $update++;
             }
-
-            //$c->info(json_encode($data));
-            $this->ds->firstOrNewField($data, ['date', 'branchid']);
           }
-        }
 
-        dbase_close($db);
-        return true;
+          // if FOM update EOM
+          if( $backup->date->format('Y-m-d') == $backup->date->copy()->startOfMonth()->format('Y-m-d')
+          && $vfpdate->format('Y-m-d') == $backup->date->copy()->subDay()->format('Y-m-d') )
+          {
+            // fix cust_count on boss module = 0     - 2016-11-06
+            //if ($data['custcount']=='0')
+             // $data['custcount'] = $this->parseCustomerCount($vfpdate);
+
+            //test_log('last: '. $vfpdate->format('Y-m-d').' '.$data['custcount']);
+            if ($this->ds->firstOrNewField(array_only($data, 
+                ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt']
+              ), ['date', 'branchid'])) {
+                $update++;
+              }
+          }
+
+
+        }
       }
-      return false;
+      //$this->logAction('end:loop:ds', '');
+      dbase_close($db);
+      return $update>0 ? $update:false;
     }
 
-    public function postDailySales(Backup $backup){
+    return false;
+  }
 
-      //$this->logAction('function:postDailySales', '');
-      $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
 
-      if (file_exists($dbf_file)) {
-        $db = dbase_open($dbf_file, 0);
-        $header = dbase_get_header_info($db);
-        $record_numbers = dbase_numrecords($db);
-        $last_ds = $this->ds->lastRecord();
-        $update = 0;
-        //$this->logAction('start:loop:ds', '');
-        for ($i = 1; $i <= $record_numbers; $i++) {
 
-          $row = dbase_get_record_with_names($db, $i);
-          $data = $this->getDailySalesDbfRowData($row);
-          $vfpdate = Carbon::parse($data['date']);
 
+  public function postPurchased(Carbon $date) {
+    
+    $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
+
+    //$this->logAction($date->format('Y-m-d'),'post:purchased:file_exists');
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $tot_purchase = 0;
+      $update = 0;
+      $food_cost = 0;
+      $opex = 0;
+
+      // delete if exist
+      try {
+        //$this->logAction($date->format('Y-m-d'), 'delete:purchased');
+        $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
+      } catch(Exception $e) {
+        throw $e;    
+      }
+
+
+      try {
+        //$this->logAction($date->format('Y-m-d'), 'delete:purchased2');
+        $this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
+      } catch(Exception $e) {
+        throw $e;    
+      }
+
+      //$this->logAction($date->format('Y-m-d'), 'start:loop:purchased');
+      for ($i=1; $i<=$record_numbers; $i++) {
+
+        $row = dbase_get_record_with_names($db, $i);
+
+        try {
+          //$vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
+          //$vfpdate = vfpdate_to_carbon(trim($r['TRANDATE']));
+          $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+        } catch(Exception $e) {
+          $vfpdate = $date->copy()->subDay();
+        }
+        
+
+        if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
+          //$this->logAction($vfpdate->format('Y-m-d'), trim($row['COMP']), base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
+          $tcost = trim($row['TCOST']);
+
+          $attrs = [
+            'comp'      => trim($row['COMP']),
+            'unit'      => trim($row['UNIT']),
+            'qty'       => trim($row['QTY']),
+            'ucost'     => trim($row['UCOST']),
+            'tcost'     => $tcost,
+            'date'      => $vfpdate->format('Y-m-d'),
+            'supno'     => trim($row['SUPNO']),
+            'supname'   => trim($row['SUPNAME']),
+            'catname'   => trim($row['CATNAME']),
+            'vat'       => trim($row['VAT']),
+            'terms'     => trim($row['TERMS']),
+            'branchid'  => session('user.branchid')
+          ];
           
+          //\DB::beginTransaction();
+          //$this->logAction($date->format('Y-m-d'), 'create:purchased');
 
-          //$this->logAction('loop:ds:'.$vfpdate->format('Y-m-d'), '');
-          // back job on posting purchased 
-          if ( $vfpdate->format('Y-m')==$backup->date->format('Y-m') // trans date equal year & mons of backup
-          && $backup->date->format('Y-m-d')==$backup->date->endOfMonth()->format('Y-m-d') // if the backupdate = mon end date
-          && $backup->date->lte(Carbon::parse('2016-06-01'))) // only backup less than april 1
-          {
-            
-            try {
-              $this->postPurchased($vfpdate);
-            } catch(Exception $e) {
-              return false;
-              //throw new Exception($e->getMessage());    
-            }
-            
-            //$this->logAction($vfpdate->format('Y-m-d'), '', base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
-     
-          } 
-          //test_log('date: '. $vfpdate->format('Y-m-d'));
-          /*
-          // if backup is start of month, update end of last month
-          if($vfpdate->format('Y-m-d')==$backup->date->copy()->subDay()->format('Y-m-d')
-          && $backup->date->format('Y-m-d')==$backup->date->startOfMonth()->format('Y-m-d'))
-          {
-            test_log('date: '. $vfpdate->format('Y-m-d'));
-            try {
-              $this->postPurchased($vfpdate);
-            } catch(Exception $e) {
-              return false;
-              //throw new Exception($e->getMessage());    
-            }
+          /* remove 2017-09-12
+          try {
+            $this->purchase->create($attrs);
+          } catch(Exception $e) {
+            throw $e;    
           }
           */
 
-
-
-          //$this->logAction('ds:get_last', '');
-          if(is_null($last_ds)) {
-
-            if ($this->ds->firstOrNewField($data, ['date', 'branchid']));
-              $update++;
-          
-          } else {
-            /*
-            * commented: issue not update DS if the last DS is higher than backup
-            */
-            //if($last_ds->date->lte($vfpdate)) { //&& $last_ds->date->lte(Carbon::parse('2016-01-01'))) { 
-            if( $vfpdate->format('Y-m') == $backup->date->format('Y-m')) 
-            {
-              // fix cust_count on boss module = 0     - 2016-11-06
-              if ($data['custcount']=='0') {
-                $data['custcount'] = $this->parseCustomerCount($vfpdate);
-                $data['headspend'] = $data['custcount']==0 ? 0:($data['sales']/$data['custcount']);
-              }
-            
-              if($i==$record_numbers) {
-
-
-                if (isset($this->sysinfo->posupdate) 
-                && vfpdate_to_carbon($this->sysinfo->posupdate)->lt(Carbon::parse('2016-07-06')))  // before sysinfo.update
-                {
-                  if ($this->ds->firstOrNewField(array_only($data, ['date', 'branchid', 'managerid', 'sales']), ['date', 'branchid'])) {
-                    $update++;
-                  }
-                } else {
-                 
-                  
-                  if ($vfpdate->gt(Carbon::parse('2017-01-01')))
-                    $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check'];
-                  else
-                    $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt'];
-                    
-
-                  if ($this->ds->firstOrNewField(array_only($data, $fields), ['date', 'branchid'])) {
-                    $update++;
-                    //test_log('last: '. $vfpdate->format('Y-m-d').' '.$data['custcount']);
-                  }
-                }
-              } else {
-                //$this->logAction('single:lte:i!=record_numbers', '');
-                if ($this->ds->firstOrNewField($data, ['date', 'branchid']))
-                  $update++;
-              }
-            }
-
-            // if FOM update EOM
-            if( $backup->date->format('Y-m-d') == $backup->date->copy()->startOfMonth()->format('Y-m-d')
-            && $vfpdate->format('Y-m-d') == $backup->date->copy()->subDay()->format('Y-m-d') )
-            {
-              // fix cust_count on boss module = 0     - 2016-11-06
-              //if ($data['custcount']=='0')
-               // $data['custcount'] = $this->parseCustomerCount($vfpdate);
-
-              //test_log('last: '. $vfpdate->format('Y-m-d').' '.$data['custcount']);
-              if ($this->ds->firstOrNewField(array_only($data, 
-                  ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt']
-                ), ['date', 'branchid'])) {
-                  $update++;
-                }
-            }
-
-
-          }
-        }
-        //$this->logAction('end:loop:ds', '');
-        dbase_close($db);
-        return count($update>0) ? true:false;
-      }
-
-      return false;
-    }
-
-
-
-
-    public function postPurchased(Carbon $date) {
-      
-      $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
-
-      //$this->logAction($date->format('Y-m-d'),'post:purchased:file_exists');
-      if (file_exists($dbf_file)) {
-        $db = dbase_open($dbf_file, 0);
-        $header = dbase_get_header_info($db);
-        $record_numbers = dbase_numrecords($db);
-        $tot_purchase = 0;
-        $update = 0;
-        $food_cost = 0;
-        $opex = 0;
-
-        // delete if exist
-        try {
-          //$this->logAction($date->format('Y-m-d'), 'delete:purchased');
-          $this->purchase->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
-        } catch(Exception $e) {
-          throw $e;    
-        }
-
-
-        try {
-          //$this->logAction($date->format('Y-m-d'), 'delete:purchased2');
-          $this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
-        } catch(Exception $e) {
-          throw $e;    
-        }
-
-
-        //$this->logAction($date->format('Y-m-d'), 'start:loop:purchased');
-        for ($i=1; $i<=$record_numbers; $i++) {
-
-          $row = dbase_get_record_with_names($db, $i);
-
+          $attrs['tin'] = trim($row['SUPTIN']);
+          $attrs['supprefno'] = trim($row['FILLER1']);
           try {
-            //$vfpdate = vfpdate_to_carbon(trim($row['ORDDATE']));
-            //$vfpdate = vfpdate_to_carbon(trim($r['TRANDATE']));
-            $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+            //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
+            $this->purchase2->verifyAndCreate($attrs);
           } catch(Exception $e) {
-            $vfpdate = $date->copy()->subDay();
+            throw $e;    
           }
+
+          if (in_array(substr($attrs['supno'], 0, 2), $this->expense_array))
+            $food_cost += $tcost;
+          if (!in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && !in_array(substr($attrs['supno'], 0, 2), $this->non_cos_array))
+            $opex += $tcost;
           
-
-          if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
-            //$this->logAction($vfpdate->format('Y-m-d'), trim($row['COMP']), base_path().DS.'logs'.DS.'GLV'.DS.$vfpdate->format('Y-m-d').'-PO.txt');
-            $tcost = trim($row['TCOST']);
-
-            $attrs = [
-              'comp'      => trim($row['COMP']),
-              'unit'      => trim($row['UNIT']),
-              'qty'       => trim($row['QTY']),
-              'ucost'     => trim($row['UCOST']),
-              'tcost'     => $tcost,
-              'date'      => $vfpdate->format('Y-m-d'),
-              'supno'     => trim($row['SUPNO']),
-              'supname'   => trim($row['SUPNAME']),
-              'catname'   => trim($row['CATNAME']),
-              'vat'       => trim($row['VAT']),
-              'terms'     => trim($row['TERMS']),
-              'branchid'  => session('user.branchid')
-            ];
-            
-            //\DB::beginTransaction();
-            //$this->logAction($date->format('Y-m-d'), 'create:purchased');
-
-            /* remove 2017-09-12
-            try {
-              $this->purchase->create($attrs);
-            } catch(Exception $e) {
-              throw $e;    
-            }
-            */
-
-            $attrs['tin'] = trim($row['SUPTIN']);
-            $attrs['supprefno'] = trim($row['FILLER1']);
-            try {
-              //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
-              $this->purchase2->verifyAndCreate($attrs);
-            } catch(Exception $e) {
-              throw $e;    
-            }
-
-            if (in_array(substr($attrs['supno'], 0, 2), $this->expense_array))
-              $food_cost += $tcost;
-            if (!in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && !in_array(substr($attrs['supno'], 0, 2), $this->non_cos_array))
-              $opex += $tcost;
-            
-            //\DB::rollBack();
-            $tot_purchase += $tcost;
-            $update++;
-          }
+          //\DB::rollBack();
+          $tot_purchase += $tcost;
+          $update++;
         }
-        //$this->logAction($date->format('Y-m-d'), 'end:loop:purchased');
+      }
+      //$this->logAction($date->format('Y-m-d'), 'end:loop:purchased');
 
-        try {
-          //$this->logAction($date->format('Y-m-d'), 'update:ds');
-          $d =  $this->ds->findWhere([
-                              'branchid'=>session('user.branchid'), 
-                              'date'=>$date->format('Y-m-d')],
-                              ['sales'])->first();
-          
-          //$cospct = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($food_cost/$d->sales)*100;
-          $cospct = $d->sales>0 ? ($food_cost/$d->sales)*100 : 0;
-
-          $this->ds->firstOrNewField(['branchid'=>session('user.branchid'), 
-                              'date'=>$date->format('Y-m-d'),
-                              'cos'=> $food_cost,
-                              'cospct'=> $cospct,
-                              'opex'=> $opex,
-                              'purchcost'=>$tot_purchase],
-                              ['date', 'branchid']);
-        } catch(Exception $e) {
-          throw $e;    
-        }
-
+      try {
+        //$this->logAction($date->format('Y-m-d'), 'update:ds');
+        $d =  $this->ds->findWhere([
+                            'branchid'=>session('user.branchid'), 
+                            'date'=>$date->format('Y-m-d')],
+                            ['sales'])->first();
         
+        //$cospct = ($d->sales=='0.00' || $d->sales=='0') ? 0 : ($food_cost/$d->sales)*100;
+        $cospct = $d->sales>0 ? ($food_cost/$d->sales)*100 : 0;
 
-        dbase_close($db);
-        return count($update>0) ? true:false;
+        $this->ds->firstOrNewField(['branchid'=>session('user.branchid'), 
+                            'date'=>$date->format('Y-m-d'),
+                            'cos'=> $food_cost,
+                            'cospct'=> $cospct,
+                            'opex'=> $opex,
+                            'purchcost'=>$tot_purchase],
+                            ['date', 'branchid']);
+      } catch(Exception $e) {
+        throw $e;    
       }
+
+      
+
+      dbase_close($db);
+      unset($db);
+      return $update>0 ? true:false;
+    }
+    return false;
+  }
+
+
+  public function logAction($action, $log, $logfile=NULL) {
+    $logfile = !is_null($logfile) 
+      ? $logfile
+      : base_path().DS.'logs'.DS.session('user.branchcode').DS.now().'-log.txt';
+
+    $dir = pathinfo($logfile, PATHINFO_DIRNAME);
+
+    if(!is_dir($dir))
+      mkdir($dir, 0775, true);
+
+    $new = file_exists($logfile) ? false : true;
+    if($new){
+      $handle = fopen($logfile, 'w+');
+      chmod($logfile, 0775);
+    } else
+      $handle = fopen($logfile, 'a');
+
+    $ip = clientIP();
+    $brw = $_SERVER['HTTP_USER_AGENT'];
+    $content = date('r')." | {$ip} | {$action} | {$log} \t {$brw}\n";
+    $content = "{$action} | {$log}\n";
+    fwrite($handle, $content);
+    fclose($handle);
+  } 
+
+
+
+  public function removeDir($dir){
+    $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+    $files = new RecursiveIteratorIterator($it,
+                 RecursiveIteratorIterator::CHILD_FIRST);
+    foreach($files as $file) {
+        if ($file->isDir()){
+            rmdir($file->getRealPath());
+        } else {
+            unlink($file->getRealPath());
+        }
+    }
+    rmdir($dir);
+  }
+
+
+  public function removeExtratedDir() {
+    if (!is_null($this->extracted_path))
+      return $this->removeDir($this->extracted_path);
+    else
       return false;
-    }
+  }
 
+  public function lastRecord() {
+      $this->applyFilters();
+      return $this->model->orderBy('uploaddate', 'DESC')->first();
+  }
 
-    public function logAction($action, $log, $logfile=NULL) {
-      $logfile = !is_null($logfile) 
-        ? $logfile
-        : base_path().DS.'logs'.DS.session('user.branchcode').DS.now().'-log.txt';
-
-      $dir = pathinfo($logfile, PATHINFO_DIRNAME);
-
-      if(!is_dir($dir))
-        mkdir($dir, 0775, true);
-
-      $new = file_exists($logfile) ? false : true;
-      if($new){
-        $handle = fopen($logfile, 'w+');
-        chmod($logfile, 0775);
-      } else
-        $handle = fopen($logfile, 'a');
-
-      $ip = clientIP();
-      $brw = $_SERVER['HTTP_USER_AGENT'];
-      $content = date('r')." | {$ip} | {$action} | {$log} \t {$brw}\n";
-      $content = "{$action} | {$log}\n";
-      fwrite($handle, $content);
-      fclose($handle);
-    } 
-
-
-
-    public function removeDir($dir){
-      $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
-      $files = new RecursiveIteratorIterator($it,
-                   RecursiveIteratorIterator::CHILD_FIRST);
-      foreach($files as $file) {
-          if ($file->isDir()){
-              rmdir($file->getRealPath());
-          } else {
-              unlink($file->getRealPath());
-          }
-      }
-      rmdir($dir);
-    }
-
-
-    public function removeExtratedDir() {
-      if (!is_null($this->extracted_path))
-        return $this->removeDir($this->extracted_path);
-      else
-        return false;
-    }
-
-    public function lastRecord() {
-        $this->applyFilters();
-        return $this->model->orderBy('uploaddate', 'DESC')->first();
-    }
-
-    public function ds(){
-      return $this->ds->all();
-    }
-    
+  public function ds(){
+    return $this->ds->all();
+  }
+  
   
 
 
@@ -950,7 +960,7 @@ class PosUploadRepository extends Repository
     if($exist) {
       if ($this->disk->exists($path)) {
         //return "File already exists...";
-        throw new \Exception("File ".$dir['basename'].'.'.$dir['extension']." already exists on storage ".$this->type);        
+        throw new Exception("File ".$dir['basename'].'.'.$dir['extension']." already exists on storage ".$this->type);
       }
     }
 
@@ -964,8 +974,8 @@ class PosUploadRepository extends Repository
 
     try {
       File::move($src, $this->realFullPath($path));
-    }catch(\Exception $e){
-      throw new \Exception("Error ". $e->getMessage());    
+    }catch(Exception $e){
+      throw new Exception("Error ". $e->getMessage());
     }
   }
 
@@ -1087,7 +1097,7 @@ class PosUploadRepository extends Repository
         }
         //$this->logAction('end:loop:ds', '');
         dbase_close($db);
-        return count($update>0) ? true:false;
+        return $update>0 ? true:false;
       }
 
       return false;
@@ -1217,7 +1227,7 @@ class PosUploadRepository extends Repository
       
 
       dbase_close($db);
-      return count($update>0) ? true:false;
+      return $update>0 ? true:false;
     }
     return false;
   }
@@ -1284,6 +1294,7 @@ class PosUploadRepository extends Repository
       try {
         //$this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
         $this->salesmtdCtrl->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
+        $this->changeItem->deleteWhere(['branch_id'=>$backup->branchid, 'date'=>$date->format('Y-m-d')]);
       } catch(Exception $e) {
         dbase_close($db);
         throw new Exception($e->getMessage());    
@@ -1325,6 +1336,10 @@ class PosUploadRepository extends Repository
             //$this->logAction($data['orddate'], ' create:salesmtd');
             $this->salesmtdCtrl->create($data);
             $update++;
+          } catch (QueryException $e) {
+            dbase_close($db);
+            throw new Exception('Error! Please try to upload after 30-60 minutes.');   
+            return false;
           } catch(Exception $e) {
             dbase_close($db);
             throw new Exception('salesmtd: '.$e->getMessage());   
@@ -1694,7 +1709,7 @@ class PosUploadRepository extends Repository
 
       dbase_close($db);
       unset($db);
-      return count($update>0) ? true:false;
+      return $update>0 ? true:false;
     }
     return false;
   }
@@ -1910,13 +1925,33 @@ class PosUploadRepository extends Repository
     return false;  
   }
 
+  public function postKitlog($branchid, Carbon $date) {
+    
+    // $cnt =  $this->kitlogImporter->import($branchid, $date, $this->extracted_path);
+    $kitlogImporter = $this->dbfImporter->new('kitlog');
+    // return dd($kitlogImporter);
+    $cnt = $kitlogImporter->import($branchid, $date, $this->extracted_path);
+
+    if ($cnt>0) 
+      $this->ds->firstOrNewField(['date'=>$date->format('Y-m-d'), 'branchid'=> $branchid, 'kitlog'=>1], ['date', 'branchid']);
+    return $cnt;
+  }
+
+
+  public function postCashAudit2($branchid, Carbon $date) {
+    
+    $kitlogImporter = $this->dbfImporter->new('cash_audit');
+    $cnt = $kitlogImporter->importByDr($branchid, $date, $date, $this->extracted_path);
+
+    return $cnt;
+  }
 
 
 
 
-###################################################################################################################################
-############## for App\Command\Backlog\MonthDaily #################################################################################
-###################################################################################################################################
+  #########################################################################################################################################################################################################
+  ############## for App\Command\Backlog\MonthDaily #######################################################################################################################################################
+  #########################################################################################################################################################################################################
   private function getDays(Carbon $from, Carbon $to) {
     $fr = $from->copy();
     $days = [];
@@ -1971,7 +2006,7 @@ class PosUploadRepository extends Repository
             $c->info($update);
             dbase_close($db);
             unset($db);
-            return count($update>0) ? true:false;
+            return $update>0 ? $update:false;
           }
         }
       
@@ -1979,17 +2014,17 @@ class PosUploadRepository extends Repository
         //$this->logAction('end:loop:ds', '');
         dbase_close($db);
         unset($db);
-        return count($update>0) ? true:false;
+        return $update>0 ? $update:false;
       }
 
       return false;
   }
 
   private function checkSalesmtdDS($data, $branchid, $date, $c) {
-    $d = \App\Models\DailySales::where(['date'=>$date->format('Y-m-d'), 'branchid'=>$branchid])->first();
+    $d = DailySales::where(['date'=>$date->format('Y-m-d'), 'branchid'=>$branchid])->first();
     
     if (is_null($d)) {
-      $d = \App\Models\DailySales::firstOrCreate(['date'=>$date->format('Y-m-d'), 'branchid'=>$branchid]);
+      $d = DailySales::firstOrCreate(['date'=>$date->format('Y-m-d'), 'branchid'=>$branchid]);
     }
     //$c->info($d->date->format('Y-m-d').' '.$d->custcount.' '.$d->trans_cnt);
     $arr = [];
@@ -2054,6 +2089,7 @@ class PosUploadRepository extends Repository
           $c->info('del: '.$curr_date->format('Y-m-d'));
           try {
             $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
+            $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
           } catch(Exception $e) {
             dbase_close($db);
             throw $e;    
@@ -2093,6 +2129,7 @@ class PosUploadRepository extends Repository
             $c->info('fc: '.$curr_date->format('Y-m-d').' '.$ds['food_sales']);
             $ds['date'] = $vfpdate->format('Y-m-d');
             $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+            event(new \App\Events\Process\AggregatorDaily('change_item', $curr_date, $branchid));
           }
 
         } else {
@@ -2109,6 +2146,7 @@ class PosUploadRepository extends Repository
           $c->info('fc: '.$curr_date->format('Y-m-d').' '.$ds['food_sales']);
           $ds['date'] = $curr_date->format('Y-m-d');
           $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+          event(new \App\Events\Process\AggregatorDaily('change_item', $curr_date, $branchid));
 
           $ds['slsmtd_totgrs'] = $data['grsamt'];
           $curr_date = $vfpdate;
@@ -2128,6 +2166,7 @@ class PosUploadRepository extends Repository
           $c->info('del: '.$curr_date->format('Y-m-d'));
           try {
             $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
+            $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
           } catch(Exception $e) {
             dbase_close($db);
             throw $e;    
@@ -2161,12 +2200,13 @@ class PosUploadRepository extends Repository
       $c->info($update);
       dbase_close($db);
       unset($db);
-      return count($update>0) ? true:false;
+      return $update>0 ? $update:false;
     } 
     return false;  
   }
 
-  public function backlogSalesmtdChangeItem($branchid, Carbon $from, Carbon $to, $c) {
+  /* whole month or till last backup process */
+  public function backlogSalesmtdChangeItem($branchid, Carbon $from, Carbon $to, $c=NULL) {
 
     $dbf_file = $this->extracted_path.DS.'SALESMTD.DBF';
 
@@ -2176,6 +2216,7 @@ class PosUploadRepository extends Repository
       $recno = dbase_numrecords($db);
       $curr_date = null; 
       $update = 0;
+      $ctr = 0;
 
 
       for ($i=1; $i<=$recno; $i++) {
@@ -2205,11 +2246,15 @@ class PosUploadRepository extends Repository
           }
 
           if ($vfpdate->eq($curr_date)) {
-
+            
           } else {
+
+            $this->ds->firstOrNewField(['date'=>$curr_date->format('Y-m-d'), 'branchid'=> $branchid, 'change_item'=>$ctr], ['date', 'branchid']);
+
+            $ctr = 0;
             $curr_date = $vfpdate;
 
-            if (app()->environment('local'))
+            if (!is_null($c))
               $c->info('del: '.$curr_date->format('Y-m-d'));
             
             try {
@@ -2220,7 +2265,7 @@ class PosUploadRepository extends Repository
             }
           }
 
-          if (app()->environment('local'))
+          if (!is_null($c))
             $c->info($x);
 
           $k = 0;
@@ -2231,7 +2276,7 @@ class PosUploadRepository extends Repository
 
           $len = explode(' ', $x);
 
-          if (app()->environment('local'))
+          if (!is_null($c))
             $c->info('len - '.count($len));
 
           if (count($len)>1) {
@@ -2242,7 +2287,7 @@ class PosUploadRepository extends Repository
 
               if (!empty($prod)) {
                 
-                if (app()->environment('local'))
+                if (!is_null($c))
                   $c->info($key.' = '.$prod);
             
                 preg_match_all('/(\d+(?:\.\d+)?)([A-Z0-9]+)/m', $x, $matches, PREG_SET_ORDER, 0);
@@ -2260,8 +2305,8 @@ class PosUploadRepository extends Repository
                 $k++;
               }
             }
-
-            if (app()->environment('local'))
+            
+            if (!is_null($c))
               $c->info(print_r($ci));
 
             try {
@@ -2271,15 +2316,19 @@ class PosUploadRepository extends Repository
               throw $e;    
             }
 
+            $ctr++;
             $update++;
           } // end if (count($len))
         }
       }
 
-      $c->info($update);
+      $this->ds->firstOrNewField(['date'=>$curr_date->format('Y-m-d'), 'branchid'=> $branchid, 'change_item'=>$ctr], ['date', 'branchid']);
+
+      if (!is_null($c))
+        $c->info($update);
       dbase_close($db);
       unset($db);
-      return count($update>0) ? true:false;
+      return $update>0 ? $update:false;
     } 
     return false;  
   }
@@ -2677,14 +2726,12 @@ class PosUploadRepository extends Repository
 
       dbase_close($db);
       unset($db);
-      return count($update>0) ? true:false;
+      return $update>0 ? $update:false;
     }
     return false;
   }
 
   public function backlogTransfer($branchid, Carbon $from, Carbon $to, $c) {
-
-
 
     $dbf_file = $this->extracted_path.DS.'TRANSFER.DBF';
     if (file_exists($dbf_file)) {
@@ -2820,14 +2867,14 @@ class PosUploadRepository extends Repository
 
       dbase_close($db);
       unset($db);
-      return count($update>0) ? true:false;
+      return $update>0 ? $update:false;
     }
     return false;
   }
 
   private function deliveredTo($code, $data) {
-    $branch = new \App\Repositories\BranchRepository;
-    $supplier = new \App\Repositories\SupplierRepository;
+    $branch = new BranchRepository;
+    $supplier = new SupplierRepository;
 
     if ($code=='711') {
       return '971077BCA54611E5955600FF59FBB323';
@@ -2839,7 +2886,7 @@ class PosUploadRepository extends Repository
     } else {
       $su = $supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin']));
       //$su = $supplier->findWhere(['code'=>$code]);
-      //if (count($su)>0) {
+      //if (count($su)>0) 
       if (!is_null($su)) {
         //return $su->first()->id;
         return $su->id;
@@ -2848,6 +2895,45 @@ class PosUploadRepository extends Repository
       }
     }
   }
+
+  public function backlogCashAudit2($branchid, Carbon $from, Carbon $to, $c=NULL) {
+
+    $kitlogImporter = $this->dbfImporter->new('cash_audit');
+    $cnt = $kitlogImporter->importByDr($branchid, $from, $to, $this->extracted_path, $c);
+
+    return $cnt;
+  }
+
+  public function backlogKitlog($branchid, Carbon $from, Carbon $to, $c=NULL) {
+
+    $kitlogImporter = $this->dbfImporter->new('kitlog');
+    
+    $gt = $cnt = 0;
+    foreach (dateInterval($from, $to) as $key => $date) {
+      if (!is_null($c))
+       $c->info($date);
+      
+      $cnt = $kitlogImporter->import($branchid, $date, $this->extracted_path, $c);
+      
+      if ($cnt>0) 
+        $this->ds->firstOrNewField(['date'=>$date->format('Y-m-d'), 'branchid'=> $branchid, 'kitlog'=>1], ['date', 'branchid']);
+
+      event(new \App\Events\Process\AggregatorKitlog('day_kitlog_food', $date, $branchid));
+      event(new \App\Events\Process\AggregatorKitlog('day_kitlog_area', $date, $branchid));
+     
+    
+      $gt += $cnt;
+    }
+
+    if (!is_null($c))
+      $c->info('Kitlog Transactions: '.$gt);
+
+    return $gt;
+  }
+
+
+
+  
 ###################################################################################################################################
 ############## endfor App\Command\Backlog\MonthDaily ##############################################################################
 ###################################################################################################################################

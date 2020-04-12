@@ -6,6 +6,7 @@ use App\Repositories\Purchase2Repository as Purchase;
 use App\Repositories\MonthProdcatRepository as Prodcat;
 use App\Repositories\MonthGroupiesRepository as Groupies;
 use App\Repositories\SalesmtdRepository as Salesmtd;
+use App\Repositories\ChangeItemRepository as ChangeItem;
 
 class AggregatorDailyEventListener
 {
@@ -15,13 +16,15 @@ class AggregatorDailyEventListener
   private $purchase;
   private $groupies;
   private $salesmtd;
+  private $changeItem;
 
-  public function __construct(Mailer $mailer, DS $ds, Purchase $purchase, Groupies $groupies, Salesmtd $salesmtd) {
+  public function __construct(Mailer $mailer, DS $ds, Purchase $purchase, Groupies $groupies, Salesmtd $salesmtd, ChangeItem $changeItem) {
     $this->mailer = $mailer;
     $this->ds = $ds;
     $this->purchase = $purchase;
     $this->groupies = $groupies;
     $this->salesmtd = $salesmtd;
+    $this->changeItem = $changeItem;
   }
 
   private function getRepo($table, $date, $branchid) {
@@ -35,11 +38,13 @@ class AggregatorDailyEventListener
       case 'groupies':
         return $this->salesmtd->aggregateGroupiesByDr($fr, $to, $branchid);
         break;
+      case 'change_item':
+        return $this->changeItem->aggregateByDr($date, $date, $branchid);
+        break;
       default:
         throw new Exception("Table not found!", 1);
         break;
-    }
-    
+    }  
   }
 
   public function aggregateDaily($event) {
@@ -67,6 +72,9 @@ class AggregatorDailyEventListener
       case 'groupies':
         $this->saveGroupies($datas, $date, $branchid);
         break;
+      case 'change_item':
+        $this->saveChangeItemToDS($datas, $date, $branchid);
+        break;
       default:
         
         break;
@@ -76,6 +84,15 @@ class AggregatorDailyEventListener
 
   private function saveDSPurchaseData($datas, $date, $branchid) {
     $this->ds->firstOrNewField($datas, ['date', 'branchid']);
+  }
+
+  private function saveChangeItemToDS($datas, $date, $branchid) {
+    $d = [
+      'date' => $date->format('Y-m-d'),
+      'branchid' => $branchid,
+    ];
+    $d = array_merge($d, $datas->toArray());
+    $this->ds->firstOrNewField($d, ['date', 'branchid']);
   }
 
   private function saveProdcat($datas, $date, $branchid) {
@@ -108,7 +125,7 @@ class AggregatorDailyEventListener
 
     try {
       $datas = $this->product->rank($event->date->copy()->lastOfMonth(), $event->branchid);
-    } catch (\Exception $e) { 
+    } catch (Exception $e) {
       /*
       //logAction('onDailySalesSuccess Error', $e->getMessage());
       $data = [

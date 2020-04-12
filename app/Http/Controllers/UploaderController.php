@@ -7,24 +7,25 @@ use Exception;
 use ZipArchive;
 use Carbon\Carbon;
 use App\Models\Backup;
+use Mike42\Escpos\Printer;
 use Illuminate\Http\Request;
+use App\Repositories\Rmis\Invdtl;
+use App\Repositories\Rmis\Invhdr;
+use App\Repositories\Rmis\Orpaydtl;
 use App\Http\Controllers\Controller;
 use Illuminate\Filesystem\Filesystem;
+use App\Events\Backup\ProcessSuccess;
 use App\Repositories\StorageRepository;
 use Dflydev\ApacheMimeTypes\PhpRepository;
-use App\Repositories\DepslipRepository as DepslipRepo;
+use App\Events\Upload\Depslp as DepslpUpload;
+use App\Repositories\DailySalesRepository as DSRepo;
 use App\Repositories\SetslpRepository as SetslpRepo;
+use Mike42\Escpos\PrintConnectors\FilePrintConnector;
+use App\Repositories\DepslipRepository as DepslipRepo;
 use App\Repositories\PosUploadRepository as PosUploadRepo;
 use App\Repositories\FileUploadRepository as FileUploadRepo;
-use App\Repositories\DailySalesRepository as DSRepo;
+use App\Repositories\EmploymentActivityRepository as EmpActivity; 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException as Http404;
-use App\Events\Backup\ProcessSuccess;
-use App\Events\Upload\Depslp as DepslpUpload;
-use App\Repositories\Rmis\Invdtl;
-use App\Repositories\Rmis\Orpaydtl;
-use App\Repositories\Rmis\Invhdr;
-use Mike42\Escpos\PrintConnectors\FilePrintConnector;
-use Mike42\Escpos\Printer;
 
 
 class UploaderController extends Controller 
@@ -62,7 +63,6 @@ class UploaderController extends Controller
 		$this->invhdr = $invhdr;
 	}
 
-
 	public function getIndex(Request $request) {  
 		return view('uploader.index');
 	}
@@ -71,14 +71,15 @@ class UploaderController extends Controller
 		return view('uploader.backup');
 	}
 
-
-	public function putFile(Request $request) {  
+	public function putFile(Request $request, EmpActivity $empActivity) {  
 		if ($request->input('filetype')=='backup')
 			return $this->processBackup($request);
 		else if ($request->input('filetype')=='depslp')
 			return $this->processBankSlip($request);
 		else if ($request->input('filetype')=='setslp')
 			return $this->processCreditCardSlip($request);
+		else if ($request->input('filetype')=='exportreq-etrf')
+			return $this->processEmployeeTransferRequest($request, $empActivity);
 		else
 			return $this->processUnknownFile($request);
 	}
@@ -255,8 +256,6 @@ class UploaderController extends Controller
 						event(new \App\Events\Posting\SalesmtdSuccess($backup));
 					}
 				
-
-				
 				
 					try {
 						$this->processCharges($backup->date, $backup);
@@ -320,16 +319,59 @@ class UploaderController extends Controller
 						}
 					}
 
+          /*
+          try {
+            $this->backlogSalesmtdChangeItem($backup->branchid, $backup->date, $backup->date);
+          } catch (Exception $e) {
+            $msg =  'Process Change Item '.$e->getMessage();
+            //$res = $this->movedErrorProcessing($filepath, $storage_path);
+            $this->updateBackupRemarks($backup, $msg);
+            //$this->logAction('error:process:purchased', $log_msg.$msg);
+            return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+          }
+          */
 
-					event(new \App\Events\Backup\DailySalesSuccess($backup)); // recompute Monthlysales
+          try {
+            $this->processCashAudit2($backup->branchid, $backup->date);
+          } catch (Exception $e) {
+            $msg =  'Process Cash Audit 2: '.$e->getMessage();
+            //$res = $this->movedErrorProcessing($filepath, $storage_path);
+            $this->updateBackupRemarks($backup, $msg);
+            //$this->logAction('error:process:purchased', $log_msg.$msg);
+            return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+          }
+
+          $kl = 0;
+          try {
+            $kl = $this->processKitlog($backup->branchid, $backup->date);
+          } catch (Exception $e) {
+            $msg =  'Process Kitlog: '.$e->getMessage();
+            //$res = $this->movedErrorProcessing($filepath, $storage_path);
+            $this->updateBackupRemarks($backup, $msg);
+            //$this->logAction('error:process:purchased', $log_msg.$msg);
+            return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+          }
+
+          event(new \App\Events\Process\AggregatorDaily('change_item', $backup->date, $backup->branchid)); // update ds
+          event(new \App\Events\Backup\DailySalesSuccess($backup)); // recompute Monthlysales
 					event(new \App\Events\Process\AggregateComponentMonthly($backup->date, $backup->branchid)); // recompute Monthly Component
 					event(new \App\Events\Process\AggregateMonthlyExpense($backup->date, $backup->branchid)); // recompute Monthly Expense
 					event(new \App\Events\Process\AggregatorMonthly('trans-expense', $backup->date, $backup->branchid));
 					event(new \App\Events\Process\AggregatorMonthly('product', $backup->date, $backup->branchid)); // recompute Monthly Expense
 					event(new \App\Events\Process\AggregatorMonthly('prodcat', $backup->date, $backup->branchid)); 
 					event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
+          event(new \App\Events\Process\AggregatorMonthly('change_item', $backup->date, $backup->branchid));
+          // event(new \App\Events\Process\AggregatorMonthly('change_item', $backup->date, $backup->branchid));
 					event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
 
+          $u = [];
+          if ($kl>0) {
+            event(new \App\Events\Process\AggregatorKitlog('day_kitlog_food', $backup->date, $backup->branchid));
+            event(new \App\Events\Process\AggregatorKitlog('day_kitlog_area', $backup->date, $backup->branchid));
+            event(new \App\Events\Process\AggregatorKitlog('month_kitlog_food', $backup->date, $backup->branchid));
+            event(new \App\Events\Process\AggregatorKitlog('month_kitlog_area', $backup->date, $backup->branchid));
+            $u['kitlog'] = 1;
+          }
 
 					/******* end: extract trasanctions data ***********/
 
@@ -340,7 +382,8 @@ class UploaderController extends Controller
 			    }
 
 					DB::commit();
-					$this->posUploadRepo->update(['lat'=>1], $backup->id);
+          $u['lat'] = 1;
+					$this->posUploadRepo->update($u, $backup->id);
 					$this->fileUploadRepo->update(['processed'=>1], $file->id);
 					$this->processed($backup);
 					$this->removeExtratedDir();
@@ -587,7 +630,6 @@ class UploaderController extends Controller
     }
   }
 
-
   public function backlogTransCount($date, Backup $backup){
   	try {
       $this->posUploadRepo->updateDailySalesTransCount($date, $backup);
@@ -599,6 +641,30 @@ class UploaderController extends Controller
   public function backlogDeposits($date, Backup $backup){
   	try {
       $this->posUploadRepo->updateDeposits($date, $backup);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+  public function processKitlog($branchid, $date){
+    try {
+      return $this->posUploadRepo->postKitlog($branchid, $date);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+  public function processCashAudit2($branchid, $date){
+    try {
+      return $this->posUploadRepo->postCashAudit2($branchid, $date);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+   public function backlogSalesmtdChangeItem($branchid, $from, $to) {
+    try {
+      return $this->posUploadRepo->backlogSalesmtdChangeItem($branchid, $from, $to);
     } catch(Exception $e) {
       throw $e;    
     }
@@ -670,12 +736,12 @@ class UploaderController extends Controller
 			$file = $this->createFileUpload($upload_path, $request, 'C1CCBE28CCDA11E6A3D000FF18C615EC');
 
 			try {
-	     		$this->files->moveFile($this->web->realFullPath($upload_path), $storage_path, true); // false = override file!
-		    } catch(Exception $e) {
-					return redirect()->back()
-					->with('alert-error', 'Error on moving file. '.$e->getMessage())
-					->with('alert-important', ' ');
-		    }
+     		$this->files->moveFile($this->web->realFullPath($upload_path), $storage_path, true); // false = override file!
+	    } catch(Exception $e) {
+				return redirect()->back()
+				->with('alert-error', 'Error on moving file. '.$e->getMessage())
+				->with('alert-important', ' ');
+	    }
 
 	    $depslp = $this->createDepslip($file, $filename);
 	    if (!is_null($depslp))
@@ -880,6 +946,17 @@ class UploaderController extends Controller
 	}
 
 
+	/************* for processEmployeeTransferRequest **************/
+	public function processEmployeeTransferRequest(Request $request, EmpActivity $empActivity) {
+
+
+		$e = new \App\Http\Controllers\Uploader\EmployeeTransferController;
+
+		return $e->processprocessEmployeeTransferRequest($request, $empActivity);
+
+	}
+
+	/************* end: processEmployeeTransferRequest **************/
 
 	public function getUploadSummary($brcode, Request $request) {
 		/*

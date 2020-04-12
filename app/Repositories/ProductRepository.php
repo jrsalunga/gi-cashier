@@ -9,7 +9,6 @@ use App\Repositories\ProdcatRepository as ProdcatRepo;
 use App\Traits\Repository as RepoTrait;
 
 class ProductRepository extends BaseRepository implements CacheableInterface
-//class ProductRepository extends BaseRepository 
 {
   use CacheableRepository, RepoTrait;
 
@@ -22,7 +21,6 @@ class ProductRepository extends BaseRepository implements CacheableInterface
     $this->menucat = $menucat;
     $this->prodcat = $prodcat;
   }
-
 
   public function model() {
     return 'App\\Models\\Product';
@@ -54,15 +52,16 @@ class ProductRepository extends BaseRepository implements CacheableInterface
       'menucat_id'  => $menucatid
     ];
 
+    /* activate to update the price when uploading backup */
+    //if (array_key_exists('uprice', $data))
+    //  $attr['uprice'] = $data['uprice'];
+
     try {
-      //$this->create($attr);
       return $this->findOrNew($attr, ['code', 'descriptor']); //  find or create
-      //return $this->firstOrNew($attr, ['code', 'descriptor']); // update when find or create
     } catch(Exception $e) {
       throw new Exception('product: '.$e->getMessage());
     }
   }
-
 
   public function importAndCreate($data) {
 
@@ -73,7 +72,6 @@ class ProductRepository extends BaseRepository implements CacheableInterface
       $prodcatid = $prodcat->id;
     }
     
-
     if (empty($data['menucat'])) 
       $menucatid = app()->environment('local') ? '62605A33BDF211E6978200FF18C615EC' : 'E84204C8BC3711E6856EC3CDBB4216A7';
     else {
@@ -97,7 +95,4 @@ class ProductRepository extends BaseRepository implements CacheableInterface
       throw new Exception('product:import '.$e->getMessage());
     }
   }
-
-  
-
 }

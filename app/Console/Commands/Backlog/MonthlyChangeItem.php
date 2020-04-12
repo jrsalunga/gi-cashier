@@ -1,5 +1,6 @@
 <?php namespace App\Console\Commands\Backlog;
 
+use App\Models\Backup;
 use DB;
 use Carbon\Carbon;
 use App\Models\Branch;
@@ -10,6 +11,7 @@ use App\Repositories\PosUploadRepository as PosUploadRepo;
 class MonthlyChangeItem extends Command
 {
 
+  // run mysql: update product set uprice = 0, uprice = 0; first 
   protected $signature = 'backlog:change-item {brcode : Branch Code} {date : YYYY-MM-DD}';
   protected $description = '';
 
@@ -69,7 +71,7 @@ class MonthlyChangeItem extends Command
     $this->info('start processing...');
 
     if (app()->environment('production')) {
-      $backup = \App\Models\Backup::where('branchid', $br->id)->where('filename', 'GC'.$t->format('mdy').'.ZIP')->first();
+      $backup = Backup::where('branchid', $br->id)->where('filename', 'GC'.$t->format('mdy').'.ZIP')->first();
 
       if (is_null($backup)) {
         $this->info('No backup log found on '. $t->format('Y-m-d'));

@@ -1,5 +1,8 @@
 <?php namespace App\Listeners;
 
+use App\Models\DailySales;
+use App\Models\Supplier;
+use Exception;
 use Illuminate\Contracts\Mail\Mailer;
 use App\Repositories\DailySales2Repository;
 use App\Repositories\Purchase2Repository;
@@ -42,7 +45,7 @@ class BackupEventListener
     
     try {
       $month = $this->ds->computeMonthTotal($event->backup->filedate, $event->backup->branchid);
-    } catch (\Exception $e) { 
+    } catch (Exception $e) {
       //logAction('onDailySalesSuccess Error', $e->getMessage());
       $data = [
         'user'      => request()->user()->name,
@@ -71,9 +74,9 @@ class BackupEventListener
 
 
   public function processEmpMeal($data) {
-    $ds = \App\Models\DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['opex', 'emp_meal']);
+    $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['opex', 'emp_meal']);
     //$ds = $this->ds->findWhere(['date'=>'2018-08-31', 'branchid'=>'0C2D132F78A711E587FA00FF59FBB323'], ['opex', 'emp_meal'])->first();
-    $s = \App\Models\Supplier::where(['code'=>$data['suppliercode']])->first();
+    $s = Supplier::where(['code'=>$data['suppliercode']])->first();
     
     if (abs($ds->emp_meal)==0) {
       // skip
@@ -97,23 +100,19 @@ class BackupEventListener
         throw $e;    
       }
     }
-    
-            
   }
 
 
    public function onDailySalesSuccess2($event) {
     
     try {
-      $month = $this->ds->computeMonthTotal($event->date, $event->branchid);
-    } catch (\Exception $e) { 
+      $month = $this->ds->computeMonthTotal($event->date, $event->branchid); // this will return NULL if the dailysales.sales = 0;
+    } catch (Exception $e) {
       logAction('onDailySalesSuccess Error', $e->getMessage());
     } finally {
       if (!is_null($month)) {
-        
-      //logAction('onDailySalesSuccess', $event->backup->filedate->format('Y-m-d').' '.request()->user()->branchid.' '.json_encode($month));
+              
       $this->ms->firstOrNewField(array_except($month->toArray(), ['year', 'month']), ['date', 'branch_id']);
-      //logAction('onDailySalesSuccess', 'rank');
       $this->ms->rank($month->date);
       }
     }

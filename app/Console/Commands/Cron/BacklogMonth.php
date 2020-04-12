@@ -1,5 +1,11 @@
 <?php namespace App\Console\Commands\Cron;
 
+use App\Events\Backup\DailySalesSuccess2;
+use App\Events\Process\AggregateComponentMonthly;
+use App\Events\Process\AggregateMonthlyExpense;
+use App\Events\Process\AggregatorDaily;
+use App\Events\Process\AggregatorMonthly;
+use App\Events\Process\RankMonthlyProduct;
 use DB;
 use Carbon\Carbon;
 use App\Models\Branch;
@@ -15,7 +21,7 @@ class BacklogMonth extends Command
 {
 
 	protected $signature = 'process:backlog-month';
-  protected $description = 'process the backlog month';
+  protected $description = 'process the CRON backlog month based on for_process.type=3';
   protected $process;
   protected $sales;
   protected $ds;
@@ -104,10 +110,10 @@ class BacklogMonth extends Command
       exit;
     } finally {
       foreach (dateInterval($f, $t) as $key => $date)
-        event(new \App\Events\Process\AggregatorDaily('purchase', $date, $br->id));
+        event(new AggregatorDaily('purchase', $date, $br->id));
     }
     
-    $this->info('extracting cash audit...');
+    $this->info('extracting daily sales on cash audit...');
     try {
       $r = $this->backlogDailySales($br->id, $f, $t, $this);
     } catch (Exception $e) {
@@ -143,26 +149,55 @@ class BacklogMonth extends Command
       exit;
     }
 
+    $this->info('extracting cash audit...');
+    try {
+      $this->backlogCashAudit2($br->id, $f, $t, $this);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    }
+
+    $this->info('extracting kitchen log...');
+    $kl = 0;
+    try {
+      $kl = $this->backlogKitlog($br->id, $f, $t, $this);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    }
+    // re Run the Backlog\Kitlog to process all 
+    // this will process only the kitlog on backup loaded on storage
+    if($kl>0) {
+      event(new \App\Events\Process\AggregatorKitlog('month_kitlog_food', $t, $br->id));
+      event(new \App\Events\Process\AggregatorKitlog('month_kitlog_area', $t, $br->id));
+    }
+
     foreach (dateInterval($f, $t) as $key => $date) {
       $this->info('working on events: '.$date);
       $this->info('DailySalesSuccess');
-      event(new \App\Events\Backup\DailySalesSuccess2($date, $br->id));
+      event(new DailySalesSuccess2($date, $br->id));
     }
 
     $this->info('AggregateComponentMonthly');
-    event(new \App\Events\Process\AggregateComponentMonthly($t, $br->id));
+    event(new AggregateComponentMonthly($t, $br->id));
     $this->info('AggregateMonthlyExpense');
-    event(new \App\Events\Process\AggregateMonthlyExpense($t, $br->id));
+    event(new AggregateMonthlyExpense($t, $br->id));
     $this->info('AggregatorMonthly trans-expense');
-    event(new \App\Events\Process\AggregatorMonthly('trans-expense', $t, $br->id));
+    event(new AggregatorMonthly('trans-expense', $t, $br->id));
     $this->info('AggregatorMonthly product');
-    event(new \App\Events\Process\AggregatorMonthly('product', $t, $br->id)); 
+    event(new AggregatorMonthly('product', $t, $br->id));
     $this->info('AggregatorMonthly prodcat');
-    event(new \App\Events\Process\AggregatorMonthly('prodcat', $t, $br->id)); 
+    event(new AggregatorMonthly('prodcat', $t, $br->id));
     $this->info('AggregatorMonthly groupies');
-    event(new \App\Events\Process\AggregatorMonthly('groupies', $t, $br->id));
+    event(new AggregatorMonthly('groupies', $t, $br->id));
+    $this->info('AggregatorMonthly change_item groupies');
+    event(new AggregatorMonthly('change_item', $t, $br->id));
     $this->info('RankMonthlyProduct');
-    event(new \App\Events\Process\RankMonthlyProduct($t, $br->id));
+    event(new RankMonthlyProduct($t, $br->id));
     
 
     DB::commit();
@@ -244,8 +279,22 @@ class BacklogMonth extends Command
       throw $e;    
     }
   }
-  
 
+  public function backlogCashAudit2($branchid, $from, $to, $c) {
+    try {
+      return $this->posUploadRepo->backlogCashAudit2($branchid, $from, $to, $c);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+  
+  public function backlogKitlog($branchid, $from, $to, $c) {
+    try {
+      return $this->posUploadRepo->backlogKitlog($branchid, $from, $to, $c);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
 
 
 

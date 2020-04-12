@@ -69,11 +69,7 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
 
   }
 
-
-
   public function computeMonthTotal(Carbon $date, $branchid) {
-
-    //return throwException('throw error');
 
     $sql = 'LAST_DAY(date) AS date, MONTH(date) AS month, YEAR(date) as year, branchid as branch_id, COUNT(id) as record_count, ';
     $sql .= 'SUM(sales) AS sales, SUM(sale_csh) AS sale_csh, SUM(sale_chg) AS sale_chg, SUM(sale_sig) AS sale_sig, ';
@@ -88,7 +84,8 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
     $sql .= 'SUM(tips) AS tips, ';
     $sql .= 'SUM(opex) AS opex, SUM(transcost) AS transcost, SUM(transncos) AS transncos, SUM(transcos) AS transcos, SUM(emp_meal) AS emp_meal, ';
     $sql .= 'SUM(depslpc) AS depslpc, SUM(depslpk) AS depslpk, SUM(setslp) AS setslp, ';
-    $sql .= 'SUM(food_sales) AS food_sales, ((SUM(cos) - SUM(transcos))/SUM(food_sales))*100 as fc';
+    $sql .= 'SUM(food_sales) AS food_sales, ((SUM(cos) - SUM(transcos))/SUM(food_sales))*100 as fc, ';
+    $sql .= 'SUM(kitlog) AS kitlog, SUM(change_item) AS change_item, SUM(change_item_diff) AS change_item_diff';
     
 
     $res = $this->skipCache()

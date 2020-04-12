@@ -1,5 +1,6 @@
 <?php namespace App\Listeners;
 
+use Exception;
 use Illuminate\Contracts\Mail\Mailer;
 use App\Repositories\MonthProductRepository as Product;
 use App\Repositories\MonthProdcatRepository as Prodcat;
@@ -7,6 +8,7 @@ use App\Repositories\MonthGroupiesRepository as Groupies;
 use App\Repositories\SalesmtdRepository as Salesmtd;
 use App\Repositories\StockTransferRepository as Transfer;
 use App\Repositories\MonthExpenseRepository as ME;
+use App\Repositories\ChangeItemRepository as ChangeItem;
 
 class AggregatorEventListener
 {
@@ -17,15 +19,17 @@ class AggregatorEventListener
   private $groupies;
   private $salesmtd;
   private $transfer;
+  private $changeItem;
   private $me;
 
-  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ME $me) {
+  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ChangeItem $changeItem, ME $me) {
     $this->mailer = $mailer;
     $this->product = $product;
     $this->prodcat = $prodcat;
     $this->groupies = $groupies;
     $this->salesmtd = $salesmtd;
     $this->transfer = $transfer;
+    $this->changeItem = $changeItem;
     $this->me = $me;
   }
 
@@ -43,8 +47,11 @@ class AggregatorEventListener
       case 'trans-expense':
         return $this->transfer->aggExpByDr($fr, $to, $branchid);
         break;
+      case 'change_item':
+        return $this->changeItem->aggregateGroupiesByDr($fr, $to, $branchid);
+        break;
       default:
-        throw new \Exception("Table not found!", 1);
+        throw new Exception("Table not found!", 1);
         break;
     }
     
@@ -54,11 +61,11 @@ class AggregatorEventListener
 
     $table = strtolower($event->table);
     $datas = [];
-    //return dd($this->getRepo($table));
-      $datas = $this->getRepo($table, $event->date->copy()->firstOfMonth(), $event->date->copy()->lastOfMonth(), $event->branchid);
+      // return dd($this->getRepo($table));
+      // $datas = $this->getRepo($table, $event->date->copy()->firstOfMonth(), $event->date->copy()->lastOfMonth(), $event->branchid);
     try {
       $datas = $this->getRepo($table, $event->date->copy()->firstOfMonth(), $event->date->copy()->lastOfMonth(), $event->branchid);
-    } catch (\Exception $e) { 
+    } catch (Exception $e) {
       /*
       //logAction('onDailySalesSuccess Error', $e->getMessage());
       $data = [
@@ -102,6 +109,9 @@ class AggregatorEventListener
         break;
       case 'trans-expense':
         $this->saveTransExpense($datas, $date, $branchid);
+        break;
+      case 'change_item':
+        $this->saveGroupiesChangeItem($datas, $date, $branchid);
         break;
       default:
         
@@ -167,11 +177,24 @@ class AggregatorEventListener
     }
   }
 
+  private function saveGroupiesChangeItem($datas, $date, $branchid) {
+    //return dd($datas->toArray());
+    foreach ($datas as $key => $value) {
+      $this->groupies->firstOrNewField([
+        'date'          => $date->format('Y-m-d'),
+        'code'          => $value->code,
+        'change_item'   => $value->change_item,
+        'diff'          => $value->diff,
+        'branch_id'     => $branchid,
+      ], ['date', 'branch_id', 'code']);
+    }
+  }
+
   public function rankMonthlyProduct($event) {
 
     try {
       $datas = $this->product->rank($event->date->copy()->lastOfMonth(), $event->branchid);
-    } catch (\Exception $e) { 
+    } catch (Exception $e) {
       /*
       //logAction('onDailySalesSuccess Error', $e->getMessage());
       $data = [
