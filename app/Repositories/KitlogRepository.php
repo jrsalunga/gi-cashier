@@ -7,6 +7,7 @@ use Prettus\Repository\Traits\CacheableRepository;
 use Prettus\Repository\Contracts\CacheableInterface;
 use App\Traits\Repository as RepoTrait;
 use App\Repositories\ProductRepository as Product;
+use App\Models\Kitlog;
 
 class KitlogRepository extends BaseRepository implements CacheableInterface
 {
@@ -47,7 +48,12 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
     ];
 
     try {
-      $this->create($attr);
+      if ($create)
+        $this->create($attr);
+      else {
+        $attr['id'] =  Kitlog::get_uid();
+        Kitlog::insert($attr);
+      }
     } catch(Exception $e) {
       throw new Exception($e->getMessage());    
     }
