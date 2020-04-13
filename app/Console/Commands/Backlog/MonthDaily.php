@@ -87,6 +87,7 @@ class MonthDaily extends Command
 
     $locator = new Locator('pos');
     $path = $br->code.DS.$t->format('Y').DS.$t->format('m').DS.'GC'.$t->format('mdy').'.ZIP';
+    $this->info('Location: '.$locator->realFullPath($path));
     if (!$locator->exists($path)) {
       $t = $d;
       $path = $br->code.DS.$t->format('Y').DS.$t->format('m').DS.'GC'.$t->format('mdy').'.ZIP';
