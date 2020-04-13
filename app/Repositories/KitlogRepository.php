@@ -32,7 +32,8 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
     else
       $product = $this->product->findByField('descriptor', $attributes['product'], ['code', 'descriptor', 'id'])->first();
 
-    $product_id = is_null($product) ? 'XXX' : $product->id;
+    // product = ['id'=>'11EA7D951C1B0D85A7E00911249AB5']
+    $product_id = is_null($product) ? '11EA7D951C1B0D85A7E00911249AB5' : $product->id;
 
     $attr = [
       'date'      => $attributes['date'],
@@ -51,7 +52,7 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
       if ($create)
         $this->create($attr);
       else {
-        $attr['id'] =  Kitlog::get_uid();
+        $attr['id'] = Kitlog::get_uid();
         Kitlog::insert($attr);
       }
     } catch(Exception $e) {
