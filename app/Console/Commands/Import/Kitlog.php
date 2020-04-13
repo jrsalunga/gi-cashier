@@ -66,11 +66,12 @@ class Kitlog extends Command
       $d = $this->date->copy()->addDays($c);
       $this->line($d->format('Y-m-d'));
 
-      $del = Process::where('type', 6)->where('filedate', $d->format('Y-m-d'))->where('code', $b->code->delete();
-      $this->line('for_process deleted: '.$del);
 
       $ctr = 0;
       foreach ($br as $key => $b) {
+      
+        $del = Process::where('type', 6)->where('filedate', $d->format('Y-m-d'))->where('code', $b->code)->delete();
+        $this->line('for_process deleted: '.$del);
 
         if ($this->extract($b->code, $d, true)==1) {
           Process::firstOrCreate([
