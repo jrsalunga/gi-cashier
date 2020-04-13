@@ -85,15 +85,17 @@ class Kitlog extends Command {
       $this->line($ctr.' - '.$res);
       $this->line('******************');
 
-      /*
+      
       event(new AggregatorKitlog('day_kitlog_food', $d, $b->id));
       event(new AggregatorKitlog('month_kitlog_food', $d, $b->id));
       event(new AggregatorKitlog('day_kitlog_area', $d, $b->id));
       event(new AggregatorKitlog('month_kitlog_area', $d, $b->id));
 
-      if ($d->copy()->endOfMonth()->format('Y-m-d') == $d->format('Y-m-d'))
+      if ($d->copy()->endOfMonth()->format('Y-m-d') == $d->format('Y-m-d')) {
+        $this->line('EOM: trigger DailySalesSuccess2');
         event(new \App\Events\Backup\DailySalesSuccess2($d, $b->id)); // recompute Monthlysales
-      */
+      }
+      
 
       $c++;
     } while ($c <= $count); 

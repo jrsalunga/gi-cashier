@@ -24,9 +24,15 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
     $this->product = $product;
   }
 
-  public function verifyAndCreate(array $attributes) {
+  public function verifyAndCreate(array $attributes, $create = true) {
 
-    $product = $this->product->verifyAndCreate(array_only($attributes, ['product', 'productcode', 'prodcat', 'menucat']));
+    if ($create)
+      $product = $this->product->verifyAndCreate(array_only($attributes, ['product', 'productcode', 'prodcat', 'menucat']));
+    else
+      $product = $this->product->findByField('descriptor', $attributes['product'], ['code', 'descriptor', 'id'])->first();
+
+    $product_id = is_null($product) ? 'XXX' : $product->id;
+
     $attr = [
       'date'      => $attributes['date'],
       'ordtime'   => $attributes['ordtime'],
@@ -36,7 +42,7 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
       'minute'    => $attributes['minute'],
       'area'      => $attributes['area'],
       'iscombo'   => $attributes['iscombo'],
-      'product_id'=> $product->id,
+      'product_id'=> $product_id,
       'branch_id' => $attributes['branch_id'],
     ];
 

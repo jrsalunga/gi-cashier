@@ -64,9 +64,9 @@ class KitlogImporter {
           $trans++;
 
           if (!is_null($cmd))
-            $cmd->info($trans.' - '.$data['ordno'].' - '.$data['time'].' - '.$data['productcode'].' - '.$data['product'].' - '.$data['prodcat'].' - '.$data['menucat']);
+            $cmd->info($trans.' - '.$data['ordno'].' - '.$curr_date->format('Y-m-d').' '.$data['time'].' - '.$data['productcode'].' - '.$data['product'].' - '.$data['prodcat'].' - '.$data['menucat']);
           
-          $this->kitlog->verifyAndCreate($data);
+          $this->kitlog->verifyAndCreate($data, false);
         } else {
           $trans=0;
 
