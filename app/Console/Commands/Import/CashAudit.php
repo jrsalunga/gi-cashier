@@ -66,7 +66,7 @@ class CashAudit extends Command
       $d = $this->date->copy()->addDays($c);
       $this->line($d->format('Y-m-d'));
 
-      $del = Process::where('type', 7)->where('filedate', $d->format('Y-m-d'))->delete();
+      $del = Process::where('type', 7)->where('filedate', $d->format('Y-m-d'))->where('code', $b->code)->delete();
       $this->line('for_process deleted: '.$del);
 
       $ctr = 0;
