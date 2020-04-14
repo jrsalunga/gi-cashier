@@ -110,7 +110,8 @@ class CashAudit extends Command
     $file = 'CSH_AUDT.DBF';
     if (file_exists($this->extractor->getExtractedPath().DS.$file)) {
       // $this->info($this->extractor->getExtractedPath()); 
-      $this->info($brcode.' - '.$file);
+      if ($show)
+        $this->info($brcode.' - '.$file);
     } else {
 
       if ($show)
