@@ -29,8 +29,6 @@ class CashAuditImporter {
       $update = 0;
       $curr_date = null;
 
-      //$branchcode = $this->getBackupCode();
-
       for ($i=1; $i<=$recno; $i++) {
         $row = dbase_get_record_with_names($db, $i);
         $data = $this->cashAudit->associateAttributes($row);
@@ -43,38 +41,20 @@ class CashAuditImporter {
           continue;
         }
 
-        if (is_null($curr_date)) {
-          $curr_date = $vfpdate;
-          $trans = 0;
-
-          try {
-
-            if (!is_null($cmd))
-              $cmd->info('del: '.$curr_date->format('Y-m-d'));
-
-            // $this->cashAudit->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
-          } catch(Exception $e) {
-            dbase_close($db);
-            throw $e;    
-          }
-        }
-
-
-        if ($curr_date->eq($vfpdate)) {
-          $trans++;
+        if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
 
           if (!is_null($cmd))
-            $cmd->info('import: '.$trans.' - '. $data['date']);
-          
+            $cmd->info('delete: '. $data['date']);
+          $this->cashAudit->deleteWhere(['branch_id'=>$branchid, 'date'=>$vfpdate->format('Y-m-d')]);
+
+
+          if (!is_null($cmd))
+            $cmd->info('import: '. $data['date']);
           // $this->cashAudit->findOrNew($data, ['date', 'branch_id']);
           $this->cashAudit->firstOrNewField($data, ['date', 'branch_id']);
-        } else {
-          //$trans=0;
-
-          //if (!is_null($cmd))
-          //  $cmd->info('********* import second ******************');
-        }
-
+          
+          $trans++;
+        } 
       } // end: for
 
       dbase_close($db);

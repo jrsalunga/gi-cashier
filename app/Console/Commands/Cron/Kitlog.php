@@ -89,6 +89,7 @@ class Kitlog extends Command
         if ($process->filedate->copy()->endOfMonth()->format('Y-m-d') == $process->filedate->format('Y-m-d'))
           event(new \App\Events\Backup\DailySalesSuccess2($process->filedate, $br->id)); // recompute Monthlysales
       }
+      
       if(app()->environment()=='local')
 	    	$this->info('removing directory...');
       
@@ -101,31 +102,23 @@ class Kitlog extends Command
         $this->line('******************');
       }
 
-    }
+      $process->processed = 1;
+      $process->save();
 
-    
+    } else {
+      if(!is_null($cmd))
+        $this->info('No backup found');
+
+      $process->processed = 4; // no backup found
+      $process->save();
+    }
 
     DB::commit();
 
-
-
-
-	    
-    	
-    	$process->processed = 1;
-    	$process->save();
-
-	    $this->info('done: '.$process->code.' '.$process->filedate);
-	    
-	    exit;
-	    
-
-    	$this->info(json_encode($process));
     } else {
       if(app()->environment()=='local')
         $this->info('no more process');
-    }
-
+    } // end: !is_null($process)
   }
 
   public function extract($brcode, $date, $show=true) {

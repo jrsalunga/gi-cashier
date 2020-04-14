@@ -22,7 +22,6 @@ use App\Console\Commands\Cron\BacklogCos;
 use App\Console\Commands\Cron\BacklogMonth;
 use App\Console\Commands\EndOfDay;
 use App\Console\Commands\Import\Ap;
-use App\Console\Commands\Import\CashAudit;
 use App\Console\Commands\Import\Paymast;
 use App\Console\Commands\Import\Product;
 use App\Console\Commands\Inspire;
@@ -74,13 +73,15 @@ class Kernel extends ConsoleKernel
         MonthlyChangeItem::class,
         \App\Console\Commands\Import\BacklogChangeItem::class,
         BacklogChangeItem::class,
+        
         \App\Console\Commands\Checker\KitchenLog::class,
         \App\Console\Commands\Import\Kitlog::class,
         \App\Console\Commands\Backlog\Kitlog::class,
         \App\Console\Commands\Cron\Kitlog::class,
         
+        \App\Console\Commands\Import\CashAudit::class,
         \App\Console\Commands\Backlog\CashAudit::class,
-        CashAudit::class,
+        \App\Console\Commands\Cron\CashAudit::class,
         
         Paymast::class,
     ];

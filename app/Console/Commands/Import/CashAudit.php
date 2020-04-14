@@ -17,7 +17,7 @@ class CashAudit extends Command
   */
 
 	protected $signature = 'import:cash-audit {date : YYYY-MM-DD} {--brcode=ALL : Branch Code} {--dateTo=NULL : YYYY-MM-DD}';
-  protected $description = 'extract backup and import to for_process table.';
+  protected $description = 'extract backup and import to for_process table and to processed per month';
 
   protected $extractor;
   protected $date;
@@ -46,7 +46,8 @@ class CashAudit extends Command
 
     $dateTo = is_iso_date($this->option('dateTo')) ? Carbon::parse($this->option('dateTo')) : $date;
     $this->dateTo =  $dateTo->gt($date) && $dateTo->lte(c()) ? $dateTo : $date;
-    $count = $this->dateTo->diffInDays($this->date);
+    // $count = $this->dateTo->diffInDays($this->date);
+    $count = $this->dateTo->diffInMonths($this->date);
 
     $this->comment('Date(s): '.$this->date->format('Y-m-d').' - '.$this->dateTo->format('Y-m-d').' ('.$count.')');
 
@@ -59,42 +60,43 @@ class CashAudit extends Command
         exit;
       }
     }
-
+        
+    // $this->line('diff: '.$count);
     $c = 0;
-    do {
+    foreach ($br as $key => $b) {
+      $this->line($b->code);
+      $c = 0;      
+      do {
 
-      $d = $this->date->copy()->addDays($c);
-      $this->line($d->format('Y-m-d'));
+        $d = $this->date->copy()->addMonths($c)->endOfMonth();
+        $this->line($d->format('Y-m-d'));
 
-
-      $ctr = 0;
-      foreach ($br as $key => $b) {
-      
+        $ctr = 0;
+        
         $del = Process::where('type', 7)->where('filedate', $d->format('Y-m-d'))->where('code', $b->code)->delete();
-        $this->line('for_process deleted: '.$del);
+        $this->line('delete: '.$del);
 
-        if ($this->extract($b->code, $d, true)==1) {
+        // if ($this->extract($b->code, $d, true)==1) {
           Process::firstOrCreate([
             'filename'  => 'GC'.$d->format('mdy').'.ZIP',
             'filedate'  => $d->format('Y-m-d'),
             'code'      => $b->code,
             'path'      => $b->code.DS.$d->format('Y').DS.$d->format('m').DS.'GC'.$d->format('mdy').'.ZIP',
             'type'      => 7,
-            'processed' => 3,
+            'processed' => 0,
             'note'      => 'import:cash-audit '.stl($b->code).' '.$d->format('Y-m-d'),
           ]);
           $ctr++;
-        }
-      }
-      $this->line('******************');
-      $this->line($ctr);
-      $this->line('******************');
+        // }
+        // $this->line('******************');
+        $this->line('insert: '.$ctr);
+        $this->line('*************');
 
-      $c++;
-    } while ($c <= $count); 
-
+        $c++;
+      } while ($c <= $count); 
+      // $this->line(' ');
+    } // end: for $br
     exit;
-
   }
 
   public function extract($brcode, $date, $show=true) {
