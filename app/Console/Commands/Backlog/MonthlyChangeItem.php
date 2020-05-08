@@ -91,7 +91,7 @@ class MonthlyChangeItem extends Command
       exit;
     }
 
-    foreach (dateInterval($f, $to) as $key => $date) {
+    foreach (dateInterval($f, $t) as $key => $date) {
       event(new \App\Events\Process\AggregatorDaily('change_item', $date, $br->id)); // update ds
     }
     
