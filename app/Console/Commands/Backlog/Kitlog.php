@@ -98,7 +98,7 @@ class Kitlog extends Command {
         }
 
         if ($d->copy()->endOfMonth()->format('Y-m-d') == $d->format('Y-m-d')) {
-          $this->line($br->code.' EOM: trigger DailySalesSuccess2');
+          $this->line($b->code.' EOM: trigger DailySalesSuccess2');
           event(new \App\Events\Backup\DailySalesSuccess2($d, $b->id)); // recompute Monthlysales
           event(new \App\Events\Process\AggregatorKitlog('dataset_area', $d, $b->id));
           event(new \App\Events\Process\AggregatorKitlog('dataset_food', $d, $b->id));
