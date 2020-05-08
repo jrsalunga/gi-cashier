@@ -11,7 +11,6 @@ use App\Repositories\PosUploadRepository as PosUploadRepo;
 class MonthlyChangeItem extends Command
 {
 
-  // run mysql: update product set uprice = 0, uprice = 0; first 
   protected $signature = 'backlog:change-item {brcode : Branch Code} {date : YYYY-MM-DD}';
   protected $description = '';
 
@@ -90,6 +89,10 @@ class MonthlyChangeItem extends Command
       $this->removeExtratedDir();
       DB::rollback();
       exit;
+    }
+
+    foreach (dateInterval($f, $to) as $key => $date) {
+      event(new \App\Events\Process\AggregatorDaily('change_item', $date, $br->id)); // update ds
     }
     
     DB::commit();
