@@ -73,7 +73,7 @@ class Kitlog extends Command {
       foreach ($br as $key => $b) {
 
         if (!$this->option('eom')===true) { // check to run EOM, dataset generator
-          
+
           if ($this->extract($b->code, $d, true)==1) {
 
             $res = $this->kitlog->import($b->id, $d, $this->extractor->getExtractedPath(), $this);
@@ -98,7 +98,7 @@ class Kitlog extends Command {
         }
 
         if ($d->copy()->endOfMonth()->format('Y-m-d') == $d->format('Y-m-d')) {
-          $this->line('EOM: trigger DailySalesSuccess2');
+          $this->line($br->code.' EOM: trigger DailySalesSuccess2');
           event(new \App\Events\Backup\DailySalesSuccess2($d, $b->id)); // recompute Monthlysales
           event(new \App\Events\Process\AggregatorKitlog('dataset_area', $d, $b->id));
           event(new \App\Events\Process\AggregatorKitlog('dataset_food', $d, $b->id));
