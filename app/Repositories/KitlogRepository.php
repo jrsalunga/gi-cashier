@@ -43,6 +43,7 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
     */
 
     $product_id = is_null($product) ? '11EA7D951C1B0D85A7E00911249AB5' : $product->id;
+    $menucat_id = is_null($product) && !isset($product->menucat_id) ? 'A197E8FFBC7F11E6856EC3CDBB4216A7' : $product->menucat_id;
 
     $attr = [
       'date'      => $attributes['date'],
@@ -54,6 +55,7 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
       'area'      => $attributes['area'],
       'iscombo'   => $attributes['iscombo'],
       'product_id'=> $product_id,
+      'menucat_id'=> $menucat_id,
       'branch_id' => $attributes['branch_id'],
     ];
 
@@ -130,6 +132,20 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
     })->skipCache()->all();
   }
 
+  public function aggregateAllFoodByDr(Carbon $fr, Carbon $to) {
+
+    return $this->scopeQuery(function($query) use ($fr, $to) {
+      return $query
+                ->select(DB::raw('LAST_DAY(date) as date, product_id, sum(qty) as qty, round(sum(minute)/sum(qty),2) as ave, iscombo, area, max(minute) as max, min(minute) as min'))
+                ->whereBetween('date', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->groupBy('product_id')
+                ->groupBy('iscombo')
+                ->orderBy('ave', 'desc');
+    })->skipCache()->all();
+  }
+
   public function aggregateAreaBranchByDr(Carbon $fr, Carbon $to, $branchid) {
 
     return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
@@ -141,6 +157,91 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
                 ->where('branch_id', $branchid)
                 ->groupBy('area')
                 ->orderBy('ave', 'desc');
+    })->skipCache()->all();
+  }
+
+  public function aggregateAllAreaByDr(Carbon $fr, Carbon $to) {
+
+    return $this->scopeQuery(function($query) use ($fr, $to) {
+      return $query
+                ->select(DB::raw('LAST_DAY(date) as date, area, sum(qty) as qty, round(sum(minute)/sum(qty),2) as ave, max(minute) as max, min(minute) as min'))
+                ->whereBetween('date', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->groupBy('area')
+                ->orderBy('area');
+    })->skipCache()->all();
+  }
+
+  public function aggregateAllAreaDatasetByDr(Carbon $fr, Carbon $to) {
+
+    return $this->scopeQuery(function($query) use ($fr, $to) {
+      return $query
+                //->select(DB::raw("LAST_DAY(date) as date, area, concat(2*floor(minute/2), '-', 2*floor(minute/2) + 1) as grp, count(minute) as txn, round(sum(qty),0) as qty"))
+                ->select(DB::raw("LAST_DAY(date) as date, area, 1*floor(minute/1) as grp, count(minute) as txn, max(minute) as peak, round(sum(qty),0) as qty"))
+                ->whereBetween('date', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('qty', '>', 0)
+                ->groupBy('area')
+                ->groupBy('grp')
+                ->orderBy('area')
+                ->orderBy('minute');
+    })->skipCache()->all();
+  }
+
+  public function aggregateAllProductDatasetByDr(Carbon $fr, Carbon $to) {
+
+    return $this->scopeQuery(function($query) use ($fr, $to) {
+      return $query
+                //->select(DB::raw("LAST_DAY(date) as date, product_id, concat(2*floor(minute/2), '-', 2*floor(minute/2) + 1) as grp, count(minute) as txn, round(sum(qty),0) as qty"))
+                ->select(DB::raw("LAST_DAY(date) as date, product_id, 1*floor(minute/1) as grp, count(minute) as txn, max(minute) as peak, round(sum(qty),0) as qty, iscombo"))
+                ->whereBetween('date', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('qty', '>', 0)
+                ->groupBy('product_id')
+                ->groupBy('iscombo')
+                ->groupBy('grp')
+                ->orderBy('product_id')
+                ->orderBy('minute');
+    })->skipCache()->all();
+  }
+
+  public function aggregateBranchAreaDatasetByDr(Carbon $fr, Carbon $to, $branchid) {
+
+    return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
+      return $query
+                //->select(DB::raw("LAST_DAY(date) as date, area, concat(2*floor(minute/2), '-', 2*floor(minute/2) + 1) as grp, count(minute) as txn, round(sum(qty),0) as qty"))
+                ->select(DB::raw("LAST_DAY(date) as date, area, 1*floor(minute/1) as grp, count(minute) as txn, max(minute) as peak, round(sum(qty),0) as qty"))
+                ->whereBetween('date', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('branch_id', $branchid)
+                ->where('qty', '>', 0)
+                ->groupBy('area')
+                ->groupBy('grp')
+                ->orderBy('area')
+                ->orderBy('minute');
+    })->skipCache()->all();
+  }
+
+  public function aggregateBranchProductDatasetByDr(Carbon $fr, Carbon $to, $branchid) {
+
+    return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
+      return $query
+                //->select(DB::raw("LAST_DAY(date) as date, product_id, concat(2*floor(minute/2), '-', 2*floor(minute/2) + 1) as grp, count(minute) as txn, round(sum(qty),0) as qty"))
+                ->select(DB::raw("LAST_DAY(date) as date, product_id, 1*floor(minute/1) as grp, count(minute) as txn, max(minute) as peak, round(sum(qty),0) as qty, iscombo"))
+                ->whereBetween('date', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('branch_id', $branchid)
+                ->where('qty', '>', 0)
+                ->groupBy('product_id')
+                ->groupBy('iscombo')
+                ->groupBy('grp')
+                ->orderBy('product_id')
+                ->orderBy('minute');
     })->skipCache()->all();
   }
 }

@@ -602,6 +602,16 @@ if (!function_exists('is_carbon')) {
   }
 }
 
+if (!function_exists('to_time')) {
+  function to_time($x) {
+    $h = floor($x/60);
+    $m = $x % 60;
+    $s = number_format(($x - floor($x)) * 60,0);
+
+    return str_pad($h,2,"0",STR_PAD_LEFT).':'.str_pad($m,2,"0",STR_PAD_LEFT).':'.str_pad($s,2,"0",STR_PAD_LEFT);
+  }
+}
+
 
 
 

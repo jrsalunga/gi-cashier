@@ -364,12 +364,17 @@ class UploaderController extends Controller
           // event(new \App\Events\Process\AggregatorMonthly('change_item', $backup->date, $backup->branchid));
 					event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
 
+
           $u = [];
           if ($kl>0) {
             event(new \App\Events\Process\AggregatorKitlog('day_kitlog_food', $backup->date, $backup->branchid));
             event(new \App\Events\Process\AggregatorKitlog('day_kitlog_area', $backup->date, $backup->branchid));
             event(new \App\Events\Process\AggregatorKitlog('month_kitlog_food', $backup->date, $backup->branchid));
             event(new \App\Events\Process\AggregatorKitlog('month_kitlog_area', $backup->date, $backup->branchid));
+            event(new \App\Events\Process\AggregatorKitlog('dataset_area', $backup->date, $backup->branchid));
+            event(new \App\Events\Process\AggregatorKitlog('dataset_food', $backup->date, $backup->branchid));
+            event(new \App\Events\Process\AggregatorKitlog('dataset_area', $backup->date, NULL));
+            event(new \App\Events\Process\AggregatorKitlog('dataset_food', $backup->date, NULL));
             $u['kitlog'] = 1;
           }
 

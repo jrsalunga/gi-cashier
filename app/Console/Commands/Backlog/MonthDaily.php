@@ -126,7 +126,6 @@ class MonthDaily extends Command
     DB::beginTransaction();
     
     
-    
     $this->info('extracting purchased...');
     try {
       $r = $this->backlogPurchased($br->id, $f, $t, $this);
@@ -231,8 +230,11 @@ class MonthDaily extends Command
     $this->info('RankMonthlyProduct');
     event(new RankMonthlyProduct($backup->date, $backup->branchid));
     
-    
-    
+    $this->info('AggregatorKitlog');
+    event(new \App\Events\Process\AggregatorKitlog('dataset_area', $t, $br->id));
+    event(new \App\Events\Process\AggregatorKitlog('dataset_food', $t, $br->id));
+    event(new \App\Events\Process\AggregatorKitlog('dataset_area', $t, NULL));
+    event(new \App\Events\Process\AggregatorKitlog('dataset_food', $t, NULL));
     
 
     DB::commit();

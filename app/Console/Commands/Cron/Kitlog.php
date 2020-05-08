@@ -86,8 +86,14 @@ class Kitlog extends Command
         event(new AggregatorKitlog('day_kitlog_area', $process->filedate, $br->id));
         event(new AggregatorKitlog('month_kitlog_area', $process->filedate, $br->id));
 
-        if ($process->filedate->copy()->endOfMonth()->format('Y-m-d') == $process->filedate->format('Y-m-d'))
+        if ($process->filedate->copy()->endOfMonth()->format('Y-m-d') == $process->filedate->format('Y-m-d')) {
           event(new \App\Events\Backup\DailySalesSuccess2($process->filedate, $br->id)); // recompute Monthlysales
+          event(new \App\Events\Process\AggregatorKitlog('dataset_area', $process->filedate, $br->id));
+          event(new \App\Events\Process\AggregatorKitlog('dataset_food', $process->filedate, $br->id));
+          event(new \App\Events\Process\AggregatorKitlog('dataset_area', $process->filedate, NULL));
+          event(new \App\Events\Process\AggregatorKitlog('dataset_food', $process->filedate, NULL));
+        }
+
       }
       
       if(app()->environment()=='local')

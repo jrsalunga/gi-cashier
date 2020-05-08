@@ -14,7 +14,7 @@ use App\Repositories\DailySales2Repository as DS;
 
 class Kitlog extends Command {
 
-	protected $signature = 'backlog:kitlog {date : YYYY-MM-DD} {--brcode=ALL : Branch Code} {--dateTo=NULL : YYYY-MM-DD}';
+	protected $signature = 'backlog:kitlog {date : YYYY-MM-DD} {--brcode=ALL : Branch Code} {--dateTo=NULL : YYYY-MM-DD} {--eom=false : Run EOM dataset generator only}';
   protected $description = 'backlog process for kitchen log for a given date range run via command.';
 
   protected $extractor;
@@ -68,39 +68,47 @@ class Kitlog extends Command {
       $d = $this->date->copy()->addDays($c);
       $this->line($d->format('Y-m-d'));
 
+
       $ctr = $res = 0;
       foreach ($br as $key => $b) {
 
-        if ($this->extract($b->code, $d, true)==1) {
+        if (!$this->option('eom')===true) { // check to run EOM, dataset generator
+          
+          if ($this->extract($b->code, $d, true)==1) {
 
-          $res = $this->kitlog->import($b->id, $d, $this->extractor->getExtractedPath(), $this);
-          
-          $this->clean();
-          
-          $ctr++;
-          $this->ds->firstOrNewField(['kitlog'=>1, 'branchid'=>$b->id, 'date'=>$d->format('Y-m-d')], ['branchid', 'date']);
-        } // endif: extract
+            $res = $this->kitlog->import($b->id, $d, $this->extractor->getExtractedPath(), $this);
+            
+            $this->clean();
+            
+            $ctr++;
+            $this->ds->firstOrNewField(['kitlog'=>1, 'branchid'=>$b->id, 'date'=>$d->format('Y-m-d')], ['branchid', 'date']);
+          } // endif: extract
+        }
+
+
+        if ($res>0) {
+          $this->line('AggregatorKitlog - day_kitlog_food');
+          event(new AggregatorKitlog('day_kitlog_food', $d, $b->id));
+          $this->line('AggregatorKitlog - month_kitlog_food');
+          event(new AggregatorKitlog('month_kitlog_food', $d, $b->id));
+          $this->line('AggregatorKitlog - day_kitlog_area');
+          event(new AggregatorKitlog('day_kitlog_area', $d, $b->id));
+          $this->line('AggregatorKitlog - month_kitlog_area');
+          event(new AggregatorKitlog('month_kitlog_area', $d, $b->id));
+        }
+
+        if ($d->copy()->endOfMonth()->format('Y-m-d') == $d->format('Y-m-d')) {
+          $this->line('EOM: trigger DailySalesSuccess2');
+          event(new \App\Events\Backup\DailySalesSuccess2($d, $b->id)); // recompute Monthlysales
+          event(new \App\Events\Process\AggregatorKitlog('dataset_area', $d, $b->id));
+          event(new \App\Events\Process\AggregatorKitlog('dataset_food', $d, $b->id));
+          event(new \App\Events\Process\AggregatorKitlog('dataset_area', $d, NULL));
+          event(new \App\Events\Process\AggregatorKitlog('dataset_food', $d, NULL));
+        }
       }
       $this->line('******************');
       $this->line($ctr.' - '.$res);
       $this->line('******************');
-
-
-      if ($res>0) {
-        $this->line('AggregatorKitlog - day_kitlog_food');
-        event(new AggregatorKitlog('day_kitlog_food', $d, $b->id));
-        $this->line('AggregatorKitlog - month_kitlog_food');
-        event(new AggregatorKitlog('month_kitlog_food', $d, $b->id));
-        $this->line('AggregatorKitlog - day_kitlog_area');
-        event(new AggregatorKitlog('day_kitlog_area', $d, $b->id));
-        $this->line('AggregatorKitlog - month_kitlog_area');
-        event(new AggregatorKitlog('month_kitlog_area', $d, $b->id));
-      }
-
-      if ($d->copy()->endOfMonth()->format('Y-m-d') == $d->format('Y-m-d')) {
-        $this->line('EOM: trigger DailySalesSuccess2');
-        event(new \App\Events\Backup\DailySalesSuccess2($d, $b->id)); // recompute Monthlysales
-      }
       
 
       $c++;

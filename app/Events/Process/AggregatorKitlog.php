@@ -17,7 +17,7 @@ class AggregatorKitlog extends Event
    *
    * @return void
    */
-  public function __construct($table, Carbon $date, $branchid)
+  public function __construct($table, Carbon $date, $branchid=NULL)
   {
     $this->date = $date;
     $this->branchid = $branchid;
