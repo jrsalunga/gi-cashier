@@ -72,7 +72,7 @@ class Kitlog extends Command {
       $ctr = $res = 0;
       foreach ($br as $key => $b) {
 
-        if (!$this->option('eom')===true) { // check to run EOM, dataset generator
+        // if (!$this->option('eom')===true) { // check to run EOM, dataset generator
 
           if ($this->extract($b->code, $d, true)==1) {
 
@@ -83,7 +83,7 @@ class Kitlog extends Command {
             $ctr++;
             $this->ds->firstOrNewField(['kitlog'=>1, 'branchid'=>$b->id, 'date'=>$d->format('Y-m-d')], ['branchid', 'date']);
           } // endif: extract
-        }
+        // }
 
 
         if ($res>0) {
