@@ -30,7 +30,7 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
     if ($create)
       $product = $this->product->verifyAndCreate(array_only($attributes, ['product', 'productcode', 'prodcat', 'menucat']));
     else
-      $product = $this->product->findWhere(['descriptor'=>$attributes['product', 'code'=>$attributes['productcode']], ['code', 'descriptor', 'id'])->first();
+      $product = $this->product->findWhere(['descriptor'=>$attributes['product'], 'code'=>$attributes['productcode']], ['code', 'descriptor', 'id'])->first();
       // $product = $this->product->findByField('descriptor', $attributes['product'], ['code', 'descriptor', 'id'])->first();
 
     /* NOTE: this product should be on PRODUCT table for error-trapping/validation
