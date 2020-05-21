@@ -39,11 +39,11 @@ class TimesheetController extends Controller
 
 	private function getIndex(Request $request){
 		
+    return 'test getIndex';
 		$date = is_null($request->input('date')) 
 			? $this->dr->now 
 			: carbonCheckorNow($request->input('date'));
 		
-    return 'test getIndex';
 		$data = $this->timelog->allByDate($date);
 		//return dd($data);
 		return $this->setViewWithDR(view('timesheet.index')
