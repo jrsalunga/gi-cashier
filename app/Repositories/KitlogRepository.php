@@ -30,7 +30,7 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
     if ($create)
       $product = $this->product->verifyAndCreate(array_only($attributes, ['product', 'productcode', 'prodcat', 'menucat']));
     else
-      $product = $this->product->findWhere(['descriptor'=>$attributes['product'], 'code'=>$attributes['productcode']], ['code', 'descriptor', 'id'])->first();
+      $product = $this->product->findWhere(['descriptor'=>$attributes['product'], 'code'=>$attributes['productcode']], ['code', 'descriptor', 'id', 'menucat_id'])->first();
       // $product = $this->product->findByField('descriptor', $attributes['product'], ['code', 'descriptor', 'id'])->first();
 
     /* NOTE: this product should be on PRODUCT table for error-trapping/validation
@@ -41,6 +41,12 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
       'prodcat_id   => app()->environment('local') ? '625E2E18BDF211E6978200FF18C615EC' : 'E841F22BBC3711E6856EC3CDBB4216A7',
       'id'          =>'11EA7D951C1B0D85A7E00911249AB5'
     ];
+
+    UPDATE kitlog a
+    INNER JOIN product b
+    ON a.product_id = b.id
+    SET a.menucat_id = b.menucat_id
+    WHERE a.menucat_id IS NULL
     */
 
     $product_id = is_null($product) ? '11EA7D951C1B0D85A7E00911249AB5' : $product->id;
@@ -89,14 +95,12 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
       : c($vfpdate->format('Y-m-d').' '.$served);
 
     /*
-    conversion
-    
-    00:14:57 == 14.95
+      conversion
+      
+      00:14:57 == 14.95
 
-    .95 * 60 = 57
-
+      .95 * 60 = 57
     */
-
 
     $row = [
       'date'      => $vfpdate->format('Y-m-d'),
