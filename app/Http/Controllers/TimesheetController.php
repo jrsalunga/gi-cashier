@@ -27,7 +27,6 @@ class TimesheetController extends Controller
 
 
 	public function getRoute($brcode=null, Request $request, $param1=null) {
-    return 'test';
 		//event(new TimelogEvent('fasd', 'fasdfa'));
 		if(!is_null($param1) && $param1=='print')
 			return $this->getPrintIndex($request);
@@ -44,6 +43,7 @@ class TimesheetController extends Controller
 			? $this->dr->now 
 			: carbonCheckorNow($request->input('date'));
 		
+    return 'test getIndex';
 		$data = $this->timelog->allByDate($date);
 		//return dd($data);
 		return $this->setViewWithDR(view('timesheet.index')
