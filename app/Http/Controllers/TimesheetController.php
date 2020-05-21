@@ -27,6 +27,7 @@ class TimesheetController extends Controller
 
 
 	public function getRoute($brcode=null, Request $request, $param1=null) {
+    return 'test';
 		//event(new TimelogEvent('fasd', 'fasdfa'));
 		if(!is_null($param1) && $param1=='print')
 			return $this->getPrintIndex($request);
