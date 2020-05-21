@@ -44,8 +44,8 @@ class TimesheetController extends Controller
 			? $this->dr->now 
 			: carbonCheckorNow($request->input('date'));
 		
-    return 'test carbonCheckorNow';
 		$data = $this->timelog->allByDate($date);
+    return 'test allByDate';
 		//return dd($data);
 		return $this->setViewWithDR(view('timesheet.index')
 																	->with('dr', $this->dr)
