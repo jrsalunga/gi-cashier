@@ -263,6 +263,7 @@ class KitlogAggregatorEventListener
             'product_id' => $data[$idx]['product_id'],
             'dataset' => implode(",", $data[$idx]['dataset']),
             'qty' => $a->qty,
+            'area' => $a->area,
             'ave' => $a->ave,
             'peak' => $data[$idx]['peak'],
             'max' => $a->max,
