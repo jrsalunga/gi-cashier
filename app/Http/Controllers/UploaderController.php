@@ -1128,11 +1128,19 @@ class UploaderController extends Controller
       'body' => 'this is a test,'
     ];
 
-     \Mail::queue('emails.notifier', $data, function ($message) {
+    try {
+
+      $m = \Mail::queue('emails.notifier', $data, function ($message) {
         $message->subject('Test Emailss');
         $message->from('test@gmail.com');
         $message->to('giligans.app@gmail.com');
       });
+
+    } catch (\Exception $e) {
+      return $e->getMessage();
+    }
+
+    return $m;
     
   }
 
