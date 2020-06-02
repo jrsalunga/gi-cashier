@@ -1129,7 +1129,7 @@ class UploaderController extends Controller
     ];
 
      \Mail::queue('emails.notifier', $data, function ($message) {
-        $message->subject('Test Emails');
+        $message->subject('Test Emailss');
         $message->from('test@gmail.com');
         $message->to('giligans.app@gmail.com');
       });
