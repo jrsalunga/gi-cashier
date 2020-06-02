@@ -1128,10 +1128,10 @@ class UploaderController extends Controller
       'body' => 'this is a test,'
     ];
 
-     \Mail::send('emails.notifier', $data, function ($message) {
+     \Mail::queue('emails.notifier', $data, function ($message) {
         $message->subject('Test Email');
         $message->from('test@gmail.com');
-        $message->to('jefferson.salunga@gmail.com');
+        $message->to('giligans.app@gmail.com');
       });
     
   }
