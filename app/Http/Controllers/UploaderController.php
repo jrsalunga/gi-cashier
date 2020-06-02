@@ -1122,4 +1122,20 @@ class UploaderController extends Controller
 
 
 
+  public function testMail() {
+
+    $data = [
+      'body' => 'this is a test,'
+    ];
+
+     \Mail::send('emails.notifier', $data, function ($message) {
+        $message->subject('Test Email');
+        $message->from('test@gmail.com');
+        $message->to('jefferson.salunga@gmail.com');
+      });
+    
+  }
+
+
+
 }

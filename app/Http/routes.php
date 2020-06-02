@@ -4,6 +4,8 @@ Route::get('login', ['as'=>'auth.getlogin', 'uses'=>'Auth\AuthController@getLogi
 Route::post('auth/login', ['as'=>'auth.postlogin', 'uses'=>'Auth\AuthController@postLogin']);
 Route::get('logout', ['as'=>'auth.getlogout', 'uses'=>'Auth\AuthController@getLogout']);
 
+Route::get('test-mail', ['uses'=>'UploaderController@testMail']);
+
 
 Route::get('/', ['middleware' => 'auth', 'uses'=>'DashboardController@getIndex']);
 Route::get('salesmtd', ['middleware' => 'auth', 'uses'=>'SalesmtdController@test']);
@@ -70,6 +72,8 @@ Route::get('uploader/backup', ['uses'=>'UploaderController@getBackupIndex']);
 Route::put('uploader/postfile', ['uses'=>'UploaderController@putFile']);
 Route::get('uploader/deposit-slip', ['uses'=>'UploaderController@getDepositIndex']);
 Route::get('{brcode}/upload/summary', ['as'=>'upload-summary', 'uses'=>'UploaderController@getUploadSummary']);
+
+
 
 
 /******* start prefix:api     ********/
