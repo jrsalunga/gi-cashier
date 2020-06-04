@@ -168,7 +168,10 @@ class DailySales extends Command
 
     event(new AggregatorDaily('purchase', $bckup->date, $bckup->branchid));
 
-
+    event(new \App\Events\Process\AggregateComponentDaily($backup->date, $bckup->branchid)); // recompute Daily Component
+    event(new \App\Events\Process\AggregateDailyExpense($backup->date, $bckup->branchid)); // recompute Daily Expense
+    event(new \App\Events\Process\AggregatorDaily('trans-expense', $backup->date, $bckup->branchid)); // recompute Daily Transfered and update day_expense
+    event(new \App\Events\Process\AggregatorDaily('prodcat', $backup->date, $bckup->branchid)); 
 
     event(new DailySalesSuccess($bckup)); // recompute Monthlysales
     event(new AggregateComponentMonthly($bckup->date, $bckup->branchid)); // recompute Monthly Component

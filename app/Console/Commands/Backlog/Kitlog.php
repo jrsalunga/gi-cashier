@@ -76,17 +76,22 @@ class Kitlog extends Command {
 
           if ($this->extract($b->code, $d, true)==1) {
 
-            $res = $this->kitlog->import($b->id, $d, $this->extractor->getExtractedPath(), $this);
+            // $res = $this->kitlog->import($b->id, $d, $this->extractor->getExtractedPath(), $this);
             
             $this->clean();
             
             $ctr++;
-            $this->ds->firstOrNewField(['kitlog'=>1, 'branchid'=>$b->id, 'date'=>$d->format('Y-m-d')], ['branchid', 'date']);
+            // $this->ds->firstOrNewField(['kitlog'=>1, 'branchid'=>$b->id, 'date'=>$d->format('Y-m-d')], ['branchid', 'date']);
+
+            event(new \App\Events\Process\AggregateComponentDaily($backup->date, $backup->branchid)); // recompute Daily Component
+            event(new \App\Events\Process\AggregateDailyExpense($backup->date, $backup->branchid)); // recompute Daily Expense
+            event(new \App\Events\Process\AggregatorDaily('trans-expense', $backup->date, $backup->branchid)); // recompute Daily Transfered and update day_expense
+            event(new \App\Events\Process\AggregatorDaily('prodcat', $backup->date, $backup->branchid)); 
           } // endif: extract
         // }
 
 
-        if ($res>0) {
+        /*if ($res>0) {
           $this->line('AggregatorKitlog - day_kitlog_food');
           event(new AggregatorKitlog('day_kitlog_food', $d, $b->id));
           $this->line('AggregatorKitlog - month_kitlog_food');
@@ -104,7 +109,7 @@ class Kitlog extends Command {
           event(new \App\Events\Process\AggregatorKitlog('dataset_food', $d, $b->id));
           event(new \App\Events\Process\AggregatorKitlog('dataset_area', $d, NULL));
           event(new \App\Events\Process\AggregatorKitlog('dataset_food', $d, NULL));
-        }
+        }*/
       }
       $this->line('******************');
       $this->line($ctr.' - '.$res);

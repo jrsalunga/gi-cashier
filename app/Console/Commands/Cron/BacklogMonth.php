@@ -182,6 +182,11 @@ class BacklogMonth extends Command
       event(new DailySalesSuccess2($date, $br->id));
     }
 
+    event(new \App\Events\Process\AggregateComponentDaily($t, $br->id)); // recompute Daily Component
+    event(new \App\Events\Process\AggregateDailyExpense($t, $br->id)); // recompute Daily Expense
+    event(new \App\Events\Process\AggregatorDaily('trans-expense', $t, $br->id)); // recompute Daily Transfered and update day_expense
+    event(new \App\Events\Process\AggregatorDaily('prodcat', $t, $br->id)); 
+
     $this->info('AggregateComponentMonthly');
     event(new AggregateComponentMonthly($t, $br->id));
     $this->info('AggregateMonthlyExpense');
