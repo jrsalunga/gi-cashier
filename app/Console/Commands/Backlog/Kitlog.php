@@ -72,22 +72,27 @@ class Kitlog extends Command {
       $ctr = $res = 0;
       foreach ($br as $key => $b) {
 
+        if ($this->extractor->has_backup($b->code, $d)) {
+
+          $this->line('Aggregator');
+          event(new \App\Events\Process\AggregateComponentDaily($d, $b->id)); // recompute Daily Component
+          event(new \App\Events\Process\AggregateDailyExpense($d, $b->id)); // recompute Daily Expense
+          event(new \App\Events\Process\AggregatorDaily('trans-expense', $d, $b->id)); // recompute Daily Transfered and update day_expense
+          event(new \App\Events\Process\AggregatorDaily('prodcat', $d, $b->id)); 
+        }
+
         // if (!$this->option('eom')===true) { // check to run EOM, dataset generator
 
-          if ($this->extract($b->code, $d, true)==1) {
+          /*if ($this->extract($b->code, $d, true)==1) {
 
-            // $res = $this->kitlog->import($b->id, $d, $this->extractor->getExtractedPath(), $this);
+            $res = $this->kitlog->import($b->id, $d, $this->extractor->getExtractedPath(), $this);
             
             $this->clean();
             
             $ctr++;
-            // $this->ds->firstOrNewField(['kitlog'=>1, 'branchid'=>$b->id, 'date'=>$d->format('Y-m-d')], ['branchid', 'date']);
+            $this->ds->firstOrNewField(['kitlog'=>1, 'branchid'=>$b->id, 'date'=>$d->format('Y-m-d')], ['branchid', 'date']);
 
-            event(new \App\Events\Process\AggregateComponentDaily($backup->date, $backup->branchid)); // recompute Daily Component
-            event(new \App\Events\Process\AggregateDailyExpense($backup->date, $backup->branchid)); // recompute Daily Expense
-            event(new \App\Events\Process\AggregatorDaily('trans-expense', $backup->date, $backup->branchid)); // recompute Daily Transfered and update day_expense
-            event(new \App\Events\Process\AggregatorDaily('prodcat', $backup->date, $backup->branchid)); 
-          } // endif: extract
+          } // endif: extract*/
         // }
 
 

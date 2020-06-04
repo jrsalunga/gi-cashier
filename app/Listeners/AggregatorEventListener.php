@@ -244,11 +244,19 @@ class AggregatorEventListener
 
   private function saveDayTransExpense($datas, $date, $branchid) {
     foreach ($datas as $key => $value) {
+
+      $ex = \App\Models\Expense::find($value->expense_id);
+
+      $ord = is_null($ex)
+      ? 833
+      : $ex->ordinal;
+
       $this->de->firstOrNewField([
         'date'          => $date->format('Y-m-d'),
         'xfred'         => $value->tcost,
         'expense_id'    => $value->expense_id,
         'branch_id'     => $branchid,
+        'ordinal'       => $ord,
       ], ['date', 'branch_id', 'expense_id']);
     }
   }
