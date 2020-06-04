@@ -7,6 +7,8 @@ use App\Repositories\Purchase2Repository as PR;
 use App\Repositories\MonthlySalesRepository as MS;
 use App\Repositories\MonthComponentRepository as MC;
 use App\Repositories\MonthExpenseRepository as ME;
+use App\Repositories\DayComponentRepository as DC;
+use App\Repositories\DayExpenseRepository as DE;
 
 class ProcessesEventListener
 {
@@ -16,14 +18,18 @@ class ProcessesEventListener
   private $mc;
   private $ms;
   private $me;
+  private $de;
+  private $dc;
   private $purchase;
 
-  public function __construct(Mailer $mailer, DS $ds, MS $ms, PR $purchase, MC $mc, ME $me) {
+  public function __construct(Mailer $mailer, DS $ds, MS $ms, PR $purchase, MC $mc, ME $me, DE $de, DC $dc) {
     $this->mailer = $mailer;
     $this->ds = $ds;
     $this->ms = $ms;
     $this->mc = $mc;
     $this->me = $me;
+    $this->de = $de;
+    $this->dc = $dc;
     $this->purchase = $purchase;
   }
 
@@ -114,7 +120,57 @@ class ProcessesEventListener
 
     foreach ($month as $key => $value) {
       $this->me->firstOrNewField([
-        'date'          => $event->date->copy()->lastOfMonth()->format('Y-m-d'),
+        'date'          => $event->date->format('Y-m-d'),
+        'expense_id'    => $value->expense_id,
+        'qty'           => $value->qty,
+        'tcost'         => $value->tcost,
+        'trans'         => $value->trans,
+        'branch_id'     => $event->branchid,
+        'ordinal'       => $value->ordinal,
+      ], ['date', 'branch_id', 'expense_id']);
+      # code...
+    }
+  }
+
+  public function aggregateComponentDaily($event) {
+    try {
+      $month = $this->purchase->aggCompByDr($event->date, $event->date, $event->branchid);
+    } catch (Exception $e) {
+      
+    }
+
+    foreach ($month as $key => $value) {
+
+      $ord = isset($value->component->compcat->expense->ordinal)
+      ? $value->component->compcat->expense->ordinal
+      : 833;
+
+      //$ord = 883;
+
+      $this->dc->firstOrNewField([
+        'date'          => $event->date->format('Y-m-d'),
+        'component_id'  => $value->componentid,
+        'expense_id'    => $value->component->compcat->expenseid,
+        'qty'           => $value->qty,
+        'tcost'         => $value->tcost,
+        'trans'         => $value->trans,
+        'branch_id'     => $event->branchid,
+        'ordinal'       => $ord,
+      ], ['date', 'branch_id', 'component_id']);
+      # code...
+    }
+  }
+
+  public function aggregateDailyExpense($event) {
+    try {
+      $month = $this->purchase->aggExpByDr($event->date, $event->date, $event->branchid);
+    } catch (Exception $e) {
+      
+    }
+
+    foreach ($month as $key => $value) {
+      $this->de->firstOrNewField([
+        'date'          => $event->date->format('Y-m-d'),
         'expense_id'    => $value->expense_id,
         'qty'           => $value->qty,
         'tcost'         => $value->tcost,
@@ -126,7 +182,6 @@ class ProcessesEventListener
     }
 
   }
-
   
   
 
@@ -137,8 +192,18 @@ class ProcessesEventListener
     );
 
     $events->listen(
+      'App\Events\Process\AggregateComponentDaily',
+      'App\Listeners\ProcessesEventListener@aggregateComponentDaily'
+    );
+
+    $events->listen(
       'App\Events\Process\AggregateMonthlyExpense',
       'App\Listeners\ProcessesEventListener@aggregateMonthlyExpense'
+    );
+
+    $events->listen(
+      'App\Events\Process\AggregateDailyExpense',
+      'App\Listeners\ProcessesEventListener@aggregateDailyExpense'
     );
   }
 

@@ -352,6 +352,12 @@ class UploaderController extends Controller
             return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
           }
 
+
+          event(new \App\Events\Process\AggregateComponentDaily($backup->date, $backup->branchid)); // recompute Daily Component
+          event(new \App\Events\Process\AggregateDailyExpense($backup->date, $backup->branchid)); // recompute Daily Expense
+          event(new \App\Events\Process\AggregatorDaily('trans-expense', $backup->date, $backup->branchid)); // recompute Daily Transfered and update day_expense
+          event(new \App\Events\Process\AggregatorDaily('prodcat', $backup->date, $backup->branchid)); 
+          
           event(new \App\Events\Process\AggregatorDaily('change_item', $backup->date, $backup->branchid)); // update ds
           event(new \App\Events\Backup\DailySalesSuccess($backup)); // recompute Monthlysales
 					event(new \App\Events\Process\AggregateComponentMonthly($backup->date, $backup->branchid)); // recompute Monthly Component

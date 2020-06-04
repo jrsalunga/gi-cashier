@@ -8,7 +8,9 @@ use App\Repositories\MonthGroupiesRepository as Groupies;
 use App\Repositories\SalesmtdRepository as Salesmtd;
 use App\Repositories\StockTransferRepository as Transfer;
 use App\Repositories\MonthExpenseRepository as ME;
+use App\Repositories\DayExpenseRepository as DE;
 use App\Repositories\ChangeItemRepository as ChangeItem;
+use App\Repositories\DayProdcatRepository as DayProdcat;
 
 class AggregatorEventListener
 {
@@ -21,8 +23,10 @@ class AggregatorEventListener
   private $transfer;
   private $changeItem;
   private $me;
+  private $de;
+  private $dp;
 
-  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ChangeItem $changeItem, ME $me) {
+  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ChangeItem $changeItem, ME $me, DE $de, DayProdcat $dp) {
     $this->mailer = $mailer;
     $this->product = $product;
     $this->prodcat = $prodcat;
@@ -31,6 +35,8 @@ class AggregatorEventListener
     $this->transfer = $transfer;
     $this->changeItem = $changeItem;
     $this->me = $me;
+    $this->de = $de;
+    $this->dp = $dp;
   }
 
   private function getRepo($table, $fr, $to, $branchid) {
@@ -114,10 +120,8 @@ class AggregatorEventListener
         $this->saveGroupiesChangeItem($datas, $date, $branchid);
         break;
       default:
-        
         break;
     }
-
   }
 
   private function saveProduct($datas, $date, $branchid) {
@@ -221,6 +225,77 @@ class AggregatorEventListener
       */
     }
   }
+
+
+
+  public function aggregateDaily($event) {
+
+    $table = strtolower($event->table);
+    $datas = [];
+
+    try {
+      $datas = $this->getRepo($table, $event->date, $event->date, $event->branchid);
+    } catch (Exception $e) {
+
+    }
+
+    $this->saveDailyData($table, $datas, $event->date, $event->branchid);
+  }
+
+  private function saveDayTransExpense($datas, $date, $branchid) {
+    foreach ($datas as $key => $value) {
+      $this->de->firstOrNewField([
+        'date'          => $date->format('Y-m-d'),
+        'xfred'         => $value->tcost,
+        'expense_id'    => $value->expense_id,
+        'branch_id'     => $branchid,
+      ], ['date', 'branch_id', 'expense_id']);
+    }
+  }
+
+  private function saveDayProdcat($datas, $date, $branchid) {
+    foreach ($datas as $key => $value) {
+
+      if (empty($value->prodcat_id)) 
+        $prodcat_id = app()->environment('local') ? '625E2E18BDF211E6978200FF18C615EC' : 'E841F22BBC3711E6856EC3CDBB4216A7';
+      else 
+        $prodcat_id = $value->prodcat_id;
+
+      $this->dp->firstOrNewField([
+        'date'          => $date->format('Y-m-d'),
+        'prodcat_id'    => $prodcat_id,
+        'qty'           => $value->qty,
+        'sales'         => $value->sales,
+        'trans'         => $value->trans,
+        'pct'           => $value->pct,
+        'branch_id'     => $branchid,
+      ], ['date', 'branch_id', 'prodcat_id']);
+    }
+  }
+
+  public function saveDailyData($table, $datas, $date, $branchid) {
+    switch ($table) {
+      // case 'product':
+      //   $this->saveDayProduct($datas, $date, $branchid);
+      //   break;
+      case 'prodcat':
+         $this->saveDayProdcat($datas, $date, $branchid);
+         break;
+      // case 'groupies':
+      //   $this->saveDayGroupies($datas, $date, $branchid);
+      //   break;
+      case 'trans-expense':
+        $this->saveDayTransExpense($datas, $date, $branchid);
+        break;
+      // case 'change_item':
+      //   $this->saveDayGroupiesChangeItem($datas, $date, $branchid);
+      //   break;
+      default:
+        break;
+    }
+  }
+
+
   
   
 
@@ -230,7 +305,12 @@ class AggregatorEventListener
       'App\Listeners\AggregatorEventListener@aggregateMonthly'
     );
 
-     $events->listen(
+    $events->listen(
+      'App\Events\Process\AggregatorDaily',
+      'App\Listeners\AggregatorEventListener@aggregateDaily'
+    );
+
+    $events->listen(
       'App\Events\Process\RankMonthlyProduct',
       'App\Listeners\AggregatorEventListener@rankMonthlyProduct'
     );
