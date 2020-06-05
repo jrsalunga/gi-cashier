@@ -146,7 +146,7 @@ class AggregatorEventListener
         $prodcat_id = $value->prodcat_id;
 
       $this->prodcat->firstOrNewField([
-        'date'          => $date->format('Y-m-d'),
+        'date'          => $date->copy()->lastOfMonth()->format('Y-m-d'),
         'prodcat_id'    => $prodcat_id,
         'qty'           => $value->qty,
         'sales'         => $value->sales,
@@ -160,7 +160,7 @@ class AggregatorEventListener
   private function saveGroupies($datas, $date, $branchid) {
     foreach ($datas as $key => $value) {
       $this->groupies->firstOrNewField([
-        'date'          => $date->format('Y-m-d'),
+        'date'          => $date->copy()->lastOfMonth()->format('Y-m-d'),
         'code'          => $value->code,
         'qty'           => $value->qty,
         'netamt'        => $value->netamt,
@@ -172,11 +172,19 @@ class AggregatorEventListener
 
   private function saveTransExpense($datas, $date, $branchid) {
     foreach ($datas as $key => $value) {
+
+      $ex = \App\Models\Expense::find($value->expense_id);
+
+      $ord = is_null($ex)
+      ? 833
+      : $ex->ordinal;
+
       $this->me->firstOrNewField([
-        'date'          => $date->format('Y-m-d'),
+        'date'          => $date->copy()->lastOfMonth()->format('Y-m-d'),
         'xfred'         => $value->tcost,
         'expense_id'    => $value->expense_id,
         'branch_id'     => $branchid,
+        'ordinal'       => $ord,
       ], ['date', 'branch_id', 'expense_id']);
     }
   }
@@ -185,7 +193,7 @@ class AggregatorEventListener
     //return dd($datas->toArray());
     foreach ($datas as $key => $value) {
       $this->groupies->firstOrNewField([
-        'date'          => $date->format('Y-m-d'),
+        'date'          => $date->copy()->lastOfMonth()->format('Y-m-d'),
         'code'          => $value->code,
         'change_item'   => $value->change_item,
         'diff'          => $value->diff,

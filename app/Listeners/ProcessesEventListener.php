@@ -120,7 +120,7 @@ class ProcessesEventListener
 
     foreach ($month as $key => $value) {
       $this->me->firstOrNewField([
-        'date'          => $event->date->format('Y-m-d'),
+        'date'          => $event->date->copy()->lastOfMonth()->format('Y-m-d'),
         'expense_id'    => $value->expense_id,
         'qty'           => $value->qty,
         'tcost'         => $value->tcost,
