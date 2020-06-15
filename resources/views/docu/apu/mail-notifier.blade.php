@@ -7,7 +7,7 @@
 	<li>{{ $model->filename }}</li>
   <li>{{ $model->doctype->descriptor }}</li>
 	<li>{{ number_format($model->amount, 2) }}</li>
-	<li>{{ $model->date->format('D M j') }}</li>
+	<li>{{ $model->date->format('D M j, Y') }}</li>
   <li>{{ $model->refno }}</li>
   <li>{{ $model->supplier->descriptor }}</li>
 	<li>{{ $model->cashier }}</li>

@@ -79,7 +79,7 @@ class ApuEventListener
     
     $this->mailer->queue('docu.apu.mail-notifier', $data, function ($message) {
       $message->subject('AP - Record Update');
-      $message->from('giligans.app@gmail.com', 'me'.' (giligans.app@gmail.com)');
+      $message->from('giligans.app@gmail.com', 'GI Alerts');
       $message->to('giligans.app@gmail.com');
       $message->cc('giligans.payables@gmail.com');
     });
@@ -92,10 +92,10 @@ class ApuEventListener
       'user'          => request()->user()->name,
       'action'        => 'Delete',
       'filename'      => $event->model->filename,
-      'doctype'      => $event->model->doctype->descriptor,
-      'refno'      => $event->model->refno,
+      'doctype'       => $event->model->doctype->descriptor,
+      'refno'         => $event->model->refno,
       'amount'        => number_format($event->model->amount,2),
-      'supplier'       => $event->model->supplier->descriptor,
+      'supplier'      => $event->model->supplier->descriptor,
       'cashier'       => $event->model->cashier,
       'date'          => $event->model->date->format('D M j h:i:s A'),
       'remarks'       => $event->model->notes,
@@ -104,7 +104,7 @@ class ApuEventListener
     
     $this->mailer->queue('docu.apu.mail-del-notifier', $data, function ($message) {
       $message->subject('AP - Delete Record');
-      $message->from('giligans.app@gmail.com', 'me'.' (giligans.app@gmail.com)');
+      $message->from('giligans.app@gmail.com', 'GI Alerts');
       $message->to('giligans.app@gmail.com');
       $message->cc('giligans.payables@gmail.com');
     });

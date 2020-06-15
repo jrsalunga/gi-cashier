@@ -19,7 +19,7 @@ class ApUpload extends Event
    *
    * @return void
    */
-  public function __construct(Model $old_model, Model $new_model, $change)
+  public function __construct(Model $new_model, Model $old_model, $change)
   {
     $this->old_model = $old_model;
     $this->new_model = $new_model;
