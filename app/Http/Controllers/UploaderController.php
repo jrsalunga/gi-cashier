@@ -80,6 +80,8 @@ class UploaderController extends Controller
 			return $this->processCreditCardSlip($request);
 		else if ($request->input('filetype')=='exportreq-etrf')
 			return $this->processEmployeeTransferRequest($request, $empActivity);
+    else if ($request->input('filetype')=='ap')
+      return $this->processAccountsPayablesRequest($request, $empActivity);
 		else
 			return $this->processUnknownFile($request);
 	}
@@ -681,10 +683,8 @@ class UploaderController extends Controller
     }
   }
 
-	/************* end: processBackup **************/
 
-
-	public function processBankSlip(Request $request) {
+  public function processBankSlip(Request $request) {
 
 		//return $request->all();
 
@@ -773,8 +773,7 @@ class UploaderController extends Controller
 		}
 		return redirect()->back()->withErrors(['error'=>'File: '.$request->input('filename').' do not exist! Try to upload again..']);
 	}
-
-	/************* for processBankSlip **************/
+  /************* for processBankSlip **************/
 	private function createFileUpload($src, Request $request, $doctypeid){
 
   	$d = Carbon::parse($request->input('date').' '.c()->format('H:i:s'));
@@ -798,21 +797,19 @@ class UploaderController extends Controller
   }
 
 	private function createDepslip($file, $filename){
-
 	 	$data = [
-	 	'branch_id' 			=> session('user.branchid'),
-    	'filename' 				=> $filename,
-    	'date' 					=> request()->input('date'),
-    	'time' 					=> request()->input('time'),
-    	'amount' 				=> str_replace(",", "", request()->input('amount')),
-    	'type'					=> request()->input('type'),
-    	'file_upload_id' 		=> $file->id,
-    	'terminal' 				=> clientIP(), //$request->ip(),
-    	'remarks' 				=> request()->input('notes'),
-    	'user_id' 				=> request()->user()->id,
-    	'cashier' 				=> request()->input('cashier')
+	 	  'branch_id' 		 => session('user.branchid'),
+    	'filename' 			 => $filename,
+    	'date' 					 => request()->input('date'),
+    	'time' 					 => request()->input('time'),
+    	'amount' 				 => str_replace(",", "", request()->input('amount')),
+    	'type'           => request()->input('type'),
+    	'file_upload_id' => $file->id,
+    	'terminal'       => clientIP(), //$request->ip(),
+    	'remarks' 			 => request()->input('notes'),
+    	'user_id' 			 => request()->user()->id,
+    	'cashier' 			=> request()->input('cashier')
     ];
-
     return $this->depslip->create($data)?:NULL;
   }
 
@@ -942,6 +939,170 @@ class UploaderController extends Controller
     return $this->setslp->create($data)?:NULL;
   }
 	/************* end: processCreditCardSlip **************/
+
+
+  private function processAccountsPayablesRequest(Request $request) {
+    // return $request->all();
+    $rules = [
+      'filename'    => 'required',
+      'filetype'    => 'required',
+      'date'        => 'required|date',
+      'type'        => 'required',
+      'doctype'     => 'required',
+      'supplier'    => 'required',
+      'cashier'     => 'required',
+      'refno'       => 'required',
+    ];
+
+    $messages = [];
+    
+    $validator = Validator::make($request->all(), $rules, $messages);
+
+    if ($validator->fails()) {
+      $this->web->deleteFile($this->path['temp'].$request->input('filename'));
+      return redirect()->back()->withErrors($validator);
+    }
+
+    $ext = strtolower(pathinfo($request->input('filename'), PATHINFO_EXTENSION));
+    if (!in_array(strtolower($ext), ['png', 'jpeg', 'jpg', 'pdf'])) {
+      $this->web->deleteFile($this->path['temp'].$request->input('filename'));
+      return redirect()->back()->withErrors(['error'=>$request->input('filename').': invalid file extension for AP Files.']);
+    }
+
+    $date = carbonCheckorNow($request->input('date').' '.$request->input('time'));
+    $upload_path = $this->path['temp'].$request->input('filename');
+
+    $doctype = NULL;
+    if ($request->has('doctype') && $request->has('doctypeid'))
+      $doctype = \App\Models\Doctype::find($request->input('doctypeid'));
+    if ($request->has('doctype') && !$request->has('doctypeid'))
+      $doctype = \App\Models\Doctype::create(['descriptor'=>$request->input('doctype'), 'assigned'=>1 ,'branch_id'=>$request->user()->branchid]);
+    if (is_null($doctype))
+      return redirect()->back()->withErrors(['error'=>'Could not create Doctype for AP Files.']);
+  
+    if (empty($doctype->code)) {
+      $document_code = filter_filename($doctype->descriptor);
+      $document_code = strtoupper(mb_ereg_replace("([\.]{2,})", '', $document_code));
+    } else 
+      $document_code = strtoupper($doctype->code);
+
+
+    $supplier = NULL;
+    if ($request->has('supplier') && $request->has('supplierid'))
+      $supplier = \App\Models\Supplier::where('id', $request->input('supplierid'))->first();
+    if ($request->has('supplier') && !$request->has('supplierid'))
+      $supplier = \App\Models\Supplier::create(['descriptor'=>$request->input('supplier'), 'branchid'=>$request->user()->branchid]);
+    if (is_null($supplier))
+      return redirect()->back()->withErrors(['error'=>'Could not create Supplier for AP Files.']);
+
+    if (empty($supplier->code)) {
+      $supp_filename = filter_filename($supplier->descriptor);
+      $supp_filename = strtoupper(mb_ereg_replace("([\.]{2,})", '', $supp_filename));
+    } else 
+      $supp_filename = strtoupper($supplier->code);
+    
+
+    if ($this->web->exists($upload_path)) { //public/uploads/{branch_code}/{year}/{file}
+      $br = strtoupper(session('user.branchcode'));
+
+      switch ($request->input('type')) {
+        case 1:
+          $type = 'C';
+          break;
+        case 2:
+          $type = 'K';
+          break;        
+        default:
+          $type = 'U';
+          break;
+      }
+        
+      $filename = $document_code.' '.$br.' '.$date->format('Ymd').' '.$type.' '.$request->input('refno').'.'.$ext;
+          
+      $storage_path = 'APU'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
+
+      $file = $this->createFileUpload($upload_path, $request, '11EAAB281C1B0D85A7E0E521BE29B63C');
+
+      try {
+        $this->files->moveFile($this->web->realFullPath($upload_path), $storage_path, true); // false = override file!
+      } catch(Exception $e) {
+        return redirect()->back()
+        ->with('alert-error', 'Error on moving file. '.$e->getMessage())
+        ->with('alert-important', ' ');
+      }
+
+      $fp = $this->files->realFullPath($storage_path);
+      // xattr_set($fp, 'supplier_id', $supplier->id);
+      // xattr_set($fp, 'supplier', $supplier->descriptor);
+      // xattr_set($fp, 'doctype_id', $doctype->id);
+      // xattr_set($fp, 'doctype', $doctype->descriptor);
+      // xattr_set($fp, 'branchcode', $br);
+
+      $apu = $this->createApupload($file, $filename, $doctype->id, $supplier->id);
+      if (!is_null($apu))
+        $this->fileUploadRepo->update(['processed'=>1], $file->id);
+
+      if (app()->environment()==='production')
+        event(new \App\Events\Upload\ApUpload($apu));
+
+      return redirect()
+              ->route('uploader', ['brcode'=>brcode(),'u'=>strtolower($request->cashier),'type'=>'apu'])
+              ->with('apu.success', $apu)
+              ->with('alert-important', '');
+    }
+    return redirect()->back()->withErrors(['error'=>'File: '.$request->input('filename').' do not exist! Try to upload again..']);
+  }
+  /************* for processAccountsPayablesRequest **************/
+  private function createApupload($file, $filename, $doctypeid, $supplierid){
+    $data = [
+      'branch_id'      => session('user.branchid'),
+      'doctype_id'     => $doctypeid,
+      'filename'       => $filename,
+      'date'           => request()->input('date'),
+      'refno'          => request()->input('refno'),
+      'amount'         => str_replace(",", "", request()->input('amount')),
+      'type'           => request()->input('type'),
+      'supplier_id'    => $supplierid,
+      'file_upload_id' => $file->id,
+      'remarks'        => request()->input('notes'),
+      'user_id'        => request()->user()->id,
+      'cashier'       => request()->input('cashier')
+    ];
+    return \App\Models\ApUpload::create($data)?:NULL;
+  }
+
+  public function search(Request $request) {
+    if ($request->ajax()) {
+      $limit = empty($request->input('maxRows')) ? 10:$request->input('maxRows'); 
+      $res = \App\Models\Doctype::where('assigned', '1')
+              ->where(function ($query) use ($request) {
+                $query->orWhere('code', 'like', '%'.$request->input('q').'%')
+                  ->orWhere('descriptor', 'like',  '%'.$request->input('q').'%');
+              })
+              ->take($limit)
+              ->get(['code', 'descriptor', 'id']);
+
+      return $res;
+    } 
+    return abort(404);
+  }
+
+  public function searchSupplier(Request $request) {
+    if ($request->ajax()) {
+      $limit = empty($request->input('maxRows')) ? 10:$request->input('maxRows'); 
+      $res = \App\Models\Supplier::whereIn('branchid', [$request->user()->branchid, '971077BCA54611E5955600FF59FBB323'])
+              ->where(function ($query) use ($request) {
+                $query->orWhere('code', 'like', '%'.$request->input('q').'%')
+                  ->orWhere('descriptor', 'like',  '%'.$request->input('q').'%');
+              })
+              ->take($limit)
+              ->get(['code', 'descriptor', 'id']);
+
+      return $res;
+    } 
+    return abort(404);
+  }
+  /************* end: processAccountsPayablesRequest **************/
 
 	public function processUnknownFile(Request $request) {
 

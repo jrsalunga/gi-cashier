@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Providers;
+<?php namespace App\Providers;
 
 use App\Listeners\AggregatorDailyEventListener;
 use App\Listeners\AggregatorEventListener;
@@ -70,6 +68,7 @@ class EventServiceProvider extends ServiceProvider
         AggregatorDailyEventListener::class,
         EmploymentActivityEventListener::class,
         KitlogAggregatorEventListener::class,
+        \App\Listeners\ApuEventListener::class,
     ];
     
     /**

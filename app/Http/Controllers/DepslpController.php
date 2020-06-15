@@ -242,7 +242,9 @@ class DepslpController extends Controller {
 
 		$d = $this->depslip->find($id[0]);
 
+    // return dd($this->files);
 		$path = $this->getPath($d);
+    // return $this->files->realFullPath($path);
 
 		if(!$this->files->exists($this->getPath($d)))
 			return abort(404);

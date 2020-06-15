@@ -1038,6 +1038,10 @@ public function handle()
       $menucat = 'MISC';
     }
 
+    $shortdesc = starts_with($$table->product->shortdesc, '*')
+      ? substr($$table->product->shortdesc, 1)
+      : $$table->product->shortdesc;
+
     return [
       $invdtl->invhdr->tableno, //TBLNO
       $invdtl->invhdr->uidcreate, //WTRNO
@@ -1045,7 +1049,7 @@ public function handle()
       $pax, //CUSNO pax
       $custno,  //CUSNAME cashier
       $$table->product->code, //PRODNO
-      $$table->product->shortdesc,  //PRODNAME
+      $shortdesc,  //PRODNAME
       $qty, //QTY
       $uprice , //UPRICE
       $grsamt, //GRSAMT

@@ -37,9 +37,9 @@
         <div class="panel-body">
           {!! Form::open(['method'=>'PUT', 'url'=>'uploader/postfile', 'id'=>'form-file', 'class'=>'form-horizontal', 'enctype'=>'multipart/form-data']) !!}
           <div>
-
             <div class="row" style="margin-top: 5px;">
               <div class="col-lg-12">
+
                 <div class="input-group">
                   <span class="input-group-addon" id="basic-addon1">
                     <span class="glyphicon glyphicon-file"></span> Document Type
@@ -49,7 +49,10 @@
                     <option value="backup">Backup File</option>
                     <option value="depslp">Depost Slip (DEPSLP)</option>
                     <option value="setslp">Card Settlement Slip (SETSLP)</option>
+                    <option value="ap">Accounts Payable Documents (AP)</option>
+                    <!--
                     <option value="exportreq-etrf">Export Request (EX*.REQ) + Emp Transfer Request Form (ETRF)</option>
+                    -->
                   </select>
                 </div><!-- /.col-lg-12 -->
               </div><!-- /.col-lg-12 -->
@@ -333,7 +336,53 @@
                         +'<span class="glyphicon glyphicon-file"></span> ERTF Filename</span>'
                       +'<input type="text" class="form-control" id="etrf-filename" name="etrf-filename" readonly="" required="">'
                     +'</div></div>';
-            
+      } else if ($(this).val()==='ap') {
+        html += '' 
+            +'<div class="row" style="margin-top: 20px;">'
+              +'<div class="input-group">'
+                +'<span class="input-group-addon" id="basic-addon1">'
+                +'Document Type</span>'
+                +'<input type="text" class="form-control" id="search-doctype" name="doctype" required>'
+                +'<input type="hidden" id="doctypeid" name="doctypeid">'
+              +'</div></div>'
+            +'<div class="row" style="margin-top: 20px;">'
+              +'<div class="input-group">'
+                +'<span class="input-group-addon" id="basic-addon1">'
+                +'Supplier Ref / Invoice No</span>'
+                +'<input type="text" class="form-control" id="refno" name="refno" required>'
+              +'</div></div>'
+            +'<div class="row" style="margin-top: 20px;">'
+              +'<div class="input-group">'
+                +'<span class="input-group-addon" id="basic-addon1">'
+                +'Pay Type</span>'
+                +'<select id="ap-paytype" name="type" class="form-control" style="width: 100%; border-left: 1px solid #ccc;" required>'
+                  +'<option value="" disabled selected>-- select deposit type --</option>'
+                  +'<option value="1">Cash (C)</option>'
+                  +'<option value="2">Cheque (K)</option>'
+                +'</select>'
+              +'</div></div>'
+            +'<div class="row" style="margin-top: 20px;">'
+              +'<div class="input-group date-toggle">'
+              +'<span class="input-group-addon" id="basic-addon1">'
+                +'<span id="ap-datetype"></span> Date</span>'
+                +'<input type="text" class="form-control" id="date" name="date" required placeholder="YYYY-MM-DD" maxlength="8">'
+                +'<span class="input-group-addon">'
+                +'<span class="glyphicon glyphicon-calendar"></span>'
+                +'</span>'
+              +'</div></div>'
+            +'<div class="row" style="margin-top: 20px;">'
+              +'<div class="input-group">'
+                +'<span class="input-group-addon" id="basic-addon1">'
+                +'Supplier</span>'
+                +'<input type="text" class="form-control" id="search-supplier" name="supplier" required>'
+                +'<input type="hidden" id="supplierid" name="supplierid">'
+              +'</div></div>'
+            +'<div class="row" style="margin-top: 20px;">'
+              +'<div class="input-group">'
+              +'<span class="input-group-addon" id="basic-addon1">'
+                +'Total Amount</span>'
+              +'<input type="text" class="form-control" id="amount" name="amount" required style="text-align: right;" placeholder="0.00">'
+            +'</div></div>';
       } else {
         html +='';
       }
@@ -414,10 +463,121 @@
     });
 
 
-     $('.filetype-result').on('click', '#attach-etrf', function() {
+    $('.filetype-result').on('click', '#attach-etrf', function() {
       $('#file_upload').data('input-value', 'etrf-filename');
       $('#file_upload').click();
     });
+
+    $('.filetype-result').on('change', '#ap-paytype', function(e){
+      if($(this).val()==1) 
+        $('#ap-datetype').text('Transaction ');
+      else if($(this).val()==2)
+        $('#ap-datetype').text('Billing\\Stattement ');
+      else
+        $('#ap-datetype').text('');
+    });
+
+    $('.filetype-result').on('keypress', '#search-doctype', function() {
+      $(this).autocomplete({
+        source: function(request, response) {
+          console.log(request);
+          $.ajax({
+            type: 'GET',
+            url: "/api/s/doctype",
+            dataType: "json",
+            data: {
+              maxRows: 25,
+              q: request.term
+            },
+            success: function(data) {
+              response($.map(data, function(item) {
+                console.log(item);
+                return {
+                  label: item.code+' - '+item.descriptor,
+                  value: item.descriptor,
+                  id: item.id
+                }
+              }));
+            }
+          });
+        },
+        minLength: 2,
+        select: function(event, ui) {
+          //console.log(ui);
+          //log( ui.item ? "Selected: " + ui.item.label : "Nothing selected, input was " + this.value);
+          $("#doctypeid").val(ui.item.id); /* set the selected id */
+        },
+        open: function() {
+          $( this ).removeClass("ui-corner-all").addClass("ui-corner-top");
+          $("#doctypeid").val(''); /* set the selected id */
+        },
+        close: function() {
+            $( this ).removeClass("ui-corner-top").addClass("ui-corner-all");
+        },
+        messages: {
+          noResults: '',
+          results: function() {}
+        }
+      }).on('blur', function(e){
+        if ($(this).val().length==0) {
+          $( this ).removeClass("ui-corner-all").addClass("ui-corner-top");
+          $("#doctypeid").val(''); /* set the selected id */
+        }
+        //setTimeout(submitForm, 1000);
+      });
+    });
+
+    $('.filetype-result').on('keypress', '#search-supplier', function() {
+      $(this).autocomplete({
+        source: function(request, response) {
+          console.log(request);
+          $.ajax({
+            type: 'GET',
+            url: "/api/s/supplier",
+            dataType: "json",
+            data: {
+              maxRows: 25,
+              q: request.term
+            },
+            success: function(data) {
+              response($.map(data, function(item) {
+                console.log(item);
+                return {
+                  label: item.code+' - '+item.descriptor,
+                  value: item.descriptor,
+                  id: item.id
+                }
+              }));
+            }
+          });
+        },
+        minLength: 2,
+        select: function(event, ui) {
+          $("#supplierid").val(ui.item.id); /* set the selected id */
+        },
+        open: function() {
+          $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+          $("#supplierid").val(''); /* set the selected id */
+        },
+        close: function() {
+          $(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+        },
+        messages: {
+          noResults: '',
+          results: function() {}
+        }
+      }).on('blur', function(e){
+        if ($(this).val().length==0) {
+          $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+          $("#supplierid").val(''); /* set the selected id */
+        }
+        //setTimeout(submitForm, 1000);
+      });
+    });
+
+
+    
+
     
   });
   </script>

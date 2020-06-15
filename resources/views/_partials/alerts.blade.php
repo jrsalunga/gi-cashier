@@ -104,10 +104,30 @@
   </div>
 @endif
 
-
 @if(session()->has('setslp.delete'))
   <div class="alert alert-success {{ session()->has('alert-important') ? 'alert-important':'' }}" style="margin-bottom: 0;">
    The record of <b>{{ session('setslp.delete')->fileUpload->filename }}</b> was deleted and removed from the server!
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+@endif
+
+@if(session()->has('apu.success'))
+  <div class="alert alert-success {{ session()->has('alert-important') ? 'alert-important':'' }}">
+    <b><a href="/{{brcode()}}/apu/{{session('apu.success')->lid()}}">{{ session('apu.success')->fileUpload->filename }}</a></b> 
+    saved on server as 
+    <b><a href="/{{brcode()}}/apu/{{session('apu.success')->lid()}}">{{ session('apu.success')->filename }}</a></b>. 
+    <small class="label label-primary"><a href="/{{brcode()}}/apu/log?rdr=alert" style="color:#fff;">view logs</a></small>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+@endif
+
+@if(session()->has('apu.delete'))
+  <div class="alert alert-success {{ session()->has('alert-important') ? 'alert-important':'' }}" style="margin-bottom: 0;">
+   The record of <b>{{ session('apu.delete')->fileUpload->filename }}</b> was deleted and removed from the server!
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>

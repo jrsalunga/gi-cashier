@@ -49,6 +49,12 @@ Route::get('{brcode?}/ap/checklist', ['uses'=>'ApController@getChecklist']);
 Route::get('{brcode?}/ap/{id?}/{action?}/{day?}', ['uses'=>'ApController@getAction']);
 Route::get('dl/ap/{p1}/{p2}/{p3}/{p4}/{p5}/{p6}', ['uses'=>'ApController@getDownload']);
 
+Route::get('{brcode?}/apu/log', ['uses'=>'ApuController@getHistory']);
+Route::get('{brcode?}/apu/{id?}/{action?}/{day?}', ['uses'=>'ApuController@getAction']);
+Route::get('{brcode?}/images/apu/{id?}', ['uses'=>'ApuController@getImage']);
+Route::put('put/apu', ['uses'=>'ApuController@put']);
+Route::post('delete/apu', ['uses'=>'ApuController@delete']);
+
 Route::get('{brcode?}/setslp/log', ['uses'=>'SetslpController@getHistory']);
 Route::get('{brcode?}/setslp/checklist', ['uses'=>'SetslpController@getChecklist']);
 Route::get('{brcode?}/setslp/{id?}/{action?}', ['uses'=>'SetslpController@getAction']);
@@ -81,6 +87,8 @@ Route::group(['prefix'=>'api'], function(){  /******* begin prefix:api ********/
 
 
 Route::get('search/employee', ['uses'=>'EmployeeController@search']);
+Route::get('s/doctype', ['uses'=>'UploaderController@search']);
+Route::get('s/supplier', ['uses'=>'UploaderController@searchSupplier']);
 
 
 }); /******* end prefix:api     ********/

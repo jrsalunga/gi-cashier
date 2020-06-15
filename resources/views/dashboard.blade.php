@@ -30,7 +30,7 @@
   </ol>
   
    @if($inadequates)
-    <div class="alert alert-warning alert-important">
+    <!-- <div class="alert alert-warning alert-important">
       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       <strong><span class="glyphicon glyphicon-warning-sign"></span> Warning</strong>: No backup uploaded on the following date(s) below. This may affect the report generation.
       <ul>
@@ -38,7 +38,7 @@
         <li>{{ $d->format('m/d/Y') }} - <b>GC{{ $d->format('mdy') }}.ZIP</b></li>
       @endforeach
       </ul>
-    </div>
+    </div> -->
   @endif
   <!--
   <div class="alert alert-warning alert-important">
@@ -92,7 +92,7 @@
                 <li><a href="/backups/log"><span class="fa fa-file-archive-o"></span> Backup</a></li>
                 <li><a href="/{{brcode()}}/depslp/log"><span class="fa fa-bank"></span> Deposit Slip</a></li>
                 <li><a href="/{{brcode()}}/setslp/log"><span class="fa fa-credit-card"></span> Card Settlement Slip</a></li>
-                <li><a href="/{{brcode()}}/ap/log"><span class="fa fa-briefcase"></span> Payables</a></li>
+                <li><a href="/{{brcode()}}/apu/log"><span class="fa fa-briefcase"></span> Payables</a></li>
               </ul>
             </div>
           </div>

@@ -5,7 +5,6 @@ use App\Models\BaseModel;
 
 class Backup extends BaseModel {
 
-
 	protected $table = 'backup';
 	public $timestamps = false;
 	protected $appends = ['date'];

@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', '- AP Download Storage')
+@section('title', '- AP Upload Storage')
 
 @section('body-class', 'ap-storage')
 
@@ -55,18 +55,17 @@
     <div>
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
-      <li role="presentation">
+      <li role="presentation" class="active">
         <a href="/{{brcode()}}/apu" aria-controls="pos" role="tab">
           Uploads
         </a>
       </li>
-      <li role="presentation" class="active">
-        <a href="/{{brcode()}}/depslp" aria-controls="pos" role="tab">
+      <li role="presentation">
+        <a href="/{{brcode()}}/ap" aria-controls="pos" role="tab">
           Downloads
         </a>
       </li>
     </ul>
-
 
     <!-- Tab panes -->
     <div class="file-explorer tab-content">
@@ -128,9 +127,6 @@
 
                {{ $file['name'] }}           
               </td>
-              <td>
-                <a href="/dl/ap/{{ $file['fullPath'] }}" title="Download"><span class="glyphicon glyphicon-download-alt"> </span></a>
-              </td>  
               <td>{{ human_filesize($file['size']) }}</td>
               <td class="hidden-xs hidden-sm">{{ $file['type'] or 'Unknown' }}</td>
               <td class="hidden-xs">{{ $file['modified']->format('D, M j, Y g:i A') }}</td>
