@@ -31,4 +31,23 @@ class BossBranch {
 
     return $am_email;
   }
+
+
+  public function getUsers(array $ordinal = ['12', '20'], array $admin = ['3']) {
+
+    $bb = \App\Models\BossBranch::where('branchid', request()->user()->branchid)->get();
+    
+    if (is_null($bb))
+      return $bb;
+    
+      return  DB::table('user')
+                ->join('bossbranch', 'user.id', '=', 'bossbranch.bossid')
+                ->select(['user.name', 'user.email', 'user.id'])
+                ->where('bossbranch.branchid', request()->user()->branchid)
+                ->whereIn('user.admin', $admin)
+                ->whereIn('user.ordinal', $ordinal)
+                ->orderBy('user.admin')
+                ->orderBy('user.ordinal')
+                ->get();
+  }
 }

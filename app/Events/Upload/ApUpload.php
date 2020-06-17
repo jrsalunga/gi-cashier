@@ -41,7 +41,7 @@ class ApUpload extends Event //implements ShouldBroadcast
   public function broadcastWith()
   {
     return [
-      'title'=> $this->user->name.': '. $this->depslp->cashier, 
+      'title'=> $this->user->name.': '. $this->model->cashier, 
       'message'=> $this->msg
     ];
   }

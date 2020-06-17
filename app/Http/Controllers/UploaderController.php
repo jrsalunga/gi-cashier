@@ -1042,7 +1042,7 @@ class UploaderController extends Controller
       if (!is_null($apu))
         $this->fileUploadRepo->update(['processed'=>1], $file->id);
 
-      if (app()->environment()==='production')
+      // if (app()->environment()==='production')
         event(new \App\Events\Upload\ApUpload($apu));
 
       return redirect()

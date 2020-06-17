@@ -472,7 +472,7 @@
       if($(this).val()==1) 
         $('#ap-datetype').text('Transaction ');
       else if($(this).val()==2)
-        $('#ap-datetype').text('Billing\\Stattement ');
+        $('#ap-datetype').text('Billing\\Statement ');
       else
         $('#ap-datetype').text('');
     });
