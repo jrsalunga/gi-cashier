@@ -97,7 +97,6 @@ class ApuEventListener
     });
   }
 
-
   public function change($event) {
 
     $data = [
@@ -117,7 +116,6 @@ class ApuEventListener
   }
 
   public function delete($event) {
-
     $data = [
       'user'          => request()->user()->name,
       'action'        => 'Delete',
