@@ -21,6 +21,7 @@ class ApuEventListener
   public function upload($event) {
 
     // test_log(json_encode($e->model->filename));
+    $brcode = $event->model->branch->code;
 
     $email_k = env('AP_K_EMAIL');
     $email_c = env('AP_C_EMAIL');
@@ -28,7 +29,7 @@ class ApuEventListener
     $e = [];
     if (app()->environment('production')) {
       $l = 'http://am.giligansrestaurant.com/ap/';
-      $c = 'http://cashier.giligansrestaurant.com/apu/';
+      $c = 'http://cashier.giligansrestaurant.com/'.strtolower($brcode).'/apu/';
       // $e['mailing_list'] = $this->bossBranch->getUsers();
       $e['mailing_list'] = [
         ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
@@ -36,7 +37,7 @@ class ApuEventListener
       ];
     } else {
       $l = 'http://gi-am.loc/ap/';
-      $c = 'http://gi-cashier.loc/apu/';
+      $c = 'http://gi-cashier.loc/'.strtolower($brcode).'/apu/';
       $e['mailing_list'] = [
         ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
         ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
@@ -44,7 +45,6 @@ class ApuEventListener
     }
 
     $date = $event->model->date;
-    $brcode = $event->model->branch->code;
     $expl = explode('.', $event->model->filename);
     
     $e['subject'] = (is_null($expl[0] && empty($expl[0]))) ? 'No Subject' : $expl[0];
