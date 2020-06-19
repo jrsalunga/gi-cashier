@@ -364,15 +364,15 @@ class ApuController extends Controller {
 			array_forget($arr, 'updated_at');
 			
       if ($cnt>0) {
-        // if (app()->environment()==='production')
+        if (app()->environment()==='production')
 				  event(new \App\Events\Update\ApUpload($o, $d, $arr));
       }
 
 			return redirect(brcode().'/apu/'.$d->lid())
-							->with('alert-success', 'Account payables is updated!');
+							->with('alert-success', 'Accounts payable is updated!');
 		} // end: !is_null
 
-		return redirect()->back()->withErrors('Account payables not found!');
+		return redirect()->back()->withErrors('Accounts payable not found!');
 	}
 
 
@@ -391,17 +391,17 @@ class ApuController extends Controller {
 		$apu = $this->repo->find($request->input('id'));
 
 		if (is_null($apu))
-			return redirect()->back()->withErrors('Account payables not found!');
+			return redirect()->back()->withErrors('Accounts payable not found!');
 
 		if (!$apu->isDeletable())
-			return redirect()->back()->withErrors($ap->fileUpload->filename.' Account payables is not deletable, already verified!');
+			return redirect()->back()->withErrors($ap->fileUpload->filename.' Accounts payable is not deletable, already verified!');
 
 		if ($this->repo->delete($apu->id)) {
 			
 			if ($this->files->exists($this->getPath($apu)))
 				$this->files->deleteFile($this->getPath($apu));
 
-			//if (app()->environment()==='production')
+			if (app()->environment()==='production')
 				event(new \App\Events\Delete\ApUpload($apu));
 
 			return redirect(brcode().'/apu/log')

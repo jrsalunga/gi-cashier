@@ -31,7 +31,7 @@
       <p class="navbar-text" style="font-size: 20px; margin: 11px 0px 11px -10px;">
         <em style=" color: #3c763d;">
           <span>Cashier's Module</span>
-          <span style=" color: #d6e9c6;"> Beta</span>
+          <!-- <span style=" color: #d6e9c6;"> Beta</span> -->
         </em>
       </p>
     </div>

@@ -1,8 +1,8 @@
-<p>Accounts payable document has been uploaded.</p>
+<p>Accounts payable document ({{ $model->filename }}) has been uploaded on server.</p>
 <p></p>
 
 <ul style="margin-top: 0;">
-	<li title="Filename">{{ $model->filename }}</li>
+	<li title="Uploaded Filename">{{ $model->fileUpload->filename }}</li>
   <li title="Document Type">{{ $model->doctype->descriptor }}</li>
   <li title="Supplier">{{ $model->supplier->descriptor }}</li>
   <li title="Invoice Number">{{ $model->refno }}</li>
@@ -15,7 +15,7 @@
 <p>&nbsp;</p>
 
 <p>
-  <a href="{{ $link }}" style="display: inline-block;
+  <a href="{{ $link }}?src=email" style="display: inline-block;
     padding: 6px 12px;
     margin-bottom: 0;
     font-size: 14px;
@@ -34,10 +34,10 @@
     border-radius: 4px;
     vertical-align: middle;
     color: #fff;
-    background-color: #337ab7;
+    background-color: #5cb85c;
     text-decoration: none;
-    border-color: #2e6da4;" title="Verify Documents">
-    Verify Documents
+    border-color: #4cae4c;" title="Verify Document">
+    Verify Document
   </a>
 </p>
 

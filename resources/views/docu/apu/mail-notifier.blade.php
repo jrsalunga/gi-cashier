@@ -1,7 +1,6 @@
 <p>{{ $user }}: {{ $action }}</p>
 <p></p>
 
-<p style="margin-bottom: 0;">Old Record:</p>
 <ul style="margin-top: 0;">
 	<li>{{ $model->fileUpload->filename }}</li>
 	<li>{{ $model->filename }}</li>
@@ -14,9 +13,36 @@
 	<li>{{ $model->remarks }}</li>
 </ul>
 
-<p>Updated Fields: {{ $remarks }}</p>
+<p>Changes of fields: {{ $remarks }}</p>
 
 <p>&nbsp;</p>
-<small><em>Note: this is a system generated email.</em></small>
+<p>
+  <a href="http://boss.giligansrestaurant.com/ap/{{ $model->lid() }}?src=email" style="display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    vertical-align: middle;
+    color: #fff;
+    background-color: #5cb85c;
+    text-decoration: none;
+    border-color: #4cae4c;" title="View Document">
+    View Document
+  </a>
+</p>
+
+<p>&nbsp;</p>
 
 
