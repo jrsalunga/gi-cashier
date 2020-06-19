@@ -48,7 +48,6 @@ class ApuController extends Controller {
 
   		$dir = 'AP'.DS.$d->format('Y').DS.session('user.branchcode').DS.$d->format('m').DS.$d->format('d');
 
-  		//$arr[$key]['dir'] = $dir;
   		$data[$key]['date'] = $d;
 
   		if ($this->files->exists($dir)) {
@@ -59,9 +58,6 @@ class ApuController extends Controller {
   			$data[$key]['exist'] = false;
   		}
   	}
-
-        #if (app()->environment()==='production')
-    #	event(new Notifier(session('user.fullname').' accessed Payables Checklist'));
 
 		return view('docu.ap.checklist')->with('date', $date)->with('data', $data);
 	}
@@ -83,11 +79,9 @@ class ApuController extends Controller {
 			return $this->getApFileSystem($brcode, $id, $action, $day);
 	}
 
-
 	private function getApFileSystem($brcode, $id, $action, $day) { // $id = yr, $action = month, $day
 
 		$paths = [];
-
 		$r = $this->files->folderInfo2('APU');
 
 		foreach ($r['subfolders'] as $path => $folder) {
@@ -112,7 +106,6 @@ class ApuController extends Controller {
 			$m = $this->files->folderInfo2(array_search($action, $y['subfolders']));
 
 			if (is_null($day)) {
-
 				$data = [
 					'folder' 			=> "/APU/".$id.'/'.$action,
 					'folderName'  => $action,
@@ -139,9 +132,7 @@ class ApuController extends Controller {
 					'files' 			=> $d['files']
 				];
 			}
-
 		} elseif (is_null($id) && is_null($action) && is_null($action))  {
-			//$data = $r;
 			$data = [
 					'folder' 			=> "/APU",
 					'folderName'  => "Payables",
@@ -154,17 +145,12 @@ class ApuController extends Controller {
 		} else 
 			return abort('404');
 
-
 		if (app()->environment()==='production')
 			if (request()->input('src')=='email')
     		event(new Notifier(session('user.fullname').' accessed Payables Storage via Email'));
-    	#else
-    	#	event(new Notifier(session('user.fullname').' accessed Payables Storage'));
-		
-		//return $data;
+
 		return view('docu.apu.filelist')->with('data', $data);
 	}
-
 
 	private function verify($id, $userid, $matched=0) {
 		return $this->repo->update([
@@ -189,8 +175,6 @@ class ApuController extends Controller {
 		else
 			return false;
 	}
-
-
 
 	private function viewAp($id) {
 		$apu = $this->repo->skipCache()->with(['supplier','doctype','fileupload'])->find($id);
@@ -229,7 +213,6 @@ class ApuController extends Controller {
 
 		return response($this->files->get($path), 200)
 	 						->header('Content-Type', $this->files->fileMimeType($path));
-
 	}
 
 	private function countFilenameByDate($date, $time) {
@@ -276,7 +259,6 @@ class ApuController extends Controller {
   			return false;
       }
   		return $filename;
-		
     }
 		return false;
   }
@@ -344,7 +326,6 @@ class ApuController extends Controller {
 	    	'remarks' 		=> $request->input('notes'),
 	    	'updated_at' 	=> c()
 			], $o->id);
-      
 
 			$filename = $this->moveUpdatedFile($o, $d);
 
@@ -375,8 +356,6 @@ class ApuController extends Controller {
 		return redirect()->back()->withErrors('Accounts payable not found!');
 	}
 
-
-
 	private function getPath($d) {
 		return 'APU'.DS.$d->date->format('Y').DS.session('user.branchcode').DS.$d->date->format('m').DS.$d->filename;
 	}
@@ -384,7 +363,6 @@ class ApuController extends Controller {
 	public function delete(Request $request) {
 
 		$validator = app('validator')->make($request->all(), ['id'=>'required'], []);
-
 		if ($validator->fails()) 
 			return redirect()->back()->withErrors($validator);
 
@@ -394,10 +372,9 @@ class ApuController extends Controller {
 			return redirect()->back()->withErrors('Accounts payable not found!');
 
 		if (!$apu->isDeletable())
-			return redirect()->back()->withErrors($ap->fileUpload->filename.' Accounts payable is not deletable, already verified!');
+			return redirect()->back()->withErrors($ap->fileUpload->filename.' Accounts payable cannot be deleted, already verified!');
 
 		if ($this->repo->delete($apu->id)) {
-			
 			if ($this->files->exists($this->getPath($apu)))
 				$this->files->deleteFile($this->getPath($apu));
 

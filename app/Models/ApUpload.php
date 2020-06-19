@@ -34,7 +34,7 @@ class ApUpload extends BaseModel {
   }
 
   public function isDeletable() {
-    return ($this->matched || $this->verified)
+    return ($this->matched || $this->verified || $this->paid)
       ? false
       : true;
   }

@@ -43,9 +43,9 @@
     View Document
   </a>
 </p>
+<p>&nbsp;</p>
 @endif
 
-<p>&nbsp;</p>
 <small><em>Note: this is a system generated email.</em></small>
 
 
