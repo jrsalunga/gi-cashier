@@ -86,6 +86,7 @@ class ApuEventListener
     // 3. Accounting
     $e['to'] = $event->model->type==2 ? env('AP_K_EMAIL') : env('AP_C_EMAIL');
     $e['replyTo'] = $email_csh;
+    $e['link'] =  NULL;
     $this->mailer->queue('docu.apu.mail-upload', $e, function ($message) use ($e) {
       $message->subject($e['subject']);
       $message->from('giligans.app@gmail.com', 'GI Payables');

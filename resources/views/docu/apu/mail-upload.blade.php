@@ -14,6 +14,9 @@
 <p>- {{ $model->cashier }}</p>
 <p>&nbsp;</p>
 
+@if(is_null($link))
+
+@else
 <p>
   <a href="{{ $link }}?src=email" style="display: inline-block;
     padding: 6px 12px;
@@ -40,6 +43,7 @@
     View Document
   </a>
 </p>
+@endif
 
 <p>&nbsp;</p>
 <small><em>Note: this is a system generated email.</em></small>
