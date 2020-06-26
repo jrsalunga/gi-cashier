@@ -364,7 +364,7 @@
             +'<div class="row" style="margin-top: 20px;">'
               +'<div class="input-group date-toggle">'
               +'<span class="input-group-addon" id="basic-addon1">'
-                +'<span id="ap-datetype"></span> Date</span>'
+                +'<span id="ap-datetype"></span>Transmittal/Encoded Date</span>'
                 +'<input type="text" class="form-control" id="date" name="date" required placeholder="YYYY-MM-DD" maxlength="8">'
                 +'<span class="input-group-addon">'
                 +'<span class="glyphicon glyphicon-calendar"></span>'
@@ -468,14 +468,14 @@
       $('#file_upload').click();
     });
 
-    $('.filetype-result').on('change', '#ap-paytype', function(e){
-      if($(this).val()==1) 
-        $('#ap-datetype').text('Transaction ');
-      else if($(this).val()==2)
-        $('#ap-datetype').text('Billing\\Statement ');
-      else
-        $('#ap-datetype').text('');
-    });
+    // $('.filetype-result').on('change', '#ap-paytype', function(e){
+    //   if($(this).val()==1) 
+    //     $('#ap-datetype').text('Transaction ');
+    //   else if($(this).val()==2)
+    //     $('#ap-datetype').text('Billing\\Statement ');
+    //   else
+    //     $('#ap-datetype').text('');
+    // });
 
     $('.filetype-result').on('keypress', '#search-doctype', function() {
       $(this).autocomplete({
