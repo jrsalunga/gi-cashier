@@ -11,6 +11,8 @@ use App\Repositories\MonthExpenseRepository as ME;
 use App\Repositories\DayExpenseRepository as DE;
 use App\Repositories\ChangeItemRepository as ChangeItem;
 use App\Repositories\DayProdcatRepository as DayProdcat;
+use App\Repositories\CashAuditRepository as CashAudit;
+use App\Repositories\MonthCashAuditRepository as MonthCashAudit;
 
 class AggregatorEventListener
 {
@@ -25,8 +27,10 @@ class AggregatorEventListener
   private $me;
   private $de;
   private $dp;
+  private $cashAudit;
+  private $mCashAudit;
 
-  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ChangeItem $changeItem, ME $me, DE $de, DayProdcat $dp) {
+  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ChangeItem $changeItem, ME $me, DE $de, DayProdcat $dp, CashAudit $cashAudit, MonthCashAudit $mCashAudit) {
     $this->mailer = $mailer;
     $this->product = $product;
     $this->prodcat = $prodcat;
@@ -37,6 +41,8 @@ class AggregatorEventListener
     $this->me = $me;
     $this->de = $de;
     $this->dp = $dp;
+    $this->cashAudit = $cashAudit;
+    $this->mCashAudit = $mCashAudit;
   }
 
   private function getRepo($table, $fr, $to, $branchid) {
@@ -55,6 +61,9 @@ class AggregatorEventListener
         break;
       case 'change_item':
         return $this->changeItem->aggregateGroupiesByDr($fr, $to, $branchid);
+        break;
+      case 'cash_audit':
+        return $this->cashAudit->aggregateByDr($fr, $to, $branchid);
         break;
       default:
         throw new Exception("Table not found!", 1);
@@ -118,6 +127,9 @@ class AggregatorEventListener
         break;
       case 'change_item':
         $this->saveGroupiesChangeItem($datas, $date, $branchid);
+        break;
+      case 'cash_audit':
+        $this->saveCashAudit($datas, $date, $branchid);
         break;
       default:
         break;
@@ -201,6 +213,20 @@ class AggregatorEventListener
       ], ['date', 'branch_id', 'code']);
     }
   }
+
+  private function saveCashAudit($datas, $date, $branchid) {
+    // return dd($datas->toArray());
+    $attr = [];
+    $attr['date'] = $date->copy()->lastOfMonth()->format('Y-m-d');
+    $attr['branch_id'] = $branchid;
+
+    foreach ($datas->toArray() as $k => $value)
+      $attr[$k] = $value;
+
+    // return dd($attr);
+    return $this->mCashAudit->firstOrNewField($attr, ['date', 'branch_id']);
+  }
+
 
   public function rankMonthlyProduct($event) {
 

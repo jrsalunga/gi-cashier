@@ -577,8 +577,8 @@ if (!function_exists('monthInterval')) {
 
 
 if (!function_exists('nf')) {
-  function nf($x='0.00', $d=2) {
-    if ($x==0)
+  function nf($x='0.00', $d=2, $zero_print=false) {
+    if ($x==0 && $zero_print==false)
       return '';
     return number_format($x, $d);
   }

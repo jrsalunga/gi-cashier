@@ -25,6 +25,7 @@ use App\Repositories\DepslipRepository as DepslipRepo;
 use App\Repositories\PosUploadRepository as PosUploadRepo;
 use App\Repositories\FileUploadRepository as FileUploadRepo;
 use App\Repositories\EmploymentActivityRepository as EmpActivity; 
+use App\Repositories\CashAuditRepository as CashAudit; 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException as Http404;
 
 
@@ -43,8 +44,9 @@ class UploaderController extends Controller
 	protected $invdtl;
 	protected $orpaydtl;
 	protected $invhdr;
+  protected $cashAudit;
 
-	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, SetslpRepo $setslp, DSRepo $ds, Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
+	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, SetslpRepo $setslp, DSRepo $ds, Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr, CashAudit $cashAudit) {
 		$this->posUploadRepo = $posUploadRepo;
 		$this->fileUploadRepo = $fileUploadRepo;
 		$this->depslip = $depslip;
@@ -61,6 +63,7 @@ class UploaderController extends Controller
 		$this->invdtl = $invdtl;
 		$this->orpaydtl = $orpaydtl;
 		$this->invhdr = $invhdr;
+    $this->cashAudit = $cashAudit;
 	}
 
 	public function getIndex(Request $request) {  
@@ -369,6 +372,7 @@ class UploaderController extends Controller
 					event(new \App\Events\Process\AggregatorMonthly('prodcat', $backup->date, $backup->branchid)); 
 					event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('change_item', $backup->date, $backup->branchid));
+          event(new \App\Events\Process\AggregatorMonthly('cash_audit', $backup->date, $backup->branchid));
           // event(new \App\Events\Process\AggregatorMonthly('change_item', $backup->date, $backup->branchid));
 					event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
 
@@ -1150,10 +1154,12 @@ class UploaderController extends Controller
 
 		$ds = null;
 		$date = null;
+    $cash_audit = null;
 		if ($request->has('date')  && is_iso_date($request->input('date'))) {
 			$date = c($request->input('date'));
 
 			$ds = $this->ds->findWhere(['date'=>$request->input('date')])->first();
+      $cash_audit = $this->cashAudit->findWhere(['branch_id'=>$ds->branchid ,'date'=>$request->input('date')])->first();
 		}
 
 		
@@ -1244,7 +1250,7 @@ class UploaderController extends Controller
 		
 
 
-		return view('backups.upload-summary', compact('date'))->with('ds', $ds);
+		return view('backups.upload-summary', compact('date'))->with('ds', $ds)->with('cash_audit', $cash_audit);
 	}
 
 
