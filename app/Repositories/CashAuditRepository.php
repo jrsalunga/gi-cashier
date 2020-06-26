@@ -111,8 +111,8 @@ class CashAuditRepository extends BaseRepository implements CacheableInterface
     return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
       return $query
                 ->select(\DB::raw('LAST_DAY(date) AS date, sum(csh_sale) as csh_sale, sum(chg_sale) as chg_sale, sum(sig_sale) as sig_sale, sum(col_card) as col_card, sum(col_cardk) as col_cardk, sum(col_ca) as col_ca, sum(col_cak) as col_cak, sum(col_othr) as col_othr, sum(tot_coll) as tot_coll, sum(tot_collk) as tot_collk, sum(csh_disb) as csh_disb, sum(chk_disb) as chk_disb, sum(deposit) as deposit, sum(depositk) as depositk,
-sum(tot_out) as tot_out, sum(tot_outk) as tot_outk, sum(comp_bal) as comp_bal, sum(csh_cnt) as csh_cnt, sum(checks) as checks, sum(forex) as forex, sum(shrt_ovr) as shrt_ovr, sum(shrt_cumm) as shrt_cumm,
-sum(checks_pcs) as checks_pcs')) //count(id) as change_item
+sum(tot_out) as tot_out, sum(tot_outk) as tot_outk, sum(comp_bal) as comp_bal, sum(csh_cnt) as csh_cnt, sum(checks) as checks, sum(forex) as forex, sum(shrt_ovr) as shrt_ovr, sum(shrt_ovr) as shrt_cumm,
+sum(checks_pcs) as checks_pcs, sum(csh_out) as csh_out, sum(csh_outk) as csh_outk')) //count(id) as change_item
                 ->whereBetween('date', 
                   [$fr->format('Y-m-d'), $to->format('Y-m-d')]
                   )
