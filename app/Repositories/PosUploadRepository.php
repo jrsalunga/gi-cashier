@@ -1236,6 +1236,8 @@ class PosUploadRepository extends Repository
   public function postCashAudit(Carbon $date, Backup $backup){
 
     $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+    $memo_file = $this->extracted_path.DS.'CSH_AUDT.FPT';
+
 
     if (file_exists($dbf_file)) {
       $db = dbase_open($dbf_file, 0);        

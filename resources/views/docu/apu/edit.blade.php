@@ -101,7 +101,7 @@
             <div class="row" style="margin-top: 15px;">
               <div class="col-lg-12">
                 <div class="input-group date-toggle">
-                  <span class="input-group-addon" id="basic-addon1">Date</span>
+                  <span class="input-group-addon" id="basic-addon1">Transmittal / Encode Date</span>
                   <input type="text" class="form-control" id="date" name="date" required="" value="{{$apu->date->format('Y-m-d')}}" maxlength="8">
                   <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
