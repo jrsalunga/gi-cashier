@@ -55,7 +55,7 @@
         <h3 class="text-success">{{ number_format($ds->sales, 2) }}</h3>
       </div><!-- end: .col-md-3-->
       <div class="col-md-3 col-xs-6">
-        Cost fo Goods:
+        Cost of Goods:
         <h3 class="text-info">{{ number_format($ds->cos, 2) }}</h3>
       </div><!-- end: .col-md-3-->
       <div class="col-md-3 col-xs-6">
