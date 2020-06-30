@@ -198,15 +198,17 @@ class PosUploadRepository extends Repository
             $k = trim($row['CREW_KIT']);
             if (empty($k)) {
               array_push($a, 'CREW_KIT');
-              $valid = false;
+              // $valid = false;
             }
 
             $d = trim($row['CREW_DIN']);
-            if (empty($k)) {
+            if (empty($d)) {
               array_push($a, 'CREW_DIN');
-              $valid = false;
+              // $valid = false;
             }
-          
+
+            if (empty($k) && empty($d))
+              $valid = false;
           } 
         }
       }
@@ -1236,8 +1238,6 @@ class PosUploadRepository extends Repository
   public function postCashAudit(Carbon $date, Backup $backup){
 
     $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
-    $memo_file = $this->extracted_path.DS.'CSH_AUDT.FPT';
-
 
     if (file_exists($dbf_file)) {
       $db = dbase_open($dbf_file, 0);        
