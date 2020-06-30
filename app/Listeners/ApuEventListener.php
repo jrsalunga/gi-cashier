@@ -77,7 +77,7 @@ class ApuEventListener
       $message->replyTo($e['replyTo']);
 
        foreach ($e['mailing_list'] as $u)
-        $message->to($u['email'], $u['name']);
+        $message->to($e['email'], $e['name']);
 
       // if (!is_null($e['attachment']))
         // $message->attach($e['attachment']);
