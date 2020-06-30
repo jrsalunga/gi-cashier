@@ -5,8 +5,8 @@
 	<li title="Uploaded Filename">{{ $model->fileUpload->filename }}</li>
   <li title="Document Type">{{ $model->doctype->descriptor }}</li>
   <li title="Supplier">{{ $model->supplier->descriptor }}</li>
-  <li title="Invoice Number">{{ $model->refno }}</li>
-  <li title="Statement/Billing Date">{{ $model->date->format('D M j, Y') }}</li>
+  <li title="No.">{{ $model->refno }}</li>
+  <li title="Transmittal Date">{{ $model->date->format('D M j, Y') }}</li>
   <li title="Amount">{{ number_format($model->amount, 2) }}</li>
 </ul>
 

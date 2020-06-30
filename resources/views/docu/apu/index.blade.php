@@ -49,11 +49,11 @@
                   <th>Uploaded</th>
                   <!-- <th></th>           -->
                   <th>Supplier</th>          
-                  <th>Invoice #</th>          
+                  <th>No.</th>          
                   <th>Total Amt</th>          
                   <th></th>   
                   <th>Doc Type</th>          
-                  <th>Billing Date</th>          
+                  <th>Transmittal Date</th>          
                   <th>Cashier</th>          
                   <th></th>   
                   <th>Uploaded</th>
