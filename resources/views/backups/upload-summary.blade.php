@@ -140,6 +140,9 @@
                     <td class="text-right">10</td><td class="text-right">{{ $cash_audit->p10_pcs }}</td><td class="text-right">{{ nf($cash_audit->p10_amt, 2, true) }}</td>
                   </tr>
                   <tr>
+                    <td class="text-right">5</td><td class="text-right">{{ $cash_audit->p5_pcs }}</td><td class="text-right">{{ nf($cash_audit->p5_amt, 2, true) }}</td>
+                  </tr>
+                  <tr>
                     <td class="text-right">Coins</td><td class="text-right"></td><td class="text-right">{{ nf($cash_audit->coins, 2, true) }}</td>
                   </tr>
                   <tr>
