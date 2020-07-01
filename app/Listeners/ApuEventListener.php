@@ -78,6 +78,8 @@ class ApuEventListener
 
        foreach ($e['mailing_list'] as $u)
         $message->to($u['email'], $u['name']);
+        
+      $message->cc('giligans.app@gmail.com');
 
       // if (!is_null($e['attachment']))
         // $message->attach($e['attachment']);
