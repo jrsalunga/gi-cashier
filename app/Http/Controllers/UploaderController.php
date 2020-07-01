@@ -1159,7 +1159,9 @@ class UploaderController extends Controller
 			$date = c($request->input('date'));
 
 			$ds = $this->ds->findWhere(['date'=>$request->input('date')])->first();
-      $cash_audit = $this->cashAudit->findWhere(['branch_id'=>$ds->branchid ,'date'=>$request->input('date')])->first();
+
+      if (!is_null($ds))
+        $cash_audit = $this->cashAudit->findWhere(['branch_id'=>$ds->branchid ,'date'=>$request->input('date')])->first();
 		}
 
 		
