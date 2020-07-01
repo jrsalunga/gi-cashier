@@ -342,7 +342,7 @@
               +'<div class="input-group">'
                 +'<span class="input-group-addon" id="basic-addon1">'
                 +'Document Type</span>'
-                +'<input type="text" class="form-control" id="search-doctype" name="doctype" required>'
+                +'<input type="text" class="form-control" id="search-doctype" name="doctype" placeholder="Search " required>'
                 +'<input type="hidden" id="doctypeid" name="doctypeid">'
               +'</div></div>'
             +'<div class="row" style="margin-top: 20px;">'
@@ -501,7 +501,7 @@
             }
           });
         },
-        minLength: 2,
+        minLength: 1,
         select: function(event, ui) {
           //console.log(ui);
           //log( ui.item ? "Selected: " + ui.item.label : "Nothing selected, input was " + this.value);
@@ -551,7 +551,7 @@
             }
           });
         },
-        minLength: 2,
+        minLength: 1,
         select: function(event, ui) {
           $("#supplierid").val(ui.item.id); /* set the selected id */
         },
