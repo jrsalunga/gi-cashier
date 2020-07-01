@@ -348,7 +348,7 @@
             +'<div class="row" style="margin-top: 20px;">'
               +'<div class="input-group">'
                 +'<span class="input-group-addon" id="basic-addon1">'
-                +'No.</span>'
+                +'Invoice or Reference No.</span>'
                 +'<input type="text" class="form-control" id="refno" name="refno" required>'
               +'</div></div>'
             +'<div class="row" style="margin-top: 20px;">'
