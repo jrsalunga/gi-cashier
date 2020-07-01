@@ -251,7 +251,7 @@
           +'</li>'
           +'<li>Please don\'t upload other documents like DCCR, etc. <b>Scanned Deposit Slip</b> only. =)</li>'
           +'</ol>'
-          +'<small><em class="text-muted">For more questions / clarifications / need assistance you can email us at <a href="mailto:giligans.helpdesk@gmail.com">giligans.helpdesk@gmail.com</a></em></small>');
+          +'<small><em class="text-muted">For more questions / clarifications / need assistance you can call us at <a href="tel:+639993330386">0999 333 0386</a></em></small>');
       } else if ($(this).val()==='setslp') {
 
           html += '<div class="row" style="margin-top: 20px;">'
@@ -302,7 +302,7 @@
           +'</li>'
           +'<li>Please scan only the <b>actual size</b> of each Card Settlement Slip to reduce the file size.</li>'
           +'</ol>'
-          +'<small><em class="text-muted">For more questions / clarifications / need assistance you can email us at <a href="mailto:giligans.helpdesk@gmail.com">giligans.helpdesk@gmail.com</a></em></small>');
+          +'<small><em class="text-muted">For more questions / clarifications / need assistance you can call us at <a href="tel:+639993330386">0999 333 0386</a></em></small>');
 
       } else if ($(this).val()==='backup') {
         html += '<div class="row" style="margin-top: 20px;"><span class="title">Choose Backup Type</span>'
@@ -384,17 +384,15 @@
               +'<input type="text" class="form-control" id="amount" name="amount" required style="text-align: right;" placeholder="0.00">'
             +'</div></div>';
 
-            alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> <ol><li>When encoding of expenses on GI POS (6 1), please separate each receipt upon encoding.'
+            alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> <ol><li>When encoding of expenses on GI POS (6 1) please separate each receipt upon encoding.'
           +' One (1) invoice or (1) delivery receipt = one (1) entry. Make sure to sum up each receipt.'
           +'</li><li> Make sure that the scanned <b>Sales Invoice (INV), Delivery Receipt (DR), Stock Transfer (STOCK), Statement of Accounts (SOA), Space Leased (SLEASED), </b>etc.'
           +' must scan alongside with the <b>Stock Purchase - Transmittal Slip</b>. Do not include the Receiving Reports (RR).</li>'
           +'<li><span style="color:red;">The scanned page or pages must save into one (1) PDF file.</span> (Smallest file size but readable)</li>'
-          +'<li>'
-          +'For branch that has multiple deposit on the same day, the filename should be <b>DEPSLP MOA 20170102 Cash</b>, <b>DEPSLP MOA 20170102 Check</b>, <b>DEPSLP MOA 20170102 Cash_2</b>, etc.'
-          +'</li>'
-          +'<li>Please don\'t upload other documents like DCCR, etc. <b>Scanned Deposit Slip</b> only. =)</li>'
+          
+        
           +'</ol>'
-          +'<small><em class="text-muted">For more questions / clarifications / need assistance you can email us at <a href="mailto:giligans.helpdesk@gmail.com">giligans.helpdesk@gmail.com</a></em></small>');
+          +'<small><em class="text-muted">For more questions / clarifications / need assistance you can call us at <a href="tel:+639993330386">0999 333 0386</a></em></small>');
       } else {
         html +='';
       }
