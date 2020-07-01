@@ -389,8 +389,6 @@
           +'</li><li> Make sure that the scanned <b>Sales Invoice (INV), Delivery Receipt (DR), Stock Transfer (STOCK), Statement of Accounts (SOA), Space Leased (SLEASED), </b>etc.'
           +' must scan alongside with the <b>Stock Purchase - Transmittal Slip</b>. Do not include the Receiving Reports (RR).</li>'
           +'<li><span style="color:red;">The scanned page or pages must save into one (1) PDF file.</span> (Smallest file size but readable)</li>'
-          
-        
           +'</ol>'
           +'<small><em class="text-muted">For more questions / clarifications / need assistance you can call us at <a href="tel:+639993330386">0999 333 0386</a></em></small>');
       } else {
