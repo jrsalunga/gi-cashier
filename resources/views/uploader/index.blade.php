@@ -384,11 +384,20 @@
               +'<input type="text" class="form-control" id="amount" name="amount" required style="text-align: right;" placeholder="0.00">'
             +'</div></div>';
 
-            alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> <ol><li>When encoding of expenses on GI POS (6 1) please separate each receipt upon encoding.'
+            alertMessage($('#nav-action'), 'warning', '<b>Tips:</b> <ol><li>When encoding of expenses on GI POS (6 1), please separate each receipt upon encoding.'
           +' One (1) invoice or (1) delivery receipt = one (1) entry. Make sure to sum up each receipt.'
           +'</li><li> Make sure that the scanned <b>Sales Invoice (INV), Delivery Receipt (DR), Stock Transfer (STOCK), Statement of Accounts (SOA), Space Leased (SLEASED), </b>etc.'
           +' must scan alongside with the <b>Stock Purchase - Transmittal Slip</b>. Do not include the Receiving Reports (RR).</li>'
           +'<li><span style="color:red;">The scanned page or pages must save into one (1) PDF file.</span> (Smallest file size but readable)</li>'
+          +'<li>'
+          +'<div>Here are the sample scanned documents. (Click each filename to view sample scanned documents)</div>'
+          +'<a href="javascript:void(0)" target="popup" onclick="window.open(\'http://cashier.giligansrestaurant.com/images/ap-samples/DR 007 20200611 K 0025219.png\', \'_blank\', \'width=auto,height=auto\'); return false"><b>DR 007 20200611 K 0025219.pdf, </b></a> &nbsp;&nbsp;'
+          +'<a href="javascript:void(0)" target="popup" onclick="window.open(\'http://cashier.giligansrestaurant.com/images/ap-samples/DR RDE 20200627 K 37757.png\', \'_blank\', \'width=auto,height=auto\'); return false"><b>DR RDE 20200627 K 37757.pdf, </b></a> &nbsp;&nbsp;'
+          +'<a href="javascript:void(0)" target="popup" onclick="window.open(\'http://cashier.giligansrestaurant.com/images/ap-samples/INV 687 20200626 K 0020271.png\', \'_blank\', \'width=auto,height=auto\'); return false"><b>INV 687 20200626 K 0020271.pdf, </b></a> &nbsp;&nbsp;'
+          +'<a href="javascript:void(0)" target="popup" onclick="window.open(\'http://cashier.giligansrestaurant.com/images/ap-samples/INV NEO 20200624 K 0000159.png\', \'_blank\', \'width=auto,height=auto\'); return false"><b>INV NEO 20200624 K 0000159.pdf, </b></a> &nbsp;&nbsp;'
+          +'<a href="javascript:void(0)" target="popup" onclick="window.open(\'http://cashier.giligansrestaurant.com/images/ap-samples/SOA 100 20200612 K 5240.png\', \'_blank\', \'width=auto,height=auto\'); return false"><b>SOA 100 20200612 K 5240.pdf, </b></a> &nbsp;&nbsp;'
+          +'<a href="javascript:void(0)" target="popup" onclick="window.open(\'http://cashier.giligansrestaurant.com/images/ap-samples/STRANS NPC 20200603 K ST060120.png\', \'_blank\', \'width=auto,height=auto\'); return false"><b> STRANS NPC 20200603 K ST060120.pdf </b></a> &nbsp;&nbsp;'
+          +'</li>'
           +'</ol>'
           +'<small><em class="text-muted">For more questions / clarifications / need assistance you can call us at <a href="tel:+639993330386">0999 333 0386</a></em></small>');
       } else {
