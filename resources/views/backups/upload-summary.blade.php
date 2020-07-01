@@ -146,7 +146,7 @@
                     <td class="text-right">Coins</td><td class="text-right"></td><td class="text-right">{{ nf($cash_audit->coins, 2, true) }}</td>
                   </tr>
                   <tr>
-                    <td class="text-right" colspan="2">Total Cash</td><td class="text-right"><b>{{ nf($cash_audit->p1000_amt+$cash_audit->p500_amt+$cash_audit->p200_amt+$cash_audit->p100_amt+$cash_audit->p50_amt+$cash_audit->p20_amt+$cash_audit->p10_amt+$cash_audit->coins, 2, true) }}</b></td>
+                    <td class="text-right" colspan="2">Total Cash</td><td class="text-right"><b>{{ nf($cash_audit->p1000_amt+$cash_audit->p500_amt+$cash_audit->p200_amt+$cash_audit->p100_amt+$cash_audit->p50_amt+$cash_audit->p20_amt+$cash_audit->p10_amt+$cash_audit->p5_amt+$cash_audit->coins, 2, true) }}</b></td>
                   </tr>
                   <tr>
                     <td class="text-right" colspan="2">Total CSH/CHQ/FX</td><td class="text-right"><b title="{{$cash_audit->csh_cnt}} / {{$cash_audit->checks}} / {{$cash_audit->forex}}">{{ nf($cash_audit->csh_cnt+$cash_audit->checks+$cash_audit->forex, 2, true) }}</b></td>
