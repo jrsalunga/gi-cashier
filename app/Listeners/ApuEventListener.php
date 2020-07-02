@@ -58,14 +58,14 @@ class ApuEventListener
     // 1. notify the cashier
     $e['to'] = $email_csh;
     $e['link'] =  $c.$event->model->lid();
-    $this->mailer->queue('docu.apu.mail-upload', $e, function ($message) use ($e) {
-      $message->subject($e['subject']);
-      $message->from('giligans.app@gmail.com', 'GI Payables');
-      $message->to($e['to']);
+    // $this->mailer->queue('docu.apu.mail-upload', $e, function ($message) use ($e) {
+    //   $message->subject($e['subject']);
+    //   $message->from('giligans.app@gmail.com', 'GI Payables');
+    //   $message->to($e['to']);
 
-      // if (!is_null($e['attachment']))
-      //   $message->attach($e['attachment']);
-    });
+    //   // if (!is_null($e['attachment']))
+    //   //   $message->attach($e['attachment']);
+    // });
 
     // 2. RM, AHC 
     $e['to'] = $event->model->type==2 ? env('AP_K_EMAIL') : env('AP_C_EMAIL');
