@@ -952,10 +952,10 @@ class UploaderController extends Controller
       'filetype'    => 'required',
       'date'        => 'required|date',
       'type'        => 'required',
-      'doctype'     => 'required',
-      'supplier'    => 'required',
+      'doctype'     => 'required|anshupc',
+      'supplier'    => 'required|anshupc',
       'cashier'     => 'required',
-      'refno'       => 'required',
+      'refno'       => 'required|alpha_num',
     ];
 
     $messages = [];
