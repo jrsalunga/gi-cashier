@@ -30,11 +30,11 @@ class ApuEventListener
     if (app()->environment('production')) {
       $l = 'http://am.giligansrestaurant.com/ap/';
       $c = 'http://cashier.giligansrestaurant.com/'.strtolower($brcode).'/apu/';
-      $e['mailing_list'] = $this->bossBranch->getUsers()->toArray();
-      // $e['mailing_list'] = [
-      //   ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
-      //   ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
-      // ];
+      // $e['mailing_list'] = $this->bossBranch->getUsers()->toArray();
+      $e['mailing_list'] = [
+        ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
+        ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
+      ];
     } else {
       $l = 'http://gi-am.loc/ap/';
       $c = 'http://gi-cashier.loc/'.strtolower($brcode).'/apu/';
@@ -58,14 +58,14 @@ class ApuEventListener
     // 1. notify the cashier
     $e['to'] = $email_csh;
     $e['link'] =  $c.$event->model->lid();
-    // $this->mailer->queue('docu.apu.mail-upload', $e, function ($message) use ($e) {
-    //   $message->subject($e['subject']);
-    //   $message->from('giligans.app@gmail.com', 'GI Payables');
-    //   $message->to($e['to']);
+    $this->mailer->queue('docu.apu.mail-upload', $e, function ($message) use ($e) {
+      $message->subject($e['subject']);
+      $message->from('giligans.app@gmail.com', 'GI Payables');
+      $message->to($e['to']);
 
-    //   // if (!is_null($e['attachment']))
-    //   //   $message->attach($e['attachment']);
-    // });
+      // if (!is_null($e['attachment']))
+      //   $message->attach($e['attachment']);
+    });
 
     // 2. RM, AHC 
     $e['to'] = $event->model->type==2 ? env('AP_K_EMAIL') : env('AP_C_EMAIL');
