@@ -1047,7 +1047,7 @@ class UploaderController extends Controller
         $this->fileUploadRepo->update(['processed'=>1], $file->id);
 
       // if (app()->environment()==='production')
-        event(new \App\Events\Upload\ApUpload($apu));
+        // event(new \App\Events\Upload\ApUpload($apu));
 
       return redirect()
               ->route('uploader', ['brcode'=>brcode(),'u'=>strtolower($request->cashier),'type'=>'apu'])
