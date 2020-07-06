@@ -250,7 +250,7 @@ class ApuController extends Controller {
       } else 
         $document_code = strtoupper($n->doctype->code);
         
-      $filename = $document_code.' '.$br.' '.$date->format('Ymd').' '.$type.' '.$n->refno.'.'.$ext;
+      $filename = $document_code.' '.$br.' '.$date->format('Ymd').' '.$type.' '.$n->supplier->code.' '.filter_filename($n->refno).'.'.$ext;
   		$new_path = 'APU'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
 
   		try {
@@ -287,17 +287,27 @@ class ApuController extends Controller {
       $doctype = NULL;
       if ($request->has('doctype') && $request->has('doctypeid'))
         $doctype = \App\Models\Doctype::find($request->input('doctypeid'));
-      if ($request->has('doctype') && !$request->has('doctypeid'))
-        $doctype = \App\Models\Doctype::create(['descriptor'=>$request->input('doctype'), 'assigned'=>1 ,'branch_id'=>$request->user()->branchid]);
+      if ($request->has('doctype') && !$request->has('doctypeid')) {
+        
+        $doctype = \App\Models\Doctype::where(['descriptor'=>$request->input('doctype'), 'branch_id'=>$request->user()->branchid])->first();
+
+        if (is_null($doctype)) {
+
+          $document_code = filter_filename(initials($request->input('doctype')));
+          $document_code = strtoupper(mb_ereg_replace("([\.]{2,})", '', $document_code));
+
+          $doctype = \App\Models\Doctype::create([
+            'code'        => strtoupper($document_code),
+            'descriptor'  => $request->input('doctype'), 
+            'assigned'    => 0 ,
+            'branch_id'   => $request->user()->branchid
+          ]);
+        }
+      }
       if (is_null($doctype))
         return redirect()->back()->withErrors(['error'=>'Could not create Doctype for AP Files.']);
-    
-      if (empty($doctype->code)) {
-        $document_code = filter_filename($doctype->descriptor);
-        $document_code = strtoupper(mb_ereg_replace("([\.]{2,})", '', $document_code));
-      } else 
-        $document_code = strtoupper($doctype->code);
 
+      // return dd($doctype);
 
       $supplier = NULL;
       if ($request->has('supplier') && $request->has('supplierid'))
@@ -338,8 +348,10 @@ class ApuController extends Controller {
 
       // clear certain fields to check the diff of 2 models
       unset($d->doctype);
+      unset($d->supplier);
       unset($d->updated_at);
       unset($o->updated_at);
+
 			$arr = array_diff($o->toArray(), $d->toArray());
       $cnt = count($arr);
 			array_forget($arr, 'updated_at');

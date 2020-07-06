@@ -38,7 +38,7 @@ class BossBranch {
     $bb = \App\Models\BossBranch::where('branchid', request()->user()->branchid)->get();
     
     if (is_null($bb))
-      return $bb;
+      return NULL;
     
       return  DB::table('user')
                 ->join('bossbranch', 'user.id', '=', 'bossbranch.bossid')

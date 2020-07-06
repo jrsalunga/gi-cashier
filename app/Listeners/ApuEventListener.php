@@ -30,11 +30,13 @@ class ApuEventListener
     if (app()->environment('production')) {
       $l = 'http://am.giligansrestaurant.com/ap/';
       $c = 'http://cashier.giligansrestaurant.com/'.strtolower($brcode).'/apu/';
-      // $e['mailing_list'] = $this->bossBranch->getUsers()->toArray();
-      $e['mailing_list'] = [
-        ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
-        ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
-      ];
+      $e['mailing_list'] = $this->bossBranch->getUsers();
+      if (is_null($e['mailing_list'])) {
+        $e['mailing_list'] = [
+          ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
+          ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
+        ];
+      }
     } else {
       $l = 'http://gi-am.loc/ap/';
       $c = 'http://gi-cashier.loc/'.strtolower($brcode).'/apu/';
@@ -60,7 +62,7 @@ class ApuEventListener
     $e['link'] =  $c.$event->model->lid();
     $this->mailer->queue('docu.apu.mail-upload', $e, function ($message) use ($e) {
       $message->subject($e['subject']);
-      $message->from('giligans.app@gmail.com', 'GI Payables');
+      $message->from('giligans.app@gmail.com', 'GI Payables Upload');
       $message->to($e['to']);
 
       // if (!is_null($e['attachment']))
@@ -73,7 +75,7 @@ class ApuEventListener
     $e['link'] =  $l.$event->model->lid();
     $this->mailer->queue('docu.apu.mail-verify', $e, function ($message) use ($e) {
       $message->subject($e['subject']);
-      $message->from('giligans.app@gmail.com', 'GI Payables');
+      $message->from('giligans.app@gmail.com', 'GI Payables Upload');
       $message->replyTo($e['replyTo']);
 
        foreach ($e['mailing_list'] as $u)
@@ -91,7 +93,7 @@ class ApuEventListener
     $e['link'] =  NULL;
     $this->mailer->queue('docu.apu.mail-upload', $e, function ($message) use ($e) {
       $message->subject($e['subject']);
-      $message->from('giligans.app@gmail.com', 'GI Payables');
+      $message->from('giligans.app@gmail.com', 'GI Payables Upload');
       $message->to($e['to']);
       $message->replyTo($e['replyTo']);
 

@@ -674,3 +674,18 @@ if (!function_exists('short_filename')) {
   }
 }
 
+if (!function_exists('initials')) {
+  function initials($str, $len=6) {
+    $ret = '';
+
+    $words = explode(' ', $str);
+
+    if (count($words)>1) {
+      foreach ($words as $word)
+        $ret .= strtoupper($word[0]);
+        return $ret;
+    } else 
+    return substr($str,0,$len);
+  }
+}
+
