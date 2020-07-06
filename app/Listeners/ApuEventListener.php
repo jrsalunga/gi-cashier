@@ -30,18 +30,18 @@ class ApuEventListener
     if (app()->environment('production')) {
       $l = 'http://am.giligansrestaurant.com/ap/';
       $c = 'http://cashier.giligansrestaurant.com/'.strtolower($brcode).'/apu/';
-      $rep = $this->bossBranch->getUsers();
-      if (is_null($rep)) {
+      // $rep = $this->bossBranch->getUsers();
+      // if (is_null($rep)) {
         $e['mailing_list'] = [
           ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
           ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
         ];
-      } else {
-        foreach ($rep as $k => $u) {
-          $e['mailing_list'][$k]['name'] = $u->name;
-          $e['mailing_list'][$k]['email'] = $u->email;
-        }
-      }
+      // } else {
+      //   foreach ($rep as $k => $u) {
+      //     $e['mailing_list'][$k]['name'] = $u->name;
+      //     $e['mailing_list'][$k]['email'] = $u->email;
+      //   }
+      // }
     } else {
       $l = 'http://gi-am.loc/ap/';
       $c = 'http://gi-cashier.loc/'.strtolower($brcode).'/apu/';
