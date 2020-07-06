@@ -250,7 +250,7 @@ class ApuController extends Controller {
       } else 
         $document_code = strtoupper($n->doctype->code);
         
-      $filename = $document_code.' '.$br.' '.$date->format('Ymd').' '.$type.' '.$n->supplier->code.' '.filter_filename($n->refno).'.'.$ext;
+      $filename = $document_code.' '.$br.' '.$date->format('Ymd').' '.$type.' '.$n->supplier->code.' '.strtoupper(filter_filename($n->refno)).'.'.$ext;
   		$new_path = 'APU'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
 
   		try {

@@ -69,9 +69,29 @@ class UploaderController extends Controller
 	public function getIndex(Request $request) { 
     // $n = new \App\Helpers\BossBranch;
 
-    // foreach ($n->getUsers() as $u) {
-    //   echo $u->email."<b>";
+    // $e['mailing_list'] = [];
+
+    // // $e['mailing_list'] = [
+    // //     ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
+    // //     ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
+    // //   ];
+
+    // // return dd($e['mailing_list']);
+
+    // foreach ($n->getUsers() as $k => $u) {
+    //   $e['mailing_list'][$k]['name'] = $u->name;
+    //   $e['mailing_list'][$k]['email'] = $u->email;
     // }
+
+    // foreach ($e['mailing_list'] as $p)
+    //   echo $p['email'];
+
+    // return;
+
+    // return dd($e['mailing_list']);
+
+
+
 		return view('uploader.index');
 	}
 
@@ -1037,7 +1057,7 @@ class UploaderController extends Controller
           break;
       }
         
-      $filename = $doctype->code.' '.$br.' '.$date->format('Ymd').' '.$type.' '.$supp_filename.' '.filter_filename($request->input('refno')).'.'.$ext;
+      $filename = $doctype->code.' '.$br.' '.$date->format('Ymd').' '.$type.' '.$supp_filename.' '.strtoupper(filter_filename($request->input('refno'))).'.'.$ext;
           
       $storage_path = 'APU'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
 
@@ -1079,7 +1099,7 @@ class UploaderController extends Controller
       'doctype_id'     => $doctypeid,
       'filename'       => $filename,
       'date'           => request()->input('date'),
-      'refno'          => request()->input('refno'),
+      'refno'          => strtoupper(request()->input('refno')),
       'amount'         => str_replace(",", "", request()->input('amount')),
       'type'           => request()->input('type'),
       'supplier_id'    => $supplierid,
