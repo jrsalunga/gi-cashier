@@ -30,11 +30,20 @@ class ApuEventListener
     if (app()->environment('production')) {
       $l = 'http://am.giligansrestaurant.com/ap/';
       $c = 'http://cashier.giligansrestaurant.com/'.strtolower($brcode).'/apu/';
-      // $e['mailing_list'] = $this->bossBranch->getUsers();
-      $e['mailing_list'] = [
-        ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
-        ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
-      ];
+      
+      $rep = $this->bossBranch->getUsers();
+      
+      if (is_null($rep)) {
+        $e['mailing_list'] = [
+          ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
+          ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
+        ];
+      } else {
+        foreach ($rep as $k => $u) {
+          $e['mailing_list'][$k]['name'] = $u->name;
+          $e['mailing_list'][$k]['email'] = $u->email;
+        }
+      }
     } else {
       $l = 'http://gi-am.loc/ap/';
       $c = 'http://gi-cashier.loc/'.strtolower($brcode).'/apu/';
@@ -76,10 +85,10 @@ class ApuEventListener
       $message->from('giligans.app@gmail.com', 'GI Payables Upload');
       $message->replyTo($e['replyTo']);
 
-       foreach ($e['mailing_list'] as $u)
+      foreach ($e['mailing_list'] as $u)
         $message->to($u['email'], $u['name']);
         
-      $message->cc('giligans.app@gmail.com');
+      $message->cc('jefferson.salunga@gmail.com');
 
       // if (!is_null($e['attachment']))
         // $message->attach($e['attachment']);
