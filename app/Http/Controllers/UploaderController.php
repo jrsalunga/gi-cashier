@@ -67,8 +67,16 @@ class UploaderController extends Controller
 	}
 
 	public function getIndex(Request $request) { 
-    // $n = new \App\Helpers\BossBranch;
-    // return dd($n->getUsers());
+    $n = new \App\Helpers\BossBranch;
+
+    foreach ($n->getUsers() as $u) {
+      echo $u->email."<b>";
+    }
+
+    return;
+
+
+
 		return view('uploader.index');
 	}
 
