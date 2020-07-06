@@ -39,6 +39,7 @@ class ApuEventListener
           ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
         ];
       } else {
+        $e['mailing_list'] = [];
         foreach ($rep as $k => $u) {
           array_push($e['mailing_list'],
             [ 'name' => $u->name, 
