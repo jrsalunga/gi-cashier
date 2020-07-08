@@ -1295,6 +1295,18 @@ class PosUploadRepository extends Repository
       // delete salesmtd (branchid, date) if exist
       try {
         //$this->logAction('DELETE', $backup->branchid.' '.$date->format('Y-m-d'));
+
+        /*
+        * Activate only if salesmtd has a searate table per year
+        * e.g. salesmtd, salesmtd2019, salesmtd2020
+        *        
+        if ($date->gte(c('2020-07-01'))) {
+          $n = new \App\Models\Salesmtd;
+          $n->setTable('salesmtd2020');
+          $n->where(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')])->delete();
+        }
+        */
+        
         $this->salesmtdCtrl->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
         $this->changeItem->deleteWhere(['branch_id'=>$backup->branchid, 'date'=>$date->format('Y-m-d')]);
       } catch(Exception $e) {
