@@ -1,4 +1,8 @@
+@if($model->type=='2')
 <p>Accounts payable document ({{ $model->filename }}) has been uploaded on server.</p>
+@else
+<p>Cash expense receipt/transmittal document ({{ $model->filename }}) has been uploaded on server.</p>
+@endif
 <p></p>
 
 <ul style="margin-top: 0;">
