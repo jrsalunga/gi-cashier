@@ -15,7 +15,7 @@
 <p>&nbsp;</p>
 
 @if(is_null($$model->terms=='K'))
-<p>To be able to process the Cheque of this transaction, kindly verify the encoded information and the attached document. If it matches, click the <b style="color:#449D44;">Mark as Verified</b>, if not, kindly delete the AP upload and instruct the cashier to re-upload the correct document.</p>
+<p>To be able to process the Cheque of this transaction, kindly verify the encoded information and the attached document. If it matches, click the <b style="color:#449D44;">Mark as Verified</b> on the <b>Area Manager Module</b>, if not, kindly delete the AP upload and instruct the cashier to re-upload the correct document.</p>
 @endif
 
 <p>
