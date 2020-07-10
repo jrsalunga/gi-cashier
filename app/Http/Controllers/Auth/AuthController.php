@@ -185,6 +185,26 @@ class AuthController extends Controller
             ]);
         }
 
+        if ($u->admin == 3) {
+          if (app()->environment()==='production')
+              event(new GoogleUserLoggedFailed($user->email));
+
+          return redirect($this->loginPath())
+          ->withErrors([
+              $this->loginUsername() => 'Google Account is not associated with this module. Kindly login on Area Module.',
+          ]);
+        }
+
+        if ($u->admin != 5) {
+          if (app()->environment()==='production')
+              event(new GoogleUserLoggedFailed($user->email));
+
+          return redirect($this->loginPath())
+          ->withErrors([
+              $this->loginUsername() => 'Google Account is not associated with the Giligan\'s User.',
+          ]);
+        }
+
         $au = Auth::loginUsingId($u->id);
         Auth::login($au, true);
 
