@@ -292,12 +292,14 @@ class ApuController extends Controller {
          // check if may "-" ung doctype input
         $document_code = '';
         $document_name = '';
+        $assigned = 0;
         $pos = strpos($request->input('doctype'), '-', 1);
         if ($pos) {
           $xsup = explode('-', $request->input('doctype'), 2);
           if (count($xsup)>1) {
             $document_code = trim($xsup[0]);
             $document_name = trim($xsup[1]);
+            $assigned = 1;
           } else
             $document_name = trim($request->input('doctype'));
         } else
@@ -308,6 +310,9 @@ class ApuController extends Controller {
         if (is_null($doctype) && !empty($document_name))
           $doctype = \App\Models\Doctype::where(['descriptor'=>$document_name, 'assigned'=>1])->first();
 
+        if (is_null($doctype))
+          $doctype = \App\Models\Doctype::where(['code'=>$document_name, 'assigned'=>1])->first();
+
         if (is_null($doctype)) {
           if (empty($document_code))
           $document_name = strtoupper(mb_ereg_replace("([\.]{2,})", '', $document_name));
@@ -315,7 +320,7 @@ class ApuController extends Controller {
           $doctype = \App\Models\Doctype::create([
             'code'        => strtoupper($document_code),
             'descriptor'  => trim($document_name), 
-            'assigned'    => 1,
+            'assigned'    => $assigned,
             'branch_id'   => $request->user()->branchid
           ]);
         }
