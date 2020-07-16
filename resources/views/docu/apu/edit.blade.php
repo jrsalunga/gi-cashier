@@ -59,9 +59,11 @@
               <div class="col-lg-12">
                 <div class="input-group">
                   <span class="input-group-addon" id="basic-addon1">Document Type</span>
-                  <input type="text" class="form-control" id="search-doctype" name="doctype" value="{{ $apu->doctype->descriptor }}" required>
+                  <input type="text" class="form-control" id="search-doctype" name="doctype" value="{{ $apu->doctype->descriptor }}" placeholder="example: Delivery Receipt, Sales Invoice, Stock Transfer" required>
+                  <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
                 </div>
                 <input type="hidden" id="doctypeid" name="doctypeid" value="{{ $apu->doctype_id }}">
+
               </div>
             </div>
 
@@ -123,7 +125,8 @@
               <div class="col-lg-12">
                 <div class="input-group">
                   <span class="input-group-addon" id="basic-addon1">Supplier</span>
-                  <input type="text" class="form-control" id="search-supplier" name="supplier" value="{{ $apu->supplier->descriptor }}" required>
+                  <input type="text" class="form-control" id="search-supplier" name="supplier" value="{{ $apu->supplier->descriptor }}" placeholder="Search for Supplier" required>
+                  <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
                 </div>
                 <input type="hidden" id="supplierid" name="supplierid" value="{{ $apu->supplier_id }}">
               </div>

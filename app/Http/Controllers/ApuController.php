@@ -289,19 +289,39 @@ class ApuController extends Controller {
         $doctype = \App\Models\Doctype::find($request->input('doctypeid'));
       if ($request->has('doctype') && !$request->has('doctypeid')) {
         
-        $doctype = \App\Models\Doctype::where(['descriptor'=>$request->input('doctype'), 'branch_id'=>$request->user()->branchid])->first();
+         // check if may "-" ung doctype input
+        $document_code = '';
+        $document_name = '';
+        $pos = strpos($request->input('doctype'), '-', 1);
+        if ($pos) {
+          $xsup = explode('-', $request->input('doctype'), 2);
+          if (count($xsup)>1) {
+            $document_code = trim($xsup[0]);
+            $document_name = trim($xsup[1]);
+          } else
+            $document_name = trim($request->input('doctype'));
+        } else
+          $document_name = trim($request->input('doctype'));
+
+        $doctype = \App\Models\Doctype::where(['code'=>$document_code, 'descriptor'=>$document_name, 'assigned'=>1])->first();
+
+        if (is_null($doctype) && !empty($document_name))
+          $doctype = \App\Models\Doctype::where(['descriptor'=>$document_name, 'assigned'=>1])->first();
 
         if (is_null($doctype)) {
-
-          $document_code = filter_filename(initials($request->input('doctype')));
-          $document_code = strtoupper(mb_ereg_replace("([\.]{2,})", '', $document_code));
+          if (empty($document_code))
+          $document_name = strtoupper(mb_ereg_replace("([\.]{2,})", '', $document_name));
 
           $doctype = \App\Models\Doctype::create([
             'code'        => strtoupper($document_code),
-            'descriptor'  => $request->input('doctype'), 
-            'assigned'    => 0 ,
+            'descriptor'  => trim($document_name), 
+            'assigned'    => 1,
             'branch_id'   => $request->user()->branchid
           ]);
+        }
+        if (empty($doctype->code)) {
+          $doctype->code = strtoupper(filter_filename(initials($doctype->descriptor)));
+          $doctype->save();
         }
       }
       if (is_null($doctype))
@@ -312,17 +332,48 @@ class ApuController extends Controller {
       $supplier = NULL;
       if ($request->has('supplier') && $request->has('supplierid'))
         $supplier = \App\Models\Supplier::where('id', $request->input('supplierid'))->first();
-      if ($request->has('supplier') && !$request->has('supplierid'))
-        $supplier = \App\Models\Supplier::create(['descriptor'=>$request->input('supplier'), 'branchid'=>$request->user()->branchid]);
+      if ($request->has('supplier') && !$request->has('supplierid')) {
+
+         // check if may "-" ung supplier input
+        $supplier_code = '';
+        $supplier_name = '';
+        $pos = strpos($request->input('supplier'), '-', 1);
+        if ($pos) {
+          $xsup = explode('-', $request->input('supplier'), 2);
+          if (count($xsup)>1) {
+            $supplier_code = trim($xsup[0]);
+            $supplier_name = trim($xsup[1]);
+          } else
+            $supplier_name = trim($request->input('supplier'));
+        } else
+          $supplier_name = trim($request->input('supplier'));
+
+        $supplier = \App\Models\Supplier::where(['code'=>$supplier_code, 'descriptor'=>$supplier_name, 'branchid'=>$request->user()->branchid])->first();
+
+        if (is_null($supplier)) {
+          if (empty($supplier_code))
+            $supplier_code = strtoupper(filter_filename(initials($supplier_name)));
+          
+          $supplier = \App\Models\Supplier::where(['code'=>$supplier_code, 'descriptor'=>$supplier_name, 'branchid'=>$request->user()->branchid])->first();
+
+          if (is_null($supplier)) {
+            $supplier_name = strtoupper(mb_ereg_replace("([\.]{2,})", '', $supplier_name));
+
+            $supplier = \App\Models\Supplier::create([
+              'code'        => strtoupper($supplier_code),
+              'descriptor'  => trim($supplier_name), 
+              'branchid'    => $request->user()->branchid
+            ]);
+          }
+        }
+        if (empty($supplier->code)) {
+          $supplier->code = strtoupper(filter_filename(initials($supplier->descriptor)));
+          $supplier->save();
+        }
+      }
       if (is_null($supplier))
         return redirect()->back()->withErrors(['error'=>'Could not create Supplier for AP Files.']);
 
-      if (empty($supplier->code)) {
-        $supp_filename = filter_filename($supplier->descriptor);
-        $supp_filename = strtoupper(mb_ereg_replace("([\.]{2,})", '', $supp_filename));
-      } else 
-        $supp_filename = strtoupper($supplier->code);
-			
 			$d = $this->repo->update([
 			  // 'doctype' 		=> $doctype->descriptor,
         'doctype_id'  => $doctype->id,
@@ -363,6 +414,7 @@ class ApuController extends Controller {
 
 			return redirect(brcode().'/apu/'.$d->lid())
 							->with('alert-success', 'Accounts payable is updated!');
+              // ->with('alert-important', '');
 		} // end: !is_null
 
 		return redirect()->back()->withErrors('Accounts payable not found!');

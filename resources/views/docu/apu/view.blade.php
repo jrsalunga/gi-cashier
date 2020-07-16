@@ -64,8 +64,15 @@
               @endif
               </small>
             </h4>
-            <h4><span class="gly gly-cart-in"></span> <small>{{ $apu->supplier->descriptor }} </h4>
-            <h4><span class="gly gly-barcode"></span> <small>{{ $apu->doctype->descriptor }}</small></h4>
+            <h4><span class="gly gly-cart-in"></span> 
+            @if(!is_null($apu->supplier))
+              @if(!empty($apu->supplier->code))
+              <small>{{ $apu->supplier->code }} -</small> 
+              @endif
+              <small>{{ $apu->supplier->descriptor }}</small> 
+            @endif
+            </h4>
+            <h4><span class="gly gly-barcode"></span> <small>@if(!is_null($apu->doctype)) {{ $apu->doctype->descriptor }} @endif</small></h4>
             <h4><b style="font-color:#000; font-size: large;">#</b> <small>{{ $apu->refno }}</small></h4>
             <h5><span class="gly gly-history"></span> {{ $apu->date->format('D M j, Y') }}</h5>
             <h5><span class="gly gly-user"></span> {{ $apu->cashier }}</h5>

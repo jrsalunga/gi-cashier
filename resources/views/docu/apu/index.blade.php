@@ -87,7 +87,9 @@
                   @endif
                 </td> -->
                 <td>
+                  @if(!is_null($ap->supplier))
                   <span data-toggle="tooltip" title="{{ $ap->supplier->code }} - {{ $ap->supplier->descriptor }}">{{ $ap->supplier->descriptor }}</span>
+                  @endif
                 </td>
                 <td>
                   {{ $ap->refno }}
@@ -105,10 +107,12 @@
                   @endif
                 </td>
                 <td>
+                  @if(!is_null($ap->doctype))
                   <?php
                     $code = empty($ap->doctype->code) ? $ap->doctype->descriptor : $ap->doctype->code;
                   ?>
                   <span data-toggle="tooltip" title="{{ $ap->doctype->descriptor }}">{{ $code }}</span>
+                  @endif
                 </td>
                 <td>
                   <span class="hidden-xs" data-toggle="tooltip" title="{{ $ap->date->format('D m/d/Y') }} - {{ diffForHumans($ap->date) }}">
