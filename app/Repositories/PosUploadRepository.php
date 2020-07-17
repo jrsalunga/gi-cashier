@@ -1406,6 +1406,11 @@ class PosUploadRepository extends Repository
     $ds['disc_totamt']  = 0;
     $ds['date']         = $date->format('Y-m-d');
     $ds['branchid']     = $backup->branchid;
+
+    $ds['grab']  = 0;
+    $ds['grabc']  = 0;
+    $ds['panda']  = 0;
+    $ds['totdeliver']  = 0;
     
     if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) // same sas line 1226
       $ds['custcount'] = 0;
@@ -1430,6 +1435,12 @@ class PosUploadRepository extends Repository
     $ds['chrg_chrg']    = $c['chrg_chrg'] + $s['chrg_chrg'];
     $ds['chrg_othr']    = $c['chrg_othr'] + $s['chrg_othr'];
     $ds['disc_totamt']  = $c['disc_totamt'] + $s['disc_totamt'];
+
+    $ds['grab'] = $c['grab'] + $s['grab'];
+    $ds['panda']  = $c['panda'] + $s['panda'];
+    $ds['grabc'] = $c['grabc'] + $s['grabc'];
+    $ds['totdeliver']  = $c['totdeliver'] + $s['totdeliver'];
+
 
     // remove the date bec of $this->postNewDailySales
     #if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) {
@@ -1473,6 +1484,11 @@ class PosUploadRepository extends Repository
       $ds['disc_totamt']  = 0;
       $ds['custcount']  = 0;
 
+      $ds['panda'] = 0;
+      $ds['grab'] = 0;
+      $ds['grabc'] = 0;
+      $ds['totdeliver'] = 0;
+
       for ($i=1; $i<=$record_numbers; $i++) {
         
         $row = dbase_get_record_with_names($db, $i);
@@ -1515,6 +1531,23 @@ class PosUploadRepository extends Repository
           $ds['disc_totamt']  += $data['disc_amt'];
           $ds['custcount']    += $data['custcount'];
 
+          if (strtolower($data['terms'])=='charge') {
+            switch (strtolower($data['chrg_type'])) {
+              case 'panda':
+                $ds['panda'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+              case 'grab':
+                $ds['grab'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+              case 'grabc':
+                $ds['grabc'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+            }
+          }
+
 
         }
       }
@@ -1545,6 +1578,11 @@ class PosUploadRepository extends Repository
       $ds['chrg_othr']  = 0;
       $ds['disc_totamt']  = 0;
       $ds['custcount']  = 0;
+
+      $ds['panda'] = 0;
+      $ds['grab'] = 0;
+      $ds['grabc'] = 0;
+      $ds['totdeliver'] = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
         
@@ -1581,10 +1619,28 @@ class PosUploadRepository extends Repository
               $ds['chrg_othr'] += $data['tot_chrg'];
               break;
           }
+
           $ds['chrg_total'] += $data['tot_chrg'];
           $ds['bank_totchrg'] += $data['bank_chrg'];
           $ds['disc_totamt']  += $data['disc_amt'];
           $ds['custcount']    += $data['custcount'];
+
+          if (strtolower($data['terms'])=='charge') {
+            switch (strtolower($data['chrg_type'])) {
+              case 'panda':
+                $ds['panda'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+              case 'grab':
+                $ds['grab'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+              case 'grabc':
+                $ds['grabc'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+            }
+          }
 
         }
       }
@@ -2373,6 +2429,12 @@ class PosUploadRepository extends Repository
     $ds['date']         = $date->format('Y-m-d');
     $ds['branchid']     = $branchid;
 
+    $ds['grab']  = 0;
+    $ds['grabc']  = 0;
+    $ds['panda']  = 0;
+    $ds['totdeliver']  = 0;
+
+
     try {
       $c = $this->backlogRawCharges($branchid, $date, $cmd);
     } catch(Exception $e) {
@@ -2391,6 +2453,11 @@ class PosUploadRepository extends Repository
     $ds['chrg_chrg']    = $c['chrg_chrg']     + $s['chrg_chrg'];
     $ds['chrg_othr']    = $c['chrg_othr']     + $s['chrg_othr'];
     $ds['disc_totamt']  = $c['disc_totamt']   + $s['disc_totamt'];
+
+    $ds['grab'] = $c['grab'] + $s['grab'];
+    $ds['panda']  = $c['panda'] + $s['panda'];
+    $ds['grabc'] = $c['grabc'] + $s['grabc'];
+    $ds['totdeliver']  = $c['totdeliver'] + $s['totdeliver'];
 
     $cnt = $c['custcount'] + $s['custcount'];
     $hspend = ($cnt > 0) ? number_format($ds['chrg_total']/$cnt,2,'.','') : 0;
@@ -2496,6 +2563,11 @@ class PosUploadRepository extends Repository
       $ds['disc_totamt']  = 0;
       $ds['custcount']  = 0;
 
+      $ds['panda']  = 0;
+      $ds['grab']  = 0;
+      $ds['grabc']  = 0;
+      $ds['totdeliver']  = 0;
+
       for ($i=1; $i<=$recno; $i++) {
         
         $row = dbase_get_record_with_names($db, $i);
@@ -2539,6 +2611,23 @@ class PosUploadRepository extends Repository
           $ds['disc_totamt']  += $data['disc_amt'];
           $ds['custcount']    += $data['custcount'];
 
+          if (strtolower($data['terms'])=='charge') {
+            switch (strtolower($data['chrg_type'])) {
+              case 'panda':
+                $ds['panda'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+              case 'grab':
+                $ds['grab'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+              case 'grabc':
+                $ds['grabc'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+            }
+          }
+
 
         }
       }
@@ -2569,6 +2658,11 @@ class PosUploadRepository extends Repository
       $ds['chrg_othr']  = 0;
       $ds['disc_totamt']  = 0;
       $ds['custcount']  = 0;
+
+      $ds['panda']  = 0;
+      $ds['grab']  = 0;
+      $ds['grabc']  = 0;
+      $ds['totdeliver']  = 0;
 
       for ($i=1; $i<=$recno; $i++) {
         
@@ -2606,10 +2700,28 @@ class PosUploadRepository extends Repository
               $ds['chrg_othr'] += $data['tot_chrg'];
               break;
           }
+
           $ds['chrg_total'] += $data['tot_chrg'];
           $ds['bank_totchrg'] += $data['bank_chrg'];
           $ds['disc_totamt']  += $data['disc_amt'];
           $ds['custcount']    += $data['custcount'];
+
+          if (strtolower($data['terms'])=='charge') {
+            switch (strtolower($data['chrg_type'])) {
+              case 'panda':
+                $ds['panda'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+              case 'grab':
+                $ds['grab'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+              case 'grabc':
+                $ds['grabc'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+            }
+          }
 
         }
       }
