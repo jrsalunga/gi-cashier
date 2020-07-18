@@ -52,7 +52,6 @@ class Cv extends Command
   public function handle() {
 
     $this->info(app()->environment());
-
     
     //$fr = $to->copy()->subDays(30);
     $fr = Carbon::parse('2017-01-01');
@@ -60,9 +59,13 @@ class Cv extends Command
     // $fr = Carbon::parse('2020-01-01');
     // $to = Carbon::now();
     
-    $branches = (app()->environment()=='production')
-      ? Branch::where('opendate', '<>', '0000-00-00')->where('closedate', '=', '0000-00-00')->orderBy('code')->get()
-      : Branch::orderBy('code')->get();
+    if (app()->environment()=='production') {
+      $branches = Branch::where('opendate', '<>', '0000-00-00')->where('closedate', '=', '0000-00-00')->orderBy('code')->get()
+      $cmd = NULL;
+    } else {
+      $branches =  Branch::orderBy('code')->get();
+      $cmd = $this;
+    }
 
     $this->info('starting...');
 
@@ -99,14 +102,14 @@ class Cv extends Command
                   $this->info($file['name']);
 
                   $cvhdrImporter = $this->dbfImporter->invoke('cvhdr');
-                  $cnt = $cvhdrImporter->import($branch->id, $day, $file['realFullPath'], $this);
+                  $cnt = $cvhdrImporter->import($branch->id, $day, $file['realFullPath'], $cmd);
                 }
 
                 if (ends_with($file['name'], 'DT.DBF')) {
                   $this->info($file['name']);
 
                   $cvinvdtlImporter = $this->dbfImporter->invoke('cvinvdtl');
-                  $cnt = $cvinvdtlImporter->import($branch->id, $day, $file['realFullPath'], $this);
+                  $cnt = $cvinvdtlImporter->import($branch->id, $day, $file['realFullPath'], $cmd);
                 }
 
 
