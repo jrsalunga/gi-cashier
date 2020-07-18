@@ -79,9 +79,8 @@ class Cv extends Command
         if ($this->storage->exists($dir)) {
           
           $this->line(' '. $day->format('Y-m-d') .' Exist! '); // a folder of CV exists on /CV/{YYYY}/{BRCODE}/{MM}/{DD}
-
          
-          $f = $this->fileUpload->where('branch_id', $branch->id)->where('uploaddate',$day->format('Y-m-d'))->first();
+          $f = $this->fileUpload->where('branch_id', $branch->id)->where('uploaddate',$day->format('Y-m-d'))->where('filetype_id',$this->filetype_id)->first();
 
           if ($f) {
             $this->info(' has record ');
