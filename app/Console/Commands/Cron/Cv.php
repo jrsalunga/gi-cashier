@@ -1,6 +1,7 @@
 <?php namespace App\Console\Commands\Cron;
 
 use DB;
+use Exception;
 use Carbon\Carbon;
 use App\Models\Branch;
 use App\Models\Process;
@@ -69,6 +70,7 @@ class Cv extends Command
 
     $this->info('starting...');
 
+
     foreach ($branches as $key => $branch) {
 
       $this->info(' '. $branch->code .' ');
@@ -89,6 +91,10 @@ class Cv extends Command
             $this->info(' has record ');
           } else {
 
+            
+            DB::beginTransaction();
+            
+
             $fi = $this->storage->folderInfo2($dir);
             $count = count($fi);
 
@@ -102,14 +108,24 @@ class Cv extends Command
                   $this->info($file['name']);
 
                   $cvhdrImporter = $this->dbfImporter->invoke('cvhdr');
-                  $cnt = $cvhdrImporter->import($branch->id, $day, $file['realFullPath'], $cmd);
+                  try {
+                    $cnt = $cvhdrImporter->import($branch->id, $day, $file['realFullPath'], $cmd);
+                  } catch (Exception $e) {
+                    DB::rollback();
+                    die($e->getMessage());
+                  }
                 }
 
                 if (ends_with($file['name'], 'DT.DBF')) {
                   $this->info($file['name']);
 
                   $cvinvdtlImporter = $this->dbfImporter->invoke('cvinvdtl');
-                  $cnt = $cvinvdtlImporter->import($branch->id, $day, $file['realFullPath'], $cmd);
+                  try {
+                    $cnt = $cvinvdtlImporter->import($branch->id, $day, $file['realFullPath'], $cmd);
+                  } catch (Exception $e) {
+                    DB::rollback();
+                    die($e->getMessage());
+                  }
                 }
 
 
@@ -131,31 +147,18 @@ class Cv extends Command
               $fu->user_id = $this->user_id;
               
               if($fu->save()) {
-                
               //   if (app()->environment()==='production')
               //     event(new ApUpload($fu, $branch));
-                
-              //   #if (app()->environment()==='production')
-              //   #  event(new Notifier($branch->code.' AP '. $fu->filename . ' uploaded on Cashiers Module' ));
               }
-
-
             }
 
-
+            DB::commit();
+            
           }
-
         } else {
-
           //$this->info(' '. $day->format('Y-m-d') .' ');
-        
         }
-
       }
-                    
     }      
-  
-
-
   } 
 }
