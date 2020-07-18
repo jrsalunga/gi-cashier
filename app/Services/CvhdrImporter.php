@@ -37,39 +37,41 @@ class CvhdrImporter {
       $update = 0;
       $curr_date = null;
 
-      for ($i=1; $i<=$recno; $i++) {
-        $row = dbase_get_record_with_names($db, $i);
-        $data = $this->cvhdr->associateAttributes($row);
-        
-        $refno = $refno + $trans + 1;
-        $data['branch_id'] = $branchid;
-        $data['refno'] = $refno;
+      if ($recno>0) {
+        for ($i=1; $i<=$recno; $i++) {
 
-        // try {
-        //   $vfpdate = vfpdate_to_carbon(trim($row['CV_DATE']));
-        // } catch(Exception $e) {
-        //   // log on error
-        //   continue;
-        // }
-
-
-        //   if (!is_null($cmd))
-        //     $cmd->info('delete: '. $data['date']);
-        // $this->cvhdr->deleteWhere(['branch_id'=>$branchid, 'cvdate'=>$vfpdate->format('Y-m-d')]);
-
-
-        if (!is_null($cmd))
-          $cmd->info('import: '. $data['cvdate']);
-        // $this->cashAudit->findOrNew($data, ['date', 'branch_id']);
-        
-        // $this->cvhdr->firstOrNewField($data, ['cvdate', 'branch_id']);
-        if(!is_null($this->cvhdr->verifyAndCreate($data)));
-          $trans++;
+          $row = dbase_get_record_with_names($db, $i);
+          $data = $this->cvhdr->associateAttributes($row);
           
-      } // end: for
+          $data['branch_id'] = $branchid;
+          $data['refno'] = $refno + $trans + 1;
 
-      $lastcv->lastnumber = $refno;
-      $lastcv->save();
+          // try {
+          //   $vfpdate = vfpdate_to_carbon(trim($row['CV_DATE']));
+          // } catch(Exception $e) {
+          //   // log on error
+          //   continue;
+          // }
+
+
+          //   if (!is_null($cmd))
+          //     $cmd->info('delete: '. $data['date']);
+          // $this->cvhdr->deleteWhere(['branch_id'=>$branchid, 'cvdate'=>$vfpdate->format('Y-m-d')]);
+
+
+          if (!is_null($cmd))
+            $cmd->info('import: '. $data['cvdate']);
+          // $this->cashAudit->findOrNew($data, ['date', 'branch_id']);
+          
+          // $this->cvhdr->firstOrNewField($data, ['cvdate', 'branch_id']);
+          if(!is_null($this->cvhdr->verifyAndCreate($data)));
+            $trans++;
+            
+        } // end: for
+
+        $lastcv->lastnumber = $data['refno'];
+        $lastcv->save();
+      }
 
       dbase_close($db);
       unset($ds);
