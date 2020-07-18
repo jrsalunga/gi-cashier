@@ -131,7 +131,7 @@ class Cv extends Command
 
               }
               $remarks = join(',', $r);
-              $this->comment(' '. $remarks .' ');
+              $this->comment($branch->code.' - '. $remarks .' ');
 
               $fu = new FileUpload;
               $fu->branch_id = $branch->id;
