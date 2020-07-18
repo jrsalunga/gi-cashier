@@ -619,7 +619,7 @@ public function handle()
         ->whereDate($date)
         ->with([
           'invhdr'=>function($q) {
-            $q->select(['refno', 'id'])
+            $q->select(['refno', 'saletype', 'tableno', 'id'])
               ->with(['scinfos'=>function($q){
                 $q->where('cancelled', 0);
               }]);
@@ -879,6 +879,7 @@ public function handle()
     $pdamt = number_format(0,2);
     $bnkchrg = number_format(0,2);
     $terms = '';
+    $cusfax = '';
     //$true_charge = number_format(0,2);
 
 
@@ -901,17 +902,26 @@ public function handle()
 
       $orpaydtl->load('bankcard');
 
+
       $cusno = $orpaydtl->tableno;
       $cusname = empty($orpaydtl->bankcard->descriptor)
                 ? 'NOT ENCODED'
                 : $orpaydtl->bankcard->descriptor;
       $bnkchrg = number_format(($orpaydtl->amounts*$orpaydtl->bankrate)/100,2);
-      $terms = 'CHARGE';
       $true_charge = $orpaydtl->amounts;
-      $cardno = $orpaydtl->approval.' '.$orpaydtl->refno;  
-      $cardtyp = 'VISA';
       $cusaddr1 = $orpaydtl->fullname;
-      $cusaddr2 = 'VISA';
+      
+      if (in_array($orpaydtl->bankcard->id, ['FP', 'GF'])) {
+        $terms = $orpaydtl->bankcard->descriptor;
+        $cardno = $orpaydtl->approval;  
+        $cardtyp = 'OTHERS';
+        $cusaddr2 = 'OTHERS';
+      } else {
+        $terms = 'CHARGE';
+        $cardno = $orpaydtl->approval.' '.$orpaydtl->refno;  
+        $cardtyp = 'VISA';
+        $cusaddr2 = 'VISA';
+      }
     } 
 
     if ($orpaydtl->paytype=='4') {// signed
@@ -921,6 +931,15 @@ public function handle()
       $true_charge = $orpaydtl->amounts;
     }
 
+    if ($orpaydtl->invhdr->saletype==1)
+      $cusfax = 'DINEIN';
+    else if ($orpaydtl->invhdr->saletype==3) {
+      if (in_array(substr($orpaydtl->invhdr->tableno,0,1), ['P', 'G']))
+        $cusfax = 'ONLRID';
+      else
+        $cusfax = 'TKEOUT';
+    } else
+      $cusfax = 'DINEIN';
 
 
     return [
@@ -955,7 +974,7 @@ public function handle()
       $cusaddr1, //CUSADDR1  
       $cusaddr2, //CUSADDR2  
       '', //CUSTEL  
-      '', //CUSFAX  
+      $cusfax, //CUSFAX  
       '', //CUSCONT 
       '', //TCASH 
       '', //TCHARGE 

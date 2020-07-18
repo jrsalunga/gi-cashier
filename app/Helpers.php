@@ -689,3 +689,15 @@ if (!function_exists('initials')) {
   }
 }
 
+if (!function_exists('enye')) {
+  function enye($x) {
+    return str_replace('¥', 'Ñ', utf8_encode(trim($x)));
+  }
+}
+
+if (!function_exists('eyne')) {
+  function eyne($x) {
+    return str_replace('Ñ', utf8_decode('¥'), trim($x));
+  }
+}
+

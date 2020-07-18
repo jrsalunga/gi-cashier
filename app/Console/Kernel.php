@@ -84,6 +84,9 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Cron\CashAudit::class,
         
         Paymast::class,
+
+        \App\Console\Commands\Import\Cv::class,
+        \App\Console\Commands\Cron\Cv::class,
     ];
 
     /**

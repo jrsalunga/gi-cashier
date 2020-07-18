@@ -77,8 +77,19 @@ abstract class BaseModel extends Model {
 		//return str_replace("-", "", $uid);
 		
 		/* for ramsey/uuid */
-		return strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 9, 4).SUBSTR($uid, 24).SUBSTR($uid, 0, 8).SUBSTR($uid, 19, 4));
+		return strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 9, 4).SUBSTR($uid, 24).SUBSTR($uid, 0, 8).SUBSTR($uid, 19, 4)); // 3 - 2 - 5 - 1 - 4 (sequential)
+    return strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 24).SUBSTR($uid, 9, 4).SUBSTR($uid, 19, 4).SUBSTR($uid, 0, 8)); // 3 - 5 - 2 - 4 - 1
+    return strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 24).SUBSTR($uid, 19, 4).SUBSTR($uid, 9, 4).SUBSTR($uid, 0, 8)); // 3 - 5 - 4 - 2 - 1
 	}
+
+//     11EA 1C1B0D85A7E0 8004 C700 0C07F7FA
+
+// 1 - 11EA 1C1B0D85A7E0 953D C6FF F439E39A
+// 2 - 11EA 1C1B0D85A7E0 B2B6 C6FF F52E1BE0
+
+
+// 52 - 11EA 1C1B0D85A7E0 C700 800A FF6094A2
+// 1 -  11EA 1C1B0D85A7E0 C700 8F06 C6346DF2
 
 	public static function raw_uid() {
 
@@ -102,6 +113,20 @@ abstract class BaseModel extends Model {
 	    echo $uuid5->toString() . "\n"; // i.e. c4a760a8-dbcf-5254-a0d9-6a4474bd1b62
 		 	*/
 		} catch (UnsatisfiedDependencyException $e) {
+
+      // 3 - 5 - 4 - 2 - 1 (Correct Format)
+      // select CONCAT(
+      // UPPER(substr(UUID(),15,4)),   /* 3 */
+      // UPPER(substr(UUID(),10,4)),   /* 2 */
+      // UPPER(substr(UUID(),25,12)),  /* 5 */
+      // UPPER(substr(UUID(),1,8))     /* 1 */
+      // UPPER(substr(UUID(),20,4)),   /* 4 */
+      // ) AS UID, UUID(),
+      // UPPER(substr(UUID(),15,4)) as t3,
+      // UPPER(substr(UUID(),10,4)) as t2,
+      // UPPER(substr(UUID(),25,12)) as t5,
+      // UPPER(substr(UUID(),1,8)) as t1
+      // UPPER(substr(UUID(),20,4)) as t4,
 		 
 		  $id = DB::select('SELECT CONCAT(substr(UUID(),15,4),substr(UUID(),10,4),substr(UUID(),25,12),substr(UUID(),1,8),substr(UUID(),20,4)) as id');
 			$id = array_shift($id);
