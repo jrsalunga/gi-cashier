@@ -61,7 +61,7 @@ class Cv extends Command
     // $to = Carbon::now();
     
     if (app()->environment()=='production') {
-      $branches = Branch::where('opendate', '<>', '0000-00-00')->where('closedate', '=', '0000-00-00')->orderBy('code')->get()
+      $branches = Branch::where('opendate', '<>', '0000-00-00')->where('closedate', '=', '0000-00-00')->orderBy('code')->get();
       $cmd = NULL;
     } else {
       $branches =  Branch::orderBy('code')->get();
@@ -153,7 +153,7 @@ class Cv extends Command
             }
 
             DB::commit();
-            
+
           }
         } else {
           //$this->info(' '. $day->format('Y-m-d') .' ');
