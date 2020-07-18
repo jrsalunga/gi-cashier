@@ -38,7 +38,6 @@ class CvhdrImporter {
       $curr_date = null;
 
       for ($i=1; $i<=$recno; $i++) {
-        return dd(1<=$recno);
         $row = dbase_get_record_with_names($db, $i);
         $data = $this->cvhdr->associateAttributes($row);
         
