@@ -33,14 +33,18 @@ class CvhdrImporter {
       $db = dbase_open($dbf_file, 0);
       $header = dbase_get_header_info($db);
       $recno = dbase_numrecords($db);
+
       $update = 0;
       $curr_date = null;
 
       for ($i=1; $i<=$recno; $i++) {
+        return dd(1<=$recno);
         $row = dbase_get_record_with_names($db, $i);
         $data = $this->cvhdr->associateAttributes($row);
+        
+        $refno = $refno + $trans + 1;
         $data['branch_id'] = $branchid;
-        $data['refno'] = $refno + $trans + 1;
+        $data['refno'] = $refno;
 
         // try {
         //   $vfpdate = vfpdate_to_carbon(trim($row['CV_DATE']));
@@ -65,7 +69,7 @@ class CvhdrImporter {
           
       } // end: for
 
-      $lastcv->lastnumber = $data['refno'];
+      $lastcv->lastnumber = $refno;
       $lastcv->save();
 
       dbase_close($db);
