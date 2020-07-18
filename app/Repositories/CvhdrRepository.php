@@ -79,9 +79,9 @@ class CvhdrRepository extends BaseRepository implements CacheableInterface
     $this->check->create([
       'no'        => $attributes['checkno'],
       'date'      => $attributes['checkdate'],
-      'payee'     => strpos(strtolower($attributes['payee']), 'cancel') == false ? '' : $attributes['payee'],
+      'payee'     => strpos(strtolower($attributes['payee']), 'cancel') == false ? $attributes['payee']:'',
       'amount'    => $attributes['checkamt'],
-      'status'    => strpos(strtolower($attributes['payee']), 'cancel') == false ? 2:1,
+      'status'    => strpos(strtolower($attributes['payee']), 'cancel') == false ? 1:2,
       'cvhdr_id'  => $cvhdr->id,
       'bank_id'   => $bank_id
     ]);
