@@ -81,12 +81,14 @@ class Cv extends Command
       
         if ($this->storage->exists($dir)) {
           
-          $this->line($branch->code.' '. $day->format('Y-m-d') .' new directory found! '); // a folder of CV exists on /CV/{YYYY}/{BRCODE}/{MM}/{DD}
+          if (app()->environment()=='local')
+            $this->line($branch->code.' '. $day->format('Y-m-d') .' directory found! '); // a folder of CV exists on /CV/{YYYY}/{BRCODE}/{MM}/{DD}
          
           $f = $this->fileUpload->where('branch_id', $branch->id)->where('uploaddate',$day->format('Y-m-d'))->where('filetype_id',$this->filetype_id)->first();
 
           if ($f) {
-            $this->info('already processed!');
+            if (app()->environment()=='local')
+              $this->info('already processed!');
           } else {
 
             
