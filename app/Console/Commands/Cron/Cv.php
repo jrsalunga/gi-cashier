@@ -51,11 +51,14 @@ class Cv extends Command
 
   public function handle() {
 
-    $to = Carbon::now();
-    //$fr = $to->copy()->subDays(30);
-    $fr = Carbon::parse('2020-01-01');
-
     $this->info(app()->environment());
+
+    
+    //$fr = $to->copy()->subDays(30);
+    $fr = Carbon::parse('2017-01-01');
+    $to = Carbon::parse('2017-12-31');
+    // $fr = Carbon::parse('2020-01-01');
+    // $to = Carbon::now();
     
     $branches = (app()->environment()=='production')
       ? Branch::where('opendate', '<>', '0000-00-00')->where('closedate', '=', '0000-00-00')->orderBy('code')->get()
