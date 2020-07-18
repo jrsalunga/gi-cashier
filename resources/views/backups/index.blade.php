@@ -75,7 +75,7 @@
           </td>
           <td class="text-center">
             @if($backup->kitlog=='0')
-              <span class="glyphicon glyphicon-remove"></span>
+              <!-- <span class="glyphicon glyphicon-remove"></span> -->
             @elseif($backup->kitlog=='1')
               <span class="glyphicon glyphicon-ok"></span>
             @else
