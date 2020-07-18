@@ -1,4 +1,4 @@
-<?php namespace App\Console\Commands\Import;
+<?php namespace App\Console\Commands\Cron;
 
 use DB;
 use Carbon\Carbon;
