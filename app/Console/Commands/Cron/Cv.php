@@ -55,8 +55,8 @@ class Cv extends Command
     $this->info(app()->environment());
     
     //$fr = $to->copy()->subDays(30);
-    $fr = Carbon::parse('2017-01-01');
-    $to = Carbon::parse('2017-12-31');
+    $fr = Carbon::parse('2018-01-01');
+    $to = Carbon::parse('2018-12-31');
     // $fr = Carbon::parse('2020-01-01');
     // $to = Carbon::now();
     
