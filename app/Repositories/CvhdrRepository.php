@@ -68,6 +68,9 @@ class CvhdrRepository extends BaseRepository implements CacheableInterface
 
     try {
       if ($create)
+        $r = $this->findWhere(['checkno'=>$attr['checkno']]);
+        if (count($r)>0)
+          $attr['status'] = (10 + count($r));
         $cvhdr = $this->create($attr);
       else {
         $cvhdr = $this->findOrNew($attr, ['code', 'descriptor']);
