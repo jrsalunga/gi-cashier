@@ -55,10 +55,10 @@ class Cv extends Command
     $this->info(app()->environment());
     
     //$fr = $to->copy()->subDays(30);
-    $fr = Carbon::parse('2019-01-01');
-    $to = Carbon::parse('2019-12-31');
-    // $fr = Carbon::parse('2020-01-01');
-    // $to = Carbon::now();
+    // $fr = Carbon::parse('2019-01-01');
+    // $to = Carbon::parse('2019-12-31');
+    $fr = Carbon::parse('2020-01-01');
+    $to = Carbon::now();
     
     if (app()->environment()=='production') {
       $branches = Branch::where('opendate', '<>', '0000-00-00')->where('closedate', '=', '0000-00-00')->orderBy('code')->get();
