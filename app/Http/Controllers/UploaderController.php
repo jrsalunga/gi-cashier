@@ -278,7 +278,7 @@ class UploaderController extends Controller
 					try {
 						$this->processSalesmtd($backup->date, $backup);
 					} catch (Exception $e) {
-            if (strpos($e->getMessage(), 'timeout')==false)
+            if (strpos($e->getMessage(), 'timeoutxxxx')==false)
   						$msg = 'Process Salesmtd: '.$e->getMessage();
             else 
               $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
@@ -293,7 +293,7 @@ class UploaderController extends Controller
 					try {
 						$this->processCharges($backup->date, $backup);
 					} catch (Exception $e) {
-            if (strpos($e->getMessage(), 'timeout')==false)
+            if (strpos($e->getMessage(), 'timeoutxxxx')==false)
   						$msg =  'Process Charges: '.$e->getMessage();
             else 
               $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
@@ -307,7 +307,7 @@ class UploaderController extends Controller
 					try {
 						$this->processPurchased($backup->date);
 					} catch (Exception $e) {
-            if (strpos($e->getMessage(), 'timeout')==false)
+            if (strpos($e->getMessage(), 'timeoutxxxx')==false)
   						$msg =  'Process Purchased: '.$e->getMessage();
             else 
               $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
@@ -321,7 +321,7 @@ class UploaderController extends Controller
 					try {
 						$this->processTransfer($backup->branchid, $backup->date);
 					} catch (Exception $e) {
-            if (strpos($e->getMessage(), 'timeout')==false)
+            if (strpos($e->getMessage(), 'timeoutxxxx')==false)
   						$msg =  'Process Transfer: '.$e->getMessage();
             else 
               $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
@@ -387,7 +387,7 @@ class UploaderController extends Controller
           try {
             $kl = $this->processKitlog($backup->branchid, $backup->date);
           } catch (Exception $e) {
-            if (strpos($e->getMessage(), 'timeout')==false)
+            if (strpos($e->getMessage(), 'timeoutxxxx')==false)
               $msg =  'Process Kitlog: '.$e->getMessage();
             else 
               $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
