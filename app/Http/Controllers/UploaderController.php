@@ -278,11 +278,10 @@ class UploaderController extends Controller
 					try {
 						$this->processSalesmtd($backup->date, $backup);
 					} catch (Exception $e) {
-            if (strpos($e->getMessage(), 'timeout')==false)
+            if (strpos($e->getMessage(), 'txxxximeout')==false)
   						$msg = 'Process Salesmtd: '.$e->getMessage();
             else 
-              // $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
-              $msg = 'Error: server overload. upload ur backup tomorrow morning.';
+              $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
 						$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
 						return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
@@ -294,11 +293,10 @@ class UploaderController extends Controller
 					try {
 						$this->processCharges($backup->date, $backup);
 					} catch (Exception $e) {
-            if (strpos($e->getMessage(), 'timeout')==false)
+            if (strpos($e->getMessage(), 'txxxximeout')==false)
   						$msg =  'Process Charges: '.$e->getMessage();
             else 
-              // $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
-              $msg = 'Error: server overload. upload ur backup tomorrow morning.';
+              $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
 						$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
 						//$this->logAction('error:process:charges', $log_msg.$msg);
@@ -309,11 +307,10 @@ class UploaderController extends Controller
 					try {
 						$this->processPurchased($backup->date);
 					} catch (Exception $e) {
-            if (strpos($e->getMessage(), 'timeout')==false)
+            if (strpos($e->getMessage(), 'txxxximeout')==false)
   						$msg =  'Process Purchased: '.$e->getMessage();
             else 
-              // $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
-              $msg = 'Error: server overload. upload ur backup tomorrow morning.';
+              $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
 						//$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
 						//$this->logAction('error:process:purchased', $log_msg.$msg);
@@ -324,11 +321,10 @@ class UploaderController extends Controller
 					try {
 						$this->processTransfer($backup->branchid, $backup->date);
 					} catch (Exception $e) {
-            if (strpos($e->getMessage(), 'timeout')==false)
+            if (strpos($e->getMessage(), 'txxxximeout')==false)
   						$msg =  'Process Transfer: '.$e->getMessage();
             else 
-              // $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
-              $msg = 'Error: server overload. upload ur backup tomorrow morning.';
+              $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
 						//$res = $this->movedErrorProcessing($filepath, $storage_path);
 						$this->updateBackupRemarks($backup, $msg);
 						//$this->logAction('error:process:purchased', $log_msg.$msg);
@@ -391,11 +387,10 @@ class UploaderController extends Controller
           try {
             $kl = $this->processKitlog($backup->branchid, $backup->date);
           } catch (Exception $e) {
-            if (strpos($e->getMessage(), 'timeout')==false)
+            if (strpos($e->getMessage(), 'txxxximeout')==false)
               $msg =  'Process Kitlog: '.$e->getMessage();
             else 
-              // $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
-              $msg = 'Error: server overload. upload ur backup tomorrow morning.';
+              $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
             //$res = $this->movedErrorProcessing($filepath, $storage_path);
             $this->updateBackupRemarks($backup, $msg);
             //$this->logAction('error:process:purchased', $log_msg.$msg);
