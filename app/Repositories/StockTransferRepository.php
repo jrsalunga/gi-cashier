@@ -32,7 +32,7 @@ class StockTransferRepository extends BaseRepository implements CacheableInterfa
   public function verifyAndCreate($data) {
 
     $component = $this->component->verifyAndCreate(array_only($data, ['comp', 'ucost', 'unit', 'supno', 'catname']));
-    $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin']));
+    $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin', 'terms']));
     $attr = [
       'date' => $data['date'],
       'componentid' => $component->id,

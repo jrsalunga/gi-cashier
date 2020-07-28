@@ -36,7 +36,7 @@ class Purchase2Repository extends BaseRepository
     } else {
 
       $component = $this->component->verifyAndCreate(array_only($data, ['comp', 'ucost', 'unit', 'supno', 'catname']));
-      $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin']));
+      $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin', 'terms']));
       $attr = [
         'date' => $data['date'],
         'componentid' => $component->id,

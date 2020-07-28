@@ -278,7 +278,7 @@ class UploaderController extends Controller
 					try {
 						$this->processSalesmtd($backup->date, $backup);
 					} catch (Exception $e) {
-            if (strpos($e->getMessage(), 'txxxximeout')==false)
+            if (strpos($e->getMessage(), 'timeout')==false)
   						$msg = 'Process Salesmtd: '.$e->getMessage();
             else 
               $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
@@ -293,7 +293,7 @@ class UploaderController extends Controller
 					try {
 						$this->processCharges($backup->date, $backup);
 					} catch (Exception $e) {
-            if (strpos($e->getMessage(), 'txxxximeout')==false)
+            if (strpos($e->getMessage(), 'timeout')==false)
   						$msg =  'Process Charges: '.$e->getMessage();
             else 
               $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
@@ -307,7 +307,7 @@ class UploaderController extends Controller
 					try {
 						$this->processPurchased($backup->date);
 					} catch (Exception $e) {
-            if (strpos($e->getMessage(), 'txxxximeout')==false)
+            if (strpos($e->getMessage(), 'timeout')==false)
   						$msg =  'Process Purchased: '.$e->getMessage();
             else 
               $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
@@ -321,7 +321,7 @@ class UploaderController extends Controller
 					try {
 						$this->processTransfer($backup->branchid, $backup->date);
 					} catch (Exception $e) {
-            if (strpos($e->getMessage(), 'txxxximeout')==false)
+            if (strpos($e->getMessage(), 'timeout')==false)
   						$msg =  'Process Transfer: '.$e->getMessage();
             else 
               $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
@@ -387,7 +387,7 @@ class UploaderController extends Controller
           try {
             $kl = $this->processKitlog($backup->branchid, $backup->date);
           } catch (Exception $e) {
-            if (strpos($e->getMessage(), 'txxxximeout')==false)
+            if (strpos($e->getMessage(), 'timeout')==false)
               $msg =  'Process Kitlog: '.$e->getMessage();
             else 
               $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
@@ -398,10 +398,10 @@ class UploaderController extends Controller
           }
 
 
-          // event(new \App\Events\Process\AggregateComponentDaily($backup->date, $backup->branchid)); // recompute Daily Component
-          // event(new \App\Events\Process\AggregateDailyExpense($backup->date, $backup->branchid)); // recompute Daily Expense
-          // event(new \App\Events\Process\AggregatorDaily('trans-expense', $backup->date, $backup->branchid)); // recompute Daily Transfered and update day_expense
-          // event(new \App\Events\Process\AggregatorDaily('prodcat', $backup->date, $backup->branchid)); 
+          event(new \App\Events\Process\AggregateComponentDaily($backup->date, $backup->branchid)); // recompute Daily Component
+          event(new \App\Events\Process\AggregateDailyExpense($backup->date, $backup->branchid)); // recompute Daily Expense
+          event(new \App\Events\Process\AggregatorDaily('trans-expense', $backup->date, $backup->branchid)); // recompute Daily Transfered and update day_expense
+          event(new \App\Events\Process\AggregatorDaily('prodcat', $backup->date, $backup->branchid)); 
           
           event(new \App\Events\Process\AggregatorDaily('change_item', $backup->date, $backup->branchid)); // update ds
           event(new \App\Events\Backup\DailySalesSuccess($backup)); // recompute Monthlysales
@@ -413,7 +413,6 @@ class UploaderController extends Controller
 					event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('change_item', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('cash_audit', $backup->date, $backup->branchid));
-          // event(new \App\Events\Process\AggregatorMonthly('change_item', $backup->date, $backup->branchid));
 					event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
 
 

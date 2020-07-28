@@ -32,6 +32,7 @@ class SupplierRepository extends BaseRepository implements CacheableInterface
       'code' => substr($data['supno'], 2, 4),
       'descriptor' => $data['supname'],
       'tin' => $data['tin'],
+      'terms' => $data['terms'],
       'branchid' => $data['branchid']
     ];
 
@@ -56,6 +57,9 @@ class SupplierRepository extends BaseRepository implements CacheableInterface
     
     if (!is_null($obj) && is_null($obj->tin) && !is_null($attributes['tin']))
       $this->update(['tin'=>$attributes['tin']], $obj->id);
+
+    if (!is_null($obj) && is_null($obj->terms) && !is_null($attributes['terms']))
+      $this->update(['terms'=>$attributes['terms']], $obj->id);
 
     return !is_null($obj) ? $obj : $this->create($attributes);
   }
