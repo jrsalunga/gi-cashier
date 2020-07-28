@@ -196,18 +196,18 @@
                     <td class="text-right">{{ nf($cash_audit->col_dink, 2, true) }}</td>
                   </tr>
                   <tr>
-                    <td>&nbsp;</td>
-                    <td class="text-right">{{ nf($cash_audit->cas+$cash_audit->ca, 2, true) }}</td>
-                    <td class="text-right">{{ nf($cash_audit->cak, 2, true) }}</td>
+                    <td>{{ $cash_audit->col_cas }}</td>
+                    <td class="text-right">{{ nf($cash_audit->col_ca, 2, true) }}</td>
+                    <td class="text-right">{{ nf($cash_audit->col_cak, 2, true) }}</td>
                   </tr>
                   <tr>
-                    <td>&nbsp;</td>
-                    <td class="text-right">{{ nf($cash_audit->col_oths+$cash_audit->col_othr, 2, true) }}</td>
+                    <td>{{ $cash_audit->col_oths }}</td>
+                    <td class="text-right">{{ nf($cash_audit->col_othr, 2, true) }}</td>
                     <td class="text-right">{{ nf($cash_audit->col_othrk, 2, true) }}</td>
                   </tr>
                   <tr>
-                    <td>&nbsp;</td>
-                    <td class="text-right">{{ nf($cash_audit->coloth2s+$cash_audit->col_oth2, 2, true) }}</td>
+                    <td>{{ $cash_audit->coloth2s }}</td>
+                    <td class="text-right">{{ nf($cash_audit->col_oth2, 2, true) }}</td>
                     <td class="text-right">{{ nf($cash_audit->col_oth2k, 2, true) }}</td>
                   </tr>
                   <tr>
