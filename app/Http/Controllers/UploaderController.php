@@ -404,7 +404,7 @@ class UploaderController extends Controller
           event(new \App\Events\Process\AggregatorDaily('prodcat', $backup->date, $backup->branchid)); 
           
           event(new \App\Events\Process\AggregatorDaily('change_item', $backup->date, $backup->branchid)); // update ds
-          event(new \App\Events\Backup\DailySalesSuccess($backup)); // recompute Monthlysales
+          event(new \App\Events\Backup\DailySalesSuccess($backup)); // recompute Monthlysales based on DS
 					event(new \App\Events\Process\AggregateComponentMonthly($backup->date, $backup->branchid)); // recompute Monthly Component
 					event(new \App\Events\Process\AggregateMonthlyExpense($backup->date, $backup->branchid)); // recompute Monthly Expense
 					event(new \App\Events\Process\AggregatorMonthly('trans-expense', $backup->date, $backup->branchid));

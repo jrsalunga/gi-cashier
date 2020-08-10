@@ -536,6 +536,7 @@ class PosUploadRepository extends Repository
       $update = 0;
       $food_cost = 0;
       $opex = 0;
+      $saved = false;
 
       // delete if exist
       try {
@@ -548,10 +549,14 @@ class PosUploadRepository extends Repository
 
       try {
         //$this->logAction($date->format('Y-m-d'), 'delete:purchased2');
-        $this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d')]);
+        $this->purchase2->deleteWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d'), 'save'=>0]);
       } catch(Exception $e) {
         throw $e;    
       }
+
+      $saves = $this->purchase2->findWhere(['branchid'=>session('user.branchid'), 'date'=>$date->format('Y-m-d'), 'save'=>1]);
+      if (count($saves)>0)
+        $saved = true;
 
       //$this->logAction($date->format('Y-m-d'), 'start:loop:purchased');
       for ($i=1; $i<=$record_numbers; $i++) {
@@ -601,7 +606,7 @@ class PosUploadRepository extends Repository
           $attrs['supprefno'] = trim($row['FILLER1']);
           try {
             //$this->logAction($date->format('Y-m-d'), 'create:purchased2');
-            $this->purchase2->verifyAndCreate($attrs);
+            $this->purchase2->verifyAndCreate($attrs, $saved);
           } catch(Exception $e) {
             throw $e;    
           }

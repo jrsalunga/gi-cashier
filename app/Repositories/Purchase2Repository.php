@@ -29,11 +29,13 @@ class Purchase2Repository extends BaseRepository
   }
 
   // verify-create component and supplier if not found 
-  public function verifyAndCreate($data) {
+  public function verifyAndCreate($data, $saved=false) { // check if may saved purchases or paid na
 
     if (abs($data['ucost'])==0 && abs($data['qty'])==0 && empty($data['comp'])) {
       // dont create record
     } else {
+
+
 
       $component = $this->component->verifyAndCreate(array_only($data, ['comp', 'ucost', 'unit', 'supno', 'catname']));
       $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin', 'terms']));
@@ -48,11 +50,15 @@ class Purchase2Repository extends BaseRepository
         'supprefno' => $data['supprefno'],
         'vat' => $data['vat'],
         'supplierid' => $supplier->id,
-        'branchid' => $data['branchid']
+        'branchid' => $data['branchid'],
+        'paytype' => $data['terms']=='C'?1:0,
       ];
 
       try {
-        $this->create($attr);
+        if ($saved)
+          $this->findOrNew($attr, ['date', 'componentid', 'qty', 'supprefno', 'supplierid', 'branchid', 'tcost']);
+        else
+          $this->create($attr);
       } catch(Exception $e) {
         throw new Exception($e->getMessage());    
       }
