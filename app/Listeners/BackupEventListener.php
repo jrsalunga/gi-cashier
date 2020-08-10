@@ -77,7 +77,7 @@ class BackupEventListener
   public function processEmpMeal($data) {
     $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['opex', 'emp_meal']);
     //$ds = $this->ds->findWhere(['date'=>'2018-08-31', 'branchid'=>'0C2D132F78A711E587FA00FF59FBB323'], ['opex', 'emp_meal'])->first();
-    $s = Supplier::where(['code'=>$data['suppliercode']])->first();
+    $s = Supplier::where(['code'=>$data['suppliercode'], 'branchid'=>$data['branch_id']])->first();
     if (is_null($s)) {
       $b = Branch::find($data['branch_id']);
       $s = Supplier::where(['code'=>$b->code])->first();
