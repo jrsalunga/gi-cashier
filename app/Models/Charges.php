@@ -9,7 +9,7 @@ class Charges extends BaseModel {
   protected $fillable = ['cslipno', 'orddate', 'ordtime', 'tblno', 'chrg_type', 'chrg_pct', 'chrg_grs', 
                   'sr_tcust', 'sr_body', 'custcount', 'sr_disc', 'vat', 'bank_chrg', 'tot_chrg', 
                   'balance', 'terms', 'card_type', 'card_no', 'card_name', 'card_addr', 'tcash', 'tcharge', 
-                  'tsigned', 'vat_xmpt', 'disc_type', 'disc_amt', 'promo_amt', 'udisc', 'othdisc', 'cashier', 'remarks', 'branch_id'];
+                  'tsigned', 'vat_xmpt', 'disc_type', 'disc_amt', 'promo_amt', 'udisc', 'othdisc', 'cashier', 'remarks', 'saletype', 'branch_id'];
 	//protected $guarded = ['id'];
   protected $appends = ['transdate'];
   //protected $dates = ['transdate'];

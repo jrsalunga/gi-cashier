@@ -66,6 +66,7 @@ class ChargesRepository extends BaseRepository implements CacheableInterface
 		$row['card_no'] 			= trim($r['CARDNO']);
 		$row['card_name'] 		= trim($r['CUSADDR1']);
 		$row['card_addr'] 		= trim($r['CUSADDR2']);
+    $row['saletype']      = trim($r['CUSFAX']);
 		$row['tcash'] 				= trim($r['TCASH']);
 		$row['tcharge'] 			= trim($r['TCHARGE']);
 		$row['tsigned'] 			= trim($r['TSIGNED']);
