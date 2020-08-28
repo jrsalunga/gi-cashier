@@ -3015,7 +3015,7 @@ class PosUploadRepository extends Repository
     if (count($br)>0) {
       return $br->first()->id;
     } else {
-      $su = $supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin']));
+      $su = $supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin', 'terms']));
       //$su = $supplier->findWhere(['code'=>$code]);
       //if (count($su)>0) 
       if (!is_null($su)) {
