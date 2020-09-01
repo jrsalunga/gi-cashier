@@ -218,6 +218,7 @@ class MonthDaily extends Command
     event(new \App\Events\Process\AggregatorDaily('trans-expense', $backup->date, $backup->branchid)); // recompute Daily Transfered and update day_expense
     event(new \App\Events\Process\AggregatorDaily('prodcat', $backup->date, $backup->branchid)); 
 
+    event(new \App\Events\Process\AggregatorDaily('change_item', $backup->date, $backup->branchid)); // update ds
     $this->info('DailySalesSuccess');
     event(new DailySalesSuccess($backup));
     $this->info('AggregateComponentMonthly');
@@ -234,6 +235,8 @@ class MonthDaily extends Command
     event(new AggregatorMonthly('groupies', $backup->date, $backup->branchid));
     $this->info('AggregatorMonthly');
     event(new AggregatorMonthly('change_item', $backup->date, $backup->branchid));
+    $this->info('AggregatorMonthly cash-audit');
+    event(new \App\Events\Process\AggregatorMonthly('cash_audit', $backup->date, $backup->branchid));
     $this->info('RankMonthlyProduct');
     event(new RankMonthlyProduct($backup->date, $backup->branchid));
     
