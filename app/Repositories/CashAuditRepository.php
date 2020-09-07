@@ -98,11 +98,32 @@ class CashAuditRepository extends BaseRepository implements CacheableInterface
       'man_cost'   => trim($r['MAN_COST']),     
       'cust_cnt'  => trim($r['CUST_CNT']),
       'tran_cnt'  => trim($r['TRAN_CNT']),
-      'tot_disc'  => trim($r['TOT_DISC']),
-      'tot_canc'  => trim($r['TOT_CANC']),
-      'man_hrs'   => trim($r['MAN_HRS']),
-      'man_pay'   => trim($r['MAN_PAY']),
+      // 'tot_disc'  => trim($r['TOT_DISC']),
+      // 'tot_canc'  => trim($r['TOT_CANC']),
+      // 'man_hrs'   => trim($r['MAN_HRS']),
+      // 'man_pay'   => trim($r['MAN_PAY']),
     ];
+
+    if (isset($r['TOT_DISC']))
+      $row['tot_disc'] = trim($r['TOT_DISC']);
+    else
+      $row['tot_disc'] = '';
+
+    if (isset($r['TOT_CANC']))
+      $row['tot_canc'] = trim($r['TOT_CANC']);
+    else
+      $row['tot_canc'] = '';
+
+    if (isset($r['MAN_HRS']))
+      $row['man_hrs'] = trim($r['MAN_HRS']);
+    else
+      $row['man_hrs'] = '';
+
+    if (isset($r['MAN_PAY']))
+      $row['man_pay'] = trim($r['MAN_PAY']);
+    else
+      $row['man_pay'] = '';
+
 
     return $row;
   }
