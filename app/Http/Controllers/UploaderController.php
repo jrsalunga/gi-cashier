@@ -1214,6 +1214,7 @@ class UploaderController extends Controller
                 $query->orWhere('code', 'like', '%'.$request->input('q').'%')
                   ->orWhere('descriptor', 'like',  '%'.$request->input('q').'%');
               })
+              ->where('status', 1)
               ->take($limit)
               ->get(['code', 'descriptor', 'id']);
 
