@@ -1209,7 +1209,8 @@ class UploaderController extends Controller
   public function searchSupplier(Request $request) {
     if ($request->ajax()) {
       $limit = empty($request->input('maxRows')) ? 10:$request->input('maxRows'); 
-      $res = \App\Models\Supplier::whereIn('branchid', [$request->user()->branchid, '971077BCA54611E5955600FF59FBB323'])
+      // $res = \App\Models\Supplier::whereIn('branchid', [$request->user()->branchid, '971077BCA54611E5955600FF59FBB323'])
+      $res = \App\Models\Supplier::whereIn('branchid', [$request->user()->branchid])
               ->where(function ($query) use ($request) {
                 $query->orWhere('code', 'like', '%'.$request->input('q').'%')
                   ->orWhere('descriptor', 'like',  '%'.$request->input('q').'%');
