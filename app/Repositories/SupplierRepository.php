@@ -38,6 +38,9 @@ class SupplierRepository extends BaseRepository implements CacheableInterface
 
     //return $this->firstOrNew($attr, ['descriptor', 'branchid']);
     // return $this->findOrNew($attr, ['descriptor', 'branchid']);
+    if (empty($attr['code']))
+      return $this->findOrNew($attr, ['descriptor', 'branchid']);
+
     return $this->findOrNew($attr, ['code', 'descriptor', 'branchid']);
   }
 
