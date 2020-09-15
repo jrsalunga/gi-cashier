@@ -134,5 +134,11 @@ class SettingsController extends Controller {
 
 
 
+  public function getUuid(Request $request) {
+    return \App\Models\Branch::get_uid();
+  }
+
+
+
 	
 }

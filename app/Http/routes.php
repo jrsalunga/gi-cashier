@@ -5,6 +5,7 @@ Route::post('auth/login', ['as'=>'auth.postlogin', 'uses'=>'Auth\AuthController@
 Route::get('logout', ['as'=>'auth.getlogout', 'uses'=>'Auth\AuthController@getLogout']);
 
 Route::get('test-mail', ['uses'=>'UploaderController@testMail']);
+Route::get('uuid', ['uses'=>'SettingsController@getUuid']);
 
 
 Route::get('/', ['middleware' => 'auth', 'uses'=>'DashboardController@getIndex']);
