@@ -27,6 +27,8 @@ use App\Repositories\FileUploadRepository as FileUploadRepo;
 use App\Repositories\EmploymentActivityRepository as EmpActivity; 
 use App\Repositories\CashAuditRepository as CashAudit; 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException as Http404;
+use App\Repositories\SupplierRepository as Supplier;
+use App\Repositories\DoctypeRepository as Doctype;
 
 
 class UploaderController extends Controller 
@@ -45,12 +47,16 @@ class UploaderController extends Controller
 	protected $orpaydtl;
 	protected $invhdr;
   protected $cashAudit;
+  protected $supplier;
+  protected $doctype;
 
-	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, SetslpRepo $setslp, DSRepo $ds, Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr, CashAudit $cashAudit) {
+	public function __construct(PosUploadRepo $posUploadRepo, FileUploadRepo $fileUploadRepo, DepslipRepo $depslip, SetslpRepo $setslp, DSRepo $ds, Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr, CashAudit $cashAudit, Supplier $supplier, Doctype $doctype) {
 		$this->posUploadRepo = $posUploadRepo;
 		$this->fileUploadRepo = $fileUploadRepo;
 		$this->depslip = $depslip;
 		$this->setslp = $setslp;
+    $this->supplier = $supplier;
+    $this->doctype = $doctype;
 		$this->ds = $ds;
 		$this->files = new StorageRepository(new PhpRepository, 'files.'.app()->environment());
 		$this->pos = new StorageRepository(new PhpRepository, 'pos.'.app()->environment());
@@ -90,9 +96,11 @@ class UploaderController extends Controller
 
     // return dd($e['mailing_list']);
 
+    $doctypes = $this->doctype->findWhere(['assigned'=>1]);
+    $suppliers = $this->supplier->findWhere(['status'=>1]);
 
 
-		return view('uploader.index');
+		return view('uploader.index', compact('suppliers', 'doctypes'));
 	}
 
 	public function getBackupIndex(Request $request) {  
@@ -992,12 +1000,17 @@ class UploaderController extends Controller
       'date'        => 'required|date',
       'type'        => 'required',
       'doctype'     => 'required',
+      'doctypeid'   => 'required',
       'supplier'    => 'required',
+      'supplierid'  => 'required',
       'cashier'     => 'required',
       'refno'       => 'required',
     ];
 
-    $messages = [];
+    $messages = [
+      'doctypeid.required' => 'Invalid document type! Please choose from the search drop down.',
+      'supplierid.required' => 'Invalid supplier! Please choose from the search drop down.',
+    ];
     
     $validator = Validator::make($request->all(), $rules, $messages);
 

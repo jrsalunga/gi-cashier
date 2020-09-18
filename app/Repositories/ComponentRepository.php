@@ -22,33 +22,23 @@ class ComponentRepository extends BaseRepository implements CacheableInterface
      
   }
 
-
 	public function model() {
     return 'App\Models\Component';
   }
-
-
-  
-
-
-
-
-
 
   public function verifyAndCreate($data) {
   	
     $compcat = $this->compcat->verifyAndCreate(array_only($data, ['supno', 'catname']));
 
     $attr = [
-      //'code' => session('user.branchcode').'-new', 
       'code' => 'new',
       'descriptor' => $data['comp'],
       'compcatid' => $compcat->id,
+      'expenseid' => $compcat->expenseid,
       'cost' => $data['ucost'],
       'uom' => $data['unit']
     ];
 
-    //return $this->firstOrNew($attr, ['descriptor']);
     return $this->findOrNew($attr, ['descriptor']);
   }
 
