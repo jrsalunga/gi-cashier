@@ -73,6 +73,7 @@ class UploaderController extends Controller
 	}
 
 	public function getIndex(Request $request) { 
+    return view('uploader.index');
     // $n = new \App\Helpers\BossBranch;
 
     // $e['mailing_list'] = [];
