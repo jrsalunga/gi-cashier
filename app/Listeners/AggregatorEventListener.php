@@ -187,14 +187,18 @@ class AggregatorEventListener
 
       $ex = \App\Models\Expense::find($value->expense_id);
 
-      $ord = is_null($ex)
-      ? 833
-      : $ex->ordinal;
+      if(is_null($ex)) {
+        $ord = 833;
+        $expense_id = 'F37A72215CFA11E5ADBC00FF59FBB323';
+      } else {
+        $ord = $ex->ordinal;
+        $expense_id = $value->expense_id;
+      }
 
       $this->me->firstOrNewField([
         'date'          => $date->copy()->lastOfMonth()->format('Y-m-d'),
         'xfred'         => $value->tcost,
-        'expense_id'    => $value->expense_id,
+        'expense_id'    => $expense_id,
         'branch_id'     => $branchid,
         'ordinal'       => $ord,
       ], ['date', 'branch_id', 'expense_id']);
