@@ -58,8 +58,9 @@ class ApuEventListener
 
     $date = $event->model->date;
     $expl = explode('.', $event->model->filename);
+    $e['subject'] = 'APU '.$brcode.' '.$date->format('Ymd');
     
-    $e['subject'] = (is_null($expl[0] && empty($expl[0]))) ? 'No Subject' : $expl[0];
+    $e['subject2'] = (is_null($expl[0] && empty($expl[0]))) ? 'No Subject' : $expl[0];
     $e['model'] = $event->model;
     $e['attachment'] = NULL;
 
@@ -72,7 +73,7 @@ class ApuEventListener
     $e['link'] =  $c.$event->model->lid();
     $this->mailer->queue('docu.apu.mail-upload', $e, function ($message) use ($e) {
       $message->subject($e['subject']);
-      $message->from('giligans.app@gmail.com', 'GI Payables Upload');
+      $message->from('giligans.app@gmail.com', 'GI APU Alerts');
       $message->to($e['to']);
 
       // if (!is_null($e['attachment']))
@@ -85,13 +86,13 @@ class ApuEventListener
     $e['link'] =  $l.$event->model->lid();
     $this->mailer->queue('docu.apu.mail-verify', $e, function ($message) use ($e) {
       $message->subject($e['subject']);
-      $message->from('giligans.app@gmail.com', 'GI Payables Upload');
+      $message->from('giligans.app@gmail.com', 'GI APU Alerts');
       $message->replyTo($e['replyTo']);
 
       foreach ($e['mailing_list'] as $u)
         $message->to($u['email'], $u['name']);
         
-      $message->cc('jefferson.payables@gmail.com');
+      $message->cc('giligans.payables@gmail.com');
 
       // if (!is_null($e['attachment']))
         // $message->attach($e['attachment']);
@@ -102,7 +103,7 @@ class ApuEventListener
     $e['replyTo'] = $email_csh;
     $e['link'] =  NULL;
     $this->mailer->queue('docu.apu.mail-upload', $e, function ($message) use ($e) {
-      $message->subject($e['subject']);
+      $message->subject($e['subject2']);
       $message->from('giligans.app@gmail.com', 'GI Payables Upload');
       $message->to($e['to']);
       $message->replyTo($e['replyTo']);
