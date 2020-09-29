@@ -33,6 +33,7 @@ class SupplierRepository extends BaseRepository implements CacheableInterface
       'descriptor' => $data['supname'],
       'tin' => $data['tin'],
       'terms' => $data['terms'],
+      'status' => 1,
       'branchid' => $data['branchid']
     ];
 
