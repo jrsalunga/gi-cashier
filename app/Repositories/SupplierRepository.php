@@ -30,7 +30,7 @@ class SupplierRepository extends BaseRepository implements CacheableInterface
 
     $attr = [
       'code' => substr($data['supno'], 2, 4),
-      'descriptor' => $data['supname'],
+      'descriptor' => enye($data['supname']),
       'tin' => $data['tin'],
       'terms' => $data['terms'],
       'status' => 1,
