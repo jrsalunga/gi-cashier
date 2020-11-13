@@ -424,6 +424,8 @@ class UploaderController extends Controller
           event(new \App\Events\Process\AggregatorMonthly('cash_audit', $backup->date, $backup->branchid));
 					event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
 
+          event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date]]);
+
 
           $u = [];
           if ($kl>0) {

@@ -7,16 +7,12 @@ use Prettus\Repository\Traits\CacheableRepository;
 use Prettus\Repository\Contracts\CacheableInterface;
 
 
-
 class SupplierRepository extends BaseRepository implements CacheableInterface
-//class SupplierRepository extends BaseRepository 
 {
   use CacheableRepository;
 
 	public function __construct() {
     parent::__construct(app());
-
-     
   }
 
 

@@ -108,8 +108,88 @@ class BackupEventListener
     }
   }
 
+  public function processDeliveryFee($data) {
+    $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['grabc', 'grab', 'panda']);
 
-   public function onDailySalesSuccess2($event) {
+    if (abs($ds->grabc)>0) {
+
+      $s = Supplier::firstOrCreate(['code'=>'GRBC', 'descriptor'=>'GRABFOOD']);
+      $amt = $ds->grabc * .10;
+
+      $attrs = [
+        'date'      => $data['date']->format('Y-m-d'),
+        'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+        'qty'       => 1,
+        'ucost'     => $amt,
+        'tcost'     => $amt,
+        'terms'     => 'K',
+        'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
+        'supprefno' => 'XDF'.$data['date']->format('mdy'),
+        'branchid'  => $data['branch_id'],
+        'paytype'   => 1,
+      ];
+
+      try {
+        $this->purchase->create($attrs);
+      } catch(Exception $e) {
+        throw $e;    
+      }
+    }
+
+    if (abs($ds->grab)>0) {
+
+      $s = Supplier::firstOrCreate(['code'=>'GRBF', 'descriptor'=>'GRABFOOD']);
+      $amt = $ds->grab * .10;
+
+      $attrs = [
+        'date'      => $data['date']->format('Y-m-d'),
+        'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+        'qty'       => 1,
+        'ucost'     => $amt,
+        'tcost'     => $amt,
+        'terms'     => 'K',
+        'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
+        'supprefno' => 'XDF'.$data['date']->format('mdy'),
+        'supprefno' => 'XDF'.$data['date']->format('mdy'),
+        'branchid'  => $data['branch_id'],
+        'paytype'   => 1,
+      ];
+
+      try {
+        $this->purchase->create($attrs);
+      } catch(Exception $e) {
+        throw $e;    
+      }
+    }
+
+    if (abs($ds->panda)>0) {
+
+      $s = Supplier::firstOrCreate(['code'=>'PAND', 'descriptor'=>'FOOD PANDA PHILIPPINES INC.']);
+      $amt = $ds->grabc * .25;
+
+      $attrs = [
+        'date'      => $data['date']->format('Y-m-d'),
+        'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+        'qty'       => 1,
+        'ucost'     => $amt,
+        'tcost'     => $amt,
+        'terms'     => 'K',
+        'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
+        'supprefno' => 'XDF'.$data['date']->format('mdy'),
+        'branchid'  => $data['branch_id'],
+        'paytype'   => 1,
+      ];
+
+      try {
+        $this->purchase->create($attrs);
+      } catch(Exception $e) {
+        throw $e;    
+      }
+    }
+
+  }
+
+  public function onDailySalesSuccess2($event) {
     
     try {
       $month = $this->ds->computeMonthTotal($event->date, $event->branchid); // this will return NULL if the dailysales.sales = 0;
@@ -145,6 +225,11 @@ class BackupEventListener
     $events->listen(
       'transfer.empmeal',
       'App\Listeners\BackupEventListener@processEmpMeal'
+    );
+
+    $events->listen(
+      'deliveryfee',
+      'App\Listeners\BackupEventListener@processDeliveryFee'
     );
   }
 
