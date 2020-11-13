@@ -344,6 +344,9 @@ class UploaderController extends Controller
 					event('transfer.empmeal', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date, 'suppliercode'=>session('user.branchcode')]]);
 					//$this->logAction('success:process:purchased', $log_msg.$msg);
 
+          // compute delivery fee (GrabFood, Food Panda)
+          event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date]]);
+
 					
 
 					// added 2017-06-09 to backlog DS trans_cnt, man_pay, man_hrs
@@ -424,7 +427,7 @@ class UploaderController extends Controller
           event(new \App\Events\Process\AggregatorMonthly('cash_audit', $backup->date, $backup->branchid));
 					event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
 
-          event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date]]);
+
 
 
           $u = [];
