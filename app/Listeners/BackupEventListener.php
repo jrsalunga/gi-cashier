@@ -165,7 +165,7 @@ class BackupEventListener
     if (abs($ds->panda)>0) {
 
       $s = Supplier::firstOrCreate(['code'=>'PAND', 'descriptor'=>'FOOD PANDA PHILIPPINES INC.']);
-      $amt = $ds->grabc * .25;
+      $amt = $ds->panda * .25;
 
       $attrs = [
         'date'      => $data['date']->format('Y-m-d'),
