@@ -109,7 +109,7 @@ class BackupEventListener
   }
 
   public function processDeliveryFee($data) {
-    $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['grabc', 'grab', 'panda']);
+    $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['grabc', 'grab', 'panda', 'id']);
 
     if (abs($ds->grabc)>0) {
 
@@ -134,6 +134,8 @@ class BackupEventListener
       } catch(Exception $e) {
         throw $e;    
       }
+
+      $ds->grabc_fee = $amt;
     }
 
     if (abs($ds->grab)>0) {
@@ -160,6 +162,8 @@ class BackupEventListener
       } catch(Exception $e) {
         throw $e;    
       }
+
+      $ds->grab_fee = $amt;
     }
 
     if (abs($ds->panda)>0) {
@@ -185,6 +189,16 @@ class BackupEventListener
       } catch(Exception $e) {
         throw $e;    
       }
+
+      $ds->panda_fee = $amt;
+    }
+
+    $ds->totdeliver_fee = $ds->panda_fee + $ds->grab_fee + $ds->grabc_fee;
+
+    try {
+      $ds->save();
+    } catch(Exception $e) {
+      throw $e;    
     }
 
   }
