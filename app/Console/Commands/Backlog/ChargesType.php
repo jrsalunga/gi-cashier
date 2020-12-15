@@ -73,8 +73,8 @@ class ChargesType extends Command {
         // $this->line(count($chg));
         
         if ($b->sales>0){
-          // event(new AggregatorMonthly('charge-type', $b->date, $b->branch_id));
-          // event(new AggregatorMonthly('sale-type', $b->date, $b->branch_id));
+          event(new AggregatorMonthly('charge-type', $b->date, $b->branch_id));
+          event(new AggregatorMonthly('sale-type', $b->date, $b->branch_id));
           event(new AggregatorMonthly('card-type', $b->date, $b->branch_id));
           $ctr++;
         }
