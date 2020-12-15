@@ -409,7 +409,6 @@ class UploaderController extends Controller
             return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
           }
 
-
           event(new \App\Events\Process\AggregateComponentDaily($backup->date, $backup->branchid)); // recompute Daily Component
           event(new \App\Events\Process\AggregateDailyExpense($backup->date, $backup->branchid)); // recompute Daily Expense
           event(new \App\Events\Process\AggregatorDaily('trans-expense', $backup->date, $backup->branchid)); // recompute Daily Transfered and update day_expense
@@ -426,6 +425,10 @@ class UploaderController extends Controller
           event(new \App\Events\Process\AggregatorMonthly('change_item', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('cash_audit', $backup->date, $backup->branchid));
 					event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
+
+          event(new \App\Events\Process\AggregatorMonthly('charge-type', $backup->date, $backup->branchid));
+          event(new \App\Events\Process\AggregatorMonthly('sale-type', $backup->date, $backup->branchid));
+          event(new \App\Events\Process\AggregatorMonthly('card-type', $backup->date, $backup->branchid));
 
 
 

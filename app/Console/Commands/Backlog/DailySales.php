@@ -181,6 +181,10 @@ class DailySales extends Command
     event(new AggregatorMonthly('prodcat', $bckup->date, $bckup->branchid));
     event(new AggregatorMonthly('groupies', $bckup->date, $bckup->branchid));
     event(new RankMonthlyProduct($bckup->date, $bckup->branchid));
+
+    event(new \App\Events\Process\AggregatorMonthly('charge-type', $bckup->date, $bckup->branchid));
+    event(new \App\Events\Process\AggregatorMonthly('sale-type', $bckup->date, $bckup->branchid));
+    event(new \App\Events\Process\AggregatorMonthly('card-type', $bckup->date, $bckup->branchid));
    
 
     //DB::rollback();

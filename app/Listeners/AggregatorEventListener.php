@@ -13,6 +13,11 @@ use App\Repositories\ChangeItemRepository as ChangeItem;
 use App\Repositories\DayProdcatRepository as DayProdcat;
 use App\Repositories\CashAuditRepository as CashAudit;
 use App\Repositories\MonthCashAuditRepository as MonthCashAudit;
+use App\Repositories\ChargesRepository as Charges;
+use App\Repositories\MonthChargeTypeRepository as MChargeType;
+use App\Repositories\MonthCardTypeRepository as MCardType;
+use App\Repositories\MonthSaleTypeRepository as MSalesType;
+
 
 class AggregatorEventListener
 {
@@ -29,8 +34,12 @@ class AggregatorEventListener
   private $dp;
   private $cashAudit;
   private $mCashAudit;
+  private $charges;
+  private $mChargeType;
+  private $mCardType;
+  private $mSalesType;
 
-  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ChangeItem $changeItem, ME $me, DE $de, DayProdcat $dp, CashAudit $cashAudit, MonthCashAudit $mCashAudit) {
+  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ChangeItem $changeItem, ME $me, DE $de, DayProdcat $dp, CashAudit $cashAudit, MonthCashAudit $mCashAudit, Charges $charges, MChargeType $mChargeType, MCardType $mCardType, MSalesType $mSalesType) {
     $this->mailer = $mailer;
     $this->product = $product;
     $this->prodcat = $prodcat;
@@ -43,6 +52,10 @@ class AggregatorEventListener
     $this->dp = $dp;
     $this->cashAudit = $cashAudit;
     $this->mCashAudit = $mCashAudit;
+    $this->charges = $charges;
+    $this->mChargeType = $mChargeType;
+    $this->mCardType = $mCardType;
+    $this->mSalesType = $mSalesType;
   }
 
   private function getRepo($table, $fr, $to, $branchid) {
@@ -64,6 +77,15 @@ class AggregatorEventListener
         break;
       case 'cash_audit':
         return $this->cashAudit->aggregateByDr($fr, $to, $branchid);
+        break;
+      case 'charge-type':
+        return $this->charges->aggregateChargeTypeByDr($fr, $to, $branchid);
+        break;
+      case 'sale-type':
+        return $this->charges->aggregateSaleTypeByDr($fr, $to, $branchid);
+        break;
+      case 'card-type':
+        return $this->charges->aggregateCardTypeByDr($fr, $to, $branchid);
         break;
       default:
         throw new Exception("Table not found!", 1);
@@ -107,29 +129,38 @@ class AggregatorEventListener
       */
     }
 
-    $this->saveData($table, $datas, $event->date->copy()->lastOfMonth(), $event->branchid);
+    $this->saveData($table, $datas, $event->date, $event->branchid);
 
   }
 
   public function saveData($table, $datas, $date, $branchid) {
     switch ($table) {
       case 'product':
-        $this->saveProduct($datas, $date, $branchid);
+        $this->saveProduct($datas, $date->copy()->lastOfMonth(), $branchid);
         break;
       case 'prodcat':
-        $this->saveProdcat($datas, $date, $branchid);
+        $this->saveProdcat($datas, $date->copy()->lastOfMonth(), $branchid);
         break;
       case 'groupies':
-        $this->saveGroupies($datas, $date, $branchid);
+        $this->saveGroupies($datas, $date->copy()->lastOfMonth(), $branchid);
         break;
       case 'trans-expense':
-        $this->saveTransExpense($datas, $date, $branchid);
+        $this->saveTransExpense($datas, $date->copy()->lastOfMonth(), $branchid);
         break;
       case 'change_item':
-        $this->saveGroupiesChangeItem($datas, $date, $branchid);
+        $this->saveGroupiesChangeItem($datas, $date->copy()->lastOfMonth(), $branchid);
         break;
       case 'cash_audit':
-        $this->saveCashAudit($datas, $date, $branchid);
+        $this->saveCashAudit($datas, $date->copy()->lastOfMonth(), $branchid);
+        break;
+      case 'charge-type':
+        $this->saveChargeType($datas, $date, $branchid);
+        break;
+      case 'sale-type':
+        $this->saveSaleType($datas, $date, $branchid);
+        break;
+      case 'card-type':
+        $this->saveCardType($datas, $date, $branchid);
         break;
       default:
         break;
@@ -231,6 +262,74 @@ class AggregatorEventListener
     return $this->mCashAudit->firstOrNewField($attr, ['date', 'branch_id']);
   }
 
+  private function saveChargeType($datas, $date, $branchid) {
+
+    $eom = $date->copy()->lastOfMonth();
+    $c = ['CASH', 'BDO', 'BANKARD', 'GRAB', 'GRABC', 'PANDA'];
+
+    if (in_array($date->format('d'), [5, 10, 15, 20, 25]) || $eom->format('Y-m-d')==$date->format('Y-m-d'))
+      $this->mChargeType->deleteWhere(['branch_id'=>$branchid, 'date'=>$eom->format('Y-m-d')]);
+
+    foreach ($datas as $key => $value) {
+      $k = array_search($value->chrg_type, $c);
+      $this->mChargeType->firstOrNewField([
+        'date'          => $date->copy()->lastOfMonth()->format('Y-m-d'),
+        'chrg_type'     => $value->chrg_type,
+        'total'         => $value->total,
+        'txn'           => $value->txn,
+        'pct'           => $value->pct,
+        'ordinal'       => is_null($k) ? 99 : ($k+1),
+        'branch_id'     => $branchid,
+      ], ['date', 'branch_id', 'chrg_type']);
+    }
+  }
+
+  private function saveSaleType($datas, $date, $branchid) {
+
+    $eom = $date->copy()->lastOfMonth();
+    $c = ['DINEIN', 'TKEOUT', 'CALPUP', 'CALWED', 'ONLRID', 'ONLCUS', 'ONLWED', 'FUNCTN', 'BULKOR', 'CATERG', 'OTHERS'];
+
+    if (in_array($date->format('d'), [5, 10, 15, 20, 25]) || $eom->format('Y-m-d')==$date->format('Y-m-d'))
+      $this->mSalesType->deleteWhere(['branch_id'=>$branchid, 'date'=>$eom->format('Y-m-d')]);
+    
+    foreach ($datas as $key => $value) {
+      $k = array_search($value->saletype, $c);
+      $this->mSalesType->firstOrNewField([
+        'date'          => $eom->format('Y-m-d'),
+        'saletype'      => $value->saletype,
+        'total'         => $value->total,
+        'txn'           => $value->txn,
+        'pct'           => $value->pct,
+        'ordinal'       => is_null($k) ? 99 : ($k+1),
+        'branch_id'     => $branchid,
+      ], ['date', 'branch_id', 'saletype']);
+    }
+  }
+
+  private function saveCardType($datas, $date, $branchid) {
+
+    $eom = $date->copy()->lastOfMonth();
+    $c = ['CASH', 'MASTER', 'VISA', 'AMEX', 'JCB', 'DINERS', 'OTHERS'];
+
+    if (in_array($date->format('d'), [5, 10, 15, 20, 25]) || $eom->format('Y-m-d')==$date->format('Y-m-d'))
+      $this->mCardType->deleteWhere(['branch_id'=>$branchid, 'date'=>$eom->format('Y-m-d')]);
+    
+    foreach ($datas as $key => $value) {
+
+      $x = empty($value->card_type) ? $value->terms : $value->card_type;
+      $k = array_search($x, $c);
+      
+      $this->mCardType->firstOrNewField([
+        'date'          => $eom->format('Y-m-d'),
+        'cardtype'      => $x,
+        'total'         => $value->total,
+        'txn'           => $value->txn,
+        'pct'           => $value->pct,
+        'ordinal'       => is_null($k) ? 99 : ($k+1),
+        'branch_id'     => $branchid,
+      ], ['date', 'branch_id', 'cardtype']);
+    }
+  }
 
   public function rankMonthlyProduct($event) {
 

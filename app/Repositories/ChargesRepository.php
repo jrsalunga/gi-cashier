@@ -1,5 +1,6 @@
 <?php namespace App\Repositories;
 
+use DB;
 use Exception;
 use Prettus\Repository\Eloquent\BaseRepository;
 use Prettus\Repository\Traits\CacheableRepository;
@@ -79,8 +80,46 @@ class ChargesRepository extends BaseRepository implements CacheableInterface
 		return $row;
 	}
 
-  
 
+  
+  public function aggregateChargeTypeByDr($fr, $to, $branchid) {
+    return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
+      return $query
+                ->select(DB::raw("chrg_type, sum(tot_chrg) as total, count(id) as txn, round((sum(tot_chrg)/(select sum(a.tot_chrg) from charges a where branch_id = '". $branchid ."' and orddate between '".$fr->format('Y-m-d')."' and '".$to->format('Y-m-d')."'))*100,2) as pct"))
+                ->whereBetween('orddate', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('branch_id', $branchid)
+                ->groupBy('chrg_type');
+    })->skipCache()->all();
+  }
+
+
+  public function aggregateSaleTypeByDr($fr, $to, $branchid) {
+    return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
+      return $query
+                ->select(DB::raw("saletype, sum(tot_chrg) as total, count(id) as txn, round((sum(tot_chrg)/(select sum(a.tot_chrg) from charges a where branch_id = '". $branchid ."' and orddate between '".$fr->format('Y-m-d')."' and '".$to->format('Y-m-d')."'))*100,2) as pct"))
+                ->whereBetween('orddate', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('branch_id', $branchid)
+                ->groupBy('saletype');
+    })->skipCache()->all();
+  }
+
+  
+  public function aggregateCardTypeByDr($fr, $to, $branchid) {
+    return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
+      return $query
+                ->select(DB::raw("terms, card_type, sum(tot_chrg) as total, count(id) as txn, round((sum(tot_chrg)/(select sum(a.tot_chrg) from charges a where branch_id = '". $branchid ."' and orddate between '".$fr->format('Y-m-d')."' and '".$to->format('Y-m-d')."'))*100,2) as pct"))
+                ->whereBetween('orddate', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('branch_id', $branchid)
+                ->groupBy('terms')
+                ->groupBy('card_type');
+    })->skipCache()->all();
+  }
 
   
 	

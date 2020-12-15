@@ -99,7 +99,7 @@ class FoodSales extends Command
 
         $new = DS::where('id', $ds->id)->update(['food_sales' => $obj->netamt]);
 
-        // event(new AggregatorMonthly('prodcat', $ds->date, $ds->branchid));
+        event(new AggregatorMonthly('prodcat', $ds->date, $ds->branchid));
 
       }
     }
