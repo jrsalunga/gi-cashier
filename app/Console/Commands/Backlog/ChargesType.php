@@ -57,7 +57,7 @@ class ChargesType extends Command {
     $this->comment('Date(s): '.$this->date->format('Y-m-d').' - '.$this->dateTo->format('Y-m-d').' ('.($count+1).') - '.$this->option('brcode'));
 
 
-    $c = 0;
+    $c = 1;
     do {
 
       $d = $this->date->copy()->addMonths($c);
