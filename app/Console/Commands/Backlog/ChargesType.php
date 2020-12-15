@@ -60,7 +60,7 @@ class ChargesType extends Command {
     // $c = 1;
     // do {
 
-      $d = $this->date->copy()->addMonths($c);
+      // $d = $this->date->copy()->addMonths($c);
       $this->line($d->format('Y-m-d'));
 
 
