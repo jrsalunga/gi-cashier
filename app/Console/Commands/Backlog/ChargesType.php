@@ -5,7 +5,7 @@ use DB;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\Repositories\MonthlySalesRepository as MS;
-use App\Repositories\ChargesRepository as Charges;
+use App\Repositories\ChargesRepository as ChargesRepo;
 
 class ChargesType extends Command {
 
@@ -13,7 +13,7 @@ class ChargesType extends Command {
 
   protected $ms;
 
-  public function __construct(MS $ms, Charges $charges) {
+  public function __construct(MS $ms, ChargesRepo $charges) {
     parent::__construct();
     
     $this->ms = $ms;
