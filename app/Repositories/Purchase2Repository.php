@@ -201,7 +201,7 @@ class Purchase2Repository extends BaseRepository
     else
       $arr['purchcost'] = $c->tcost;
 
-    $c = $this->getCos($branchid, $date, ["CK","FS","FV","GR","MP","RC","SS"])->all();
+    $c = $this->getCos($branchid, $date, config('gi-config.expensecode.cos'))->all();
     if (is_null($c->first()->tcost))
       $arr['cos'] = 0;
     else

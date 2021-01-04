@@ -70,8 +70,8 @@ class PosUploadRepository extends Repository
     $this->cashAudit = $cashAudit;
 
     //$this->get_foodcost();
-    $this->expense_array = ["CK","FS","FV","GR","MP","RC","SS"]; // no "DN","DB","DA","CG","IC"
-    $this->non_cos_array = ["DB","DA","CG","IC","DN"];
+    $this->expense_array = config('gi-config.expensecode.cos'); // no "DN","DB","DA","CG","IC"
+    $this->non_cos_array = config('gi-config.expensecode.ncos');
   }
 
   private function get_foodcost() {
