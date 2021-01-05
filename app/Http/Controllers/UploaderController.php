@@ -426,7 +426,6 @@ class UploaderController extends Controller
           event(new \App\Events\Process\AggregatorMonthly('cash_audit', $backup->date, $backup->branchid));
 					event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid));
 
-          logAction('fire', 'Charges Transactions');
           event(new \App\Events\Process\AggregatorMonthly('charge-type', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('sale-type', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('card-type', $backup->date, $backup->branchid));

@@ -263,7 +263,7 @@ class AggregatorEventListener
   }
 
   private function saveChargeType($datas, $date, $branchid) {
-    logAction('fire', 'saveChargeType');
+
     $eom = $date->copy()->lastOfMonth();
     $c = ['CASH', 'BDO', 'BANKARD', 'GRAB', 'GRABC', 'PANDA'];
 
@@ -285,7 +285,7 @@ class AggregatorEventListener
   }
 
   private function saveSaleType($datas, $date, $branchid) {
-    logAction('fire', 'saveSaleType');
+
     $eom = $date->copy()->lastOfMonth();
     $c = ['DINEIN', 'TKEOUT', 'CALPUP', 'CALWED', 'ONLRID', 'ONLCUS', 'ONLWED', 'FUNCTN', 'BULKOR', 'CATERG', 'OTHERS'];
 
@@ -307,7 +307,7 @@ class AggregatorEventListener
   }
 
   private function saveCardType($datas, $date, $branchid) {
-    logAction('fire', 'saveCardType');
+
     $eom = $date->copy()->lastOfMonth();
     $c = ['CASH', 'MASTER', 'VISA', 'AMEX', 'JCB', 'DINERS', 'OTHERS'];
 

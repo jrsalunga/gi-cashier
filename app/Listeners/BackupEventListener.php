@@ -114,7 +114,7 @@ class BackupEventListener
     if (abs($ds->grabc)>0) {
 
       $s = Supplier::firstOrCreate(['code'=>'GRBC', 'descriptor'=>'GRABFOOD']);
-      $amt = $ds->grabc * .10;
+      $amt = $ds->grabc * config('gi-config.deliveryfee.grabc');
 
       $attrs = [
         'date'      => $data['date']->format('Y-m-d'),
@@ -141,7 +141,7 @@ class BackupEventListener
     if (abs($ds->grab)>0) {
 
       $s = Supplier::firstOrCreate(['code'=>'GRBF', 'descriptor'=>'GRABFOOD']);
-      $amt = $ds->grab * .10;
+      $amt = $ds->grab * config('gi-config.deliveryfee.grab');
 
       $attrs = [
         'date'      => $data['date']->format('Y-m-d'),
@@ -151,7 +151,6 @@ class BackupEventListener
         'tcost'     => $amt,
         'terms'     => 'K',
         'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
-        'supprefno' => 'XDF'.$data['date']->format('mdy'),
         'supprefno' => 'XDF'.$data['date']->format('mdy'),
         'branchid'  => $data['branch_id'],
         'paytype'   => 1,
@@ -169,7 +168,7 @@ class BackupEventListener
     if (abs($ds->panda)>0) {
 
       $s = Supplier::firstOrCreate(['code'=>'PAND', 'descriptor'=>'FOOD PANDA PHILIPPINES INC.']);
-      $amt = $ds->panda * .25;
+      $amt = $ds->panda * config('gi-config.deliveryfee.panda');
 
       $attrs = [
         'date'      => $data['date']->format('Y-m-d'),
