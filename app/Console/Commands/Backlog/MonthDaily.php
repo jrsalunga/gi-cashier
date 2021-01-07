@@ -124,31 +124,8 @@ class MonthDaily extends Command
 
     
     DB::beginTransaction();
-    
-    
-    $this->info('extracting purchased...');
-    try {
-      $r = $this->backlogPurchased($br->id, $f, $t, $this);
-    } catch (Exception $e) {
-      $this->info($e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      exit;
-    } 
 
-    $this->info('extracting trasfer...');
-    try {
-      $r = $this->backlogTransfer($br->id, $f, $t, $this);
-    } catch (Exception $e) {
-      $this->info($e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      exit;
-    } finally {
-      foreach (dateInterval($f, $t) as $key => $date)
-        event(new AggregatorDaily('purchase', $date, $backup->branchid));
-    }
-    
+
     $this->info('extracting dailysales on cash audit...');
     try {
       $r = $this->backlogDailySales($br->id, $f, $t, $this);
@@ -158,8 +135,6 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
-    
-
 
     $this->info('extracting salesmtd...');
     try {
@@ -180,6 +155,42 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
+    
+    $this->info('extracting purchased...');
+    try {
+      $r = $this->backlogPurchased($br->id, $f, $t, $this);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    } 
+
+    $this->info('extracting trasfer...');
+    try {
+      $r = $this->backlogTransfer($br->id, $f, $t, $this);
+    } catch (Exception $e) {
+      $this->info($e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      exit;
+    } finally {
+      foreach (dateInterval($f, $t) as $key => $date) {
+        event(new AggregatorDaily('purchase', $date, $backup->branchid));
+        logAction('fire empmeal', $date);
+        // push emp meal on purchase
+        event('transfer.empmeal', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date, 'suppliercode'=>$br->code]]);
+        logAction('fire deliveryfee', $date);
+        // compute delivery fee (GrabFood, Food Panda)   \\App\Listeners\BackupEventListener
+        event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date]]);
+      }
+    }
+    
+    
+    
+
+
+    
 
     $this->info('extracting cash audit...');
     try {
@@ -239,6 +250,12 @@ class MonthDaily extends Command
     event(new \App\Events\Process\AggregatorMonthly('cash_audit', $backup->date, $backup->branchid));
     $this->info('RankMonthlyProduct');
     event(new RankMonthlyProduct($backup->date, $backup->branchid));
+
+
+    event(new \App\Events\Process\AggregatorMonthly('charge-type', $backup->date, $backup->branchid));
+    event(new \App\Events\Process\AggregatorMonthly('sale-type', $backup->date, $backup->branchid));
+    event(new \App\Events\Process\AggregatorMonthly('card-type', $backup->date, $backup->branchid));
+
     
     $this->info('AggregatorKitlog');
     event(new \App\Events\Process\AggregatorKitlog('dataset_area', $t, $br->id));

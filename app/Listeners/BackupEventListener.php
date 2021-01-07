@@ -109,9 +109,12 @@ class BackupEventListener
   }
 
   public function processDeliveryFee($data) {
+    logAction('processDeliveryFee', '-');
     $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['grabc', 'grab', 'panda', 'id']);
 
+
     if (abs($ds->grabc)>0) {
+    logAction('GRABC', $ds->grabc);
 
       $s = Supplier::firstOrCreate(['code'=>'GRBC', 'descriptor'=>'GRABFOOD']);
       $amt = $ds->grabc * config('gi-config.deliveryfee.grabc');
@@ -139,6 +142,7 @@ class BackupEventListener
     }
 
     if (abs($ds->grab)>0) {
+    logAction('GRAB', $ds->grab);
 
       $s = Supplier::firstOrCreate(['code'=>'GRBF', 'descriptor'=>'GRABFOOD']);
       $amt = $ds->grab * config('gi-config.deliveryfee.grab');
@@ -166,6 +170,7 @@ class BackupEventListener
     }
 
     if (abs($ds->panda)>0) {
+      logAction('PANDA', $ds->panda);
 
       $s = Supplier::firstOrCreate(['code'=>'PAND', 'descriptor'=>'FOOD PANDA PHILIPPINES INC.']);
       $amt = $ds->panda * config('gi-config.deliveryfee.panda');
