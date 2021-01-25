@@ -4,6 +4,7 @@ use App\Models\DailySales;
 use App\Models\Supplier;
 use App\Models\Branch;
 use Exception;
+use Carbon\Carbon;
 use Illuminate\Contracts\Mail\Mailer;
 use App\Repositories\DailySales2Repository;
 use App\Repositories\Purchase2Repository;
@@ -43,34 +44,113 @@ class BackupEventListener
   }
 
   public function onDailySalesSuccess($event) {
+
+    $eom = $event->backup->filedate->copy()->subDay();
+    if ($eom->copy()->endOfMonth()->format('Y-m-d') == $eom->format('Y-m-d')) {
+      try {
+        $this->computeMonthTotal($eom, $event->backup->branchid);
+      } catch (Exception $e) {
+        $this->emailError($event, $e->getMessage());
+      }
+    }
     
     try {
-      $month = $this->ds->computeMonthTotal($event->backup->filedate, $event->backup->branchid);
+      $this->computeMonthTotal($event->backup->filedate, $event->backup->branchid);
     } catch (Exception $e) {
-      //logAction('onDailySalesSuccess Error', $e->getMessage());
-      $data = [
-        'user'      => request()->user()->name,
-        'cashier'   => $event->backup->cashier,
-        'filename'  => $event->backup->filename,
-        'body'      => 'Error onDailySalesSuccess '.$event->backup->branchid.' '.$event->backup->filedate,
-      ];
+      $this->emailError($event, $e->getMessage());
+    }
+   
+    try {
+      $this->computeAllDailysalesTotal($event->backup->filedate->copy()->subDay());
+    } catch (Exception $e) {
+      $this->emailError($event, $e->getMessage());
+    }
 
-      $this->mailer->queue('emails.notifier', $data, function ($message) use ($event){
-        $message->subject('Backup Upload DailySales Process Error');
-        $message->from($event->user->email, $event->user->name.' ('.$event->user->email.')');
-        $message->to('giligans.app@gmail.com');
-      });
-    
-    } finally {
-      if (!is_null($month)) {
-        
-      //logAction('onDailySalesSuccess', $event->backup->filedate->format('Y-m-d').' '.request()->user()->branchid.' '.json_encode($month));
-      $this->ms->firstOrNewField(array_except($month->toArray(), ['year', 'month']), ['date', 'branch_id']);
-      //logAction('onDailySalesSuccess', 'rank');
-      $this->ms->rank($month->date);
+    try {
+      $this->computeAllDailysalesTotal($event->backup->filedate);
+    } catch (Exception $e) {
+      $this->emailError($event, $e->getMessage());
+    }
+
+    // logAction('error: ', $e->getMessage());
+    try {
+      $this->computeAllMonthlysalesTotal($event->backup->filedate);
+    } catch (Exception $e) {
+      $this->emailError($event, $e->getMessage());
+    }
+
+    if ($eom->copy()->endOfMonth()->format('Y-m-d') == $eom->format('Y-m-d')) {
+      try {
+        $this->computeMonthTotal($eom, $event->backup->branchid);
+      } catch (Exception $e) {
+        $this->emailError($event, $e->getMessage());
       }
     }
 
+  }
+
+  private function computeMonthTotal(Carbon $date, $branchid) {
+
+    $month = $this->ds->computeMonthTotal($date, $branchid);
+  
+    if (!is_null($month)) {
+      $month['branch_id'] = $branchid;
+      try {
+        $this->ms->firstOrNewField(array_except($month->toArray(), ['year', 'month']), ['date', 'branch_id']);
+      } catch (Exception $e) {
+        throw new Exception("Error Processing BackupEventListener::computeMonthTotal", 1);
+      }
+      $this->ms->rank($month->date);
+    }
+  }
+
+  private function computeAllDailysalesTotal(Carbon $date) {
+    
+    $ds = $this->ds->computeAllDailysalesTotal($date);
+    
+    if (!is_null($ds)) {
+      $ds['branchid'] = 'ALL';
+
+      try { 
+        $this->ds->firstOrNewField(array_except($ds->toArray(), ['record_count', 'fc']), ['date', 'branchid']);
+      } catch (Exception $e) {
+        throw new Exception($e->getMessage(), 1);
+        throw new Exception("Error Processing BackupEventListener::computeAllDailysalesTotal", 1);
+      }
+    }
+  }
+
+  private function computeAllMonthlysalesTotal(Carbon $date) {
+
+    $eom = $date->copy()->endOfMonth();
+    $ms = $this->ms->computeAllMonthlysalesTotal($eom);
+    
+    if (!is_null($ms)) {
+      $ms['branch_id'] = 'ALL';
+
+      try { 
+        $this->ms->firstOrNewField($ms->toArray(), ['date', 'branch_id']);
+      } catch (Exception $e) {
+        throw new Exception("Error Processing BackupEventListener::computeAllMonthlysalesTotal", 1);
+      }
+    }
+  }
+
+  private function emailError($event, $subject = 'Error') {
+    $u = isset(request()->user()->name) ? request()->user()->name : 'bot';
+    $data = [
+      'user'      => $u,
+      'cashier'   => $event->backup->cashier,
+      'filename'  => $event->backup->filename,
+      'body'      => 'Error onDailySalesSuccess '.$event->backup->branchid.' '.$event->backup->filedate,
+    ];
+
+    $this->mailer->queue('emails.notifier', $data, function ($message) use ($event, $subject){
+      // $message->subject('BackupEventListener::computeAllDailysalesTotal');
+      $message->subject($subject);
+      $message->from($event->user->email, $event->user->name.' ('.$event->user->email.')');
+      $message->to('giligans.app@gmail.com');
+    });
   }
 
 
@@ -205,17 +285,25 @@ class BackupEventListener
   public function onDailySalesSuccess2($event) {
     
     try {
-      $month = $this->ds->computeMonthTotal($event->date, $event->branchid); // this will return NULL if the dailysales.sales = 0;
+      $this->computeMonthTotal($event->date, $event->branchid);
     } catch (Exception $e) {
-      logAction('onDailySalesSuccess Error', $e->getMessage());
-    } finally {
-      if (!is_null($month)) {
-              
-      $this->ms->firstOrNewField(array_except($month->toArray(), ['year', 'month']), ['date', 'branch_id']);
-      $this->ms->rank($month->date);
-      }
+      throw new Exception($e->getMessage(), 1);
+      throw new Exception("Error Processing BackupEventListener::onDailySalesSuccess2::computeMonthTotal", 1);
     }
 
+    try {
+      $this->computeAllDailysalesTotal($event->date);
+    } catch (Exception $e) {
+      throw new Exception($e->getMessage(), 1);
+      throw new Exception("Error Processing BackupEventListener::onDailySalesSuccess2::computeAllDailysalesTotal", 1);
+    }
+
+    try {
+      $this->computeAllMonthlysalesTotal($event->date);
+    } catch (Exception $e) {
+      throw new Exception($e->getMessage(), 1);
+      throw new Exception("Error Processing BackupEventListener::onDailySalesSuccess2::computeAllMonthlysalesTotal", 1);
+    }
   }
   
 

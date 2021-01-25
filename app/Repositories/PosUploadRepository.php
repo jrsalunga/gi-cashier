@@ -251,6 +251,7 @@ class PosUploadRepository extends Repository
       ? trim($r['MAN_COST']) // mancost frm CHS_AUDT
       : $this->getManCost(); // Mancosr frm SYSINFO
     $mcost = ($mcost+0)==0 ? session('user.branchmancost'):$mcost;
+    $shrt_ovr = isset($r['SHRT_OVR']) ? trim($r['SHRT_OVR']):0;
 
     $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
     /*
@@ -1269,7 +1270,7 @@ class PosUploadRepository extends Repository
           
           
           if ($this->ds->firstOrNewField(array_only($data, 
-                    ['date', 'branchid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din']
+                    ['date', 'branchid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'shrt_ovr']
                   ), ['date', 'branchid'])) {
             $update++;
 

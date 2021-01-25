@@ -1,6 +1,6 @@
 <?php namespace App\Console\Commands\Backlog;
 
-use App\Events\Backup\DailySalesSuccess;
+use App\Events\Backup\DailySalesSuccess2;
 use App\Events\Posting\SalesmtdSuccess;
 use App\Events\Process\AggregateComponentMonthly;
 use App\Events\Process\AggregateMonthlyExpense;
@@ -166,25 +166,33 @@ class DailySales extends Command
       exit;
     }
 
-    event(new AggregatorDaily('purchase', $bckup->date, $bckup->branchid));
+    // push emp meal on purchase
+    event('transfer.empmeal', ['data'=>['branch_id'=> $bckup->branchid, 'date'=>$to, 'suppliercode'=>$br->code]]);
+    // compute delivery fee (GrabFood, Food Panda)   \\App\Listeners\BackupEventListener
+    event('deliveryfee', ['data'=>['branch_id'=> $bckup->branchid, 'date'=>$to]]);
 
-    event(new \App\Events\Process\AggregateComponentDaily($backup->date, $bckup->branchid)); // recompute Daily Component
-    event(new \App\Events\Process\AggregateDailyExpense($backup->date, $bckup->branchid)); // recompute Daily Expense
-    event(new \App\Events\Process\AggregatorDaily('trans-expense', $backup->date, $bckup->branchid)); // recompute Daily Transfered and update day_expense
-    event(new \App\Events\Process\AggregatorDaily('prodcat', $backup->date, $bckup->branchid)); 
 
-    event(new DailySalesSuccess($bckup)); // recompute Monthlysales
-    event(new AggregateComponentMonthly($bckup->date, $bckup->branchid)); // recompute Monthly Component
-    event(new AggregateMonthlyExpense($bckup->date, $bckup->branchid)); // recompute Monthly Expense
-    event(new AggregatorMonthly('trans-expense', $bckup->date, $bckup->branchid));
-    event(new AggregatorMonthly('product', $bckup->date, $bckup->branchid)); // recompute Monthly Expense
-    event(new AggregatorMonthly('prodcat', $bckup->date, $bckup->branchid));
-    event(new AggregatorMonthly('groupies', $bckup->date, $bckup->branchid));
-    event(new RankMonthlyProduct($bckup->date, $bckup->branchid));
+    event(new AggregatorDaily('purchase', $to, $bckup->branchid));
 
-    event(new \App\Events\Process\AggregatorMonthly('charge-type', $bckup->date, $bckup->branchid));
-    event(new \App\Events\Process\AggregatorMonthly('sale-type', $bckup->date, $bckup->branchid));
-    event(new \App\Events\Process\AggregatorMonthly('card-type', $bckup->date, $bckup->branchid));
+    event(new \App\Events\Process\AggregateComponentDaily($to, $bckup->branchid)); // recompute Daily Component
+    event(new \App\Events\Process\AggregateDailyExpense($to, $bckup->branchid)); // recompute Daily Expense
+    event(new \App\Events\Process\AggregatorDaily('trans-expense', $to, $bckup->branchid)); // recompute Daily Transfered and update day_expense
+    event(new \App\Events\Process\AggregatorDaily('prodcat', $to, $bckup->branchid)); 
+
+    event(new DailySalesSuccess2($to, $bckup->branchid)); // recompute Monthlysales
+    event(new AggregateComponentMonthly($to, $bckup->branchid)); // recompute Monthly Component
+    event(new AggregateMonthlyExpense($to, $bckup->branchid)); // recompute Monthly Expense
+    event(new AggregatorMonthly('trans-expense', $to, $bckup->branchid));
+    event(new AggregatorMonthly('product', $to, $bckup->branchid)); // recompute Monthly Expense
+    event(new AggregatorMonthly('prodcat', $to, $bckup->branchid));
+    event(new AggregatorMonthly('groupies', $to, $bckup->branchid));
+    event(new \App\Events\Process\AggregatorMonthly('change_item', $to, $bckup->branchid));
+    event(new \App\Events\Process\AggregatorMonthly('cash_audit', $to, $bckup->branchid));
+    event(new RankMonthlyProduct($to, $bckup->branchid));
+
+    event(new \App\Events\Process\AggregatorMonthly('charge-type', $to, $bckup->branchid));
+    event(new \App\Events\Process\AggregatorMonthly('sale-type', $to, $bckup->branchid));
+    event(new \App\Events\Process\AggregatorMonthly('card-type', $to, $bckup->branchid));
    
 
     //DB::rollback();
