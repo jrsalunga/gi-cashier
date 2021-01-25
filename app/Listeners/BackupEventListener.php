@@ -36,11 +36,11 @@ class BackupEventListener
       'filename'  => $event->backup->filename,
     ];
 
-    $this->mailer->queue('emails.backup-processsuccess', $data, function ($message) use ($event){
-      $message->subject('Backup Upload');
-      $message->from($event->user->email, $event->user->name.' ('.$event->user->email.')');
-      $message->to('giligans.app@gmail.com');
-    });
+    // $this->mailer->queue('emails.backup-processsuccess', $data, function ($message) use ($event){
+    //   $message->subject('Backup Upload');
+    //   $message->from($event->user->email, $event->user->name.' ('.$event->user->email.')');
+    //   $message->to('giligans.app@gmail.com');
+    // });
   }
 
   public function onDailySalesSuccess($event) {
@@ -152,7 +152,6 @@ class BackupEventListener
       $message->to('giligans.app@gmail.com');
     });
   }
-
 
   public function processEmpMeal($data) {
     $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['opex', 'emp_meal']);
@@ -279,7 +278,6 @@ class BackupEventListener
     } catch(Exception $e) {
       throw $e;    
     }
-
   }
 
   public function onDailySalesSuccess2($event) {
