@@ -461,8 +461,8 @@ class UploaderController extends Controller
 					$this->processed($backup);
 					$this->removeExtratedDir();
 
-					// if (app()->environment()==='production')
-						// event(new ProcessSuccess($backup, $request->user()));
+					if (app()->environment()==='production')
+						event(new ProcessSuccess($backup, $request->user()));
 
 					return redirect()
 		    					//->route('uploader', ['brcode'=>strtolower(session('user.branchcode')),'u'=>strtolower($backup->cashier),'type'=>'pos'])
