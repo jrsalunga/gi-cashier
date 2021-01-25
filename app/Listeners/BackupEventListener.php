@@ -36,11 +36,11 @@ class BackupEventListener
       'filename'  => $event->backup->filename,
     ];
 
-    // $this->mailer->queue('emails.backup-processsuccess', $data, function ($message) use ($event){
-    //   $message->subject('Backup Upload');
-    //   $message->from($event->user->email, $event->user->name.' ('.$event->user->email.')');
-    //   $message->to('giligans.app@gmail.com');
-    // });
+    $this->mailer->queue('emails.backup-processsuccess', $data, function ($message) use ($event){
+      $message->subject('Backup Upload');
+      $message->from($event->user->email, $event->user->name.' ('.$event->user->email.')');
+      $message->to('giligans.app@gmail.com');
+    });
   }
 
   public function onDailySalesSuccess($event) {
