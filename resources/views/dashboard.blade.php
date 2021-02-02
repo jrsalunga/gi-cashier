@@ -126,7 +126,7 @@
                   <td>{{ $b['backup']->filename }}</td>
                   <td>
                     @if($b['backup']->slsmtd_totgrs>0)
-                    <a href="/mar/upload/summary?date={{ $b['date']->format('Y-m-d') }}&src=dashboard" data-toggle="tooltip" title="view backup upload summary">
+                    <a href="/{{brcode()}}/upload/summary?date={{ $b['date']->format('Y-m-d') }}&src=dashboard" data-toggle="tooltip" title="view backup upload summary">
                     {{ nf($b['backup']->sales) }}
                     </a>
                     @endif
