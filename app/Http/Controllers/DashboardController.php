@@ -9,16 +9,19 @@ use App\Models\Backup;
 use Exception;
 use App\Repositories\TimelogRepository as Timelog;
 use App\Repositories\BackupRepository as BackupRepo;
+use App\Repositories\DailySales2Repository as DS;
 use DB;
 
 class DashboardController extends Controller 
 {
-	public $timelog;
+	public $ds;
+  public $timelog;
 	protected $backup;
 
-	public function __construct(Timelog $timelog, BackupRepo $backup){
+	public function __construct(Timelog $timelog, BackupRepo $backup, DS $ds){
 
-		$this->timelog = $timelog;
+		$this->ds = $ds;
+    $this->timelog = $timelog;
 		$this->backup = $backup;
 		
 	}
@@ -27,6 +30,35 @@ class DashboardController extends Controller
 
 		$backups = $this->backup->dailyLogs(7);
     $inadequates = $this->backup->inadequateBackups();
+
+    $to = c();
+    $fr = c()->subDays(30);
+
+    $dss = $this->ds->skipCache()->findWhereBetween('date', [$fr->format('Y-m-d'), $to->format('Y-m-d')], ['date', 'sales', 'slsmtd_totgrs']);
+
+
+    $datas = [];
+    foreach (dateInterval($fr, $to) as $k => $date) {
+      $datas[$k]['date'] = $date;
+
+      $obj = $dss->filter(function($ds) use ($date) {
+                  if ($ds->date->format('Y-m-d') == $date->format('Y-m-d')) 
+                    return $ds;
+                })->first();
+
+      if (is_null($obj)) {
+        $datas[$k]['ds'] = NULL;
+        $datas[$k]['sales'] = 0;
+      } else {
+        $datas[$k]['ds'] = $obj;
+        $datas[$k]['sales'] = $obj->slsmtd_totgrs>0 ? $obj->sales : 0;
+      }
+    }
+
+    // return $datas;
+
+
+
     //$inadequates = null;
 		/*
 		$backup = Backup::where('branchid', $request->user()->branchid)
@@ -35,7 +67,7 @@ class DashboardController extends Controller
 											*/
 		//return $backup->uploaddate->diffForHumans(Carbon::now());
 
-		return view('dashboard')->with('backups', $backups)->with('inadequates', $inadequates);
+		return view('dashboard')->with('backups', $backups)->with('inadequates', $inadequates)->with('datas', $datas);
 	}
 
 

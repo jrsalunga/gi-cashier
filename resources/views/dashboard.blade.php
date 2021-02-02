@@ -29,7 +29,8 @@
     <li class="active">Dashboard</li>
   </ol>
   
-   @if($inadequates)
+  @if(app()->environment()=='production')
+  @if($inadequates)
     <div class="alert alert-warning alert-important">
       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       <strong><span class="glyphicon glyphicon-warning-sign"></span> Warning</strong>: No backup uploaded on the following date(s) below. This may affect the report generation.
@@ -40,6 +41,7 @@
       </ul>
     </div>
   @endif
+  @endif
   <!--
   <div class="alert alert-warning alert-important">
     <p><span class="glyphicon glyphicon-warning-sign"></span> Please be reminded that starting Aug 19, the <b>Deposit Slip</b> upload should be <b>one is to one (1:1)</b>. One scanned deposit slip for every upload on DropBox.</p>
@@ -49,6 +51,10 @@
   <div style="margin-top:50px;" class="hidden-xs"></div>
   <div class="row row-centered">-->
   <div class="row">
+    <div class="col-md-12">
+      <div id="container" style="overflow: hidden;"></div>
+    </div>
+
     <div class="col-sm-6 col-md-7">
       <div id="panel-tasks" class="panel panel-success">
         <div class="panel-heading">
@@ -101,7 +107,8 @@
             <thead>
               <tr>
                 <th>Backup Date</th>
-                <th>Filename</th>
+                <th>Backup</th>
+                <th>Daily Dales</th>
                 <th>Cashier</th>
                 <th>Upload Date</th>
               </tr>
@@ -114,14 +121,22 @@
                   <td>-</td>
                   <td>-</td>
                   <td>-</td>
+                  <td>-</td>
                 @else
                   <td>{{ $b['backup']->filename }}</td>
                   <td>
+                    @if($b['backup']->slsmtd_totgrs>0)
+                    <a href="/mar/upload/summary?date={{ $b['date']->format('Y-m-d') }}&src=dashboard" data-toggle="tooltip" title="view backup upload summary">
+                    {{ nf($b['backup']->sales) }}
+                    </a>
+                    @endif
+                  </td>
+                  <td>
                     {{ $b['backup']->cashier }}
                   </td>
-                  <td style="cursor:help;" title="{{ $b['backup']->uploaddate->format('Y-m-d h:m:i A') }}">
+                  <td>
                     <small>
-                      <em>
+                      <em style="cursor:help;" data-toggle="tooltip" title="{{ $b['backup']->uploaddate->format('Y-m-d h:m:i A') }}">
                       {{ diffForHumans($b['backup']->uploaddate) }}      
                       </em>
                     </small>
@@ -152,12 +167,30 @@
       </div>
     </div>
 	
+
   
     
 
 
 
-</div>
+  </div>
+
+<table id="datatable" class="tb-data table" style="display:none;">
+<thead>
+  <tr>
+    <td>Date</td>
+    <td>Sales</td>
+  </tr>
+</thead>
+<tbody>
+  @foreach($datas as $data)
+    <tr>
+      <td>{{ $data['date']->format('Y-m-d') }}</td>
+      <td>{{ $data['sales'] }}</td>
+    </tr>
+  @endforeach()
+</tbody>
+</table>
 @endsection
 
 
@@ -175,7 +208,112 @@
 
 @section('js-external')
   
- 	<script src="/js/vendors-common.min.js"></script>
+<script src="/js/vendors-common.min.js"></script>
+<script src="/js/hc-all.js"> </script>
+<script src="/js/dr-picker.js"> </script>
+
+
+<script type="text/javascript">
+
+
+  $(document).ready(function(){
+  
+    Highcharts.setOptions({
+      chart: {
+          style: {
+              fontFamily: "Helvetica"
+          }
+      },
+      lang: {
+        thousandsSep: ','
+      }
+    });
+
+    var arr = [];
+
+    $('#container').highcharts({
+      data: {
+        table: 'datatable'
+      },
+      chart: {
+        type: 'line',
+        height: 200,
+      },
+      colors: ['#3C763D', '#15C0C2', '#D36A71', '#B09ADB', '#5CB1EF', '#F49041', '#f15c80', '#F9CDAD', '#91e8e1', '#8d4653'],
+      title: {
+         text: ''
+        // floating: true
+      },
+      xAxis: [
+        {
+          gridLineColor: "#CCCCCC",
+          type: 'datetime',
+          //tickInterval: 24 * 3600 * 1000, // one week
+          tickWidth: 0,
+          gridLineWidth: 0,
+          lineColor: "#C0D0E0", // line on X axis
+          labels: {
+            align: 'center',
+            x: 3,
+            y: 15,
+            formatter: function () {
+              return Highcharts.dateFormat('%b %e', this.value);
+            }
+          },
+          plotLines: arr
+        },
+        { // every sunday axis
+          type: 'datetime',
+          linkedTo: 0,
+          opposite: true,
+          tickInterval: 7 * 24 * 3600 * 1000,
+          tickWidth: 0,
+          labels: {
+            formatter: function () {
+              arr.push({ // mark the weekend
+                color: "#CCCCCC",
+                width: 1,
+                value: this.value-86400000,
+                zIndex: 3
+              });
+            }
+          }
+        }
+      ],
+      yAxis: [{ // left y axis
+        min: 0,
+        title: {
+          text: null
+        },
+        // gridLineWidth: 0,
+        labels: {
+          align: 'left',
+          x: 3,
+          y: 16,
+          format: '{value:.,0f}'
+        },
+          showFirstLabel: false
+        }], 
+      legend: {
+        enabled: false, 
+        align: 'right',
+        verticalAlign: 'top',
+        y: 0,
+        floating: true,
+        borderWidth: 0
+      },
+       plotOptions: {
+        series: {
+          cursor: 'pointer',
+          marker: {
+            symbol: 'circle',
+            radius: 2
+          }
+        }
+      },
+    });
+  });
+</script>
 
   
 @endsection

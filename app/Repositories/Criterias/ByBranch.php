@@ -19,7 +19,7 @@ class ByBranch implements CriteriaInterface {
      */
     public function apply($model, Repository $repository)
     {
-        $model = $model->where('branchid', $this->request->user()->branchid);
+        $model = $model->where($model->getTable().'.branchid', $this->request->user()->branchid);
         //$model = $model->where(function($query){
         //    $query->where('branchid', $this->request->user()->branchid);
         //});

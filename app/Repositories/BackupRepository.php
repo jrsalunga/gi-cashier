@@ -76,13 +76,17 @@ class BackupRepository extends BaseRepository
   private function aggregateDailyLogsProcessed(Carbon $fr, Carbon $to) {
     return $this->scopeQuery(function($query) use ($fr, $to) {
       return $query
-                ->select(DB::raw('*, count(*) as count'))
-                ->whereBetween('filedate', 
+                ->select(DB::raw('backup.*, count(backup.id) as count, dailysales.sales, dailysales.slsmtd_totgrs'))
+                ->leftJoin('dailysales', function($join) {
+                    $join->on('dailysales.branchid', '=', 'backup.branchid')
+                        ->on('dailysales.date', '=', DB::raw('DATE_FORMAT(backup.filedate, "%Y-%m-%d")'));
+                  })
+                ->whereBetween('backup.filedate', 
                   [$fr->format('Y-m-d').' 00:00:00', $to->format('Y-m-d').' 23:59:59']
                   )
-                ->where('processed', '1')
-                ->groupBy(DB::raw('DAY(filedate)'))
-                ->orderBy('uploaddate', 'DESC');
+                ->where('backup.processed', '1')
+                ->groupBy(DB::raw('DAY(backup.filedate)'))
+                ->orderBy('backup.uploaddate', 'DESC');
                 //->orderBy('filedate', 'DESC');
     })->all();
   }
