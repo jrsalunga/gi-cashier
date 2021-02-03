@@ -108,7 +108,7 @@
               <tr>
                 <th>Backup Date</th>
                 <th>Backup</th>
-                <th>Daily Dales</th>
+                <th>Daily Sales</th>
                 <th>Cashier</th>
                 <th>Upload Date</th>
               </tr>
