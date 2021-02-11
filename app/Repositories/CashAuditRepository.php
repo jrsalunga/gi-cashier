@@ -107,22 +107,27 @@ class CashAuditRepository extends BaseRepository implements CacheableInterface
     if (isset($r['TOT_DISC']))
       $row['tot_disc'] = trim($r['TOT_DISC']);
     else
-      $row['tot_disc'] = '';
+      $row['tot_disc'] = 0;
 
     if (isset($r['TOT_CANC']))
       $row['tot_canc'] = trim($r['TOT_CANC']);
     else
-      $row['tot_canc'] = '';
+      $row['tot_canc'] = 0;
 
     if (isset($r['MAN_HRS']))
       $row['man_hrs'] = trim($r['MAN_HRS']);
     else
-      $row['man_hrs'] = '';
+      $row['man_hrs'] = 0;
 
     if (isset($r['MAN_PAY']))
       $row['man_pay'] = trim($r['MAN_PAY']);
     else
-      $row['man_pay'] = '';
+      $row['man_pay'] = 0;
+
+    if (isset($r['UPD_DISB']))
+      $row['upd_disb'] = trim($r['UPD_DISB']);
+    else
+      $row['upd_disb'] = 0;
 
 
     return $row;
@@ -131,7 +136,7 @@ class CashAuditRepository extends BaseRepository implements CacheableInterface
   public function aggregateByDr($fr, $to, $branchid) {
     return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
       return $query
-                ->select(\DB::raw('LAST_DAY(date) AS date, sum(csh_sale) as csh_sale, sum(chg_sale) as chg_sale, sum(sig_sale) as sig_sale, sum(col_card) as col_card, sum(col_cardk) as col_cardk, sum(col_ca) as col_ca, sum(col_cak) as col_cak, sum(col_othr) as col_othr, sum(tot_coll) as tot_coll, sum(tot_collk) as tot_collk, sum(csh_disb) as csh_disb, sum(chk_disb) as chk_disb, sum(deposit) as deposit, sum(depositk) as depositk,
+                ->select(\DB::raw('LAST_DAY(date) AS date, sum(csh_sale) as csh_sale, sum(chg_sale) as chg_sale, sum(sig_sale) as sig_sale, sum(col_card) as col_card, sum(col_cardk) as col_cardk, sum(col_ca) as col_ca, sum(col_cak) as col_cak, sum(col_othr) as col_othr, sum(tot_coll) as tot_coll, sum(tot_collk) as tot_collk, sum(csh_disb) as csh_disb, sum(chk_disb) as chk_disb, sum(upd_disb) as upd_disb, sum(deposit) as deposit, sum(depositk) as depositk,
 sum(tot_out) as tot_out, sum(tot_outk) as tot_outk, sum(comp_bal) as comp_bal, sum(csh_cnt) as csh_cnt, sum(checks) as checks, sum(forex) as forex, sum(shrt_ovr) as shrt_ovr, sum(shrt_ovr) as shrt_cumm,
 sum(checks_pcs) as checks_pcs, sum(csh_out) as csh_out, sum(csh_outk) as csh_outk, sum(col_bdok) as col_bdok, sum(col_dink) as col_dink')) //count(id) as change_item
                 ->whereBetween('date', 

@@ -250,15 +250,15 @@ class AggregatorEventListener
   }
 
   private function saveCashAudit($datas, $date, $branchid) {
-    // return dd($datas->toArray());
+
     $attr = [];
     $attr['date'] = $date->copy()->lastOfMonth()->format('Y-m-d');
     $attr['branch_id'] = $branchid;
 
-    foreach ($datas->toArray() as $k => $value)
-      $attr[$k] = $value;
+    if (count(collect($datas))>0)
+      foreach ($datas->toArray() as $k => $value)
+        $attr[$k] = $value;
 
-    // return dd($attr);
     return $this->mCashAudit->firstOrNewField($attr, ['date', 'branch_id']);
   }
 
