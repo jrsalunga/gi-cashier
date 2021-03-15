@@ -137,6 +137,9 @@ class PurchaseNew extends Command
 
   private function sendEmail(Branch $branch, Carbon $date, $attachment=NULL) {
 
+    $this->info('sendEmail');
+    $this->info('attachment: '.$attachment);
+
     $email_csh = app()->environment('production') ? $branch->email : env('DEV_CSH_MAIL');
     $e = [];
     if (app()->environment('production')) {
@@ -168,7 +171,7 @@ class PurchaseNew extends Command
     $e['body'] = 'test';
     $e['attachment'] = $attachment;
   
-
+    $this->info('sendEmail Send');
     \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
         $m->from('giligans.app@gmail.com', 'GI Head Office');
 
