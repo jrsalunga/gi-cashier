@@ -87,6 +87,8 @@ class PurchaseNew extends Command
 
             if (!is_dir($dir))
               mkdir($dir, 777, true);
+           
+           $this->info('Before File Copy');
 
             try {
               File::copy($this->filepath, $destp);
