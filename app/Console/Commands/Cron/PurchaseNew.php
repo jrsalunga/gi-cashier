@@ -44,7 +44,7 @@ class PurchaseNew extends Command
       $this->info('checking STAGING...');
 
     
-    $this->info(print_r($files));
+    // $this->info(print_r($files));
     
     // check if there is a backup file on staging folder to process.
     if (count($files)>0) {
@@ -146,6 +146,7 @@ class PurchaseNew extends Command
       
       // $this->info('bossBranch getUsers');
       $rep = $this->bossBranch->getUsersByBranchid($branch->id);
+      $this->info(print_r($rep));
       
       if (is_null($rep)) {
       // $this->info('NULL bossBranch getUsers');
@@ -172,14 +173,18 @@ class PurchaseNew extends Command
     // $this->info('sendEmail init mail');
 
     $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New Expense Record from Head Office';
-    $e['body'] = 'test';
     $e['attachment'] = $attachment;
   
     // $this->info('sendEmail Send');
     \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
         $m->from('giligans.app@gmail.com', 'GI Head Office');
 
-        $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
+        if (app()->environment('production')) 
+          $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
+        else
+          $m->to($c['csh_email'])->subject($e['subject']);
+
+        // $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
 
 
         if (!is_null($e['attachment']))
