@@ -25,12 +25,13 @@
         <div style="margin-bottom:15px;font-size:15px;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong>Instructions:</strong></div>
 
         <ol style="font-family: Roboto,Helvetica,Arial,sans-serif;">
-          <li>Make sure your POS version is <strong>dB.2021.03.07</strong>. If not, kindly contact your IT Administrator.</li>
+          <li>Make sure that your POS version is <strong>dB.2021.03.07</strong>. If not, kindly contact your IT Administrator.</li>
           <li style="margin-top: 10px">Download the attached file <strong>PURCHASE.NEW</strong> and copy it in the <strong>C:\GI_GLO</strong> folder.</li>
           <li style="margin-top: 10px">Re-run the POS Program</li>
           <li style="margin-top: 10px">A confirmation screen will appear. <em><small>(see the sample picture below)</small></em></li>
           <li style="margin-top: 10px">Press <strong>"1"</strong> then <strong>&#60;Enter&#62;</strong> to allow the program to update your record.</li>
           <li style="margin-top: 10px">You may view the new records when you run (6,1).</li>
+          <li style="margin-top: 10px">Lastly, <strong>print</strong> and <strong>scan</strong> the Stock Purchase Transmittal slip and make sure to <strong>upload</strong> it on Cashier's Module.</li>
         </ol>
 
       </div>
