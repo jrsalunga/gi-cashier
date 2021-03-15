@@ -58,10 +58,10 @@ class PurchaseNew extends Command
 
           $this->filepath = $file;
 
-           $this->info('BEFORE DS');
+           // $this->info('BEFORE DS');
           $boom = explode(DS, $file);
-           $this->info('AFTER DS');
-          // if (!is_null($cmd))
+           // $this->info('AFTER DS');
+          if (!is_null($cmd))
             $this->info(json_encode($boom));
           $cnt = count($boom);
           $filename = $boom[($cnt-1)];
@@ -88,7 +88,7 @@ class PurchaseNew extends Command
             if (!is_dir($dir))
               mkdir($dir, 777, true);
            
-           $this->info('Before File Copy');
+           // $this->info('Before File Copy');
 
             try {
               File::copy($this->filepath, $destp);
@@ -96,7 +96,7 @@ class PurchaseNew extends Command
               throw new Exception("Error copy to PROCESSED. ". $e->getMessage());    
             }
 
-           $this->info('Before move to APD');
+           // $this->info('Before move to APD');
 
             // move to APD 
             $dest = $this->fileStorage->realFullPath($apd_dir);
@@ -116,12 +116,12 @@ class PurchaseNew extends Command
             }
 
 
-            $this->info('Before sendEmail');
+            // $this->info('Before sendEmail');
             $this->sendEmail($br, $date, $apd_filepath);
-            $this->info('after sendEmail');
+            // $this->info('after sendEmail');
 
 
-            $this->info('Before test_log');
+            // $this->info('Before test_log');
             test_log($date->format('Y-m-d').','.$br->code, $factory_path.DS.'STAGING'.DS.$date->format('Y').'-purchase.new.log');
 
 
@@ -137,24 +137,24 @@ class PurchaseNew extends Command
 
   private function sendEmail(Branch $branch, Carbon $date, $attachment=NULL) {
 
-    $this->info('sendEmail');
-    $this->info('attachment: '.$attachment);
+    // $this->info('sendEmail');
+    // $this->info('attachment: '.$attachment);
 
     $email_csh = app()->environment('production') ? $branch->email : env('DEV_CSH_MAIL');
     $e = [];
     if (app()->environment('production')) {
       
-      $this->info('bossBranch getUsers');
+      // $this->info('bossBranch getUsers');
       $rep = $this->bossBranch->getUsersByBranchid($branch->id);
       
       if (is_null($rep)) {
-      $this->info('NULL bossBranch getUsers');
+      // $this->info('NULL bossBranch getUsers');
         $e['mailing_list'] = [
           ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
           ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
         ];
       } else {
-      $this->info('NOT NULL bossBranch getUsers');
+      // $this->info('NOT NULL bossBranch getUsers');
         $e['mailing_list'] = [];
         foreach ($rep as $k => $u) {
           array_push($e['mailing_list'],
@@ -169,13 +169,13 @@ class PurchaseNew extends Command
         ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
       ];
     }
-    $this->info('sendEmail init mail');
+    // $this->info('sendEmail init mail');
 
     $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New Expense Record from Head Office';
     $e['body'] = 'test';
     $e['attachment'] = $attachment;
   
-    $this->info('sendEmail Send');
+    // $this->info('sendEmail Send');
     \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
         $m->from('giligans.app@gmail.com', 'GI Head Office');
 
