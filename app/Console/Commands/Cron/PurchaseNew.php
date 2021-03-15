@@ -174,15 +174,16 @@ class PurchaseNew extends Command
 
     $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New Expense Record from Head Office';
     $e['attachment'] = $attachment;
+    $e['csh_email'] = $email_csh;
   
     // $this->info('sendEmail Send');
     \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
         $m->from('giligans.app@gmail.com', 'GI Head Office');
 
         if (app()->environment('production')) 
-          $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
-        else
           $m->to($e['csh_email'])->cc('jefferson.salunga@gmail.com')->subject($e['subject']);
+        else
+          $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
 
         // $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
 
