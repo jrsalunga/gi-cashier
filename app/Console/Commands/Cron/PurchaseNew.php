@@ -51,18 +51,12 @@ class PurchaseNew extends Command
       
       foreach ($files as $idx => $file) {
         if (ends_with($file, '.NEW')) {
-          $this->info(json_encode($file));
 
-          // if (!is_null($cmd))
-            $this->info($file); 
+          $this->info($file); 
 
           $this->filepath = $file;
 
-           // $this->info('BEFORE DS');
           $boom = explode(DS, $file);
-           // $this->info('AFTER DS');
-          if (!is_null($cmd))
-            $this->info(json_encode($boom));
           $cnt = count($boom);
           $filename = $boom[($cnt-1)];
           $brcode = $boom[($cnt-2)];
@@ -81,29 +75,27 @@ class PurchaseNew extends Command
 
             $apd_dir = 'APN'.DS.$date->format('Y').DS.$brcode.DS.$date->format('m').DS.$date->format('d');
 
+           
             // copy to processed
             $dir = $factory_path.'PROCESSED'.DS.$apd_dir;
             $destp = $dir.DS.$filename;
 
             if (!is_dir($dir))
-              mkdir($dir, 777, true);
+              mkdir($dir, 0777, true);
            
-           // $this->info('Before File Copy');
-
             try {
               File::copy($this->filepath, $destp);
             } catch(Exception $e){
               throw new Exception("Error copy to PROCESSED. ". $e->getMessage());    
             }
 
-           // $this->info('Before move to APD');
 
             // move to APD 
             $dest = $this->fileStorage->realFullPath($apd_dir);
             $apd_filepath = $dest.DS.$filename;
 
             if (!is_dir($dest))
-              mkdir($dest, 75, true);
+              mkdir($dest, 0775, true);
 
             try {
               if (app()->environment()=='local')
@@ -116,20 +108,15 @@ class PurchaseNew extends Command
             }
 
 
-            // $this->info('Before sendEmail');
             $this->sendEmail($br, $date, $apd_filepath);
-            // $this->info('after sendEmail');
 
-
-            // $this->info('Before test_log');
-            test_log($date->format('Y-m-d').','.$br->code, $factory_path.DS.'STAGING'.DS.$date->format('Y').'-purchase.new.log');
-
+            test_log($date->format('Y-m-d').','.$br->code.','.Carbon::now()->format('Y-m-d').','.Carbon::now()->format('H:i:s'), $factory_path.DS.'STAGING'.DS.$date->format('Y').'-purchase.new.log');
 
             exit;
           } // end: ==='PURCHASE.NEW'
         } // end: ends_with($file)
         if (!is_null($cmd))
-        $this->info($idx.'. No PURCHASE.NEW found.');
+          $this->info($idx.'. No PURCHASE.NEW found.');
       
       } // end: foreach(files)
     } // end: count($files)
