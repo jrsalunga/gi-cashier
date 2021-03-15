@@ -44,7 +44,7 @@ class PurchaseNew extends Command
       $this->info('checking STAGING...');
 
     
-    // $this->info(print_r($files));
+    $this->info(print_r($files));
     
     // check if there is a backup file on staging folder to process.
     if (count($files)>0) {
