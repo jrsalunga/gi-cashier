@@ -96,6 +96,7 @@ class PurchaseNew extends Command
               throw new Exception("Error copy to PROCESSED. ". $e->getMessage());    
             }
 
+           $this->info('Before move to APD');
 
             // move to APD 
             $dest = $this->fileStorage->realFullPath($apd_dir);
@@ -115,9 +116,11 @@ class PurchaseNew extends Command
             }
 
 
+            $this->info('Before sendEmail');
             $this->sendEmail($br, $date, $apd_filepath);
 
 
+            $this->info('Before test_log');
             test_log($date->format('Y-m-d').','.$br->code, $factory_path.DS.'STAGING'.DS.$date->format('Y').'-purchase.new.log');
 
 
