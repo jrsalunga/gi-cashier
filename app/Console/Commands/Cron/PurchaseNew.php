@@ -182,7 +182,7 @@ class PurchaseNew extends Command
         if (app()->environment('production')) 
           $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
         else
-          $m->to($c['csh_email'])->subject($e['subject']);
+          $m->to($c['csh_email'])->cc('jefferson.salunga@gmail.com')->subject($e['subject']);
 
         // $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
 
