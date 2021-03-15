@@ -53,18 +53,21 @@ class PurchaseNew extends Command
         if (ends_with($file, '.NEW')) {
           $this->info(json_encode($file));
 
-          if (!is_null($cmd))
+          // if (!is_null($cmd))
             $this->info($file); 
 
           $this->filepath = $file;
+
+           $this->info('BEFORE DS');
           $boom = explode(DS, $file);
+           $this->info('AFTER DS');
+          // if (!is_null($cmd))
+            $this->info(json_encode($boom));
           $cnt = count($boom);
           $filename = $boom[($cnt-1)];
           $brcode = $boom[($cnt-2)];
           $date = Carbon::now();
 
-          if (!is_null($cmd))
-            $this->info(json_encode($boom));
 
 
           if (strtoupper($filename)==='PURCHASE.NEW') {
