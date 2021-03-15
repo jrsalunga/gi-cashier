@@ -57,7 +57,7 @@ class PurchaseNew extends Command
             $this->info($file);
 
           $this->filepath = $file;
-          $boom = explode('\\', $file);
+          $boom = explode(DS, $file);
           $cnt = count($boom);
           $filename = $boom[($cnt-1)];
           $brcode = $boom[($cnt-2)];
