@@ -103,7 +103,7 @@ class PurchaseNew extends Command
             $apd_filepath = $dest.DS.$filename;
 
             if (!is_dir($dest))
-              mkdir($dest, 755, true);
+              mkdir($dest, 75, true);
 
             try {
               if (app()->environment()=='local')
@@ -144,14 +144,17 @@ class PurchaseNew extends Command
     $e = [];
     if (app()->environment('production')) {
       
-      $rep = $this->bossBranch->getUsers();
+      $this->info('bossBranch getUsers');
+      $rep = $this->bossBranch->getUsersByBranchid($branch->id);
       
       if (is_null($rep)) {
+      $this->info('NULL bossBranch getUsers');
         $e['mailing_list'] = [
           ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
           ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
         ];
       } else {
+      $this->info('NOT NULL bossBranch getUsers');
         $e['mailing_list'] = [];
         foreach ($rep as $k => $u) {
           array_push($e['mailing_list'],
@@ -166,6 +169,7 @@ class PurchaseNew extends Command
         ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
       ];
     }
+    $this->info('sendEmail init mail');
 
     $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New Expense Record from Head Office';
     $e['body'] = 'test';
