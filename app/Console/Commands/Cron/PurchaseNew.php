@@ -118,6 +118,7 @@ class PurchaseNew extends Command
 
             $this->info('Before sendEmail');
             $this->sendEmail($br, $date, $apd_filepath);
+            $this->info('after sendEmail');
 
 
             $this->info('Before test_log');
