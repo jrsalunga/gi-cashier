@@ -54,7 +54,7 @@ class PurchaseNew extends Command
           $this->info(json_encode($file));
 
           if (!is_null($cmd))
-            $this->info($file);
+            $this->info($file); 
 
           $this->filepath = $file;
           $boom = explode(DS, $file);
@@ -63,6 +63,8 @@ class PurchaseNew extends Command
           $brcode = $boom[($cnt-2)];
           $date = Carbon::now();
 
+          if (!is_null($cmd))
+            $this->info(json_encode($boom));
 
 
           if (strtoupper($filename)==='PURCHASE.NEW') {
