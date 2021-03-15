@@ -109,8 +109,8 @@ class PurchaseNew extends Command
               if (app()->environment()=='local')
                 File::copy($this->filepath, $apd_filepath);
               else   
-                File::copy($this->filepath, $apd_filepath);
-                // File::move($this->filepath, $apd_filepath);
+                // File::copy($this->filepath, $apd_filepath);
+                File::move($this->filepath, $apd_filepath);
             } catch(Exception $e){
               throw new Exception("Error move to APD. ". $e->getMessage());    
             }
@@ -140,8 +140,8 @@ class PurchaseNew extends Command
     // $this->info('sendEmail');
     // $this->info('attachment: '.$attachment);
 
-    $email_csh = app()->environment('production') ? $branch->email : env('DEV_CSH_MAIL');
     $e = [];
+    $e['csh_email'] = app()->environment('production') ? $branch->email : env('DEV_CSH_MAIL');
     if (app()->environment('production')) {
       
       // $this->info('bossBranch getUsers');
@@ -174,19 +174,24 @@ class PurchaseNew extends Command
 
     $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New Expense Record from Head Office';
     $e['attachment'] = $attachment;
-    $e['csh_email'] = $email_csh;
   
     // $this->info('sendEmail Send');
     \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
+        
+        $m->subject($e['subject']);
         $m->from('giligans.app@gmail.com', 'GI Head Office');
 
-        if (app()->environment('production')) 
-          $m->to($e['csh_email'])->cc('jefferson.salunga@gmail.com')->subject($e['subject']);
+
+        if (app()->environment('production')) {
+          $m->to($e['csh_email'])
+            ->cc('jefferson.salunga@gmail.com');
+
+          foreach ($e['mailing_list'] as $u)
+            $m->cc($u['email'], $u['name']);
+
+        }
         else
           $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
-
-        // $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
-
 
         if (!is_null($e['attachment']))
           $m->attach($e['attachment']);
