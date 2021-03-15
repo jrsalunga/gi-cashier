@@ -11,11 +11,11 @@ class BackupExtractor
   protected $locator;
   protected $extracting = false;
   protected $filepath = NULL;
-  protected $extracted_path = NULL;
+  public $extracted_path = NULL;
 
   public function __construct($root_path=null, Locator $locator) {
     if (!is_null($root_path))
-      $this->setPath($root_path);
+      $this->setRootPath($root_path);
     else
       $this->root_path = storage_path();
 
@@ -28,6 +28,11 @@ class BackupExtractor
 
   public function getRootPath() {
     return $this->root_path;
+  }
+
+  public function setFilePath($dir=NULL) {
+    if (!is_null($dir) || is_dir($dir))
+      return $this->filepath = $dir;
   }
 
   public function getFilePath() {

@@ -4,6 +4,8 @@ use Carbon\Carbon;
 use App\Repositories\DateRange;
 use App\Repositories\StorageRepository;
 use Dflydev\ApacheMimeTypes\PhpRepository;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 class Locator 
 {
@@ -25,4 +27,20 @@ class Locator
 	public function realFullPath($path) {
 		return $this->storage->realFullPath($path);
 	}
+
+
+  public function allFiles($dir='.') {
+
+    $list = [];
+    $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+    $files = new RecursiveIteratorIterator($it,
+                 RecursiveIteratorIterator::CHILD_FIRST);
+    
+    foreach($files as $k => $file)
+      if (!$file->isDir())
+        array_push($list, $file->getRealPath());
+
+    return $list;
+  }
+
 }

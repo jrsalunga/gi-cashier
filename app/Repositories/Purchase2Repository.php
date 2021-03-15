@@ -38,10 +38,35 @@ class Purchase2Repository extends BaseRepository
 
 
       $component = $this->component->verifyAndCreate(array_only($data, ['comp', 'ucost', 'unit', 'supno', 'catname']));
+      $componentid = is_null($component) ? 'XUD' : $component->id;
       $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin', 'terms']));
+      $supplierid = is_null($supplier) ? 'XUD' : $supplier->id;
+
+      if ($component->compcat->expense) {
+        $expensecode = $component->compcat->expense->code;
+        $expenseid = $component->compcat->expense->id;
+      }
+
+
+      switch ($data['terms']) {
+        case 'H':
+          $paytype = 3;
+          break;
+        case 'U':
+          $paytype = 2;
+          break;
+        case 'C':
+          $paytype = 1;
+          break;
+        default:
+          $paytype = 0;
+          break;
+      }
+      
+
       $attr = [
         'date' => $data['date'],
-        'componentid' => $component->id,
+        'componentid' => $componentid,
         'qty' => $data['qty'],
         //'unit' => $data['unit'],
         'ucost' => $data['ucost'],
@@ -49,9 +74,11 @@ class Purchase2Repository extends BaseRepository
         'terms' => $data['terms'],
         'supprefno' => $data['supprefno'],
         'vat' => $data['vat'],
-        'supplierid' => $supplier->id,
+        'supplierid' => $supplierid,
         'branchid' => $data['branchid'],
-        'paytype' => $data['terms']=='C'?1:0,
+        'paytype' => $paytype,
+        'expensecode' => $expensecode,
+        'expenseid' => $expenseid,
       ];
 
       try {

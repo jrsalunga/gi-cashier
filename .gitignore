@@ -15,6 +15,7 @@ Homestead.json
 /TEST_PAYROLL_BACKUP
 /BACKUP_PROCESSING_ERROR
 /UNKNOWN_BACKUP_FILES
+/POS_BACKUP_FACTORY
 /storage/backup
 /storage/process
 /storage/eod

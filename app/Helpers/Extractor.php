@@ -15,6 +15,10 @@ class Extractor
 		$this->path = $path;
 	}
 
+  public function getPath($path) {
+    return $this->path
+  }
+
 	public function exists($filepath) {
 		return $this->storage->exists($filepath);
 	}

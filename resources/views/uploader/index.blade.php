@@ -361,6 +361,8 @@
                   +'<option value="" disabled selected>-- select deposit type --</option>'
                   +'<option value="1">Cash (C)</option>'
                   +'<option value="2">Cheque (K)</option>'
+                  +'<option value="3">Unpaid (U)</option>'
+                  +'<option value="4">Head Office (H)</option>'
                 +'</select>'
               +'</div></div>'
             +'<div class="row" style="margin-top: 20px;">'

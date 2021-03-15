@@ -156,33 +156,38 @@ class BackupEventListener
   public function processEmpMeal($data) {
     $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['opex', 'emp_meal']);
     //$ds = $this->ds->findWhere(['date'=>'2018-08-31', 'branchid'=>'0C2D132F78A711E587FA00FF59FBB323'], ['opex', 'emp_meal'])->first();
-    $s = Supplier::where(['code'=>$data['suppliercode'], 'branchid'=>$data['branch_id']])->first();
-    if (is_null($s)) {
-      $b = Branch::find($data['branch_id']);
-      $s = Supplier::where(['code'=>$b->code])->first();
-    }
-    
-    if (abs($ds->emp_meal)==0) {
-      // skip
-    } else {
-      
-      $attrs = [
-        'date'        => $data['date']->format('Y-m-d'),
-        'componentid' => '11E8BB3635ABF63DAEF21C1B0D85A7E0',
-        'qty'       => 1,
-        'ucost'     => $ds->emp_meal,
-        'tcost'     => $ds->emp_meal,
-        'terms'     => 'C',
-        'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
-        'supprefno' => 'XEM'.$data['date']->format('mdy'),
-        'branchid'  => $data['branch_id'],
-        'paytype'   => 1,
-      ];
 
-      try {
-        $this->purchase->create($attrs);
-      } catch(Exception $e) {
-        throw $e;    
+    if (!is_null($ds)) {
+      $s = Supplier::where(['code'=>$data['suppliercode'], 'branchid'=>$data['branch_id']])->first();
+      if (is_null($s)) {
+        $b = Branch::find($data['branch_id']);
+        $s = Supplier::where(['code'=>$b->code])->first();
+      }
+      
+      if (abs($ds->emp_meal)==0) {
+        // skip
+      } else {
+        
+        $attrs = [
+          'date'        => $data['date']->format('Y-m-d'),
+          'componentid' => '11E8BB3635ABF63DAEF21C1B0D85A7E0',
+          'qty'       => 1,
+          'ucost'     => $ds->emp_meal,
+          'tcost'     => $ds->emp_meal,
+          'terms'     => 'K',
+          'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
+          'supprefno' => 'XEM'.$data['date']->format('mdy'),
+          'branchid'  => $data['branch_id'],
+          'paytype'   => 0,
+          'expensecode'=> 'EM',
+          'expenseid' => 'F37344665CFA11E5ADBC00FF59FBB323',
+        ];
+
+        try {
+          $this->purchase->create($attrs);
+        } catch(Exception $e) {
+          throw $e;    
+        }
       }
     }
   }
@@ -190,94 +195,104 @@ class BackupEventListener
   public function processDeliveryFee($data) {
     $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['grabc', 'grab', 'panda', 'id']);
 
-    if (abs($ds->grabc)>0) {
+    if (!is_null($ds)) {
 
-      $s = Supplier::firstOrCreate(['code'=>'GRBC', 'descriptor'=>'GRABFOOD']);
-      $amt = $ds->grabc * config('gi-config.deliveryfee.grabc');
+      if (abs($ds->grabc)>0) {
 
-      $attrs = [
-        'date'      => $data['date']->format('Y-m-d'),
-        'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
-        'qty'       => 1,
-        'ucost'     => $amt,
-        'tcost'     => $amt,
-        'terms'     => 'K',
-        'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
-        'supprefno' => 'XDF'.$data['date']->format('mdy'),
-        'branchid'  => $data['branch_id'],
-        'paytype'   => 1,
-      ];
+        $s = Supplier::firstOrCreate(['code'=>'GRBC', 'descriptor'=>'GRABFOOD']);
+        $amt = $ds->grabc * config('gi-config.deliveryfee.grabc');
+
+        $attrs = [
+          'date'      => $data['date']->format('Y-m-d'),
+          'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+          'qty'       => 1,
+          'ucost'     => $amt,
+          'tcost'     => $amt,
+          'terms'     => 'K',
+          'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
+          'supprefno' => 'XDF'.$data['date']->format('mdy'),
+          'branchid'  => $data['branch_id'],
+          'paytype'   => 0,
+          'expensecode'=> 'DF',
+          'expenseid' => '11EAF712EB737D1B0DF08CC9CE4E9D4F',
+        ];
+
+        try {
+          $this->purchase->create($attrs);
+        } catch(Exception $e) {
+          throw $e;    
+        }
+
+        $ds->grabc_fee = $amt;
+      }
+
+      if (abs($ds->grab)>0) {
+
+        $s = Supplier::firstOrCreate(['code'=>'GRBF', 'descriptor'=>'GRABFOOD']);
+        $amt = $ds->grab * config('gi-config.deliveryfee.grab');
+
+        $attrs = [
+          'date'      => $data['date']->format('Y-m-d'),
+          'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+          'qty'       => 1,
+          'ucost'     => $amt,
+          'tcost'     => $amt,
+          'terms'     => 'K',
+          'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
+          'supprefno' => 'XDF'.$data['date']->format('mdy'),
+          'branchid'  => $data['branch_id'],
+          'paytype'   => 0,
+          'expensecode'=> 'DF',
+          'expenseid' => '11EAF712EB737D1B0DF08CC9CE4E9D4F',
+        ];
+
+        try {
+          $this->purchase->create($attrs);
+        } catch(Exception $e) {
+          throw $e;    
+        }
+
+        $ds->grab_fee = $amt;
+      }
+
+      if (abs($ds->panda)>0) {
+
+        $s = Supplier::firstOrCreate(['code'=>'PAND', 'descriptor'=>'FOOD PANDA PHILIPPINES INC.']);
+        $amt = $ds->panda * config('gi-config.deliveryfee.panda');
+
+        $attrs = [
+          'date'      => $data['date']->format('Y-m-d'),
+          'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+          'qty'       => 1,
+          'ucost'     => $amt,
+          'tcost'     => $amt,
+          'terms'     => 'K',
+          'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
+          'supprefno' => 'XDF'.$data['date']->format('mdy'),
+          'branchid'  => $data['branch_id'],
+          'paytype'   => 0,
+          'expensecode'=> 'DF',
+          'expenseid' => '11EAF712EB737D1B0DF08CC9CE4E9D4F',
+        ];
+
+        try {
+          $this->purchase->create($attrs);
+        } catch(Exception $e) {
+          throw $e;    
+        }
+
+        $ds->panda_fee = $amt;
+      }
+
+      $ds->totdeliver_fee = $ds->panda_fee + $ds->grab_fee + $ds->grabc_fee;
 
       try {
-        $this->purchase->create($attrs);
+        $ds->save();
       } catch(Exception $e) {
         throw $e;    
       }
 
-      $ds->grabc_fee = $amt;
-    }
-
-    if (abs($ds->grab)>0) {
-
-      $s = Supplier::firstOrCreate(['code'=>'GRBF', 'descriptor'=>'GRABFOOD']);
-      $amt = $ds->grab * config('gi-config.deliveryfee.grab');
-
-      $attrs = [
-        'date'      => $data['date']->format('Y-m-d'),
-        'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
-        'qty'       => 1,
-        'ucost'     => $amt,
-        'tcost'     => $amt,
-        'terms'     => 'K',
-        'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
-        'supprefno' => 'XDF'.$data['date']->format('mdy'),
-        'branchid'  => $data['branch_id'],
-        'paytype'   => 1,
-      ];
-
-      try {
-        $this->purchase->create($attrs);
-      } catch(Exception $e) {
-        throw $e;    
-      }
-
-      $ds->grab_fee = $amt;
-    }
-
-    if (abs($ds->panda)>0) {
-
-      $s = Supplier::firstOrCreate(['code'=>'PAND', 'descriptor'=>'FOOD PANDA PHILIPPINES INC.']);
-      $amt = $ds->panda * config('gi-config.deliveryfee.panda');
-
-      $attrs = [
-        'date'      => $data['date']->format('Y-m-d'),
-        'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
-        'qty'       => 1,
-        'ucost'     => $amt,
-        'tcost'     => $amt,
-        'terms'     => 'K',
-        'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
-        'supprefno' => 'XDF'.$data['date']->format('mdy'),
-        'branchid'  => $data['branch_id'],
-        'paytype'   => 1,
-      ];
-
-      try {
-        $this->purchase->create($attrs);
-      } catch(Exception $e) {
-        throw $e;    
-      }
-
-      $ds->panda_fee = $amt;
-    }
-
-    $ds->totdeliver_fee = $ds->panda_fee + $ds->grab_fee + $ds->grabc_fee;
-
-    try {
-      $ds->save();
-    } catch(Exception $e) {
-      throw $e;    
-    }
+    } // !is_null($ds)
   }
 
   public function onDailySalesSuccess2($event) {

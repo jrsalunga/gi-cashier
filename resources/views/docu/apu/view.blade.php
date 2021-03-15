@@ -59,6 +59,10 @@
                 (Cash)
               @elseif($apu->type==2)
                 (Cheque)
+              @elseif($apu->type==3)
+                (Unpaid)
+              @elseif($apu->type==4)
+                (settled by Head Office)
               @else
                 (?)
               @endif

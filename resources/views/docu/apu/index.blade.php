@@ -102,6 +102,10 @@
                     <span class="label label-success" title="Cash" style="cursor: help;"><small>C</small></span>
                   @elseif($ap->type==2)
                     <span class="label label-info" title="Cheque" style="cursor: help;"><small>K</small></span>
+                  @elseif($ap->type==3)
+                    <span class="label label-danger" title="Unpaid" style="cursor: help;"><small>U</small></span>
+                  @elseif($ap->type==4)
+                    <span class="label label-warning" title="settled by Head Office" style="cursor: help;"><small>H</small></span>
                   @else
 
                   @endif

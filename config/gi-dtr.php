@@ -28,7 +28,11 @@ return [
 		'payroll' => [
 			'local' => base_path().DIRECTORY_SEPARATOR.'TEST_PAYROLL_BACKUP'.DIRECTORY_SEPARATOR,
 			'production' => '/home/server-admin/Public/maindepot/GI_PAYROLL_BACKUP/'
-		]
+		],
+    'backup_factory' => [
+      'local' => base_path().DIRECTORY_SEPARATOR.'POS_BACKUP_FACTORY'.DIRECTORY_SEPARATOR,
+      'production' => '/home/server-admin/Public/maindepot/POS_BACKUP_FACTORY'
+    ],
 	]
 
 ];

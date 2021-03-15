@@ -1148,6 +1148,12 @@ class UploaderController extends Controller
           break;
         case 2:
           $type = 'K';
+          break;
+        case 3:
+          $type = 'U';
+          break; 
+        case 4:
+          $type = 'H';
           break;        
         default:
           $type = 'U';

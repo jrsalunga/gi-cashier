@@ -88,8 +88,10 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Import\Cv::class,
         \App\Console\Commands\Cron\Cv::class,
 
+        \App\Console\Commands\Backlog\ChargesType::class,
 
-       \App\Console\Commands\Backlog\ChargesType::class,
+        \App\Console\Commands\Cron\Purchase::class,
+        \App\Console\Commands\Cron\PurchaseNew::class,
     ];
 
     /**

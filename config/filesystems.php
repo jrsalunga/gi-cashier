@@ -100,6 +100,16 @@ return [
                 ],
             'driver' => 'production'
         ],
+        'backup_factory'=>[
+            'local'=>[
+                'driver' => 'local',
+                'root'   => base_path('POS_BACKUP_FACTORY')
+            ],
+            'production'=>[
+                'driver' => 'local',
+                'root'   => '/home/server-admin/Public/maindepot/POS_BACKUP_FACTORY/'
+            ]
+        ],
 
         'ftp' => [
             'driver'   => 'ftp',
