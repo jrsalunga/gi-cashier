@@ -49,7 +49,7 @@ class PurchaseNew extends Command
     // check if there is a backup file on staging folder to process.
     if (count($files)>0) {
       
-      foreach ($files as $file) {
+      foreach ($files as $idx => $file) {
         if (ends_with($file, '.NEW')) {
           $this->info(json_encode($file));
 
@@ -111,11 +111,14 @@ class PurchaseNew extends Command
             $this->sendEmail($br, $date, $apd_filepath);
 
 
+            test_log($date->format('Y-m-d').','.$br->code, $factory_path.DS.'STAGING'.DS.$date->format('Y').'-purchase.new.log');
+
+
             exit;
           } // end: ==='PURCHASE.NEW'
         } // end: ends_with($file)
         if (!is_null($cmd))
-        $this->info('No PURCHASE.NEW found.');
+        $this->info($idx.'. No PURCHASE.NEW found.');
       
       } // end: foreach(files)
     } // end: count($files)
