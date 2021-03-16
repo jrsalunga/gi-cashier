@@ -156,7 +156,7 @@ class PurchaseNew extends Command
     $e['attachment'] = $attachment;
   
     // \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
-    $this->mailer->queue('docu.apd.mail-notify', $e, function ($m) use ($e) {
+    \Mail::queue('docu.apd.mail-notify', $e, function ($m) use ($e) {
         
       $m->subject($e['subject']);
       $m->from('giligans.app@gmail.com', 'GI Head Office');
