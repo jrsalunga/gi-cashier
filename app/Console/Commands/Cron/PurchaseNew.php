@@ -124,25 +124,19 @@ class PurchaseNew extends Command
 
   private function sendEmail(Branch $branch, Carbon $date, $attachment=NULL) {
 
-    // $this->info('sendEmail');
-    // $this->info('attachment: '.$attachment);
-
     $e = [];
     $e['csh_email'] = app()->environment('production') ? $branch->email : env('DEV_CSH_MAIL');
     if (app()->environment('production')) {
       
-      // $this->info('bossBranch getUsers');
       $rep = $this->bossBranch->getUsersByBranchid($branch->id);
       $this->info(print_r($rep));
       
       if (is_null($rep)) {
-      // $this->info('NULL bossBranch getUsers');
         $e['mailing_list'] = [
           ['name'=>'Jefferson Salunga', 'email'=>'jefferson.salunga@gmail.com'],
           ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
         ];
       } else {
-      // $this->info('NOT NULL bossBranch getUsers');
         $e['mailing_list'] = [];
         foreach ($rep as $k => $u) {
           array_push($e['mailing_list'],
@@ -157,31 +151,29 @@ class PurchaseNew extends Command
         ['name'=>'Jeff Salunga', 'email'=>'freakyash02@gmail.com'],
       ];
     }
-    // $this->info('sendEmail init mail');
 
     $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New Expense Record from Head Office';
     $e['attachment'] = $attachment;
   
-    // $this->info('sendEmail Send');
-    \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
+    // \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
+    $this->mailer->queue('docu.apd.mail-notify', $e, function ($m) use ($e) {
         
-        $m->subject($e['subject']);
-        $m->from('giligans.app@gmail.com', 'GI Head Office');
+      $m->subject($e['subject']);
+      $m->from('giligans.app@gmail.com', 'GI Head Office');
 
 
-        if (app()->environment('production')) {
-          $m->to($e['csh_email'])
-            ->cc('jefferson.salunga@gmail.com');
+      if (app()->environment('production')) {
+        $m->to($e['csh_email']);
 
-          foreach ($e['mailing_list'] as $u)
-            $m->cc($u['email'], $u['name']);
+        foreach ($e['mailing_list'] as $u)
+          $m->cc($u['email'], $u['name']);
 
-        }
-        else
-          $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
+        $m->cc('jefferson.salunga@gmail.com');
+      } else
+        $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
 
-        if (!is_null($e['attachment']))
-          $m->attach($e['attachment']);
+      if (!is_null($e['attachment']))
+        $m->attach($e['attachment']);
     });
 
   }
