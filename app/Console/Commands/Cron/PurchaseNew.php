@@ -50,14 +50,18 @@ class PurchaseNew extends Command
     if (count($files)>0) {
       
       foreach ($files as $idx => $file) {
+
+        $boom = explode(DS, $file);
+        $cnt = count($boom);
+        $this->info($cnt); 
+
         if (ends_with($file, '.NEW')) {
 
           $this->info($file); 
 
           $this->filepath = $file;
 
-          $boom = explode(DS, $file);
-          $cnt = count($boom);
+          
           $filename = $boom[($cnt-1)];
           $brcode = $boom[($cnt-2)];
           $date = Carbon::now();
