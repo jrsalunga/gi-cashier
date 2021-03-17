@@ -55,7 +55,7 @@ class PurchaseNew extends Command
         $cnt = count($boom);
         $this->info($cnt); 
 
-        if (ends_with($file, '.NEW')) {
+        if (ends_with($file, '.NEW') && $cnt>8) {
 
           $this->info($file); 
 
