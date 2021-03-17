@@ -53,7 +53,7 @@ class PurchaseNew extends Command
 
         $boom = explode(DS, $file);
         $cnt = count($boom);
-        $this->info($cnt); 
+        // $this->info($cnt); 
 
         if (ends_with($file, '.NEW') && $cnt>8) {
 
