@@ -173,6 +173,7 @@ class PurchaseNew extends Command
           $m->cc($u['email'], $u['name']);
 
         $m->cc('jefferson.salunga@gmail.com');
+        $m->replyTo('jefferson.salunga@gmail.com');
       } else
         $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
 
