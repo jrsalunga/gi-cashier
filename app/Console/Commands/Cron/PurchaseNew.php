@@ -81,7 +81,7 @@ class PurchaseNew extends Command
 
            
             // copy to processed
-            $dir = $factory_path.'PROCESSED'.DS.$apd_dir;
+            $dir = $factory_path.DS.'PROCESSED'.DS.$apd_dir;
             $destp = $dir.DS.$filename;
 
             if (!is_dir($dir))
