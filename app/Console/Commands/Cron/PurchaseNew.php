@@ -172,8 +172,8 @@ class PurchaseNew extends Command
       if (app()->environment('production')) {
         $m->to($e['csh_email']);
 
-        foreach ($e['mailing_list'] as $u)
-          $m->cc($u['email'], $u['name']);
+        // foreach ($e['mailing_list'] as $u)
+          // $m->cc($u['email'], $u['name']);
 
         $m->cc('jefferson.salunga@gmail.com');
         $m->replyTo('jefferson.salunga@gmail.com');
