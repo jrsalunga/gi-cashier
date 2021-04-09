@@ -114,7 +114,7 @@ class PurchaseNew extends Command
 
             $this->sendEmail($br, $date, $apd_filepath);
 
-            test_log($date->format('Y-m-d').','.$br->code.','.Carbon::now()->format('Y-m-d').','.Carbon::now()->format('H:i:s'), $factory_path.DS.'STAGING'.DS.$date->format('Y').'-purchase.new.log');
+            // test_log($date->format('Y-m-d').','.$br->code.','.Carbon::now()->format('Y-m-d').','.Carbon::now()->format('H:i:s'), $factory_path.DS.'STAGING'.DS.$date->format('Y').'-purchase.new.log');
 
             exit;
           } // end: ==='PURCHASE.NEW'
@@ -133,6 +133,7 @@ class PurchaseNew extends Command
     if (app()->environment('production')) {
       
       $rep = $this->bossBranch->getUsersByBranchid($branch->id);
+      $this->info($e['csh_email']);
       $this->info(print_r($rep));
       
       if (is_null($rep)) {
@@ -158,6 +159,8 @@ class PurchaseNew extends Command
 
     $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New Expense Record from Head Office';
     $e['attachment'] = $attachment;
+
+    
   
     // \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
     \Mail::queue('docu.apd.mail-notify', $e, function ($m) use ($e) {
