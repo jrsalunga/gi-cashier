@@ -162,8 +162,8 @@ class PurchaseNew extends Command
 
     
   
-    // \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
-    \Mail::queue('docu.apd.mail-notify', $e, function ($m) use ($e) {
+    \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
+    // \Mail::queue('docu.apd.mail-notify', $e, function ($m) use ($e) {
         
       $m->subject($e['subject']);
       $m->from('giligans.app@gmail.com', 'GI Head Office');
