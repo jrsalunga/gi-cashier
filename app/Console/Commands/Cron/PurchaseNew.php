@@ -162,8 +162,8 @@ class PurchaseNew extends Command
 
     
   
-    \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
-    // \Mail::queue('docu.apd.mail-notify', $e, function ($m) use ($e) {
+    // \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
+    \Mail::queue('docu.apd.mail-notify', $e, function ($m) use ($e) {
         
       $m->subject($e['subject']);
       $m->from('giligans.app@gmail.com', 'GI Head Office');
@@ -172,8 +172,8 @@ class PurchaseNew extends Command
       if (app()->environment('production')) {
         $m->to($e['csh_email']);
 
-        // foreach ($e['mailing_list'] as $u)
-          // $m->cc($u['email'], $u['name']);
+        foreach ($e['mailing_list'] as $u)
+          $m->cc($u['email'], $u['name']);
 
         $m->cc('jefferson.salunga@gmail.com');
         $m->replyTo('jefferson.salunga@gmail.com');
