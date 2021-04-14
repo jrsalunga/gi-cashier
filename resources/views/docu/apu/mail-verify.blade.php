@@ -1,4 +1,4 @@
-@if($model->type=='2')
+@if($model->type=='2' || $model->type=='4')
 <p>Accounts payable document ({{ $model->filename }}) has been uploaded on server.</p>
 @else
 <p>Cash expense receipt/transmittal document ({{ $model->filename }}) has been uploaded on server.</p>
@@ -12,6 +12,8 @@
   <li title="Invoice or Reference No.">{{ $model->refno }}</li>
 	<li title="Transmittal Date">{{ $model->date->format('D M j, Y') }}</li>
 	<li title="Amount">{{ number_format($model->amount, 2) }}</li>
+  <li title="Terms">{{ $model->terms }}</li>
+</ul>
 </ul>
 <p>- {{ $model->cashier }}</p>
 <p>{{ $model->remarks }}</p>
