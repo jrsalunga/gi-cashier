@@ -1,4 +1,4 @@
-@if($model->type=='0' || $model->type=='3')
+@if($model->type=='2' || $model->type=='4')
 <p>Accounts payable document ({{ $model->filename }}) has been uploaded on server.</p>
 @else
 <p>Cash expense receipt/transmittal document ({{ $model->filename }}) has been uploaded on server.</p>

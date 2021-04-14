@@ -50,9 +50,12 @@ class Purchase2Repository extends BaseRepository
 
       switch ($data['terms']) {
         case 'H':
-          $paytype = 3;
+          $paytype = 4;
           break;
         case 'U':
+          $paytype = 3;
+          break;
+        case 'K':
           $paytype = 2;
           break;
         case 'C':
