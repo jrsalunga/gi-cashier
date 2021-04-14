@@ -12,6 +12,7 @@
   <li title="Invoice or Reference No.">{{ $model->refno }}</li>
   <li title="Transmittal Date">{{ $model->date->format('D M j, Y') }}</li>
   <li title="Amount">{{ number_format($model->amount, 2) }}</li>
+  <li title="Terms">{{ $model->terms }}</li>
 </ul>
 
 <p>{{ $model->remarks }}</p>
