@@ -51,7 +51,7 @@ class ApUpload extends BaseModel {
         return 'U';
         break;
       case '4':
-        return 'K';
+        return 'H';
         break;
       default:
         return 'X';
