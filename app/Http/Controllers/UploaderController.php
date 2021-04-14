@@ -1156,7 +1156,7 @@ class UploaderController extends Controller
           $type = 'H';
           break;        
         default:
-          $type = 'U';
+          $type = 'X';
           break;
       }
         

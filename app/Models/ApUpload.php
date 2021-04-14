@@ -39,6 +39,26 @@ class ApUpload extends BaseModel {
       : true;
   }
 
+  public function getTermsAttribute() {
+    switch ($this->type) {
+      case '1':
+        return 'C';
+        break;
+      case '2':
+        return 'K';
+        break;
+      case '3':
+        return 'U';
+        break;
+      case '4':
+        return 'K';
+        break;
+      default:
+        return 'X';
+        break;
+    }
+  }
+
   public function file_path() {
     return config('gi-dtr.upload_path.files.'.app()->environment()).'APU'.DS.$this->date->format('Y').DS.session('user.branchcode').DS.$this->date->format('m').DS.$this->filename;
   }
