@@ -212,7 +212,7 @@ class BackupEventListener
           'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
           'supprefno' => 'XDF'.$data['date']->format('mdy'),
           'branchid'  => $data['branch_id'],
-          'paytype'   => 0,
+          'paytype'   => 2, // Paid: Cheque
           'expensecode'=> 'DF',
           'expenseid' => '11EAF712EB737D1B0DF08CC9CE4E9D4F',
         ];
@@ -241,7 +241,7 @@ class BackupEventListener
           'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
           'supprefno' => 'XDF'.$data['date']->format('mdy'),
           'branchid'  => $data['branch_id'],
-          'paytype'   => 0,
+          'paytype'   => 2, // Paid: Cheque
           'expensecode'=> 'DF',
           'expenseid' => '11EAF712EB737D1B0DF08CC9CE4E9D4F',
         ];
@@ -270,7 +270,7 @@ class BackupEventListener
           'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
           'supprefno' => 'XDF'.$data['date']->format('mdy'),
           'branchid'  => $data['branch_id'],
-          'paytype'   => 0,
+          'paytype'   => 2, // Paid: Cheque
           'expensecode'=> 'DF',
           'expenseid' => '11EAF712EB737D1B0DF08CC9CE4E9D4F',
         ];
