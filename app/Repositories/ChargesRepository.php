@@ -76,6 +76,7 @@ class ChargesRepository extends BaseRepository implements CacheableInterface
 		$row['disc_amt'] 			= trim($disc_amt);
 		$row['remarks'] 			= trim($r['CUSCONT']);
 		$row['cashier'] 			= trim($r['REMARKS']);
+    $row['delivery_fee']  = trim($r['FILLER1']);
 
 		return $row;
 	}

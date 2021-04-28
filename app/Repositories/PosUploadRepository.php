@@ -1416,6 +1416,8 @@ class PosUploadRepository extends Repository
     $ds['grab']  = 0;
     $ds['grabc']  = 0;
     $ds['panda']  = 0;
+    $ds['zap']  = 0;
+    $ds['zap_delfee']  = 0;
     $ds['totdeliver']  = 0;
     
     if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) // same sas line 1226
@@ -1442,10 +1444,12 @@ class PosUploadRepository extends Repository
     $ds['chrg_othr']    = $c['chrg_othr'] + $s['chrg_othr'];
     $ds['disc_totamt']  = $c['disc_totamt'] + $s['disc_totamt'];
 
-    $ds['grab'] = $c['grab'] + $s['grab'];
+    $ds['grab']   = $c['grab'] + $s['grab'];
     $ds['panda']  = $c['panda'] + $s['panda'];
-    $ds['grabc'] = $c['grabc'] + $s['grabc'];
-    $ds['totdeliver']  = $c['totdeliver'] + $s['totdeliver'];
+    $ds['grabc']  = $c['grabc'] + $s['grabc'];
+    $ds['zap']    = $c['zap'] + $s['zap'];
+    $ds['zap_delfee'] = $c['zap_delfee'] + $s['zap_delfee'];
+    $ds['totdeliver'] = $c['totdeliver'] + $s['totdeliver'];
 
 
     // remove the date bec of $this->postNewDailySales
@@ -1493,6 +1497,8 @@ class PosUploadRepository extends Repository
       $ds['panda'] = 0;
       $ds['grab'] = 0;
       $ds['grabc'] = 0;
+      $ds['zap'] = 0;
+      $ds['zap_delfee'] = 0;
       $ds['totdeliver'] = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
@@ -1551,6 +1557,11 @@ class PosUploadRepository extends Repository
                 $ds['grabc'] += $data['tot_chrg'];
                 $ds['totdeliver'] += $data['tot_chrg'];
                 break;
+              case 'zap':
+                $ds['zap'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                $ds['zap_delfee'] += $data['delivery_fee'];
+                break;
             }
           }
 
@@ -1588,6 +1599,8 @@ class PosUploadRepository extends Repository
       $ds['panda'] = 0;
       $ds['grab'] = 0;
       $ds['grabc'] = 0;
+      $ds['zap'] = 0;
+      $ds['zap_delfee'] = 0;
       $ds['totdeliver'] = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
@@ -1644,6 +1657,11 @@ class PosUploadRepository extends Repository
               case 'grabc':
                 $ds['grabc'] += $data['tot_chrg'];
                 $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+               case 'zap':
+                $ds['zap'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                $ds['zap_delfee'] += $data['delivery_fee'];
                 break;
             }
           }
@@ -2438,6 +2456,8 @@ class PosUploadRepository extends Repository
     $ds['grab']  = 0;
     $ds['grabc']  = 0;
     $ds['panda']  = 0;
+    $ds['zap']  = 0;
+    $ds['zap_delfee']  = 0;
     $ds['totdeliver']  = 0;
 
 
@@ -2463,6 +2483,8 @@ class PosUploadRepository extends Repository
     $ds['grab'] = $c['grab'] + $s['grab'];
     $ds['panda']  = $c['panda'] + $s['panda'];
     $ds['grabc'] = $c['grabc'] + $s['grabc'];
+    $ds['zap'] = $c['zap'] + $s['zap'];
+    $ds['zap_delfee'] = $c['zap_delfee'] + $s['zap_delfee'];
     $ds['totdeliver']  = $c['totdeliver'] + $s['totdeliver'];
 
     $cnt = $c['custcount'] + $s['custcount'];
@@ -2572,6 +2594,8 @@ class PosUploadRepository extends Repository
       $ds['panda']  = 0;
       $ds['grab']  = 0;
       $ds['grabc']  = 0;
+      $ds['zap']  = 0;
+      $ds['zap_delfee']  = 0;
       $ds['totdeliver']  = 0;
 
       for ($i=1; $i<=$recno; $i++) {
@@ -2631,6 +2655,11 @@ class PosUploadRepository extends Repository
                 $ds['grabc'] += $data['tot_chrg'];
                 $ds['totdeliver'] += $data['tot_chrg'];
                 break;
+              case 'zap':
+                $ds['zap'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                $ds['zap_delfee'] += $data['delivery_fee'];
+                break;
             }
           }
 
@@ -2668,6 +2697,8 @@ class PosUploadRepository extends Repository
       $ds['panda']  = 0;
       $ds['grab']  = 0;
       $ds['grabc']  = 0;
+      $ds['zap']  = 0;
+      $ds['zap_delfee']  = 0;
       $ds['totdeliver']  = 0;
 
       for ($i=1; $i<=$recno; $i++) {
@@ -2725,6 +2756,11 @@ class PosUploadRepository extends Repository
               case 'grabc':
                 $ds['grabc'] += $data['tot_chrg'];
                 $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+              case 'zap':
+                $ds['zap'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                $ds['zap_delfee'] += $data['delivery_fee'];
                 break;
             }
           }

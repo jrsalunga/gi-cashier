@@ -23,6 +23,8 @@ class ApuEventListener
     // test_log(json_encode($e->model->filename));
     $brcode = $event->model->branch->code;
 
+    $email_k = env('AP_K_EMAIL');
+    $email_c = env('AP_C_EMAIL');
     $email_csh = app()->environment('production') ? request()->user()->email : env('DEV_CSH_MAIL');
     $e = [];
     if (app()->environment('production')) {

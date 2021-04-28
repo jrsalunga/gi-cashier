@@ -193,7 +193,7 @@ class BackupEventListener
   }
 
   public function processDeliveryFee($data) {
-    $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['grabc', 'grab', 'panda', 'id']);
+    $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['grabc', 'grab', 'panda', 'zap', 'id']);
 
     if (!is_null($ds)) {
 
@@ -208,11 +208,11 @@ class BackupEventListener
           'qty'       => 1,
           'ucost'     => $amt,
           'tcost'     => $amt,
-          'terms'     => 'K',
+          'terms'     => 'H',
           'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
           'supprefno' => 'XDF'.$data['date']->format('mdy'),
           'branchid'  => $data['branch_id'],
-          'paytype'   => 2, // Paid: Cheque
+          'paytype'   => 4, // Paid: Cheque - see gi-boss.config.giligans.php
           'expensecode'=> 'DF',
           'expenseid' => '11EAF712EB737D1B0DF08CC9CE4E9D4F',
         ];
@@ -237,11 +237,11 @@ class BackupEventListener
           'qty'       => 1,
           'ucost'     => $amt,
           'tcost'     => $amt,
-          'terms'     => 'K',
+          'terms'     => 'H',
           'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
           'supprefno' => 'XDF'.$data['date']->format('mdy'),
           'branchid'  => $data['branch_id'],
-          'paytype'   => 2, // Paid: Cheque
+          'paytype'   => 4, // Paid: Cheque - see gi-boss.config.giligans.php
           'expensecode'=> 'DF',
           'expenseid' => '11EAF712EB737D1B0DF08CC9CE4E9D4F',
         ];
@@ -266,11 +266,11 @@ class BackupEventListener
           'qty'       => 1,
           'ucost'     => $amt,
           'tcost'     => $amt,
-          'terms'     => 'K',
+          'terms'     => 'H',
           'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
           'supprefno' => 'XDF'.$data['date']->format('mdy'),
           'branchid'  => $data['branch_id'],
-          'paytype'   => 2, // Paid: Cheque
+          'paytype'   => 4, // Paid: Cheque - see gi-boss.config.giligans.php
           'expensecode'=> 'DF',
           'expenseid' => '11EAF712EB737D1B0DF08CC9CE4E9D4F',
         ];
@@ -284,7 +284,37 @@ class BackupEventListener
         $ds->panda_fee = $amt;
       }
 
-      $ds->totdeliver_fee = $ds->panda_fee + $ds->grab_fee + $ds->grabc_fee;
+      if (abs($ds->zap)>0) {
+
+        $s = Supplier::firstOrCreate(['code'=>'ZAP', 'descriptor'=>'ZAP GROUP INC.']);
+        $amt = $ds->zap * config('gi-config.deliveryfee.zap');
+
+        $attrs = [
+          'date'      => $data['date']->format('Y-m-d'),
+          'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+          'qty'       => 1,
+          'ucost'     => $amt,
+          'tcost'     => $amt,
+          'terms'     => 'H',
+          'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
+          'supprefno' => 'XDF'.$data['date']->format('mdy'),
+          'branchid'  => $data['branch_id'],
+          'paytype'   => 4, // Paid: Cheque - see gi-boss.config.giligans.php
+          'expensecode'=> 'DF',
+          'expenseid' => '11EAF712EB737D1B0DF08CC9CE4E9D4F',
+        ];
+
+        try {
+          $this->purchase->create($attrs);
+        } catch(Exception $e) {
+          throw $e;    
+        }
+
+        $ds->zap_fee = $amt;
+      }
+
+
+      $ds->totdeliver_fee = $ds->panda_fee + $ds->grab_fee + $ds->grabc_fee + $ds->zap_fee;
 
       try {
         $ds->save();
