@@ -47,7 +47,7 @@ class PurchaseNew extends Command
     $this->info(print_r($files));
     
     // check if there is a backup file on staging folder to process.
-    if (count($files)>0) {
+    if (count($files)>0 || $this->option('check')=='true') {
       
       foreach ($files as $idx => $file) {
 
@@ -55,7 +55,7 @@ class PurchaseNew extends Command
         $cnt = count($boom);
         // $this->info($cnt); 
 
-        if (ends_with($file, '.NEW') && $cnt>8 && $this->option('check')=='false') {
+        if (ends_with($file, '.NEW') && $cnt>8) {
 
           $this->info($file); 
 
@@ -120,13 +120,12 @@ class PurchaseNew extends Command
           } // end: ==='PURCHASE.NEW'
         } // end: ends_with($file)
         if (!is_null($cmd)) 
-          if ($this->option('check')=='true')
-            $this->info('Run check only');
-          else
-            $this->info($idx.'. No PURCHASE.NEW found.');
+          $this->info($idx.'. No PURCHASE.NEW found.');
       
       } // end: foreach(files)
     } // end: count($files)
+    if ($this->option('check')=='true')
+      $this->info('Run check only');
   }
 
   private function sendEmail(Branch $branch, Carbon $date, $attachment=NULL) {
