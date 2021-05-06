@@ -16,7 +16,7 @@ use App\Helpers\BossBranch;
 class PurchaseNew extends Command
 {
 
-	protected $signature = 'cron:purchase-new';
+	protected $signature = 'cron:purchase-new {--check=false : Run checker only}';
   protected $description = 'process the updated backup files from the STAGING folder via cron';
   protected $filepath = NULL;
   protected $root_path = NULL;
@@ -55,7 +55,7 @@ class PurchaseNew extends Command
         $cnt = count($boom);
         // $this->info($cnt); 
 
-        if (ends_with($file, '.NEW') && $cnt>8) {
+        if (ends_with($file, '.NEW') && $cnt>8 && $this->option('check')=='false') {
 
           $this->info($file); 
 
@@ -119,8 +119,11 @@ class PurchaseNew extends Command
             exit;
           } // end: ==='PURCHASE.NEW'
         } // end: ends_with($file)
-        if (!is_null($cmd))
-          $this->info($idx.'. No PURCHASE.NEW found.');
+        if (!is_null($cmd)) 
+          if ($this->option('check')=='true')
+            $this->info('Run check only');
+          else
+            $this->info($idx.'. No PURCHASE.NEW found.');
       
       } // end: foreach(files)
     } // end: count($files)

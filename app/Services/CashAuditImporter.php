@@ -41,6 +41,8 @@ class CashAuditImporter {
           continue;
         }
 
+        $cmd->info('MAN_PAY: '.$row['MAN_PAY']);
+
         if ($vfpdate->format('Y-m-d')==$date->format('Y-m-d')) {
 
           if (!is_null($cmd))
@@ -98,6 +100,8 @@ class CashAuditImporter {
 
         // if (!is_null($cmd))
           // $cmd->info($vfpdate->format('Y-m-d').'<'.$from->format('Y-m-d').' && '.$vfpdate->format('Y-m-d').'>'.$to->format('Y-m-d'));
+
+
 
         //if ($from->gte($vfpdate) && $to->lte($vfpdate)) {
         if ($vfpdate->gte($from) && $vfpdate->lte($to)) {
