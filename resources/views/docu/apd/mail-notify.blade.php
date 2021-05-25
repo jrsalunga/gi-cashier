@@ -25,7 +25,7 @@
         <div style="margin-bottom:15px;font-size:15px;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong>Instructions:</strong></div>
 
         <ol style="font-family: Roboto,Helvetica,Arial,sans-serif;">
-          <li>Make sure that your POS version is <strong>dB.2021.03.07</strong> or <strong>higher</strong>. If not, kindly contact your IT Administrator.</li>
+          <li>Make sure that your POS version is <strong>dB.2021.03.07</strong> or <strong>dB.2021.04.25</strong>. If not, kindly contact your IT Administrator.</li>
           <li style="margin-top: 10px">Download the attached file <strong>PURCHASE.NEW</strong> and copy it in the <strong>C:\GI_GLO</strong> folder.</li>
           <li style="margin-top: 10px">Re-run the POS Program</li>
           <li style="margin-top: 10px">A confirmation screen will appear. <em><small>(see the sample picture below)</small></em></li>
