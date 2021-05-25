@@ -42,7 +42,7 @@
     </div>
 
     <p>&nbsp;</p>
-    <p style="padding: 0;margin: 20px 0 3px 0;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong><small>POS Version</small></strong></p>
+    <p style="padding: 0;margin: 20px 0 3px 0;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong><small>POS Version: dB.2021.03.07 or dB.2021.04.25</small></strong></p>
     <img src="http://cashier.giligansrestaurant.com/images/uploads/dB.2021.03.07.PNG" style="background-color:#F8F9FA;">
 
     <p>&nbsp;</p>
