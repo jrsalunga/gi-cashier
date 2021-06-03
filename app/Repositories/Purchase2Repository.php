@@ -48,23 +48,33 @@ class Purchase2Repository extends BaseRepository
       }
 
 
+      $utang = 0;
+      // $tcost = 0;
       switch ($data['terms']) {
         case 'H':
           $paytype = 4;
+          // $tcost = $data['tcost'];
           break;
         case 'U':
           $paytype = 3;
+          $utang = $data['tcost'];
           break;
         case 'K':
           $paytype = 2;
+          // $tcost = $data['tcost'];
           break;
         case 'C':
           $paytype = 1;
+          // $tcost = $data['tcost'];
           break;
         default:
           $paytype = 0;
+          // $tcost = $data['tcost'];
           break;
       }
+
+      
+
       
 
       $attr = [
@@ -74,6 +84,8 @@ class Purchase2Repository extends BaseRepository
         //'unit' => $data['unit'],
         'ucost' => $data['ucost'],
         'tcost' => $data['tcost'],
+        // 'tcost' => $tcost,
+        'utang' => $utang,
         'terms' => $data['terms'],
         'supprefno' => $data['supprefno'],
         'vat' => $data['vat'],
@@ -130,6 +142,7 @@ class Purchase2Repository extends BaseRepository
   public function getFoodCost(Carbon $dr, $branchid) {
     return $this->scopeQuery(function($query) use ($dr, $branchid) {
       return $query->where('purchase.date', $dr->format('Y-m-d'))
+                    ->where('purchase.terms','<>', 'U')
                     ->where('purchase.branchid', $branchid)
                     ->where('expense.expscatid', '7208AA3F5CF111E5ADBC00FF59FBB323')
                     ->leftJoin('component', 'component.id', '=', 'purchase.componentid')
@@ -169,6 +182,7 @@ class Purchase2Repository extends BaseRepository
     return $this->scopeQuery(function($query) use ($branchid, $date, $expcode) {
       return $query->where('purchase.date', $date->format('Y-m-d'))
                     ->where('purchase.branchid', $branchid)
+                    ->where('purchase.terms','<>', 'U')
                     ->whereIn('expense.code', $expcode)
                     ->leftJoin('component', 'component.id', '=', 'purchase.componentid')
                     ->leftJoin('supplier', 'supplier.id', '=', 'purchase.supplierid')
@@ -183,6 +197,7 @@ class Purchase2Repository extends BaseRepository
       return $query->where('purchase.date', $date->format('Y-m-d'))
                     ->where('purchase.branchid', $branchid)
                     ->where('expense.expscatid', $expscatid)
+                    ->where('purchase.terms','<>', 'U')
                     ->leftJoin('component', 'component.id', '=', 'purchase.componentid')
                     ->leftJoin('supplier', 'supplier.id', '=', 'purchase.supplierid')
                     ->leftJoin('compcat', 'compcat.id', '=', 'component.compcatid')
@@ -199,6 +214,7 @@ class Purchase2Repository extends BaseRepository
                   [$fr->format('Y-m-d'), $to->format('Y-m-d')]
                   )
                 ->where('branchid', $branchid)
+                ->where('terms','<>', 'U')
                 ->groupBy('componentid');
     })->all();
   }
@@ -214,6 +230,7 @@ class Purchase2Repository extends BaseRepository
                   [$fr->format('Y-m-d'), $to->format('Y-m-d')]
                   )
                 ->where('purchase.branchid', $branchid)
+                ->where('purchase.terms','<>', 'U')
                 ->groupBy('compcat.expenseid');
     })->all();
   }

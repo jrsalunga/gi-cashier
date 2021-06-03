@@ -537,6 +537,7 @@ class PosUploadRepository extends Repository
       $update = 0;
       $food_cost = 0;
       $opex = 0;
+      $utang = 0;
       $saved = false;
 
       // delete if exist
@@ -612,10 +613,12 @@ class PosUploadRepository extends Repository
             throw $e;    
           }
 
-          if (in_array(substr($attrs['supno'], 0, 2), $this->expense_array))
+          if (in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && $attrs['terms']!='U')
             $food_cost += $tcost;
-          if (!in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && !in_array(substr($attrs['supno'], 0, 2), $this->non_cos_array))
+          if (!in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && !in_array(substr($attrs['supno'], 0, 2), $this->non_cos_array) && $attrs['terms']!='U')
             $opex += $tcost;
+          if ($attrs['terms']=='U')
+            $utang += $tcost;
           
           //\DB::rollBack();
           $tot_purchase += $tcost;
@@ -639,6 +642,7 @@ class PosUploadRepository extends Repository
                             'cos'=> $food_cost,
                             'cospct'=> $cospct,
                             'opex'=> $opex,
+                            'utang'=> $utang,
                             'purchcost'=>$tot_purchase],
                             ['date', 'branchid']);
       } catch(Exception $e) {
@@ -1129,6 +1133,7 @@ class PosUploadRepository extends Repository
       $tot_purchase = 0;
       $update = 0;
       $food_cost = 0;
+      $utang = 0;
       $opex = 0;
 
       // delete if exist
@@ -1202,6 +1207,8 @@ class PosUploadRepository extends Repository
             $food_cost += $tcost;
           if (!in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && !in_array(substr($attrs['supno'], 0, 2), $this->non_cos_array))
             $opex += $tcost;
+          if ($attrs['terms']=='U')
+            $utang += $tcost;
 
           
           //\DB::rollBack();
@@ -1225,6 +1232,7 @@ class PosUploadRepository extends Repository
                             'cos'=> $food_cost,
                             'cospct'=> $cospct,
                             'opex'=> $opex,
+                            'utang'=> $utang,
                             'purchcost'=>$tot_purchase],
                             ['date', 'branchid']);
       } catch(Exception $e) {
@@ -1419,6 +1427,10 @@ class PosUploadRepository extends Repository
     $ds['zap']  = 0;
     $ds['zap_delfee']  = 0;
     $ds['totdeliver']  = 0;
+    $ds['tot_dine'] = 0;
+    $ds['tot_togo'] = 0;
+    $ds['tot_onlrid'] = 0;
+    $ds['tot_osaletype'] = 0;
     
     if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) // same sas line 1226
       $ds['custcount'] = 0;
@@ -1450,6 +1462,10 @@ class PosUploadRepository extends Repository
     $ds['zap']    = $c['zap'] + $s['zap'];
     $ds['zap_delfee'] = $c['zap_delfee'] + $s['zap_delfee'];
     $ds['totdeliver'] = $c['totdeliver'] + $s['totdeliver'];
+    $ds['tot_dine'] =  $c['tot_dine'];
+    $ds['tot_togo'] =  $c['tot_togo'];
+    $ds['tot_onlrid'] =  $c['tot_onlrid'];
+    $ds['tot_osaletype'] =  $c['tot_osaletype'];
 
 
     // remove the date bec of $this->postNewDailySales
@@ -1500,6 +1516,10 @@ class PosUploadRepository extends Repository
       $ds['zap'] = 0;
       $ds['zap_delfee'] = 0;
       $ds['totdeliver'] = 0;
+      $ds['tot_dine'] = 0;
+      $ds['tot_togo'] = 0;
+      $ds['tot_onlrid'] = 0;
+      $ds['tot_osaletype'] = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
         
@@ -1535,6 +1555,21 @@ class PosUploadRepository extends Repository
               break;
             default:
               $ds['chrg_othr'] += $data['tot_chrg'];
+              break;
+          }
+
+          switch (strtolower($data['saletype'])) {
+            case 'dinein':
+              $ds['tot_dine'] += $data['tot_chrg'];
+              break;
+            case 'tkeout':
+              $ds['tot_togo'] += $data['tot_chrg'];
+              break;
+            case 'onlrid':
+              $ds['tot_onlrid'] += $data['tot_chrg'];
+              break;
+            default:
+              $ds['tot_osaletype'] += $data['tot_chrg'];
               break;
           }
           
@@ -2459,6 +2494,10 @@ class PosUploadRepository extends Repository
     $ds['zap']  = 0;
     $ds['zap_delfee']  = 0;
     $ds['totdeliver']  = 0;
+    $ds['tot_dine'] = 0;
+    $ds['tot_togo'] = 0;
+    $ds['tot_onlrid'] = 0;
+    $ds['tot_osaletype'] = 0;
 
 
     try {
@@ -2486,6 +2525,11 @@ class PosUploadRepository extends Repository
     $ds['zap'] = $c['zap'] + $s['zap'];
     $ds['zap_delfee'] = $c['zap_delfee'] + $s['zap_delfee'];
     $ds['totdeliver']  = $c['totdeliver'] + $s['totdeliver'];
+    $ds['tot_dine'] =  $c['tot_dine'];
+    $ds['tot_togo'] =  $c['tot_togo'];
+    $ds['tot_onlrid'] =  $c['tot_onlrid'];
+    $ds['tot_osaletype'] =  $c['tot_osaletype'];
+
 
     $cnt = $c['custcount'] + $s['custcount'];
     $hspend = ($cnt > 0) ? number_format($ds['chrg_total']/$cnt,2,'.','') : 0;
@@ -2597,6 +2641,10 @@ class PosUploadRepository extends Repository
       $ds['zap']  = 0;
       $ds['zap_delfee']  = 0;
       $ds['totdeliver']  = 0;
+      $ds['tot_dine'] = 0;
+      $ds['tot_togo'] = 0;
+      $ds['tot_onlrid'] = 0;
+      $ds['tot_osaletype'] = 0;
 
       for ($i=1; $i<=$recno; $i++) {
         
@@ -2633,6 +2681,21 @@ class PosUploadRepository extends Repository
               break;
             default:
               $ds['chrg_othr'] += $data['tot_chrg'];
+              break;
+          }
+
+          switch (strtolower($data['saletype'])) {
+            case 'dinein':
+              $ds['tot_dine'] += $data['tot_chrg'];
+              break;
+            case 'tkeout':
+              $ds['tot_togo'] += $data['tot_chrg'];
+              break;
+            case 'onlrid':
+              $ds['tot_onlrid'] += $data['tot_chrg'];
+              break;
+            default:
+              $ds['tot_osaletype'] += $data['tot_chrg'];
               break;
           }
           

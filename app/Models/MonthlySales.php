@@ -14,7 +14,7 @@ class MonthlySales extends BaseModel {
         'chrg_total', 'chrg_csh', 'chrg_chrg', 'chrg_othr', 'bank_totchrg', 'disc_totamt', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig','transcost', 'transcos', 'transncos', 'opex', 'record_count', 'depslpk', 'depslpc', 'setslp'];
 	
   //protected $guarded = ['id'];
-  protected $dates = ['date'];
+  protected $dates = ['date', 'ending_csh_date'];
 	protected $casts = [
     'sales' => 'float',
     'cos' => 'float',
@@ -70,7 +70,7 @@ class MonthlySales extends BaseModel {
     if(Carbon::parse($this->date->format('Y-m-d'))->lt(Carbon::parse('2016-01-01')))
       return 0;
     else
-      return $this->opex;
+      return $this->opex + $this->totdeliver_fee + $this->emp_meal;
   }
 
   public function get_opexpct($format=true) {

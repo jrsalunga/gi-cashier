@@ -88,7 +88,11 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
     $sql .= 'SUM(kitlog) AS kitlog, SUM(change_item) AS change_item, SUM(change_item_diff) AS change_item_diff, ';
     $sql .= 'SUM(grab) AS grab, SUM(grabc) AS grabc, SUM(panda) AS panda, SUM(totdeliver) AS totdeliver, ';
     $sql .= 'SUM(grab_fee) AS grab_fee, SUM(grabc_fee) AS grabc_fee, SUM(panda_fee) AS panda_fee, SUM(totdeliver_fee) AS totdeliver_fee, ';
-    $sql .= 'SUM(zap) AS zap, SUM(zap_fee) AS zap_fee, SUM(zap_delfee) AS zap_delfee';
+    $sql .= 'AVG(sales) as ave_sales, AVG(sale_csh) as ave_sale_csh, AVG(sale_chg) as ave_sale_chg, ';
+    $sql .= 'AVG(totdeliver) as ave_deliver,  (SUM(totdeliver)/SUM(sales) * 100) as pct_deliver, ';
+    $sql .= 'SUM(tot_dine) as tot_dine, SUM(tot_togo) as tot_togo, AVG(tot_dine) as ave_dine, AVG(tot_togo) as ave_togo, ';
+    $sql .= 'SUM(tot_onlrid) as tot_onlrid, SUM(tot_osaletype) as tot_osaletype, AVG(tot_onlrid) as ave_onlrid, AVG(tot_osaletype) as ave_osaletype, ';
+    $sql .= 'SUM(zap) AS zap, SUM(zap_fee) AS zap_fee, SUM(zap_delfee) AS zap_delfee, SUM(utang) as utang';
     
 
     $res = $this->skipCache()
@@ -133,7 +137,11 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
     $sql .= 'SUM(kitlog) AS kitlog, SUM(change_item) AS change_item, SUM(change_item_diff) AS change_item_diff, ';
     $sql .= 'SUM(grab) AS grab, SUM(grabc) AS grabc, SUM(panda) AS panda, SUM(totdeliver) AS totdeliver, ';
     $sql .= 'SUM(grab_fee) AS grab_fee, SUM(grabc_fee) AS grabc_fee, SUM(panda_fee) AS panda_fee, SUM(totdeliver_fee) AS totdeliver_fee, ';
-    $sql .= 'SUM(zap) AS zap, SUM(zap_fee) AS zap_fee, SUM(zap_delfee) AS zap_delfee';
+    $sql .= 'AVG(sales) as ave_sales, AVG(sale_csh) as ave_sale_csh, AVG(sale_chg) as ave_sale_chg, ';
+    $sql .= 'AVG(totdeliver) as ave_deliver,  (SUM(totdeliver)/SUM(sales) * 100) as pct_deliver, ';
+    $sql .= 'SUM(tot_dine) as tot_dine, SUM(tot_togo) as tot_togo, AVG(tot_dine) as ave_dine, AVG(tot_togo) as ave_togo, ';
+    $sql .= 'SUM(tot_onlrid) as tot_onlrid, SUM(tot_osaletype) as tot_osaletype, AVG(tot_onlrid) as ave_onlrid, AVG(tot_osaletype) as ave_osaletype, ';
+    $sql .= 'SUM(zap) AS zap, SUM(zap_fee) AS zap_fee, SUM(zap_delfee) AS zap_delfee, SUM(utang) as utang';
     
 
     $res = $this->skipCache()

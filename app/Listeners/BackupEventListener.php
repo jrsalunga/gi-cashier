@@ -9,6 +9,7 @@ use Illuminate\Contracts\Mail\Mailer;
 use App\Repositories\DailySales2Repository;
 use App\Repositories\Purchase2Repository;
 use App\Repositories\MonthlySalesRepository;
+use App\Repositories\CashAuditRepository;
 
 class BackupEventListener
 {
@@ -17,12 +18,14 @@ class BackupEventListener
   private $ds;
   private $ms;
   private $purchase;
+  private $csh_audt;
 
-  public function __construct(Mailer $mailer, DailySales2Repository $ds, MonthlySalesRepository $ms, Purchase2Repository $purchase) {
+  public function __construct(Mailer $mailer, DailySales2Repository $ds, MonthlySalesRepository $ms, Purchase2Repository $purchase, CashAuditRepository $csh_audt) {
     $this->mailer = $mailer;
     $this->ds = $ds;
     $this->ms = $ms;
     $this->purchase = $purchase;
+    $this->csh_audt = $csh_audt;
   }
 
   /**
@@ -72,7 +75,6 @@ class BackupEventListener
       $this->emailError($event, $e->getMessage());
     }
 
-    // logAction('error: ', $e->getMessage());
     try {
       $this->computeAllMonthlysalesTotal($event->backup->filedate);
     } catch (Exception $e) {
@@ -87,11 +89,16 @@ class BackupEventListener
       }
     }
 
+
+    $this->updateEndingActualCash($event->backup->filedate, $event->backup->branchid);
+
   }
 
   private function computeMonthTotal(Carbon $date, $branchid) {
+    test_log('computeMonthTotal');
 
     $month = $this->ds->computeMonthTotal($date, $branchid);
+    test_log(json_encode($month));
   
     if (!is_null($month)) {
       $month['branch_id'] = $branchid;
@@ -133,6 +140,31 @@ class BackupEventListener
       } catch (Exception $e) {
         throw new Exception("Error Processing BackupEventListener::computeAllMonthlysalesTotal", 1);
       }
+    }
+  }
+
+  public function updateEndingActualCash(Carbon $date, $branchid) {
+    
+    $data = [];
+    $cshAudt = $this->csh_audt->scopeQuery(function($query) use ($date, $branchid) {
+                    return $query->orderBy('date','desc')
+                                ->where('branch_id', $branchid)
+                                ->whereBetween('date', [$date->copy()->startOfMonth()->format('Y-m-d'), $date->copy()->endOfMonth()->format('Y-m-d')]);
+                  })->first(['date', 'csh_cnt', 'branch_id']);
+
+    if (!is_null($cshAudt)) {
+
+      $data['branch_id'] = $branchid;
+      $data['date'] = $date->copy()->endOfMonth()->format('Y-m-d');
+      $data['ending_csh_date'] =  $cshAudt->date;
+      $data['ending_csh'] =  $cshAudt->csh_cnt;
+
+      try {
+        $this->ms->firstOrNewField($data, ['date', 'branch_id']);
+      } catch(Exception $e) {
+        throw $e;    
+      }
+
     }
   }
 
@@ -178,7 +210,7 @@ class BackupEventListener
           'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
           'supprefno' => 'XEM'.$data['date']->format('mdy'),
           'branchid'  => $data['branch_id'],
-          'paytype'   => 0,
+          'paytype'   => 4,
           'expensecode'=> 'EM',
           'expenseid' => 'F37344665CFA11E5ADBC00FF59FBB323',
         ];
