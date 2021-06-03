@@ -307,10 +307,11 @@
         html += '<div class="row" style="margin-top: 20px;"><span class="title">Choose Backup Type</span>'
             +'<div class="radio">'
               +'<label>'
-                +'<input type="radio" name="backup_type" id="backup_pos" value="pos" <?=app()->environment()==='local'?'checked':''?>>'
+                +'<input type="radio" name="backup_type" id="backup_pos" value="pos" <?=app()->environment()==='local'?'checked':'checked'?>>'
                 +'<strong><span class="fa fa-file-archive-o"></span> POS EoD Backup</strong> <small><em>(This will be saved on server and will (<span class="glyphicon glyphicon-ok"></span>) process all transactions.)</em></small>'
               +'</label>'
             +'</div>'
+            /*
             +'<div class="radio">'
               +'<label>'
                 +'<input type="radio" name="backup_type" id="backup_hr" value="hr">'
@@ -322,7 +323,8 @@
                 +'<input type="radio" name="backup_type" id="backup_payroll" value="payroll">'
                 +'<strong><span class="fa fa-file-powerpoint-o"></span> GI PAY Payroll Backup</strong> <small><em>(Backup generated from GI PAY. e.g. PR031517.ZIP)</em></small>'
               +'</label>'
-            +'</div></div>';
+            +'</div>'; */
+            +'</div>';
       } else if ($(this).val()==='exportreq-etrf') {
         html +='<div class="row" style="margin-top: 20px;">'
                 +'<div class="input-group">'
