@@ -11,7 +11,7 @@ class MonthlySales extends BaseModel {
   
  	protected $fillable = ['date', 'branch_id', 'sales', 'cos', 'food_sales', 'fc', 'tips', 'custcount', 'crew_din', 'crew_kit', 'empcount', 
         'mancost', 'headspend', 'tipspct', 'mancostpct', 'cospct', 'purchcost', 'salesemp', 'slsmtd_totgrs', 
-        'chrg_total', 'chrg_csh', 'chrg_chrg', 'chrg_othr', 'bank_totchrg', 'disc_totamt', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig','transcost', 'transcos', 'transncos', 'opex', 'record_count', 'depslpk', 'depslpc', 'setslp'];
+        'chrg_total', 'chrg_csh', 'chrg_chrg', 'chrg_othr', 'bank_totchrg', 'disc_totamt', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig','transcost', 'transcos', 'transncos', 'opex', 'record_count', 'depslpk', 'depslpc', 'setslp', 'pct_deliver', 'ave_deliver'];
 	
   //protected $guarded = ['id'];
   protected $dates = ['date', 'ending_csh_date'];
