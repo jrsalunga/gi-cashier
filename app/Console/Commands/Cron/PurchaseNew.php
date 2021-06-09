@@ -188,8 +188,6 @@ class PurchaseNew extends Command
 
   }
 
-  
-  
   private function notify($msg) {
   	if(app()->environment()=='production')
       event(new Notifier('Cron\PurchaseNew: '.$msg));
