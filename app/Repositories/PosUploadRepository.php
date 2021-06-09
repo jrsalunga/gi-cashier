@@ -2855,6 +2855,17 @@ class PosUploadRepository extends Repository
       $ds['branchid'] = $branchid;
 
 
+      try {
+        $c->info('delete range: '.$from->format('Y-m-d').'-'.$to->format('Y-m-d'));
+        
+        \App\Models\Purchase2::whereBetween('date', [$from->format('Y-m-d'), $to->format('Y-m-d')])->delete();
+
+      } catch(Exception $e) {
+        dbase_close($db);
+        throw $e;    
+      }
+
+
       for ($i=1; $i<=$recno; $i++) {
         $row = dbase_get_record_with_names($db, $i);
 
@@ -2944,7 +2955,7 @@ class PosUploadRepository extends Repository
           }
         }
 
-        //$c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
+        $c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
         
         try {
           $this->purchase2->verifyAndCreate($data);

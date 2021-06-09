@@ -119,12 +119,20 @@ class ProcessesEventListener
     }
 
     foreach ($month as $key => $value) {
+
+      $sales_pct = 0;
+      $ms = \App\Models\MonthlySales::where(['date'=>$event->date->copy()->lastOfMonth()->format('Y-m-d'), 'branch_id'=>$event->branchid], ['sales'])->first();
+
+      if (!is_null($ms) && $ms->sales>0)
+        $sales_pct = ($value->tcost/$ms->sales)*100;
+
       $this->me->firstOrNewField([
         'date'          => $event->date->copy()->lastOfMonth()->format('Y-m-d'),
         'expense_id'    => $value->expense_id,
         'qty'           => $value->qty,
         'tcost'         => $value->tcost,
         'trans'         => $value->trans,
+        'sales_pct'     => $sales_pct,
         'branch_id'     => $event->branchid,
         'ordinal'       => $value->ordinal,
       ], ['date', 'branch_id', 'expense_id']);

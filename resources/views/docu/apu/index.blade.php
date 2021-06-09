@@ -76,7 +76,7 @@
                   @else
 
                   @endif
-                </td>
+                </td> 
                 <!-- <td style="padding: 8px 0 8px 0;">
                   @if($ap->verified and $ap->matched)
 
