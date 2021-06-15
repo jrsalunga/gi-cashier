@@ -53,39 +53,40 @@ class BackupEventListener
       try {
         $this->computeMonthTotal($eom, $event->backup->branchid);
       } catch (Exception $e) {
-        $this->emailError($event, $e->getMessage());
+        $this->emailError($event, '1 '.$e->getMessage());
       }
     }
     
     try {
       $this->computeMonthTotal($event->backup->filedate, $event->backup->branchid);
     } catch (Exception $e) {
-      $this->emailError($event, $e->getMessage());
+      throw new Exception($e->getMessage(), 1);
+      $this->emailError($event, '2 '.$e->getMessage());
     }
    
     try {
       $this->computeAllDailysalesTotal($event->backup->filedate->copy()->subDay());
     } catch (Exception $e) {
-      $this->emailError($event, $e->getMessage());
+      $this->emailError($event, '3 '.$e->getMessage());
     }
 
     try {
       $this->computeAllDailysalesTotal($event->backup->filedate);
     } catch (Exception $e) {
-      $this->emailError($event, $e->getMessage());
+      $this->emailError($event, '4 '.$e->getMessage());
     }
 
     try {
       $this->computeAllMonthlysalesTotal($event->backup->filedate);
     } catch (Exception $e) {
-      $this->emailError($event, $e->getMessage());
+      $this->emailError($event, '5 '.$e->getMessage());
     }
 
     if ($eom->copy()->endOfMonth()->format('Y-m-d') == $eom->format('Y-m-d')) {
       try {
         $this->computeMonthTotal($eom, $event->backup->branchid);
       } catch (Exception $e) {
-        $this->emailError($event, $e->getMessage());
+        $this->emailError($event, '6 '.$e->getMessage());
       }
     }
 
@@ -97,12 +98,14 @@ class BackupEventListener
   private function computeMonthTotal(Carbon $date, $branchid) {
 
     $month = $this->ds->computeMonthTotal($date, $branchid);
+
   
     if (!is_null($month)) {
       $month['branch_id'] = $branchid;
       try {
         $this->ms->firstOrNewField(array_except($month->toArray(), ['year', 'month']), ['date', 'branch_id']);
       } catch (Exception $e) {
+        throw new Exception($e->getMessage(), 1);
         throw new Exception("Error Processing BackupEventListener::computeMonthTotal", 1);
       }
       $this->ms->rank($month->date);
@@ -136,6 +139,7 @@ class BackupEventListener
       try { 
         $this->ms->firstOrNewField($ms->toArray(), ['date', 'branch_id']);
       } catch (Exception $e) {
+        throw new Exception($e->getMessage(), 1);
         throw new Exception("Error Processing BackupEventListener::computeAllMonthlysalesTotal", 1);
       }
     }
@@ -173,6 +177,7 @@ class BackupEventListener
       'cashier'   => $event->backup->cashier,
       'filename'  => $event->backup->filename,
       'body'      => 'Error onDailySalesSuccess '.$event->backup->branchid.' '.$event->backup->filedate,
+      'error_msg'  => $subject,
     ];
 
     $this->mailer->queue('emails.notifier', $data, function ($message) use ($event, $subject){

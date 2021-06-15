@@ -30,15 +30,17 @@ class MonthlySalesRepository extends BaseRepository implements CacheableInterfac
   }
 
   private function generateRank(Carbon $date) {
+
+    // return $this->all();
     
-    $ms = $this->skipCache()
+    $ms = $this
             ->scopeQuery(function($query) use ($date) {
               return $query->where(DB::raw('MONTH(date)'), $date->format('m'))
-                          ->where(DB::raw('YEAR(date)'), $date->format('Y'));
+                          ->where(DB::raw('YEAR(date)'), $date->format('Y'))
+                          ->orderBy('sales', 'DESC');
             })
-            ->where('branch_id','<>', 'ALL')
-            ->orderBy('sales', 'DESC')
-            ->all();
+            ->findWhere([['branch_id','<>', 'ALL']]);
+            // ->all();
 
     if (count($ms)<=0)
       return false;
