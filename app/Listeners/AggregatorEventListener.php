@@ -229,9 +229,11 @@ class AggregatorEventListener
       $sales_pct = 0;
       $ms = \App\Models\MonthlySales::where(['date'=>$date->copy()->lastOfMonth()->format('Y-m-d'), 'branch_id'=>$branchid], ['sales'])->first();
 
+
       if (!is_null($ms) && $ms->sales>0) {
         $me = \App\Models\MonthExpense::where(['date'=>$date->copy()->lastOfMonth()->format('Y-m-d'), 'expense_id'=>$value->expense_id, 'branch_id'=>$branchid])->first();
-        $sales_pct = (($me->tcost-$value->tcost)/$ms->sales)*100;
+        $metcost = is_null($me) ? 0 : $me->tcost;
+        $sales_pct = (($metcost-$value->tcost)/$ms->sales)*100;
       }
 
 

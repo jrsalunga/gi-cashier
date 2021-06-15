@@ -95,10 +95,8 @@ class BackupEventListener
   }
 
   private function computeMonthTotal(Carbon $date, $branchid) {
-    test_log('computeMonthTotal');
 
     $month = $this->ds->computeMonthTotal($date, $branchid);
-    test_log(json_encode($month));
   
     if (!is_null($month)) {
       $month['branch_id'] = $branchid;
