@@ -77,18 +77,12 @@ class PurchaseNew extends Command
               exit;
             }
 
-            // if (!is_null($cmd)) 
-              $this->info('Branch: '. $br->code);
-
             $apd_dir = 'APN'.DS.$date->format('Y').DS.$brcode.DS.$date->format('m').DS.$date->format('d');
 
            
             // copy to processed
             $dir = $factory_path.DS.'PROCESSED'.DS.$apd_dir;
             $destp = $dir.DS.$filename;
-
-            // if (!is_null($cmd)) 
-              $this->info('mkdir: '. $dir);
 
             if (!is_dir($dir))
               mkdir($dir, 0777, true);
@@ -104,11 +98,8 @@ class PurchaseNew extends Command
             $dest = $this->fileStorage->realFullPath($apd_dir);
             $apd_filepath = $dest.DS.$filename;
 
-            // if (!is_null($cmd)) 
-              $this->info('mkdir: '. $dest);
-
             if (!is_dir($dest))
-              mkdir($dest, 0777, true);
+              mkdir($dest, 0775, true);
 
             try {
               if (app()->environment()=='local')
