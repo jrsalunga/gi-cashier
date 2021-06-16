@@ -108,7 +108,7 @@ class PurchaseNew extends Command
               $this->info('mkdir: '. $dest);
 
             if (!is_dir($dest))
-              mkdir($dest, 0775, true);
+              mkdir($dest, 0777, true);
 
             try {
               if (app()->environment()=='local')
