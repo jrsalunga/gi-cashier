@@ -171,8 +171,12 @@ class DailySales extends Command
     // compute delivery fee (GrabFood, Food Panda)   \\App\Listeners\BackupEventListener
     event('deliveryfee', ['data'=>['branch_id'=> $bckup->branchid, 'date'=>$to]]);
 
+    // compute daily direct profit   \\App\Listeners\BackupEventListener
+    event('direct-profit', ['data'=>['branch_id'=> $bckup->branchid, 'date'=>$to]]);
 
-    event(new AggregatorDaily('purchase', $to, $bckup->branchid));
+
+    // removed because conflict on double entry
+    // event(new AggregatorDaily('purchase', $to, $bckup->branchid));
 
     event(new \App\Events\Process\AggregateComponentDaily($to, $bckup->branchid)); // recompute Daily Component
     event(new \App\Events\Process\AggregateDailyExpense($to, $bckup->branchid)); // recompute Daily Expense
@@ -194,6 +198,7 @@ class DailySales extends Command
     event(new \App\Events\Process\AggregatorMonthly('sale-type', $to, $bckup->branchid));
     event(new \App\Events\Process\AggregatorMonthly('card-type', $to, $bckup->branchid));
    
+    
 
     //DB::rollback();
 		DB::commit();

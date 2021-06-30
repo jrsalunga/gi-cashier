@@ -58,11 +58,11 @@
       </div><!-- end: .col-md-3-->
       <div class="col-md-3 col-xs-6">
         Cost of Goods:
-        <h3 class="text-info">{{ number_format($ds->cos, 2) }}</h3>
+        <h3 class="text-info">{{ number_format(($ds->cos+$ds->ncos)-$ds->transcost, 2) }}</h3>
       </div><!-- end: .col-md-3-->
       <div class="col-md-3 col-xs-6">
         Operational Expense:
-        <h3 class="text-warning">{{ number_format($ds->getOpex(), 2) }}</h3>
+        <h3 class="text-warning">{{ number_format($ds->opex+$ds->emp_meal+$ds->totdeliver_fee, 2) }}</h3>
       </div><!-- end: .col-md-3-->
       <!--
       <div class="col-md-3">

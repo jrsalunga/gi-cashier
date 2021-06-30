@@ -539,6 +539,7 @@ class PosUploadRepository extends Repository
       $opex = 0;
       $utang = 0;
       $saved = false;
+      $ncos = 0;
 
       // delete if exist
       try {
@@ -615,6 +616,8 @@ class PosUploadRepository extends Repository
 
           if (in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && $attrs['terms']!='U')
             $food_cost += $tcost;
+          if (in_array(substr($attrs['supno'], 0, 2), $this->non_cos_array) && $attrs['terms']!='U')
+            $ncos += $tcost;
           if (!in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && !in_array(substr($attrs['supno'], 0, 2), $this->non_cos_array) && $attrs['terms']!='U')
             $opex += $tcost;
           if ($attrs['terms']=='U')
@@ -640,6 +643,7 @@ class PosUploadRepository extends Repository
         $this->ds->firstOrNewField(['branchid'=>session('user.branchid'), 
                             'date'=>$date->format('Y-m-d'),
                             'cos'=> $food_cost,
+                            'ncos'=> $ncos,
                             'cospct'=> $cospct,
                             'opex'=> $opex,
                             'utang'=> $utang,
@@ -1135,6 +1139,7 @@ class PosUploadRepository extends Repository
       $food_cost = 0;
       $utang = 0;
       $opex = 0;
+      $ncos = 0;
 
       // delete if exist
       try {
@@ -1202,10 +1207,11 @@ class PosUploadRepository extends Repository
             throw $e;    
           }
 
-
-          if (in_array(substr($attrs['supno'], 0, 2), $this->expense_array))
+          if (in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && $attrs['terms']!='U')
             $food_cost += $tcost;
-          if (!in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && !in_array(substr($attrs['supno'], 0, 2), $this->non_cos_array))
+          if (in_array(substr($attrs['supno'], 0, 2), $this->non_cos_array) && $attrs['terms']!='U')
+            $ncos += $tcost;
+          if (!in_array(substr($attrs['supno'], 0, 2), $this->expense_array) && !in_array(substr($attrs['supno'], 0, 2), $this->non_cos_array) && $attrs['terms']!='U')
             $opex += $tcost;
           if ($attrs['terms']=='U')
             $utang += $tcost;
@@ -1230,6 +1236,7 @@ class PosUploadRepository extends Repository
         $this->ds2->firstOrNewField(['branchid'=>$backup->branchid, 
                             'date'=>$date->format('Y-m-d'),
                             'cos'=> $food_cost,
+                            'ncos'=> $ncos,
                             'cospct'=> $cospct,
                             'opex'=> $opex,
                             'utang'=> $utang,
@@ -1731,6 +1738,16 @@ class PosUploadRepository extends Repository
       $test_cos = 0;
       $test_emp = 0;
 
+      if (is_null(session('user.branchcode'))) {
+        $b = \App\Models\Branch::find($branchid);
+
+        if (is_null($b))
+          throw new \Exception('Branch not found on PosUploadRepository::postTransfer');
+
+        $brcode = $b->code;
+      } else
+        $brcode = session('user.branchcode');
+
       for ($i=1; $i<=$recno; $i++) {
         $row = dbase_get_record_with_names($db, $i);
         $data = $this->transfer->associateAttributes($row);
@@ -1766,7 +1783,7 @@ class PosUploadRepository extends Repository
             //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
             if (in_array(substr($data['supno'], 0, 2), $this->expense_array)) {
               $ds['transcos'] += $data['tcost'];
-              if (strtolower(substr($data['supno'], 2, 3))==strtolower(session('user.branchcode')))
+              if (strtolower(substr($data['supno'], 2, 3))==strtolower($brcode))
                 $ds['emp_meal'] += $data['tcost'];
             } 
             //if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 

@@ -347,6 +347,9 @@ class UploaderController extends Controller
           // compute delivery fee (GrabFood, Food Panda)   \\App\Listeners\BackupEventListener
           event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date]]);
 
+          // compute daily direct profit   \\App\Listeners\BackupEventListener
+          event('direct-profit', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date]]);
+
 					
 
 					// added 2017-06-09 to backlog DS trans_cnt, man_pay, man_hrs

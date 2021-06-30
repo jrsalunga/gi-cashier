@@ -360,6 +360,25 @@ class BackupEventListener
     } // !is_null($ds)
   }
 
+
+  public function processDirectProfit($data) {
+    $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['sales', 'cos', 'ncos', 'transcost', 'opex', 'emp_meal', 'totdeliver_fee', 'id']);
+
+    if (!is_null($ds)) {
+
+      $opex = $ds->opex + $ds->emp_meal + $ds->totdeliver_fee;
+      $cog = ($ds->cos + $ds->ncos) - $ds->transcost;
+
+      $ds->profit_direct = ($ds->sales - ($cog + $opex));
+
+      try {
+        $ds->save();
+      } catch(Exception $e) {
+        throw $e;    
+      }
+    }
+  }
+
   public function onDailySalesSuccess2($event) {
     
     try {
@@ -409,6 +428,11 @@ class BackupEventListener
     $events->listen(
       'deliveryfee',
       'App\Listeners\BackupEventListener@processDeliveryFee'
+    );
+
+    $events->listen(
+      'direct-profit',
+      'App\Listeners\BackupEventListener@processDirectProfit'
     );
   }
 
