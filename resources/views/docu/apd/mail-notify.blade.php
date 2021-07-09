@@ -25,8 +25,8 @@
         <div style="margin-bottom:15px;font-size:15px;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong>Instructions:</strong></div>
 
         <ol style="font-family: Roboto,Helvetica,Arial,sans-serif;">
-          <li>Make sure that your POS version is <strong>dB.2021.03.07</strong> or <strong>dB.2021.04.25</strong>. If not, kindly contact your IT Administrator.</li>
-          <li style="margin-top: 10px">Download the attached file <strong>PURCHASE.NEW</strong> and copy it in the <strong>C:\GI_GLO</strong> folder.</li>
+          <li style="margin-top: 10px">Download the attached file <strong>PURCHASE.NEW</strong> and make sure to delete the previous file to prevent the appearance of number on the filename. <em><small>(e.g. <strong>PURCHASE (1).NEW</strong>, <strong>PURCHASE (2).NEW</strong>)</small></em></li>
+          <li style="margin-top: 10px"><strong>"Cut/Copy"</strong> and <strong>"Paste"</strong> the file in the <strong>C:\GI_GLO</strong> folder.</li>
           <li style="margin-top: 10px">Re-run the POS Program</li>
           <li style="margin-top: 10px">A confirmation screen will appear. <em><small>(see the sample picture below)</small></em></li>
           <li style="margin-top: 10px">Press <strong>"1"</strong> then <strong>&#60;Enter&#62;</strong> to allow the program to update your record.</li>
@@ -40,10 +40,6 @@
     <div style="padding: 10px 0 10px 0;background-color:#F8F9FA;">
      <small style="font-size:11px;color:gray;font-family:Roboto,Helvetica,Arial,sans-serif;"><em>Note: This is a system generated email.</em></small>
     </div>
-
-    <p>&nbsp;</p>
-    <p style="padding: 0;margin: 20px 0 3px 0;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong><small>POS Version: dB.2021.03.07 or dB.2021.04.25</small></strong></p>
-    <img src="http://cashier.giligansrestaurant.com/images/uploads/dB.2021.03.07.PNG" style="background-color:#F8F9FA;">
 
     <p>&nbsp;</p>
     <p style="padding: 0;margin: 20px 0 0 0;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong><small>Confirmation Sreen</small></strong></p>
