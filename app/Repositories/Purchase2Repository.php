@@ -42,6 +42,8 @@ class Purchase2Repository extends BaseRepository
       $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin', 'terms']));
       $supplierid = is_null($supplier) ? 'XUD' : $supplier->id;
 
+      $expensecode = 'XUD';
+      $expenseid = 'XUD';
       if ($component->compcat->expense) {
         $expensecode = $component->compcat->expense->code;
         $expenseid = $component->compcat->expense->id;
