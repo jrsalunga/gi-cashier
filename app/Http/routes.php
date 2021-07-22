@@ -234,6 +234,22 @@ get('/checkdbconn', function(){
 	}
 });
 
+
+get('test-email', function(){
+  
+
+  $email = [
+    'body' => 'This is a test.'
+  ];
+
+  \Mail::send('emails.notifier', $email, function ($m) {
+    $m->from('giligans.app@gmail.com', 'GI App - Boss');
+    $m->to('jefferson.salunga@gmail.com')->subject('Test Email');
+  });
+
+
+});
+
 get('/v', function(){
-  dd($app->version());
+  dd(app()->version());
 });
