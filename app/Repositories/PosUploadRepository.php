@@ -1382,7 +1382,7 @@ class PosUploadRepository extends Repository
           }
           $ds['slsmtd_totgrs'] += $data['grsamt'];
 
-          if (strtolower($data['prodcat'])=='foods')
+          if (strtolower($data['prodcat'])=='foods' && !strpos(strtolower($data['product']), 'pepsi'))
             $ds['food_sales'] += $data['grsamt'];
 
           $ctr++;
@@ -2250,7 +2250,7 @@ class PosUploadRepository extends Repository
           $ds['slsmtd_totgrs'] += $data['grsamt'];
 
           //$c->info($data['prodcat'].' '.$data['product'].' '.$data['cslipno']);
-          if (strtolower($data['prodcat'])=='foods') {
+          if (strtolower($data['prodcat'])=='foods' && !strpos(strtolower($data['product']), 'pepsi')) {
             //$c->info('fc: '.$data['prodcat'].' '.$data['grsamt']);
             $ds['food_sales'] += $data['grsamt'];
           }
@@ -2304,7 +2304,7 @@ class PosUploadRepository extends Repository
 
           
           //$c->info($data['prodcat'].' '.$data['product'].' '.$data['cslipno']);
-          if (strtolower($data['prodcat'])=='foods') {
+          if (strtolower($data['prodcat'])=='foods' && !strpos(strtolower($data['product']), 'pepsi')) {
             //$c->info('fc: '.$data['prodcat'].' '.$data['grsamt']);
             $ds['food_sales'] = $data['grsamt'];
           }
