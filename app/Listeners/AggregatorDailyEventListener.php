@@ -7,6 +7,8 @@ use App\Repositories\MonthProdcatRepository as Prodcat;
 use App\Repositories\MonthGroupiesRepository as Groupies;
 use App\Repositories\SalesmtdRepository as Salesmtd;
 use App\Repositories\ChangeItemRepository as ChangeItem;
+use App\Repositories\BegBalRepository as BegBal;
+
 
 class AggregatorDailyEventListener
 {
@@ -17,14 +19,16 @@ class AggregatorDailyEventListener
   private $groupies;
   private $salesmtd;
   private $changeItem;
+  private $begbal;
 
-  public function __construct(Mailer $mailer, DS $ds, Purchase $purchase, Groupies $groupies, Salesmtd $salesmtd, ChangeItem $changeItem) {
+  public function __construct(Mailer $mailer, DS $ds, Purchase $purchase, Groupies $groupies, Salesmtd $salesmtd, ChangeItem $changeItem, BegBal $begbal) {
     $this->mailer = $mailer;
     $this->ds = $ds;
     $this->purchase = $purchase;
     $this->groupies = $groupies;
     $this->salesmtd = $salesmtd;
     $this->changeItem = $changeItem;
+    $this->begbal = $begbal;
   }
 
   private function getRepo($table, $date, $branchid) {
@@ -41,6 +45,9 @@ class AggregatorDailyEventListener
       case 'change_item':
         return $this->changeItem->aggregateByDr($date, $date, $branchid);
         break;
+      case 'begbal':
+        return $this->begbal->allBegBal($date, $branchid);
+        break;
       default:
         throw new Exception("Table not found!", 1);
         break;
@@ -50,14 +57,13 @@ class AggregatorDailyEventListener
   public function aggregateDaily($event) {
     $table = strtolower($event->table);
     $datas = [];
-
-
+   
     try {
       $datas = $this->getRepo($table, $event->date, $event->branchid);
     } catch (Exception $e) { 
       //
     }
-
+    
     $this->saveData($table, $datas, $event->date, $event->branchid);
   }
 
@@ -75,11 +81,23 @@ class AggregatorDailyEventListener
       case 'change_item':
         $this->saveChangeItemToDS($datas, $date, $branchid);
         break;
+      case 'begbal':
+        $this->saveBegBal($datas, $date, $branchid);
+        break;
       default:
         
         break;
     }
 
+  }
+
+  private function saveBegBal($datas, $date, $branchid) {
+    $d = [
+      'date' => $date->format('Y-m-d'),
+      'branchid' => $branchid,
+    ];
+    $d = array_merge($d, $datas);
+    $this->ds->firstOrNewField($d, ['date', 'branchid']);
   }
 
   private function saveDSPurchaseData($datas, $date, $branchid) {

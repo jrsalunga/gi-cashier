@@ -92,6 +92,8 @@ class Kernel extends ConsoleKernel
 
         \App\Console\Commands\Cron\Purchase::class,
         \App\Console\Commands\Cron\PurchaseNew::class,
+
+        \App\Console\Commands\Process\BegBal::class,
     ];
 
     /**

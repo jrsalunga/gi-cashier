@@ -266,8 +266,36 @@ class UploaderController extends Controller
 							return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
 						}
 					}
-					
 
+
+          /******** check BEG_BAL.DBF on 1st day backup  *****/
+					
+          if ($backup->date->format('Y-m-d')==$backup->date->copy()->startOfMonth()->format('Y-m-d')) {
+
+            try {
+              $res = $this->processBegBal($backup->branchid, $backup->date);
+            } catch (Exception $e) {
+              if (strpos($e->getMessage(), 'timeout')==false)
+                $msg =  'Process Beg Bal: '.$e->getMessage();
+              else 
+                $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes.';
+              $this->updateBackupRemarks($backup, $msg);
+              return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+            }
+
+            if ($res <= 5) {
+              if ($res <= 0)
+                $msg = 'No beginning records found.';
+              else 
+                $msg = 'Beginning records too few.';
+
+              $this->removeExtratedDir();
+              DB::rollBack();
+
+              $this->updateBackupRemarks($backup, $msg);
+              return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+            } 
+          } 
 
 
 					/******* extract trasanctions data ***********/
@@ -412,10 +440,21 @@ class UploaderController extends Controller
             return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
           }
 
+          
+
+          // wala sa command ito
+          if ($backup->date->format('Y-m-d')==$backup->date->copy()->startOfMonth()->format('Y-m-d')) {
+            event(new \App\Events\Process\AggregatorDaily('begbal', $backup->date, $backup->branchid)); // update ds
+            event(new \App\Events\Process\AggregatorMonthly('begbal', $backup->date, $backup->branchid)); // update ms_expense
+          }
+          
+
           event(new \App\Events\Process\AggregateComponentDaily($backup->date, $backup->branchid)); // recompute Daily Component
           event(new \App\Events\Process\AggregateDailyExpense($backup->date, $backup->branchid)); // recompute Daily Expense
           event(new \App\Events\Process\AggregatorDaily('trans-expense', $backup->date, $backup->branchid)); // recompute Daily Transfered and update day_expense
           event(new \App\Events\Process\AggregatorDaily('prodcat', $backup->date, $backup->branchid)); 
+
+
           
           event(new \App\Events\Process\AggregatorDaily('change_item', $backup->date, $backup->branchid)); // update ds
           event(new \App\Events\Backup\DailySalesSuccess($backup)); // recompute Monthlysales based on DS
@@ -755,13 +794,23 @@ class UploaderController extends Controller
     }
   }
 
-   public function backlogSalesmtdChangeItem($branchid, $from, $to) {
+  public function processBegBal($branchid, $date){
+    try {
+      return $this->posUploadRepo->postBegBal($branchid, $date);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+  public function backlogSalesmtdChangeItem($branchid, $from, $to) {
     try {
       return $this->posUploadRepo->backlogSalesmtdChangeItem($branchid, $from, $to);
     } catch(Exception $e) {
       throw $e;    
     }
   }
+
+ 
 
 
   public function processBankSlip(Request $request) {

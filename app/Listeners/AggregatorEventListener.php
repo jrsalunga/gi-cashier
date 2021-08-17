@@ -17,6 +17,7 @@ use App\Repositories\ChargesRepository as Charges;
 use App\Repositories\MonthChargeTypeRepository as MChargeType;
 use App\Repositories\MonthCardTypeRepository as MCardType;
 use App\Repositories\MonthSaleTypeRepository as MSalesType;
+use App\Repositories\BegBalRepository as BegBal;
 
 
 class AggregatorEventListener
@@ -38,8 +39,9 @@ class AggregatorEventListener
   private $mChargeType;
   private $mCardType;
   private $mSalesType;
+  private $begbal;
 
-  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ChangeItem $changeItem, ME $me, DE $de, DayProdcat $dp, CashAudit $cashAudit, MonthCashAudit $mCashAudit, Charges $charges, MChargeType $mChargeType, MCardType $mCardType, MSalesType $mSalesType) {
+  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ChangeItem $changeItem, ME $me, DE $de, DayProdcat $dp, CashAudit $cashAudit, MonthCashAudit $mCashAudit, Charges $charges, MChargeType $mChargeType, MCardType $mCardType, MSalesType $mSalesType, BegBal $begbal) {
     $this->mailer = $mailer;
     $this->product = $product;
     $this->prodcat = $prodcat;
@@ -56,6 +58,7 @@ class AggregatorEventListener
     $this->mChargeType = $mChargeType;
     $this->mCardType = $mCardType;
     $this->mSalesType = $mSalesType;
+    $this->begbal = $begbal;
   }
 
   private function getRepo($table, $fr, $to, $branchid) {
@@ -86,6 +89,9 @@ class AggregatorEventListener
         break;
       case 'card-type':
         return $this->charges->aggregateCardTypeByDr($fr, $to, $branchid);
+        break;
+       case 'begbal':
+        return $this->begbal->aggregateExpenseByDr($fr, $to, $branchid);
         break;
       default:
         throw new Exception("Table not found!", 1);
@@ -162,6 +168,9 @@ class AggregatorEventListener
       case 'card-type':
         $this->saveCardType($datas, $date, $branchid);
         break;
+      case 'begbal':
+        $this->saveExpenseBegBal($datas, $date, $branchid);
+        break;
       default:
         break;
     }
@@ -220,9 +229,11 @@ class AggregatorEventListener
 
       if(is_null($ex)) {
         $ord = 833;
+        $expense_code = 'MC';
         $expense_id = 'F37A72215CFA11E5ADBC00FF59FBB323';
       } else {
         $ord = $ex->ordinal;
+        $expense_code = $ex->code;
         $expense_id = $value->expense_id;
       }
 
@@ -242,6 +253,7 @@ class AggregatorEventListener
         'xfred'         => $value->tcost,
         'sales_pct'     => $sales_pct,
         'expense_id'    => $expense_id,
+        'code'          => $expense_code,
         'branch_id'     => $branchid,
         'ordinal'       => $ord,
       ], ['date', 'branch_id', 'expense_id']);
@@ -427,6 +439,33 @@ class AggregatorEventListener
         'pct'           => $value->pct,
         'branch_id'     => $branchid,
       ], ['date', 'branch_id', 'prodcat_id']);
+    }
+  }
+
+  private function saveExpenseBegBal($datas, $date, $branchid) {
+    foreach ($datas as $key => $value) {
+
+      $ex = \App\Models\Expense::find($value->expense_id);
+
+      if(is_null($ex)) {
+        $ord = 833;
+        $expense_code = 'MC';
+        $expense_id = 'F37A72215CFA11E5ADBC00FF59FBB323';
+      } else {
+        $ord = $ex->ordinal;
+        $expense_code = $ex->code;
+        $expense_id = $value->expense_id;
+      }
+
+
+      $this->me->firstOrNewField([
+        'date'          => $date->copy()->lastOfMonth()->format('Y-m-d'),
+        'begbal'        => $value->tcost,
+        'expense_id'    => $expense_id,
+        'code'          => $expense_code,
+        'branch_id'     => $branchid,
+        'ordinal'       => $ord,
+      ], ['date', 'branch_id', 'expense_id']);
     }
   }
 

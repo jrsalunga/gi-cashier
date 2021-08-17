@@ -1438,6 +1438,7 @@ class PosUploadRepository extends Repository
     $ds['tot_togo'] = 0;
     $ds['tot_onlrid'] = 0;
     $ds['tot_osaletype'] = 0;
+    $ds['zap_sales'] = 0;
     
     if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) // same sas line 1226
       $ds['custcount'] = 0;
@@ -1473,6 +1474,7 @@ class PosUploadRepository extends Repository
     $ds['tot_togo'] =  $c['tot_togo'];
     $ds['tot_onlrid'] =  $c['tot_onlrid'];
     $ds['tot_osaletype'] =  $c['tot_osaletype'];
+    $ds['zap_sales']  = $c['zap_sales'] + $s['zap_sales'];
 
 
     // remove the date bec of $this->postNewDailySales
@@ -1527,6 +1529,7 @@ class PosUploadRepository extends Repository
       $ds['tot_togo'] = 0;
       $ds['tot_onlrid'] = 0;
       $ds['tot_osaletype'] = 0;
+      $ds['zap_sales'] = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
         
@@ -1600,6 +1603,12 @@ class PosUploadRepository extends Repository
                 $ds['totdeliver'] += $data['tot_chrg'];
                 break;
               case 'zap':
+              case 'cod-panda':
+              case 'cod-grab':
+              case 'cod-3p':
+              case 'zap-panda':
+              case 'zap-grab':
+              case 'zap-3p':
                 $ds['zap'] += $data['tot_chrg'];
                 $ds['totdeliver'] += $data['tot_chrg'];
                 $ds['zap_delfee'] += $data['delivery_fee'];
@@ -1607,6 +1616,8 @@ class PosUploadRepository extends Repository
             }
           }
 
+          if (starts_with(strtolower($data['tblno']), 'z'))
+            $ds['zap_sales'] += $data['tot_chrg'];
 
         }
       }
@@ -1644,6 +1655,7 @@ class PosUploadRepository extends Repository
       $ds['zap'] = 0;
       $ds['zap_delfee'] = 0;
       $ds['totdeliver'] = 0;
+      $ds['zap_sales'] = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
         
@@ -1700,13 +1712,22 @@ class PosUploadRepository extends Repository
                 $ds['grabc'] += $data['tot_chrg'];
                 $ds['totdeliver'] += $data['tot_chrg'];
                 break;
-               case 'zap':
+              case 'zap':
+              case 'cod-panda':
+              case 'cod-grab':
+              case 'cod-3p':
+              case 'zap-panda':
+              case 'zap-grab':
+              case 'zap-3p':
                 $ds['zap'] += $data['tot_chrg'];
                 $ds['totdeliver'] += $data['tot_chrg'];
                 $ds['zap_delfee'] += $data['delivery_fee'];
                 break;
             }
           }
+
+          if (starts_with(strtolower($data['tblno']), 'z'))
+            $ds['zap_sales'] += $data['tot_chrg'];
 
         }
       }
@@ -2083,6 +2104,14 @@ class PosUploadRepository extends Repository
     return $cnt;
   }
 
+
+  public function postBegBal($branchid, Carbon $date) {
+    
+    $importer = $this->dbfImporter->invoke('begbal');
+    $cnt = $importer->import($branchid, $date, $this->extracted_path);
+
+    return $cnt;
+  }
 
   public function postCashAudit2($branchid, Carbon $date) {
     
@@ -2515,6 +2544,7 @@ class PosUploadRepository extends Repository
     $ds['tot_togo'] = 0;
     $ds['tot_onlrid'] = 0;
     $ds['tot_osaletype'] = 0;
+    $ds['zap_sales'] = 0;
 
 
     try {
@@ -2546,6 +2576,7 @@ class PosUploadRepository extends Repository
     $ds['tot_togo'] =  $c['tot_togo'];
     $ds['tot_onlrid'] =  $c['tot_onlrid'];
     $ds['tot_osaletype'] =  $c['tot_osaletype'];
+    $ds['zap_sales'] = $c['zap_sales'] + $s['zap_sales'];
 
 
     $cnt = $c['custcount'] + $s['custcount'];
@@ -2662,6 +2693,7 @@ class PosUploadRepository extends Repository
       $ds['tot_togo'] = 0;
       $ds['tot_onlrid'] = 0;
       $ds['tot_osaletype'] = 0;
+      $ds['zap_sales'] = 0;
 
       for ($i=1; $i<=$recno; $i++) {
         
@@ -2736,6 +2768,12 @@ class PosUploadRepository extends Repository
                 $ds['totdeliver'] += $data['tot_chrg'];
                 break;
               case 'zap':
+              case 'cod-panda':
+              case 'cod-grab':
+              case 'cod-3p':
+              case 'zap-panda':
+              case 'zap-grab':
+              case 'zap-3p':
                 $ds['zap'] += $data['tot_chrg'];
                 $ds['totdeliver'] += $data['tot_chrg'];
                 $ds['zap_delfee'] += $data['delivery_fee'];
@@ -2743,6 +2781,8 @@ class PosUploadRepository extends Repository
             }
           }
 
+          if (starts_with(strtolower($data['tblno']), 'z'))
+            $ds['zap_sales'] += $data['tot_chrg'];
 
         }
       }
@@ -2780,6 +2820,7 @@ class PosUploadRepository extends Repository
       $ds['zap']  = 0;
       $ds['zap_delfee']  = 0;
       $ds['totdeliver']  = 0;
+      $ds['zap_sales']  = 0;
 
       for ($i=1; $i<=$recno; $i++) {
         
@@ -2838,12 +2879,21 @@ class PosUploadRepository extends Repository
                 $ds['totdeliver'] += $data['tot_chrg'];
                 break;
               case 'zap':
+              case 'cod-panda':
+              case 'cod-grab':
+              case 'cod-3p':
+              case 'zap-panda':
+              case 'zap-grab':
+              case 'zap-3p':
                 $ds['zap'] += $data['tot_chrg'];
                 $ds['totdeliver'] += $data['tot_chrg'];
                 $ds['zap_delfee'] += $data['delivery_fee'];
                 break;
             }
           }
+
+          if (starts_with(strtolower($data['tblno']), 'z'))
+            $ds['zap_sales'] += $data['tot_chrg'];
 
         }
       }
