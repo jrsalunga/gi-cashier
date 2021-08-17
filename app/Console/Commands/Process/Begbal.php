@@ -79,8 +79,8 @@ class BegBal extends Command {
           } // endif: extract
 
 
-          event(new \App\Events\Process\AggregatorDaily('begbal', $d, $b->id)); // update ds
-          event(new \App\Events\Process\AggregatorMonthly('begbal', $d, $b->id)); // update ms_expense
+          event(new \App\Events\Process\AggregatorDaily('begbal', $d, $b->id));  // update ds
+          event(new \App\Events\Process\AggregatorMonthly('begbal', $d, $b->id));  // update ms_expense
 
        
         } else {
