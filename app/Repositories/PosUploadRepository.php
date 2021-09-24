@@ -1616,7 +1616,7 @@ class PosUploadRepository extends Repository
             }
           }
 
-          if (starts_with(strtolower($data['tblno']), 'z') && ($data['chrg_type']!='PANDA' && $data['chrg_type']!='GRAB'))
+          if (starts_with(strtolower($data['tblno']), 'z') && (substr($data['tblno'], -4) > 0))
             $ds['zap_sales'] += $data['tot_chrg'];
 
         }
@@ -1726,7 +1726,7 @@ class PosUploadRepository extends Repository
             }
           }
 
-          if (starts_with(strtolower($data['tblno']), 'z') && ($data['chrg_type']!='PANDA' && $data['chrg_type']!='GRAB'))
+          if (starts_with(strtolower($data['tblno']), 'z') && (substr($data['tblno'], -4) > 0))
             $ds['zap_sales'] += $data['tot_chrg'];
 
         }
@@ -2781,7 +2781,7 @@ class PosUploadRepository extends Repository
             }
           }
 
-          if (starts_with(strtolower($data['tblno']), 'z') && ($data['chrg_type']!='PANDA' && $data['chrg_type']!='GRAB'))
+          if (starts_with(strtolower($data['tblno']), 'z') && (substr($data['tblno'], -4) > 0))
             $ds['zap_sales'] += $data['tot_chrg'];
 
         }
@@ -2892,7 +2892,7 @@ class PosUploadRepository extends Repository
             }
           }
 
-          if (starts_with(strtolower($data['tblno']), 'z') && ($data['chrg_type']!='PANDA' && $data['chrg_type']!='GRAB'))
+          if (starts_with(strtolower($data['tblno']), 'z') && (substr($data['tblno'], -4) > 0))
             $ds['zap_sales'] += $data['tot_chrg'];
 
         }
