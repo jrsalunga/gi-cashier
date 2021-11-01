@@ -142,6 +142,15 @@ class PosUploadRepository extends Repository
 
       $code = trim($row['GI_BRCODE']);
 
+      // if (c()->gte(c('2021-11-01'))) { // check if valid EOD Backup
+      
+        $eod = trim($row['FILLER']);
+        if (is_null($eod) || $eod == '') {
+          throw new Exception("Invalid End-of-Day backup. Kindly run the POS End-of-day process (5-1) before uploading the backup.");
+        }
+
+      // }
+
       dbase_close($db);
       if(empty($code)) {
         throw new Exception("Cannot locate Branch Code on backup");
