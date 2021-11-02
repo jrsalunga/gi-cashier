@@ -133,6 +133,7 @@ class PosUploadRepository extends Repository
 
   public function getBackupCode() {
     $dbf_file = $this->extracted_path.DS.'SYSINFO.DBF';
+    $data =[];
 
     if (file_exists($dbf_file)) { 
       $db = dbase_open($dbf_file, 0);
@@ -144,10 +145,12 @@ class PosUploadRepository extends Repository
 
       // if (c()->gte(c('2021-11-01'))) { // check if valid EOD Backup
       
-        $eod = trim($row['FILLER']);
-        if (is_null($eod) || $eod == '') {
-          throw new Exception("Invalid End-of-Day backup. Kindly run the POS End-of-day process (5-1) before uploading the backup.");
-        }
+        // $eod = trim($row['FILLER']);
+        // if (is_null($eod) || $eod == '') {
+        //   throw new Exception("Invalid EOD backup. Kindly run the POS EOD process (5-1) before uploading the backup.");
+        // } else {
+        //   $data['eod'] = c($eod);
+        // }
 
       // }
 
@@ -156,7 +159,10 @@ class PosUploadRepository extends Repository
         throw new Exception("Cannot locate Branch Code on backup");
       }
       else 
-        return $code;
+        $data['code'] = $code;   
+
+      return $data;
+    
     } else {
       return NULL;
       throw new Exception("Cannot locate SYSINFO"); 
