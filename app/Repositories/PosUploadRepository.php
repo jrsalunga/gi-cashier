@@ -145,12 +145,12 @@ class PosUploadRepository extends Repository
 
       // if (c()->gte(c('2021-11-01'))) { // check if valid EOD Backup
       
-        $eod = trim($row['FILLER']);
-        if (is_null($eod) || $eod == '') {
-          throw new Exception("Invalid EOD backup. Kindly run the POS EOD process (5-1) before uploading the backup.");
-        } else {
-          $data['eod'] = c($eod);
-        }
+        // $eod = trim($row['FILLER']);
+        // if (is_null($eod) || $eod == '') {
+        //   throw new Exception("Invalid EOD backup. Kindly run the POS EOD process (5-1) before uploading the backup.");
+        // } else {
+        //   $data['eod'] = c($eod);
+        // }
 
       // }
 
