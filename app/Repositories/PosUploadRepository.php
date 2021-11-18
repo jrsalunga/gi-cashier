@@ -172,6 +172,28 @@ class PosUploadRepository extends Repository
 
   public function isEoD($backup) {
 
+
+    if (c($backup->filedate)->gte(c('2021-11-01'))) { // check if valid EOD Backup
+      // throw new Exception($backup->filedate); 
+
+      $dbf_file = $this->extracted_path.DS.'SYSINFO.DBF';
+      if (file_exists($dbf_file)) { 
+        $db = dbase_open($dbf_file, 0);
+        $row = dbase_get_record_with_names($db, 1);
+
+        $eod = trim($row['FILLER']);
+        if (is_null($eod) || $eod == '') {
+          throw new Exception("Invalid EOD backup. Kindly run the POS EOD process (5-1) before uploading the backup.");
+        } else {
+          $data['eod'] = c($eod);
+        }
+        dbase_close($db);
+      } else {
+        throw new Exception("Cannot locate SYSINFO"); 
+      }
+    }
+
+    
     $dbf_file = $this->extracted_path.DS.'ORDERS.DBF';
     if (file_exists($dbf_file)) { 
       $db = dbase_open($dbf_file, 0);
