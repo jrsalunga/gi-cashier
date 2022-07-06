@@ -52,7 +52,7 @@
     </div>
 
     <p>&nbsp;</p>
-    <p style="padding: 0;margin: 20px 0 0 0;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong><small>Confirmation Screen:</small></strong></p>
+    <p style="padding: 0;margin: 20px 0 0 0;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong><small>Confirmation Screen</small></strong></p>
     <img src="http://cashier.giligansrestaurant.com/images/uploads/AllowUpdate.PNG" style="background-color:#F8F9FA;">
   </div>
 </div>
