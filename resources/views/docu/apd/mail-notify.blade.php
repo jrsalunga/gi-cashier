@@ -37,12 +37,22 @@
       </div>
     </div>
 
+    <div style="border: 1px solid #E8EAED;background-color:#fff; margin-top: 10px">
+      <div style="margin:20px;">
+        <div style="margin-bottom:15px;font-size:15px;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong>Notes:</strong></div>
+
+        <ul style="font-family: Roboto,Helvetica,Arial,sans-serif;">
+          <li style="margin-top: 10px">Kindly <strong>double check</strong> your recently encoded expenses on 6-1, the update will <strong style="color: red;">delete/override</strong> previously encoded expenses. You may encode again the deleted expenses records.</li>
+        </ul>
+      </div>
+    </div>
+
     <div style="padding: 10px 0 10px 0;background-color:#F8F9FA;">
      <small style="font-size:11px;color:gray;font-family:Roboto,Helvetica,Arial,sans-serif;"><em>Note: This is a system generated email.</em></small>
     </div>
 
     <p>&nbsp;</p>
-    <p style="padding: 0;margin: 20px 0 0 0;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong><small>Confirmation Sreen</small></strong></p>
+    <p style="padding: 0;margin: 20px 0 0 0;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong><small>Confirmation Screen</small></strong></p>
     <img src="http://cashier.giligansrestaurant.com/images/uploads/AllowUpdate.PNG" style="background-color:#F8F9FA;">
   </div>
 </div>
