@@ -1476,6 +1476,7 @@ class PosUploadRepository extends Repository
     $ds['tot_onlrid'] = 0;
     $ds['tot_osaletype'] = 0;
     $ds['zap_sales'] = 0;
+    $ds['vat_xmpt'] = 0;
     
     if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) // same sas line 1226
       $ds['custcount'] = 0;
@@ -1512,6 +1513,7 @@ class PosUploadRepository extends Repository
     $ds['tot_onlrid'] =  $c['tot_onlrid'];
     $ds['tot_osaletype'] =  $c['tot_osaletype'];
     $ds['zap_sales']  = $c['zap_sales'] + $s['zap_sales'];
+    $ds['vat_xmpt']  = $c['vat_xmpt'] + $s['vat_xmpt'];
 
 
     // remove the date bec of $this->postNewDailySales
@@ -1567,6 +1569,7 @@ class PosUploadRepository extends Repository
       $ds['tot_onlrid'] = 0;
       $ds['tot_osaletype'] = 0;
       $ds['zap_sales'] = 0;
+      $ds['vat_xmpt'] = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
         
@@ -1624,6 +1627,7 @@ class PosUploadRepository extends Repository
           $ds['bank_totchrg'] += $data['bank_chrg'];
           $ds['disc_totamt']  += $data['disc_amt'];
           $ds['custcount']    += $data['custcount'];
+          $ds['vat_xmpt']    += $data['vat_xmpt'];
 
           if (strtolower($data['terms'])=='charge') {
             switch (strtolower($data['chrg_type'])) {
@@ -1693,6 +1697,7 @@ class PosUploadRepository extends Repository
       $ds['zap_delfee'] = 0;
       $ds['totdeliver'] = 0;
       $ds['zap_sales'] = 0;
+      $ds['vat_xmpt'] = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
         
@@ -1734,6 +1739,7 @@ class PosUploadRepository extends Repository
           $ds['bank_totchrg'] += $data['bank_chrg'];
           $ds['disc_totamt']  += $data['disc_amt'];
           $ds['custcount']    += $data['custcount'];
+          $ds['vat_xmpt']    += $data['vat_xmpt'];
 
           if (strtolower($data['terms'])=='charge') {
             switch (strtolower($data['chrg_type'])) {
@@ -2582,6 +2588,7 @@ class PosUploadRepository extends Repository
     $ds['tot_onlrid'] = 0;
     $ds['tot_osaletype'] = 0;
     $ds['zap_sales'] = 0;
+    $ds['vat_xmpt'] = 0;
 
 
     try {
@@ -2614,6 +2621,7 @@ class PosUploadRepository extends Repository
     $ds['tot_onlrid'] =  $c['tot_onlrid'];
     $ds['tot_osaletype'] =  $c['tot_osaletype'];
     $ds['zap_sales'] = $c['zap_sales'] + $s['zap_sales'];
+    $ds['vat_xmpt'] = $c['vat_xmpt'] + $s['vat_xmpt'];
 
 
     $cnt = $c['custcount'] + $s['custcount'];
@@ -2731,6 +2739,7 @@ class PosUploadRepository extends Repository
       $ds['tot_onlrid'] = 0;
       $ds['tot_osaletype'] = 0;
       $ds['zap_sales'] = 0;
+      $ds['vat_xmpt'] = 0;
 
       for ($i=1; $i<=$recno; $i++) {
         
@@ -2789,6 +2798,7 @@ class PosUploadRepository extends Repository
           $ds['bank_totchrg'] += $data['bank_chrg'];
           $ds['disc_totamt']  += $data['disc_amt'];
           $ds['custcount']    += $data['custcount'];
+          $ds['vat_xmpt']    += $data['vat_xmpt'];
 
           if (strtolower($data['terms'])=='charge') {
             switch (strtolower($data['chrg_type'])) {
@@ -2858,6 +2868,7 @@ class PosUploadRepository extends Repository
       $ds['zap_delfee']  = 0;
       $ds['totdeliver']  = 0;
       $ds['zap_sales']  = 0;
+      $ds['vat_xmpt']  = 0;
 
       for ($i=1; $i<=$recno; $i++) {
         
@@ -2900,6 +2911,7 @@ class PosUploadRepository extends Repository
           $ds['bank_totchrg'] += $data['bank_chrg'];
           $ds['disc_totamt']  += $data['disc_amt'];
           $ds['custcount']    += $data['custcount'];
+          $ds['vat_xmpt']    += $data['vat_xmpt'];
 
           if (strtolower($data['terms'])=='charge') {
             switch (strtolower($data['chrg_type'])) {
