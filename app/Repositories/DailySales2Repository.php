@@ -69,6 +69,7 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
 
   }
 
+  // BackupEventListener::onDailySalesSuccess
   public function computeMonthTotal(Carbon $date, $branchid) {
 
     $sql = 'LAST_DAY(date) AS date, MONTH(date) AS month, YEAR(date) as year, branchid as branch_id, COUNT(id) as record_count, ';
@@ -118,10 +119,11 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
   }
 
 
+  // BackupEventListener::onDailySalesSuccess
   public function computeAllDailysalesTotal(Carbon $date) {
 
     // $sql = 'LAST_DAY(date) AS date, MONTH(date) AS month, YEAR(date) as year, branchid as branch_id, COUNT(id) as record_count, ';
-    $sql = 'date, COUNT(id) as record_count, ';
+    $sql = 'date, COUNT(id) as record_count, COUNT(id) as branch_cnt, ';
     $sql .= 'SUM(sales) AS sales, SUM(sale_csh) AS sale_csh, SUM(sale_chg) AS sale_chg, SUM(sale_sig) AS sale_sig, ';
     $sql .= 'SUM(custcount) AS custcount, SUM(target_cust) AS target_cust, SUM(crew_din) AS crew_din,  SUM(crew_kit) AS crew_kit,  ';
     $sql .= 'SUM(empcount) AS empcount, SUM(target_empcount) AS target_empcount, SUM(mancost) AS mancost, (sum(sales)/sum(custcount)) as headspend, ';

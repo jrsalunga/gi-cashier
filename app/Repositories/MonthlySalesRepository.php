@@ -73,7 +73,7 @@ class MonthlySalesRepository extends BaseRepository implements CacheableInterfac
     $sql .= 'SUM(bank_totchrg) AS bank_totchrg, SUM(disc_totamt) AS disc_totamt, SUM(trans_cnt) AS trans_cnt, SUM(man_hrs) AS man_hrs, SUM(man_pay) AS man_pay, ';
     $sql .= 'SUM(depo_cash) AS depo_cash, SUM(depo_check) AS depo_check, SUM(depslpc) AS depslpc, SUM(depslpk) AS depslpk, SUM(setslp) AS setslp, ';
     $sql .= 'SUM(transcost) AS transcost, SUM(transncos) AS transncos, SUM(transcos) AS transcos, SUM(emp_meal) AS emp_meal, SUM(opex) AS opex, ';
-    $sql .= 'SUM(kitlog) AS kitlog, SUM(change_item) AS change_item, SUM(change_item_diff) AS change_item_diff, ';
+    $sql .= 'SUM(kitlog) AS kitlog, SUM(change_item) AS change_item, SUM(change_item_diff) AS change_item_diff, COUNT(id) as branch_cnt, ';
 
     $sql .= 'SUM(grab_fee) AS grab_fee, SUM(grabc_fee) AS grabc_fee, SUM(panda_fee) AS panda_fee, SUM(totdeliver_fee) AS totdeliver_fee, ';
     $sql .= 'AVG(sales) as ave_sales, AVG(sale_csh) as ave_sale_csh, AVG(sale_chg) as ave_sale_chg, ';
