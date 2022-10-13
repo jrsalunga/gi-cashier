@@ -77,7 +77,7 @@ class PurchaseNew extends Command
               exit;
             }
 
-            $apd_dir = 'APN'.DS.$date->format('Y').DS.$brcode.DS.$date->format('m').DS.$date->format('d').' 📈💼📥';
+            $apd_dir = 'APN'.DS.$date->format('Y').DS.$brcode.DS.$date->format('m').DS.$date->format('d').' &#11015;';
 
            
             // copy to processed
