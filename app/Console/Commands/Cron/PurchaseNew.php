@@ -159,7 +159,7 @@ class PurchaseNew extends Command
       ];
     }
 
-    $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New '.$date->format('F').' Payables Record to Download from Head Office  📈💼📥&#11015;';
+    $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New '.$date->format('F').' Payables Record to Download from Head Office 💼 📥;';
     $e['attachment'] = $attachment;
 
     
