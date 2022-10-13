@@ -77,7 +77,7 @@ class PurchaseNew extends Command
               exit;
             }
 
-            $apd_dir = 'APN'.DS.$date->format('Y').DS.$brcode.DS.$date->format('m').DS.$date->format('d').' &#11015;';
+            $apd_dir = 'APN'.DS.$date->format('Y').DS.$brcode.DS.$date->format('m').DS.$date->format('d');
 
            
             // copy to processed
@@ -159,7 +159,7 @@ class PurchaseNew extends Command
       ];
     }
 
-    $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New '.$date->format('F').' Payables Record to Download from Head Office';
+    $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New '.$date->format('F').' Payables Record to Download from Head Office  📈💼📥&#11015;';
     $e['attachment'] = $attachment;
 
     
