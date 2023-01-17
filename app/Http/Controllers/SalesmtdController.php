@@ -113,6 +113,7 @@ class SalesmtdController extends Controller
 		$row['paxloc']				= substr(trim($r['CUSNO']), -2);
 		$row['group'] 				= trim($r['COMP2']);
 		$row['group_cnt'] 		= trim($r['COMP3']);
+    $row['salecat']       = trim($r['CATNO']);
     // $row['change_item']   = trim($r['COMP4']);
 		$row['remarks'] 			= trim($r['COMP1']);
 		$row['cashier'] 			= trim($r['CUSNAME']);
