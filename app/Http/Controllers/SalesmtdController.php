@@ -130,6 +130,8 @@ class SalesmtdController extends Controller
 	public function test(Request $request) {
 		return $this->salesmtd->skipCache()->order()->all(['orddate', 'ordtime', 'recno']);
 	}
+
+  
 }
 
 
