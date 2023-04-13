@@ -31,7 +31,9 @@
           <li style="margin-top: 10px">A confirmation screen will appear. <em><small>(see the sample picture below)</small></em></li>
           <li style="margin-top: 10px">Press <strong>"1"</strong> then <strong>&#60;Enter&#62;</strong> to allow the program to update your record.</li>
           <li style="margin-top: 10px">You may view the new records when you run (6,1).</li>
+          <!--
           <li style="margin-top: 10px">Lastly, <strong>print</strong> and <strong>scan</strong> the Stock Purchase Transmittal slip and make sure to <strong>upload</strong> it on Cashier's Module.</li>
+          -->
         </ol>
 
       </div>
@@ -42,7 +44,7 @@
         <div style="margin-bottom:15px;font-size:15px;font-family:Roboto,Helvetica,Arial,sans-serif;"><strong>Notes:</strong></div>
 
         <ul style="font-family: Roboto,Helvetica,Arial,sans-serif;">
-          <li style="margin-top: 10px">Kindly <strong>double check</strong> your recently encoded expenses on 6-1, the update will <strong style="color: red;">delete/override</strong> encoded expenses on same day. You may encode again the deleted expenses records.</li>
+          <li style="margin-top: 10px">Please <strong>double check</strong> your recently encoded expenses on 6-1; the update will <strong style="color: red;">delete/override</strong> encoded expenses on the same day. You can re-encode the deleted expenses records.</li>
         </ul>
       </div>
     </div>
