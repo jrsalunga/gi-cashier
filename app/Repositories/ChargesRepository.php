@@ -122,6 +122,20 @@ class ChargesRepository extends BaseRepository implements CacheableInterface
     })->skipCache()->all();
   }
 
+
+  public function aggregateDiscTypeByDr($fr, $to, $branchid) {
+    return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
+      return $query
+                ->select(DB::raw("disc_type as disctype, sum(disc_amt) as total, count(id) as txn, round((sum(disc_amt)/(select sum(a.tot_chrg) from charges a where branch_id = '". $branchid ."' and orddate between '".$fr->format('Y-m-d')."' and '".$to->format('Y-m-d')."'))*100,2) as pct"))
+                ->whereBetween('orddate', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('disc_amt', '>', 0)
+                ->where('branch_id', $branchid)
+                ->groupBy('disc_type');
+    })->skipCache()->all();
+  }
+
   
 	
 

@@ -269,7 +269,7 @@ class UploaderController extends Controller
 						}
 					}
 
-
+          
           /******** check BEG_BAL.DBF on 1st day backup  *****/
 					
           if ($backup->date->format('Y-m-d')==$backup->date->copy()->startOfMonth()->format('Y-m-d')) {
@@ -475,6 +475,7 @@ class UploaderController extends Controller
           event(new \App\Events\Process\AggregatorMonthly('charge-type', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('sale-type', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('card-type', $backup->date, $backup->branchid));
+          event(new \App\Events\Process\AggregatorMonthly('disc-type', $backup->date, $backup->branchid));
 
 
 

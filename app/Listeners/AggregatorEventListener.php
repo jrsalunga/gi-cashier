@@ -18,6 +18,8 @@ use App\Repositories\MonthChargeTypeRepository as MChargeType;
 use App\Repositories\MonthCardTypeRepository as MCardType;
 use App\Repositories\MonthSaleTypeRepository as MSalesType;
 use App\Repositories\BegBalRepository as BegBal;
+use App\Repositories\MonthComponentRepository as MonthComponent;
+use App\Repositories\MonthDiscTypeRepository as MDiscType;
 
 
 class AggregatorEventListener
@@ -40,8 +42,10 @@ class AggregatorEventListener
   private $mCardType;
   private $mSalesType;
   private $begbal;
+  private $mc;
+  private $mDiscType;
 
-  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ChangeItem $changeItem, ME $me, DE $de, DayProdcat $dp, CashAudit $cashAudit, MonthCashAudit $mCashAudit, Charges $charges, MChargeType $mChargeType, MCardType $mCardType, MSalesType $mSalesType, BegBal $begbal) {
+  public function __construct(Mailer $mailer, Product $product, Prodcat $prodcat, Groupies $groupies, Salesmtd $salesmtd, Transfer $transfer, ChangeItem $changeItem, ME $me, DE $de, DayProdcat $dp, CashAudit $cashAudit, MonthCashAudit $mCashAudit, Charges $charges, MChargeType $mChargeType, MCardType $mCardType, MSalesType $mSalesType, BegBal $begbal, MonthComponent $mc,  MDiscType $mDiscType) {
     $this->mailer = $mailer;
     $this->product = $product;
     $this->prodcat = $prodcat;
@@ -59,6 +63,8 @@ class AggregatorEventListener
     $this->mCardType = $mCardType;
     $this->mSalesType = $mSalesType;
     $this->begbal = $begbal;
+    $this->mc = $mc;
+    $this->mDiscType = $mDiscType;
   }
 
   private function getRepo($table, $fr, $to, $branchid) {
@@ -90,8 +96,17 @@ class AggregatorEventListener
       case 'card-type':
         return $this->charges->aggregateCardTypeByDr($fr, $to, $branchid);
         break;
-       case 'begbal':
+      case 'begbal':
         return $this->begbal->aggregateExpenseByDr($fr, $to, $branchid);
+        break;
+      case 'begbal-component':
+        return $this->begbal->aggregateComponentByDr($fr, $to, $branchid);
+        break;
+      case 'trans-component':
+        return $this->transfer->aggregateComponentByDr($fr, $to, $branchid);
+        break;
+      case 'disc-type':
+        return $this->charges->aggregateDiscTypeByDr($fr, $to, $branchid);
         break;
       default:
         throw new Exception("Table not found!", 1);
@@ -170,6 +185,15 @@ class AggregatorEventListener
         break;
       case 'begbal':
         $this->saveExpenseBegBal($datas, $date, $branchid);
+        break;
+      case 'begbal-component':
+        $this->saveComponentBegBal($datas, $date, $branchid);
+        break;
+      case 'trans-component':
+        $this->saveComponentTransfer($datas, $date, $branchid);
+        break;
+      case 'disc-type':
+        $this->saveDiscType($datas, $date, $branchid);
         break;
       default:
         break;
@@ -276,8 +300,12 @@ class AggregatorEventListener
   private function saveCashAudit($datas, $date, $branchid) {
 
     $attr = [];
-    $attr['date'] = $date->copy()->lastOfMonth()->format('Y-m-d');
+    $eom = $date->copy()->lastOfMonth();
+    $attr['date'] = $eom->format('Y-m-d');
     $attr['branch_id'] = $branchid;
+
+    if($date->format('Y-m-d')!=$eom->format('Y-m-d'))
+      unset($datas['csh_fwdd']);
 
     if (count(collect($datas))>0)
       foreach ($datas->toArray() as $k => $value)
@@ -289,7 +317,7 @@ class AggregatorEventListener
   private function saveChargeType($datas, $date, $branchid) {
 
     $eom = $date->copy()->lastOfMonth();
-    $c = ['CASH', 'BDO', 'BANKARD', 'GRAB', 'GRABC', 'PANDA'];
+    $c = ['CASH', 'BDO', 'BANKARD', 'GRAB', 'GRABC', 'PANDA', 'MAYA'];
 
     if (in_array($date->format('d'), [5, 10, 15, 20, 25]) || $eom->format('Y-m-d')==$date->format('Y-m-d'))
       $this->mChargeType->deleteWhere(['branch_id'=>$branchid, 'date'=>$eom->format('Y-m-d')]);
@@ -333,7 +361,7 @@ class AggregatorEventListener
   private function saveCardType($datas, $date, $branchid) {
 
     $eom = $date->copy()->lastOfMonth();
-    $c = ['CASH', 'MASTER', 'VISA', 'AMEX', 'JCB', 'DINERS', 'OTHERS'];
+    $c = ['CASH', 'MASTER', 'VISA', 'AMEX', 'JCB', 'DINERS', 'GCASH', 'MAYA', 'QRPH', 'GRABPAY',  'WECHATPAY',  'SHOPEEPAY', 'LAZPAY', 'ALIPAY', 'OTHERS'];
 
     if (in_array($date->format('d'), [5, 10, 15, 20, 25]) || $eom->format('Y-m-d')==$date->format('Y-m-d'))
       $this->mCardType->deleteWhere(['branch_id'=>$branchid, 'date'=>$eom->format('Y-m-d')]);
@@ -352,6 +380,28 @@ class AggregatorEventListener
         'ordinal'       => is_null($k) ? 99 : ($k+1),
         'branch_id'     => $branchid,
       ], ['date', 'branch_id', 'cardtype']);
+    }
+  }
+
+  private function saveDiscType($datas, $date, $branchid) {
+
+    $eom = $date->copy()->lastOfMonth();
+    $c = ['EMP', 'SR', 'PWD', 'PROM', 'VIP', 'GPC', 'UDISC', 'G', 'H', 'I', 'J', 'K', 'L', 'VX'];
+
+    if (in_array($date->format('d'), [5, 10, 15, 20, 25]) || $eom->format('Y-m-d')==$date->format('Y-m-d'))
+      $this->mDiscType->deleteWhere(['branch_id'=>$branchid, 'date'=>$eom->format('Y-m-d')]);
+    
+    foreach ($datas as $key => $value) {
+      $k = array_search($value->disctype, $c);
+      $this->mDiscType->firstOrNewField([
+        'date'          => $eom->format('Y-m-d'),
+        'disctype'      => $value->disctype,
+        'total'         => $value->total,
+        'txn'           => $value->txn,
+        'pct'           => $value->pct,
+        'ordinal'       => is_null($k) ? 99 : ($k+1),
+        'branch_id'     => $branchid,
+      ], ['date', 'branch_id', 'disctype']);
     }
   }
 
@@ -466,6 +516,50 @@ class AggregatorEventListener
         'branch_id'     => $branchid,
         'ordinal'       => $ord,
       ], ['date', 'branch_id', 'expense_id']);
+    }
+  }
+
+  private function saveComponentBegBal($datas, $date, $branchid) {
+    foreach ($datas as $key => $value) {
+
+      $ex = \App\Models\Expense::find($value->expense_id);
+
+      if(is_null($ex)) {
+        $ord = 833;
+        $expense_code = 'MC';
+        $expense_id = 'F37A72215CFA11E5ADBC00FF59FBB323';
+      } else {
+        $ord = $ex->ordinal;
+        $expense_code = $ex->code;
+        $expense_id = $value->expense_id;
+      }
+
+      $this->mc->firstOrNewField([
+        'date'          => $date->copy()->lastOfMonth()->format('Y-m-d'),
+        'beg_qty'       => $value->qty,
+        'beg_tcost'     => $value->tcost,
+        'component_id'  => $value->component_id,
+        'uom'           => $value->uom,
+        'expensecode'   => $expense_code,
+        'expense_id'    => $expense_id,
+        'status'        => $value->status,
+        'ordinal'       => $ord,
+        'branch_id'     => $branchid,
+      ], ['date', 'branch_id', 'component_id']);
+    }
+  }
+
+  private function saveComponentTransfer($datas, $date, $branchid) {
+    foreach ($datas as $key => $value) {
+
+      $this->mc->firstOrNewField([
+        'date'          => $date->copy()->lastOfMonth()->format('Y-m-d'),
+        'trans_qty'     => $value->qty,
+        'trans_tcost'   => $value->tcost,
+        'component_id'  => $value->component_id,
+        'uom'           => $value->uom,
+        'branch_id'     => $branchid,
+      ], ['date', 'branch_id', 'component_id']);
     }
   }
 
