@@ -1571,6 +1571,8 @@ class PosUploadRepository extends Repository
       $ds['zap_sales'] = 0;
       $ds['vat_xmpt'] = 0;
 
+      $ds['vat_xmpt'] = 0;
+
       for ($i=1; $i<=$record_numbers; $i++) {
         
         $row = dbase_get_record_with_names($db, $i);
@@ -3107,7 +3109,11 @@ class PosUploadRepository extends Repository
       $ds['emp_meal'] = 0;
       $ds['branchid'] = $branchid;
 
-      $branchcode = $this->getBackupCode();
+      $brc = $this->getBackupCode();
+
+      $branchcode = $brc['code'];
+
+       $c->info('branchcode: '.$branchcode);
 
       for ($i=1; $i<=$recno; $i++) {
         $row = dbase_get_record_with_names($db, $i);
