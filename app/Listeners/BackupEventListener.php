@@ -395,7 +395,7 @@ class BackupEventListener
 
         $attrs = [
           'date'      => $data['date']->format('Y-m-d'),
-          'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+          'componentid'=> '11EE1B2F870FB663CCD5A1EF7D6E8E7E', // COMMISSION
           'uom'        => 'TRAN',
           'qty'       => 1,
           'ucost'     => $amt,
