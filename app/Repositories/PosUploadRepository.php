@@ -1469,6 +1469,7 @@ class PosUploadRepository extends Repository
     $ds['grabc']  = 0;
     $ds['panda']  = 0;
     $ds['zap']  = 0;
+    $ds['smo']  = 0;
     $ds['zap_delfee']  = 0;
     $ds['totdeliver']  = 0;
     $ds['tot_dine'] = 0;
@@ -1507,6 +1508,7 @@ class PosUploadRepository extends Repository
     $ds['grabc']  = $c['grabc'] + $s['grabc'];
     $ds['zap']    = $c['zap'] + $s['zap'];
     $ds['zap_delfee'] = $c['zap_delfee'] + $s['zap_delfee'];
+    $ds['smo']    = $c['smo'];
     $ds['totdeliver'] = $c['totdeliver'] + $s['totdeliver'];
     $ds['tot_dine'] =  $c['tot_dine'];
     $ds['tot_togo'] =  $c['tot_togo'];
@@ -1562,6 +1564,7 @@ class PosUploadRepository extends Repository
       $ds['grab'] = 0;
       $ds['grabc'] = 0;
       $ds['zap'] = 0;
+      $ds['smo'] = 0;
       $ds['zap_delfee'] = 0;
       $ds['totdeliver'] = 0;
       $ds['tot_dine'] = 0;
@@ -1643,6 +1646,11 @@ class PosUploadRepository extends Repository
                 break;
               case 'grabc':
                 $ds['grabc'] += $data['tot_chrg'];
+                $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+              case 'smo-del':
+              case 'smo-pu':
+                $ds['smo'] += $data['tot_chrg'];
                 $ds['totdeliver'] += $data['tot_chrg'];
                 break;
               case 'zap':

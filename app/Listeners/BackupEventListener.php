@@ -206,6 +206,7 @@ class BackupEventListener
         $attrs = [
           'date'        => $data['date']->format('Y-m-d'),
           'componentid' => '11E8BB3635ABF63DAEF21C1B0D85A7E0',
+          'uom'        => 'TRAN',
           'qty'       => 1,
           'ucost'     => $ds->emp_meal,
           'tcost'     => $ds->emp_meal,
@@ -228,7 +229,7 @@ class BackupEventListener
   }
 
   public function processDeliveryFee($data) {
-    $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['grabc', 'grab', 'panda', 'zap', 'id']);
+    $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['grabc', 'grab', 'panda', 'zap', 'smo', 'maya', 'id']);
 
     if (!is_null($ds)) {
 
@@ -240,6 +241,7 @@ class BackupEventListener
         $attrs = [
           'date'      => $data['date']->format('Y-m-d'),
           'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+          'uom'        => 'TRAN',
           'qty'       => 1,
           'ucost'     => $amt,
           'tcost'     => $amt,
@@ -269,6 +271,7 @@ class BackupEventListener
         $attrs = [
           'date'      => $data['date']->format('Y-m-d'),
           'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+          'uom'        => 'TRAN',
           'qty'       => 1,
           'ucost'     => $amt,
           'tcost'     => $amt,
@@ -298,6 +301,7 @@ class BackupEventListener
         $attrs = [
           'date'      => $data['date']->format('Y-m-d'),
           'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+          'uom'        => 'TRAN',
           'qty'       => 1,
           'ucost'     => $amt,
           'tcost'     => $amt,
@@ -327,6 +331,7 @@ class BackupEventListener
         $attrs = [
           'date'      => $data['date']->format('Y-m-d'),
           'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+          'uom'        => 'TRAN',
           'qty'       => 1,
           'ucost'     => $amt,
           'tcost'     => $amt,
@@ -349,7 +354,70 @@ class BackupEventListener
       }
 
 
-      $ds->totdeliver_fee = $ds->panda_fee + $ds->grab_fee + $ds->grabc_fee + $ds->zap_fee;
+      if (abs($ds->smo)>0) {
+
+        $s = Supplier::firstOrCreate(['code'=>'SMO', 'descriptor'=>'SM PRIME HOLDINGS.']);
+        $amt = $ds->smo * config('gi-config.deliveryfee.smo');
+
+        $attrs = [
+          'date'      => $data['date']->format('Y-m-d'),
+          'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+          'uom'        => 'TRAN',
+          'qty'       => 1,
+          'ucost'     => $amt,
+          'tcost'     => $amt,
+          'terms'     => 'H',
+          'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
+          'supprefno' => 'XDF'.$data['date']->format('mdy'),
+          'branchid'  => $data['branch_id'],
+          'paytype'   => 4, // Paid: Cheque - see gi-boss.config.giligans.php
+          'expensecode'=> 'DF',
+          'expenseid' => '11EAF712EB737D1B0DF08CC9CE4E9D4F',
+        ];
+
+        try {
+          $this->purchase->create($attrs);
+        } catch(Exception $e) {
+          throw $e;    
+        }
+
+        $ds->smo_fee = $amt;
+      }
+
+
+      $ds->totdeliver_fee = $ds->panda_fee + $ds->grab_fee + $ds->grabc_fee + $ds->zap_fee + $ds->smo_fee;
+
+
+      if (abs($ds->maya)>0) {
+
+        $s = Supplier::firstOrCreate(['code'=>'MAYA', 'descriptor'=>'MAYA PHILIPPINES, INC.']);
+        $amt = $ds->maya * config('gi-config.deliveryfee.maya');
+
+        $attrs = [
+          'date'      => $data['date']->format('Y-m-d'),
+          'componentid'=> '11EB228238760B969E0C14DDA9E4EAAF',
+          'uom'        => 'TRAN',
+          'qty'       => 1,
+          'ucost'     => $amt,
+          'tcost'     => $amt,
+          'terms'     => 'H',
+          'supplierid'=> is_null($s) ? $data['branch_id'] : $s->id,
+          'supprefno' => 'XDF'.$data['date']->format('mdy'),
+          'branchid'  => $data['branch_id'],
+          'paytype'   => 4, // Paid: Cheque - see gi-boss.config.giligans.php
+          'expensecode'=> 'DF',
+          'expenseid' => '11EAF712EB737D1B0DF08CC9CE4E9D4F',
+        ];
+
+        try {
+          $this->purchase->create($attrs);
+        } catch(Exception $e) {
+          throw $e;    
+        }
+
+        $ds->maya_fee = $amt;
+      }
+
 
       try {
         $ds->save();
