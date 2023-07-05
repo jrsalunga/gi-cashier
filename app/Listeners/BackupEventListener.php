@@ -385,9 +385,6 @@ class BackupEventListener
       }
 
 
-      $ds->totdeliver_fee = $ds->panda_fee + $ds->grab_fee + $ds->grabc_fee + $ds->zap_fee + $ds->smo_fee;
-
-
       if (abs($ds->maya)>0) {
 
         $s = Supplier::firstOrCreate(['code'=>'MAYA', 'descriptor'=>'MAYA PHILIPPINES, INC.']);
@@ -418,6 +415,7 @@ class BackupEventListener
         $ds->maya_fee = $amt;
       }
 
+      $ds->totdeliver_fee = $ds->panda_fee + $ds->grab_fee + $ds->grabc_fee + $ds->zap_fee + $ds->smo_fee;
 
       try {
         $ds->save();
