@@ -415,7 +415,7 @@ class BackupEventListener
         $ds->maya_fee = $amt;
       }
 
-      $ds->totdeliver_fee = $ds->panda_fee + $ds->grab_fee + $ds->grabc_fee + $ds->zap_fee + $ds->smo_fee;
+      $ds->totdeliver_fee = $ds->panda_fee + $ds->grab_fee + $ds->grabc_fee + $ds->zap_fee + $ds->smo_fee + $ds->maya_fee;
 
       try {
         $ds->save();
