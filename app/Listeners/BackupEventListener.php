@@ -360,12 +360,10 @@ class BackupEventListener
 
         $s = Supplier::firstOrCreate(['code'=>'SMO', 'descriptor'=>'SM PRIME HOLDINGS.']);
 
-        test_log('smo pct: '.config('gi-config.deliveryfee.smo'));
-
+        // test_log('smo pct: '.config('gi-config.deliveryfee.smo'));
         $amt = $ds->smo * config('gi-config.deliveryfee.smo');
-        
         // $amt = $ds->smo;
-        test_log('smo amt: '.$amt);
+        // test_log('smo amt: '.$amt);
 
         $attrs = [
           'date'      => $data['date']->format('Y-m-d'),
@@ -397,12 +395,10 @@ class BackupEventListener
 
         $s = Supplier::firstOrCreate(['code'=>'MAYA', 'descriptor'=>'MAYA PHILIPPINES, INC.']);
         
-        test_log('maya pct: '.config('gi-config.deliveryfee.maya'));
-
+        // test_log('maya pct: '.config('gi-config.deliveryfee.maya'));
         $amt = $ds->maya * config('gi-config.deliveryfee.maya');
-        
         // $amt = $ds->maya;
-        test_log('maya amt: '.$amt);
+        // test_log('maya amt: '.$amt);
 
         $attrs = [
           'date'      => $data['date']->format('Y-m-d'),
