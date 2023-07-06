@@ -357,7 +357,9 @@ class BackupEventListener
       if (abs($ds->smo)>0) {
 
         $s = Supplier::firstOrCreate(['code'=>'SMO', 'descriptor'=>'SM PRIME HOLDINGS.']);
-        $amt = $ds->smo * config('gi-config.deliveryfee.smo');
+        // $amt = $ds->smo * config('gi-config.deliveryfee.smo');
+        
+        $amt = $ds->smo;
 
         $attrs = [
           'date'      => $data['date']->format('Y-m-d'),
@@ -388,7 +390,9 @@ class BackupEventListener
       if (abs($ds->maya)>0) {
 
         $s = Supplier::firstOrCreate(['code'=>'MAYA', 'descriptor'=>'MAYA PHILIPPINES, INC.']);
-        $amt = $ds->maya * config('gi-config.deliveryfee.maya');
+        // $amt = $ds->maya * config('gi-config.deliveryfee.maya');
+        
+        $amt = $ds->maya;
 
         $attrs = [
           'date'      => $data['date']->format('Y-m-d'),
