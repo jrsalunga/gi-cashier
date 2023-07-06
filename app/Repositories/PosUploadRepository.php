@@ -2751,8 +2751,8 @@ class PosUploadRepository extends Repository
       $ds['grab']  = 0;
       $ds['grabc']  = 0;
       $ds['zap']  = 0;
-      $ds['smo']    = $c['smo'];
-      $ds['maya']   = $c['maya'];
+      $ds['smo'] = 0;
+      $ds['maya'] = 0;
       $ds['zap_delfee']  = 0;
       $ds['totdeliver']  = 0;
       $ds['tot_dine'] = 0;
