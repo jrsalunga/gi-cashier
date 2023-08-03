@@ -27,8 +27,13 @@ class ChangeItemRepository extends BaseRepository implements CacheableInterface
 
     // $fr = $this->product->findWhere(['code'=>trim($data['fr_code']), ['uprice','>','0']], ['uprice','id'])->first();
     // $to = $this->product->findWhere(['code'=>trim($data['to_code']), ['uprice','>','0']], ['uprice','id'])->first();
-    $fr = $this->product->findWhere(['code'=>trim($data['fr_code'])], ['uprice','id'])->first();
-    $to = $this->product->findWhere(['code'=>trim($data['to_code'])], ['uprice','id'])->first();
+    $fr = $this->product->skipCache()
+                ->scopeQuery(function($query) {
+                  return $query->orderBy('uprice', 'desc')->orderBy('status', 'desc');
+                })->findWhere(['code'=>trim($data['fr_code'])], ['uprice','id'])->first();
+    $to = $this->product->skipCache()->scopeQuery(function($query) {
+                  return $query->orderBy('uprice', 'desc')->orderBy('status', 'desc');
+                })->findWhere(['code'=>trim($data['to_code'])], ['uprice','id'])->first();
 
     $fr_uprice = 0;
     if (is_null($fr))
