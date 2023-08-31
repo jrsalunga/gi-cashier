@@ -1057,9 +1057,22 @@ public function handle()
       $menucat = 'MISC';
     }
 
-    $shortdesc = starts_with($$table->product->shortdesc, '*')
-      ? substr($$table->product->shortdesc, 1)
-      : $$table->product->shortdesc;
+    $shortdesc = '';
+    $catno = '';
+    if (starts_with($$table->product->shortdesc, '*')) {
+      $shortdesc = substr($$table->product->shortdesc, 1);
+      $catno = 'GRAB';
+    } else if (ends_with($$table->product->shortdesc, '- P') || ends_with($$table->product->shortdesc, '- Z')) {
+      $shortdesc = trim(substr($$table->product->shortdesc, 0, -3));
+      $catno = 'PANDA';
+    } else {
+      $shortdesc = $$table->product->shortdesc;
+      $catno = 'REG';
+    }
+
+    // $shortdesc = starts_with($$table->product->shortdesc, '*')
+    //   ? substr($$table->product->shortdesc, 1)
+    //   : $$table->product->shortdesc;
 
     return [
       $invdtl->invhdr->tableno, //TBLNO
@@ -1077,7 +1090,7 @@ public function handle()
       //$invdtl->invhdr->date->format('Ymd'), //ORDDATE
       $invdtl->invhdr->bizdate->format('Ymd'), //ORDDATE
       $invdtl->ordtime.':'.$sec,  //ORDTIME
-      '', //CATNO
+      $catno, //CATNO
       $catname,  //CATNAME
       //$invdtl->lineno, //RECORD 
       $sec, //RECORD 

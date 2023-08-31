@@ -33,11 +33,21 @@ class StockTransferRepository extends BaseRepository implements CacheableInterfa
 
     $component = $this->component->verifyAndCreate(array_only($data, ['comp', 'ucost', 'unit', 'supno', 'catname']));
     $supplier = $this->supplier->verifyAndCreate(array_only($data, ['supno', 'supname', 'branchid', 'tin', 'terms']));
+
+
+    $expensecode = 'XUD';
+    $expenseid = 'XUD';
+    if ($component->compcat->expense) {
+      $expensecode = $component->compcat->expense->code;
+      $expenseid = $component->compcat->expense->id;
+    }
+
+
     $attr = [
       'date' => $data['date'],
       'componentid' => $component->id,
       'qty' => $data['qty'],
-      //'unit' => $data['unit'],
+      'uom' => $data['unit'],
       'ucost' => $data['ucost'],
       'tcost' => $data['tcost'],
       'terms' => $data['terms'],
@@ -45,7 +55,9 @@ class StockTransferRepository extends BaseRepository implements CacheableInterfa
       'vat' => $data['vat'],
       'to' => $data['to'],
       'supplierid' => $supplier->id,
-      'branchid' => $data['branchid']
+      'branchid' => $data['branchid'],
+      'expensecode' => $expensecode,
+      'expenseid' => $expenseid,
     ];
 
     try {
@@ -116,6 +128,20 @@ class StockTransferRepository extends BaseRepository implements CacheableInterfa
                   )
                 ->where('stocktransfer.branchid', $branchid)
                 ->groupBy('compcat.expenseid');
+    })->skipCache()->all();
+  }
+
+
+  public function aggregateComponentByDr($fr, $to, $branchid) {
+    return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
+      return $query
+                ->select(DB::raw("LAST_DAY(date) as date, sum(qty) as qty, sum(tcost) as tcost, componentid as component_id, uom"))
+                ->whereBetween('date', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('branchid', $branchid)
+                ->groupBy('componentid')
+                ->groupBy('uom');
     })->skipCache()->all();
   }
 

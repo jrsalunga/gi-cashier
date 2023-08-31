@@ -1366,7 +1366,7 @@ class PosUploadRepository extends Repository
         */
         
         $this->salesmtdCtrl->deleteWhere(['branch_id'=>$backup->branchid, 'orddate'=>$date->format('Y-m-d')]);
-        $this->changeItem->deleteWhere(['branch_id'=>$backup->branchid, 'date'=>$date->format('Y-m-d')]);
+        // $this->changeItem->deleteWhere(['branch_id'=>$backup->branchid, 'date'=>$date->format('Y-m-d')]); // removed 08/01/2023 - ImpoterChangeItem
       } catch(Exception $e) {
         dbase_close($db);
         throw new Exception($e->getMessage());    
@@ -2121,6 +2121,7 @@ class PosUploadRepository extends Repository
       $record_numbers = dbase_numrecords($db);
       $update = 0;
 
+      $this->salesmtdCtrl->productStatusInit();
       for ($i=1; $i<=$record_numbers; $i++) {
         $r = dbase_get_record_with_names($db, $i);
 
@@ -2131,6 +2132,7 @@ class PosUploadRepository extends Repository
           'menucat'     => isset($r['RACHEL']) ? trim($r['RACHEL']):'',
           'ucost'       => isset($r['UCOST']) ? trim($r['UCOST']):0,
           'uprice'      => isset($r['UPRICE']) ? trim($r['UPRICE']):0,
+          'status'      => 1,
         ];
 
         try {
@@ -3320,6 +3322,32 @@ class PosUploadRepository extends Repository
       $c->info('Kitlog Transactions: '.$gt);
 
     return $gt;
+  }
+
+  public function processChangeItem($branchid, Carbon $from, Carbon $to, $c=NULL) {
+
+
+    $importer = $this->dbfImporter->invoke('change_item');
+    
+    $gt = $cnt = 0;
+    foreach (dateInterval($from, $to) as $key => $date) {
+      if (!is_null($c))
+       $c->info($date);
+      
+      $cnt = $importer->import($branchid, $date, $c);
+      
+      // if ($cnt>0) 
+        // $this->ds->firstOrNewField(['date'=>$date->format('Y-m-d'), 'branchid'=> $branchid, 'kitlog'=>1], ['date', 'branchid']);
+
+    
+      $gt += $cnt;
+    }
+
+    if (!is_null($c))
+      $c->info('Kitlog Transactions: '.$gt);
+
+    return $gt;
+
   }
 
 

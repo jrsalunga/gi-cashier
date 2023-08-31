@@ -327,6 +327,20 @@ class UploaderController extends Controller
 					} finally {
 						event(new \App\Events\Posting\SalesmtdSuccess($backup));
 					}
+
+
+          try {
+            $this->processChangeItem($backup->date, $backup);
+          } catch (Exception $e) {
+            if (strpos($e->getMessage(), 'timeout')==false)
+              $msg =  'Process ChangeItem: '.$e->getMessage();
+            else 
+              $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes. (processChangeItem)';
+            $res = $this->movedErrorProcessing($filepath, $storage_path);
+            $this->updateBackupRemarks($backup, $msg);
+            //$this->logAction('error:process:charges', $log_msg.$msg);
+            return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+          }
 				
 				
 					try {
@@ -754,6 +768,14 @@ class UploaderController extends Controller
   public function processSalesmtd($date, Backup $backup){
   	try {
       $this->posUploadRepo->postSalesmtd($date, $backup);
+    } catch(Exception $e) {
+      throw $e;    
+    }
+  }
+
+  public function processChangeItem($date, Backup $backup){
+    try {
+      $this->posUploadRepo->processChangeItem($backup->branchid, $date, $date);
     } catch(Exception $e) {
       throw $e;    
     }

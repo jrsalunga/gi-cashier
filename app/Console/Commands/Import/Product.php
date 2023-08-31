@@ -9,7 +9,7 @@ use App\Repositories\PosUploadRepository as PosUploadRepo;
 class Product extends Command
 {
   /**
-   * The name and signature of the console command.
+   * This command is use to update product prices
    *
    * @var string
    */

@@ -83,7 +83,7 @@ class Purchase2Repository extends BaseRepository
         'date' => $data['date'],
         'componentid' => $componentid,
         'qty' => $data['qty'],
-        //'unit' => $data['unit'],
+        'uom' => $data['unit'],
         'ucost' => $data['ucost'],
         'tcost' => $data['tcost'],
         // 'tcost' => $tcost,
@@ -211,13 +211,15 @@ class Purchase2Repository extends BaseRepository
   public function aggCompByDr(Carbon $fr, Carbon $to, $branchid) {
     return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
       return $query
-                ->select(DB::raw('componentid, sum(qty) as qty, sum(tcost) as tcost, count(id) as trans'))
-                ->whereBetween('date', 
+                ->select(DB::raw('purchase.componentid, sum(purchase.qty) as qty, sum(purchase.tcost) as tcost, count(purchase.id) as trans, component.status as status, component.uom as uom'))
+                ->leftJoin('component', 'component.id', '=', 'purchase.componentid')
+                ->whereBetween('purchase.date', 
                   [$fr->format('Y-m-d'), $to->format('Y-m-d')]
                   )
-                ->where('branchid', $branchid)
-                ->where('terms','<>', 'U')
-                ->groupBy('componentid');
+                ->where('purchase.branchid', $branchid)
+                ->where('purchase.terms','<>', 'U')
+                ->groupBy('purchase.componentid')
+                ->groupBy('purchase.uom');
     })->all();
   }
 

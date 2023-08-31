@@ -20,7 +20,20 @@ class SalesmtdController extends Controller
     $this->changeItem = $changeItem;
 	}
 
-	public function create(array $attributes) {
+  public function create(array $attributes) {
+    
+    $product = $this->product->verifyAndCreate(array_only($attributes, ['product', 'productcode', 'prodcat', 'menucat', 'uprice']));
+    $attributes['product_id'] = $product->id;
+
+    try {
+      $this->salesmtd->create($attributes);
+    } catch(Exception $e) {
+      throw new Exception('Controller::create '.$e->getMessage());
+    }
+  }
+
+  // old functionality w/ change items
+	public function old_create(array $attributes) {
 		
 		$product = $this->product->verifyAndCreate(array_only($attributes, ['product', 'productcode', 'prodcat', 'menucat', 'uprice']));
 		$attributes['product_id'] = $product->id;
@@ -79,7 +92,7 @@ class SalesmtdController extends Controller
 
 	// for PosUploadRepository->updateProductsTable
 	public function importProduct(array $attributes) {
-		return $this->product->importAndCreate(array_only($attributes, ['product', 'productcode', 'prodcat', 'menucat', 'ucost', 'uprice']));
+		return $this->product->importAndCreate(array_only($attributes, ['product', 'productcode', 'prodcat', 'menucat', 'ucost', 'uprice', 'status']));
 	}
 
 	public function associateAttributes($r) {
@@ -114,11 +127,11 @@ class SalesmtdController extends Controller
 		$row['group'] 				= trim($r['COMP2']);
 		$row['group_cnt'] 		= trim($r['COMP3']);
     $row['salecat']       = trim($r['CATNO']);
-    // $row['change_item']   = trim($r['COMP4']);
+    $row['comp4']         = trim($r['COMP4']);
 		$row['remarks'] 			= trim($r['COMP1']);
 		$row['cashier'] 			= trim($r['CUSNAME']);
 		$row['menucat'] 			= trim($r['COMPUNIT2']).trim($r['COMPUNIT3']);
-    $row['change_item']   = trim($r['COMP4']);
+    // $row['change_item']   = trim($r['COMP4']);
 
 		return $row;
 	}
@@ -130,6 +143,10 @@ class SalesmtdController extends Controller
 	public function test(Request $request) {
 		return $this->salesmtd->skipCache()->order()->all(['orddate', 'ordtime', 'recno']);
 	}
+
+  public function productStatusInit() {
+    return $this->product->productStatusInit();
+  }
 
   
 }

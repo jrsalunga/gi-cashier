@@ -231,8 +231,6 @@ class BackupEventListener
   public function processDeliveryFee($data) {
     $ds = DailySales::where('date', $data['date']->format('Y-m-d'))->where('branchid', $data['branch_id'])->first(['grabc', 'grab', 'panda', 'zap', 'smo', 'maya', 'id']);
 
-    // test_log(json_encode($ds));
-
     if (!is_null($ds)) {
 
       if (abs($ds->grabc)>0) {

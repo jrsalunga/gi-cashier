@@ -111,6 +111,9 @@ class BacklogMonth extends Command
     } finally {
       foreach (dateInterval($f, $t) as $key => $date)
         event(new AggregatorDaily('purchase', $date, $br->id));
+
+
+
     }
     
     $this->info('extracting daily sales on cash audit...');
@@ -187,6 +190,7 @@ class BacklogMonth extends Command
     event(new \App\Events\Process\AggregatorDaily('trans-expense', $t, $br->id)); // recompute Daily Transfered and update day_expense
     event(new \App\Events\Process\AggregatorDaily('prodcat', $t, $br->id)); 
 
+    // event(new \App\Events\Process\AggregatorDaily('change_item', $t, $br->id)); // update ds // nasa taas
     $this->info('AggregateComponentMonthly');
     event(new AggregateComponentMonthly($t, $br->id));
     $this->info('AggregateMonthlyExpense');
@@ -201,8 +205,16 @@ class BacklogMonth extends Command
     event(new AggregatorMonthly('groupies', $t, $br->id));
     $this->info('AggregatorMonthly change_item groupies');
     event(new AggregatorMonthly('change_item', $t, $br->id));
+    $this->info('AggregatorMonthly cash-audit');
+    event(new \App\Events\Process\AggregatorMonthly('cash_audit', $t, $br->id));
     $this->info('RankMonthlyProduct');
     event(new RankMonthlyProduct($t, $br->id));
+
+
+    event(new \App\Events\Process\AggregatorMonthly('charge-type', $t, $br->id));
+    event(new \App\Events\Process\AggregatorMonthly('sale-type', $t, $br->id));
+    event(new \App\Events\Process\AggregatorMonthly('card-type', $t, $br->id));
+    event(new \App\Events\Process\AggregatorMonthly('disc-type', $t, $br->id));
     
 
     DB::commit();

@@ -10,7 +10,6 @@ use Prettus\Repository\Contracts\CacheableInterface;
 
 
 class ComponentRepository extends BaseRepository implements CacheableInterface
-//class ComponentRepository extends BaseRepository 
 {
   use CacheableRepository;
   
@@ -26,20 +25,33 @@ class ComponentRepository extends BaseRepository implements CacheableInterface
     return 'App\Models\Component';
   }
 
-  public function verifyAndCreate($data) {
+  public function verifyAndCreate($data, $update=false) {
   	
     $compcat = $this->compcat->verifyAndCreate(array_only($data, ['supno', 'catname']));
 
     $attr = [
-      'code' => 'new',
+      // 'code' => 'new',
       'descriptor' => $data['comp'],
       'compcatid' => $compcat->id,
       'expenseid' => $compcat->expenseid,
       'cost' => $data['ucost'],
-      'uom' => $data['unit']
+      'uom' => $data['unit'],
+      // 'vat' => $data['vat'],
+      // 'yield_pct' => $data['yield_pct'],
     ];
 
-    return $this->findOrNew($attr, ['descriptor']);
+    if (isset($data['code']))
+      $attr['code'] = $data['code'];
+
+    if (isset($data['vat']))
+      $attr['vat'] = $data['vat'];
+
+    if (isset($data['yield_pct']))
+      $attr['yield_pct'] = $data['yield_pct'];
+
+    return $update
+      ? $this->firstOrNewField($attr, ['descriptor'])
+      : $this->findOrNew($attr, ['descriptor']);
   }
 
 
@@ -59,7 +71,6 @@ class ComponentRepository extends BaseRepository implements CacheableInterface
 
     return !is_null($obj) ? $obj : $this->create($attributes);
   }
-
 
   public function firstOrNewField($attributes, $field) {
     	
@@ -83,7 +94,23 @@ class ComponentRepository extends BaseRepository implements CacheableInterface
   	}
 
   	return $model->save() ? $model : false;
+  }
 
+  public function associateAttributes($r) {
+    $row = [];
+
+    $row = [
+      'comp'      => trim($r['COMP']),
+      'unit'      => trim($r['UNIT']),
+      'ucost'     => trim($r['UCOST']),
+      'vat'       => trim($r['VAT']),
+      'yield_pct' => trim($r['YIELD_PCT']),
+
+      'catname' => trim($r['CATNAME']),
+      'supno'   => trim($r['SUPNO']),
+    ];
+
+    return $row;
   }
 
 

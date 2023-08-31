@@ -73,6 +73,8 @@ class ProductRepository extends BaseRepository implements CacheableInterface
     }
   }
 
+
+  // use by SalesmtdController->importProduct()
   public function importAndCreate($data) {
 
     if (empty($data['prodcat'])) 
@@ -94,6 +96,7 @@ class ProductRepository extends BaseRepository implements CacheableInterface
       'descriptor'  => $data['product'],
       'ucost'       => $data['ucost'],
       'uprice'      => $data['uprice'],
+      'status'      => $data['status'],
       'prodcat_id'  => $prodcatid,
       'menucat_id'  => $menucatid
     ];
@@ -104,5 +107,10 @@ class ProductRepository extends BaseRepository implements CacheableInterface
     } catch(Exception $e) {
       throw new Exception('product:import '.$e->getMessage());
     }
+  }
+
+
+  public function productStatusInit() {
+    return $this->where('status','>', 0)->update(['status' => 0]);
   }
 }
