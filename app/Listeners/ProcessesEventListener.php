@@ -88,11 +88,9 @@ class ProcessesEventListener
         ], ['date', 'branch_id', 'component_id']);
         # code...
    
-      } else {
-        var_dump($value);
-      }
+      } 
 
-
+      
       exit;
 
       // $ord = isset($value->component->compcat->expense->ordinal)
