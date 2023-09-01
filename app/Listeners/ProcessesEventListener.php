@@ -67,8 +67,27 @@ class ProcessesEventListener
 
     foreach ($month as $key => $value) {
 
-      if (isset($value->component->compcat->expense->ordinal)) {
- 
+      if (isset($value->component)) {
+
+        $ord = isset($value->component->compcat->expense->ordinal)
+        ? $value->component->compcat->expense->ordinal
+        : 833;
+
+        $this->mc->firstOrNewField([
+          'date'          => $event->date->copy()->lastOfMonth()->format('Y-m-d'),
+          'component_id'  => $value->componentid,
+          'uom'           => $value->uom,
+          'expensecode'   => $value->component->compcat->expense->code,
+          'expense_id'    => $value->component->compcat->expenseid,
+          'qty'           => $value->qty,
+          'tcost'         => $value->tcost,
+          'trans'         => $value->trans,
+          'branch_id'     => $event->branchid,
+          'status'        => $value->status,
+          'ordinal'       => $ord,
+        ], ['date', 'branch_id', 'component_id']);
+        # code...
+   
       } else {
         var_dump($value);
       }
