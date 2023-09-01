@@ -77,8 +77,6 @@ class ProcessesEventListener
         'date'          => $event->date->copy()->lastOfMonth()->format('Y-m-d'),
         'component_id'  => $value->componentid,
         'uom'           => $value->uom,
-        // 'expensecode'   => 'xxxx',
-        // 'expense_id'    => 'yyyy',
         'expensecode'   => $value->component->compcat->expense->code,
         'expense_id'    => $value->component->compcat->expenseid,
         'qty'           => $value->qty,
