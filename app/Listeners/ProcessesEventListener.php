@@ -67,6 +67,15 @@ class ProcessesEventListener
 
     foreach ($month as $key => $value) {
 
+      if isset($value->component->compcat->expense->ordinal) {
+ 
+      } else {
+        var_dump($value);
+      }
+
+
+      exit;
+
       $ord = isset($value->component->compcat->expense->ordinal)
       ? $value->component->compcat->expense->ordinal
       : 833;
