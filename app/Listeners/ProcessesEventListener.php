@@ -90,8 +90,8 @@ class ProcessesEventListener
    
       } 
 
+
       
-      exit;
 
       // $ord = isset($value->component->compcat->expense->ordinal)
       // ? $value->component->compcat->expense->ordinal
