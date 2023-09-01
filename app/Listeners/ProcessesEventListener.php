@@ -77,11 +77,7 @@ class ProcessesEventListener
       test_log(' ');
       test_log('key:'.$key.' => value:'.$value);
       test_log(' ');
-      test_log('expensecode:'.$value->component->compcat->expense->code);
-      test_log(' ');
-      test_log('expense_id:'.$value->component->compcat->expenseid);
-      test_log(' ');
-
+    
       //$ord = 883;
 
       // $this->mc->firstOrNewField([
