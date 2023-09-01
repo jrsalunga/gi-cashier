@@ -65,36 +65,27 @@ class ProcessesEventListener
       */
     }
 
-
-    test_log(json_encode($month));
-
     foreach ($month as $key => $value) {
 
       $ord = isset($value->component->compcat->expense->ordinal)
       ? $value->component->compcat->expense->ordinal
       : 833;
 
-      test_log(' ');
-      test_log('key:'.$key.' => value:'.$value);
-      test_log(' ');
-    
       //$ord = 883;
 
-      // $this->mc->firstOrNewField([
-      //   'date'          => $event->date->copy()->lastOfMonth()->format('Y-m-d'),
-      //   'component_id'  => $value->componentid,
-      //   'uom'           => $value->uom,
-      //   // 'expensecode'   => 'xxxx',
-      //   // 'expense_id'    => 'yyyy',
-      //   'expensecode'   => $value->component->compcat->expense->code,
-      //   'expense_id'    => $value->component->compcat->expenseid,
-      //   'qty'           => $value->qty,
-      //   'tcost'         => $value->tcost,
-      //   'trans'         => $value->trans,
-      //   'branch_id'     => $event->branchid,
-      //   'status'        => $value->status,
-      //   'ordinal'       => $ord,
-      // ], ['date', 'branch_id', 'component_id']);
+      $this->mc->firstOrNewField([
+        'date'          => $event->date->copy()->lastOfMonth()->format('Y-m-d'),
+        'component_id'  => $value->componentid,
+        'uom'           => $value->uom,
+        'expensecode'   => $value->component->compcat->expense->code,
+        'expense_id'    => $value->component->compcat->expenseid,
+        'qty'           => $value->qty,
+        'tcost'         => $value->tcost,
+        'trans'         => $value->trans,
+        'branch_id'     => $event->branchid,
+        'status'        => $value->status,
+        'ordinal'       => $ord,
+      ], ['date', 'branch_id', 'component_id']);
       # code...
     }
 
