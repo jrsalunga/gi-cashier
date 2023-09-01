@@ -65,6 +65,8 @@ class ProcessesEventListener
       */
     }
 
+    return var_dump($month);
+
     foreach ($month as $key => $value) {
 
       $ord = isset($value->component->compcat->expense->ordinal)
