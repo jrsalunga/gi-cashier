@@ -47,7 +47,7 @@ class ChangeItemImporter {
             $ci['group']      = $item->group;
 
             // update this if there is prince increase
-            $last_price_update = '2020-01-01';
+            $last_price_update = '2023-01-01';
             if (Carbon::now()->gte(Carbon::parse($last_price_update))) {
               foreach ($len as $key => $prod) {
                 if (!empty($prod)) {

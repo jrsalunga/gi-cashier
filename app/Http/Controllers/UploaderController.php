@@ -329,18 +329,18 @@ class UploaderController extends Controller
 					}
 
 
-          try {
-            $this->processChangeItem($backup->date, $backup);
-          } catch (Exception $e) {
-            if (strpos($e->getMessage(), 'timeout')==false)
-              $msg =  'Process ChangeItem: '.$e->getMessage();
-            else 
-              $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes. (processChangeItem)';
-            $res = $this->movedErrorProcessing($filepath, $storage_path);
-            $this->updateBackupRemarks($backup, $msg);
-            //$this->logAction('error:process:charges', $log_msg.$msg);
-            return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
-          }
+          // try {
+          //   $this->processChangeItem($backup->date, $backup);
+          // } catch (Exception $e) {
+          //   if (strpos($e->getMessage(), 'timeout')==false)
+          //     $msg =  'Process ChangeItem: '.$e->getMessage();
+          //   else 
+          //     $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes. (processChangeItem)';
+          //   $res = $this->movedErrorProcessing($filepath, $storage_path);
+          //   $this->updateBackupRemarks($backup, $msg);
+          //   //$this->logAction('error:process:charges', $log_msg.$msg);
+          //   return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+          // }
 				
 				
 					try {
@@ -516,6 +516,25 @@ class UploaderController extends Controller
 			    }
 
 					DB::commit();
+
+
+          try {
+            $this->processChangeItem($backup->date, $backup);
+          } catch (Exception $e) {
+            if (strpos($e->getMessage(), 'timeout')==false)
+              $msg =  'Process ChangeItem: '.$e->getMessage();
+            else 
+              $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes. (processChangeItem)';
+            $res = $this->movedErrorProcessing($filepath, $storage_path);
+            $this->updateBackupRemarks($backup, $msg);
+            //$this->logAction('error:process:charges', $log_msg.$msg);
+            return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+          }
+
+
+
+
+          
           $u['lat'] = 1;
 					$this->posUploadRepo->update($u, $backup->id);
 					$this->fileUploadRepo->update(['processed'=>1], $file->id);
