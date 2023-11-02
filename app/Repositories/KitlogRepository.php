@@ -94,6 +94,16 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
       ? c($vfpdate->copy()->addDay()->format('Y-m-d').' '.$served)
       : c($vfpdate->format('Y-m-d').' '.$served);
 
+
+    $product = trim($r['PRODNAME']);
+    if (starts_with($product, '*'))
+      $product = substr($product, 1);
+    else if (ends_with($product, '- P') || ends_with($product, '- Z'))
+      $product = trim(substr($product, 0, -3));
+    else
+      $product = $product;
+    
+
     /*
       conversion
       
@@ -112,7 +122,8 @@ class KitlogRepository extends BaseRepository implements CacheableInterface
       'area'      => trim($r['COMPUNIT4']),
       'qty'       => trim($r['QTY']),
       'iscombo'   => empty(trim($r['COMP3'])) ? 0:1,
-      'product'   => trim($r['PRODNAME']),
+      'product'   => $product,
+      // 'product'   => trim($r['PRODNAME']),
       'productcode'=> trim($r['PRODNO']),
       'ordno'     => trim($r['ORDNO']),
       'menucat'   => trim($r['COMPUNIT2']).trim($r['COMPUNIT3']),

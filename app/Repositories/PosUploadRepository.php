@@ -3326,7 +3326,6 @@ class PosUploadRepository extends Repository
 
   public function processChangeItem($branchid, Carbon $from, Carbon $to, $c=NULL) {
 
-
     $importer = $this->dbfImporter->invoke('change_item');
     
     $gt = $cnt = 0;
@@ -3344,7 +3343,7 @@ class PosUploadRepository extends Repository
     }
 
     if (!is_null($c))
-      $c->info('Kitlog Transactions: '.$gt);
+      $c->info('Change Item Transactions: '.$gt);
 
     return $gt;
 
