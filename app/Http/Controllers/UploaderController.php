@@ -328,7 +328,7 @@ class UploaderController extends Controller
 						event(new \App\Events\Posting\SalesmtdSuccess($backup));
 					}
 
-
+          ##### Change Item Process transfer at buttom 
           // try {
           //   $this->processChangeItem($backup->date, $backup);
           // } catch (Exception $e) {
@@ -460,7 +460,7 @@ class UploaderController extends Controller
 
           // wala sa command ito
           if ($backup->date->format('Y-m-d')==$backup->date->copy()->startOfMonth()->format('Y-m-d')) {
-            event(new \App\Events\Process\AggregatorDaily('begbal', $backup->date, $backup->branchid)); // update ds
+            event(new \App\Events\Process\AggregatorDaily('begbal', $backup->date, $backup->branchid)); // update ds@AggregatorDailyEventListener
             event(new \App\Events\Process\AggregatorMonthly('begbal', $backup->date, $backup->branchid)); // update ms_expense
             event(new \App\Events\Process\AggregatorMonthly('begbal-component', $backup->date, $backup->branchid));  // update ms_component
           }
@@ -518,23 +518,25 @@ class UploaderController extends Controller
 					DB::commit();
 
 
-          try {
-            $this->processChangeItem($backup->date, $backup);
-          } catch (Exception $e) {
-            if (strpos($e->getMessage(), 'timeout')==false)
-              $msg =  'Process ChangeItem: '.$e->getMessage();
-            else 
-              $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes. (processChangeItem)';
-            $res = $this->movedErrorProcessing($filepath, $storage_path);
-            $this->updateBackupRemarks($backup, $msg);
-            //$this->logAction('error:process:charges', $log_msg.$msg);
-            return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
-          }
+
+          ##### Turn Off Change Item Process 12/19/2023
+          // try {
+          //   $this->processChangeItem($backup->date, $backup);
+          // } catch (Exception $e) {
+          //   if (strpos($e->getMessage(), 'timeout')==false)
+          //     $msg =  'Process ChangeItem: '.$e->getMessage();
+          //   else 
+          //     $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes. (processChangeItem)';
+          //   $res = $this->movedErrorProcessing($filepath, $storage_path);
+          //   $this->updateBackupRemarks($backup, $msg);
+          //   //$this->logAction('error:process:charges', $log_msg.$msg);
+          //   return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+          // }
 
 
 
 
-          
+
           $u['lat'] = 1;
 					$this->posUploadRepo->update($u, $backup->id);
 					$this->fileUploadRepo->update(['processed'=>1], $file->id);
