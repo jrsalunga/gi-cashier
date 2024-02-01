@@ -197,22 +197,23 @@ class MonthDaily extends Command
     }
     
     
-    $this->info('extracting kitchen log...');
-    $kl = 0;
-    try {
-      $kl = $this->backlogKitlog($br->id, $f, $t, $this);
-    } catch (Exception $e) {
-      $this->info($e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      exit;
-    }
-    // re Run the Backlog\Kitlog to process all 
-    // this will process only the kitlog on backup loaded on storage
-    if($kl>0) {
-      event(new \App\Events\Process\AggregatorKitlog('month_kitlog_food', $t, $br->id));
-      event(new \App\Events\Process\AggregatorKitlog('month_kitlog_area', $t, $br->id));
-    }
+    // disabled 01/31/2024 *******************/
+    // $this->info('extracting kitchen log...');
+    // $kl = 0;
+    // try {
+    //   $kl = $this->backlogKitlog($br->id, $f, $t, $this);
+    // } catch (Exception $e) {
+    //   $this->info($e->getMessage());
+    //   $this->removeExtratedDir();
+    //   DB::rollback();
+    //   exit;
+    // }
+    // // re Run the Backlog\Kitlog to process all 
+    // // this will process only the kitlog on backup loaded on storage
+    // if($kl>0) {
+    //   event(new \App\Events\Process\AggregatorKitlog('month_kitlog_food', $t, $br->id));
+    //   event(new \App\Events\Process\AggregatorKitlog('month_kitlog_area', $t, $br->id));
+    // }
     
     
     $this->info('working on events...');
@@ -251,12 +252,12 @@ class MonthDaily extends Command
     event(new \App\Events\Process\AggregatorMonthly('card-type', $backup->date, $backup->branchid));
     event(new \App\Events\Process\AggregatorMonthly('disc-type', $backup->date, $backup->branchid));
 
-    
-    $this->info('AggregatorKitlog');
-    event(new \App\Events\Process\AggregatorKitlog('dataset_area', $t, $br->id));
-    event(new \App\Events\Process\AggregatorKitlog('dataset_food', $t, $br->id));
-    event(new \App\Events\Process\AggregatorKitlog('dataset_area', $t, NULL));
-    event(new \App\Events\Process\AggregatorKitlog('dataset_food', $t, NULL));
+    // disabled 01/31/2024 *******************/
+    // $this->info('AggregatorKitlog');
+    // event(new \App\Events\Process\AggregatorKitlog('dataset_area', $t, $br->id));
+    // event(new \App\Events\Process\AggregatorKitlog('dataset_food', $t, $br->id));
+    // event(new \App\Events\Process\AggregatorKitlog('dataset_area', $t, NULL));
+    // event(new \App\Events\Process\AggregatorKitlog('dataset_food', $t, NULL));
     
 
     DB::commit();

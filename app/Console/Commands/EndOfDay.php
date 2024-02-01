@@ -11,6 +11,7 @@ use App\Http\Controllers\SalesmtdController as SalesmtdCtrl;
 use App\Repositories\Rmis\Invdtl;
 use App\Repositories\Rmis\Orpaydtl;
 use App\Repositories\Rmis\Invhdr;
+use App\Repositories\Rmis\Storelog;
 use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
@@ -47,6 +48,7 @@ protected $date;
 protected $invdtl;
 protected $invhdr;
 protected $orpaydtl;
+protected $storelog;
 protected $save_cancelled = true;
 protected $payment_type = [1=>'CASH', 2=>'CHRG', 3=>'GCRT', 4=>'SIGN'];
 protected $payment_breakdown = [];
@@ -64,11 +66,12 @@ protected $zread_lines = [];
 protected $zread_gross = 0;
 protected $summar;
 
-public function __construct(Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr) {
+public function __construct(Invdtl $invdtl, Orpaydtl $orpaydtl, Invhdr $invhdr, Storelog $storelog) {
   parent::__construct();
   $this->invdtl = $invdtl;
   $this->orpaydtl = $orpaydtl;
   $this->invhdr = $invhdr;
+  $this->storelog = $storelog;
   $this->assert = new AssertBag;
 }
 
@@ -191,6 +194,11 @@ public function handle()
       }
 
 
+
+      $this->generateSalesfile($date);
+
+
+
       /*
       foreach ($this->summary['c'] as $key => $value) {
         $this->info(strtoupper($key).' '.number_format($value, 2));
@@ -228,6 +236,108 @@ public function handle()
 
     }
   }
+
+
+  private function generateSalesfile(Carbon $date) {
+
+    $this->info('Processing sales file....');
+
+    $storelog = $this->storelog->skipCache()->getSalesfileData($date)->first();
+
+    // $this->info(json_encode($storelog));
+    // $this->info($storelog->timeclose);
+
+    $path = 'C:\\EODFILES\\output\\PWI'.DS.$date->format('Y').DS.$date->format('m');
+    $filename = 'PWIPC-GILIGANS-02'.$date->format('mdy');
+    $ext = 'csv';
+    // $out = 'D:\\EGC-MALL';
+    $out = 'Z:\\';
+
+    // $this->info($path);
+    // $this->info($filename);
+
+    $data = [];
+    $data[0] = [
+      'PWI',
+      'CCM3',
+      'PC-GILIGANS-02',
+      $date->format('m/d/Y'),
+      '6PGS',
+      'PHP',
+      number_format($storelog->mall_sales, 2),
+      number_format(1, 2),
+      'A',
+      $date->format('m/d/Y').' '.$storelog->timeclose,
+      $storelog->userclose,
+      '',
+      '',
+      '',
+      '',
+      number_format(0, 2),
+      number_format($storelog->vatamount, 2),
+      number_format($storelog->scdisc, 2),
+      number_format($storelog->pwddisc, 2),
+      number_format($storelog->mall_net, 2),
+    ];
+
+
+    $this->toTXT($data, $date, $filename, $ext, $path);
+    $this->verifyCopyFile($path.DS.$filename.'.'.$ext, $out.DS.$filename.'.'.$ext);
+
+
+  }
+
+
+  private function toTXT($data, $date, $filename=NULL, $ext='TXT', $path=NULL) {
+
+    $file = is_null($filename)
+      ? Carbon::now()->format('YmdHis v')
+      : $filename;
+
+    $dir = is_null($path)
+      ? $this->getpath().DS.$date->format('Y').DS.$date->format('m')
+      : $path;
+
+    if(!is_dir($dir))
+        mkdir($dir, 0775, true);
+
+    $file = $dir.DS.$file.'.'.$ext;
+
+    $fp = fopen($file, 'w');
+
+    foreach ($data as $fields) {
+      fwrite($fp, '"'.join('","', $fields).'"'.PHP_EOL);
+    }
+
+    fclose($fp);
+  }
+
+
+  private function verifyCopyFile($file, $newfile) {
+
+    $this->info(' ');
+
+    if (file_exists($file)) {
+      $this->info('OK - '.$file);
+    } else {
+      $this->info('ERROR - '.$file);
+    }
+
+    try {
+      copy($file, $newfile);
+    } catch (\Exception $e) {
+      echo 'Unable to copy file. ',  $e->getMessage(), "\n";
+    }
+
+
+    // if (copy($file, $newfile)) {
+    //   $this->info('OK - Copying: '.$newfile);
+    // } else {
+    //   $this->info('ERROR - Copying: '.$file);
+    // }
+    
+  }
+
 
   private function zreadprint($lines) {
 
