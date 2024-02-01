@@ -6,7 +6,8 @@ class Product extends BaseModel {
 
   protected $table = 'product';
 	//protected $guarded = ['id'];
-	protected $fillable = ['code', 'descriptor', 'prodcat_id', 'menucat_id', 'ucost', 'uprice'];
+	protected $fillable = ['code', 'descriptor', 'prodcat_id', 'menucat_id', 'ucost', 'uprice', 'created_at'];
+  protected $dates = ['created_at', 'updated_at'];
 
   /* NOTE: this product should be on PRODUCT table for error-trapping/validation
   $product = [
@@ -24,5 +25,9 @@ class Product extends BaseModel {
 
   public function menucat() {
     return $this->belongsTo('App\Models\Menucat');
+  }
+
+  public function getCreatedAtAttribute($timestamp) {
+    return Carbon\Carbon::parse($timestamp)->format('Y-m-d H:i:s');
   }
 }

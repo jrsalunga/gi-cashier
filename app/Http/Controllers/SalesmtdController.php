@@ -22,7 +22,7 @@ class SalesmtdController extends Controller
 
   public function create(array $attributes) {
     
-    $product = $this->product->verifyAndCreate(array_only($attributes, ['product', 'productcode', 'prodcat', 'menucat', 'uprice']));
+    $product = $this->product->verifyAndCreate(array_only($attributes, ['product', 'productcode', 'prodcat', 'menucat', 'uprice', 'orddate', 'ordtime']));
     $attributes['product_id'] = $product->id;
 
     try {

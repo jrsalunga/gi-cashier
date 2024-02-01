@@ -58,6 +58,7 @@ class ProductRepository extends BaseRepository implements CacheableInterface
     $attr = [
       'code'        => $data['productcode'],
       'descriptor'  => $data['product'],
+      'created_at'  => $data['ordtime'],
       'prodcat_id'  => $prodcatid,
       'menucat_id'  => $menucatid
     ];

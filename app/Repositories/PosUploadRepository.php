@@ -1864,7 +1864,7 @@ class PosUploadRepository extends Repository
               $ds['transcos'] += $data['tcost'];
               if (strtolower(substr($data['supno'], 2, 3))==strtolower($brcode))
                 $ds['emp_meal'] += $data['tcost'];
-            } 
+            }   
             //if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
             if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array)) 
               $ds['transncos'] += $data['tcost'];
@@ -2121,7 +2121,7 @@ class PosUploadRepository extends Repository
       $record_numbers = dbase_numrecords($db);
       $update = 0;
 
-      $this->salesmtdCtrl->productStatusInit();
+      $this->salesmtdCtrl->productStatusInit(); // update product.status=0
       for ($i=1; $i<=$record_numbers; $i++) {
         $r = dbase_get_record_with_names($db, $i);
 
