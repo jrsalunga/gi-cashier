@@ -126,35 +126,35 @@ class MonthDaily extends Command
     DB::beginTransaction();
 
 
-    $this->info('extracting dailysales on cash audit...');
-    try {
-      $r = $this->backlogDailySales($br->id, $f, $t, $this);
-    } catch (Exception $e) {
-      $this->info($e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      exit;
-    }
+    // $this->info('extracting dailysales on cash audit...');
+    // try {
+    //   $r = $this->backlogDailySales($br->id, $f, $t, $this);
+    // } catch (Exception $e) {
+    //   $this->info($e->getMessage());
+    //   $this->removeExtratedDir();
+    //   DB::rollback();
+    //   exit;
+    // }
 
-    $this->info('extracting salesmtd...');
-    try {
-      $r = $this->backlogSalesmtd($br->id, $f, $t, $this);
-    } catch (Exception $e) {
-      $this->info($e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      exit;
-    }
+    // $this->info('extracting salesmtd...');
+    // try {
+    //   $r = $this->backlogSalesmtd($br->id, $f, $t, $this);
+    // } catch (Exception $e) {
+    //   $this->info($e->getMessage());
+    //   $this->removeExtratedDir();
+    //   DB::rollback();
+    //   exit;
+    // }
 
-    $this->info('extracting charges...');
-    try {
-      $r = $this->backlogCharges($br->id, $f, $t, $this);
-    } catch (Exception $e) {
-      $this->info($e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      exit;
-    }
+    // $this->info('extracting charges...');
+    // try {
+    //   $r = $this->backlogCharges($br->id, $f, $t, $this);
+    // } catch (Exception $e) {
+    //   $this->info($e->getMessage());
+    //   $this->removeExtratedDir();
+    //   DB::rollback();
+    //   exit;
+    // }
     
     $this->info('extracting purchased...');
     try {
@@ -166,35 +166,35 @@ class MonthDaily extends Command
       exit;
     } 
 
-    $this->info('extracting trasfer...');
-    try {
-      $r = $this->backlogTransfer($br->id, $f, $t, $this);
-    } catch (Exception $e) {
-      $this->info($e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      exit;
-    } finally {
-      foreach (dateInterval($f, $t) as $key => $date) {
-        event(new AggregatorDaily('purchase', $date, $backup->branchid));
-        logAction('fire empmeal', $date);
-        // push emp meal on purchase
-        // event('transfer.empmeal', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date, 'suppliercode'=>$br->code]]);
-        logAction('fire deliveryfee', $date);
-        // compute delivery fee (GrabFood, Food Panda)   \\App\Listeners\BackupEventListener
-        event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date]]);
-      }
-    }
+    // $this->info('extracting trasfer...');
+    // try {
+    //   $r = $this->backlogTransfer($br->id, $f, $t, $this);
+    // } catch (Exception $e) {
+    //   $this->info($e->getMessage());
+    //   $this->removeExtratedDir();
+    //   DB::rollback();
+    //   exit;
+    // } finally {
+    //   foreach (dateInterval($f, $t) as $key => $date) {
+    //     event(new AggregatorDaily('purchase', $date, $backup->branchid));
+    //     logAction('fire empmeal', $date);
+    //     // push emp meal on purchase
+    //     // event('transfer.empmeal', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date, 'suppliercode'=>$br->code]]);
+    //     logAction('fire deliveryfee', $date);
+    //     // compute delivery fee (GrabFood, Food Panda)   \\App\Listeners\BackupEventListener
+    //     event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date]]);
+    //   }
+    // }
     
-    $this->info('extracting cash audit...');
-    try {
-      $this->backlogCashAudit2($br->id, $f, $t, $this);
-    } catch (Exception $e) {
-      $this->info($e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      exit;
-    }
+    // $this->info('extracting cash audit...');
+    // try {
+    //   $this->backlogCashAudit2($br->id, $f, $t, $this);
+    // } catch (Exception $e) {
+    //   $this->info($e->getMessage());
+    //   $this->removeExtratedDir();
+    //   DB::rollback();
+    //   exit;
+    // }
     
     
     // disabled 01/31/2024 *******************/
@@ -247,10 +247,10 @@ class MonthDaily extends Command
     event(new RankMonthlyProduct($backup->date, $backup->branchid));
 
 
-    event(new \App\Events\Process\AggregatorMonthly('charge-type', $backup->date, $backup->branchid));
-    event(new \App\Events\Process\AggregatorMonthly('sale-type', $backup->date, $backup->branchid));
-    event(new \App\Events\Process\AggregatorMonthly('card-type', $backup->date, $backup->branchid));
-    event(new \App\Events\Process\AggregatorMonthly('disc-type', $backup->date, $backup->branchid));
+    // event(new \App\Events\Process\AggregatorMonthly('charge-type', $backup->date, $backup->branchid));
+    // event(new \App\Events\Process\AggregatorMonthly('sale-type', $backup->date, $backup->branchid));
+    // event(new \App\Events\Process\AggregatorMonthly('card-type', $backup->date, $backup->branchid));
+    // event(new \App\Events\Process\AggregatorMonthly('disc-type', $backup->date, $backup->branchid));
 
     // disabled 01/31/2024 *******************/
     // $this->info('AggregatorKitlog');
