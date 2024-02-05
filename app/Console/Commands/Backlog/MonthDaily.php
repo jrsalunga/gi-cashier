@@ -175,15 +175,15 @@ class MonthDaily extends Command
     //   DB::rollback();
     //   exit;
     // } finally {
-    //   foreach (dateInterval($f, $t) as $key => $date) {
-    //     event(new AggregatorDaily('purchase', $date, $backup->branchid));
-    //     logAction('fire empmeal', $date);
-    //     // push emp meal on purchase
-    //     // event('transfer.empmeal', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date, 'suppliercode'=>$br->code]]);
-    //     logAction('fire deliveryfee', $date);
-    //     // compute delivery fee (GrabFood, Food Panda)   \\App\Listeners\BackupEventListener
-    //     event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date]]);
-    //   }
+      foreach (dateInterval($f, $t) as $key => $date) {
+        event(new AggregatorDaily('purchase', $date, $backup->branchid));
+        logAction('fire empmeal', $date);
+        // push emp meal on purchase
+        // event('transfer.empmeal', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date, 'suppliercode'=>$br->code]]);
+        logAction('fire deliveryfee', $date);
+        // compute delivery fee (GrabFood, Food Panda)   \\App\Listeners\BackupEventListener
+        event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date]]);
+      }
     // }
     
     // $this->info('extracting cash audit...');
