@@ -2198,61 +2198,96 @@ class PosUploadRepository extends Repository
 
   public function backlogDailySales($branchid, Carbon $from, Carbon $to, $c) {
 
-      //$this->logAction('function:postDailySales', '');
-      $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
+    $c->info('backlogDailySales start: '.$branchid.' - '.$from.' - '.$to);
 
-      if (file_exists($dbf_file)) {
-        $db = dbase_open($dbf_file, 0);
-        $header = dbase_get_header_info($db);
-        $recno = dbase_numrecords($db);
-        $update = 0;
+    //$this->logAction('function:postDailySales', '');
+    $dbf_file = $this->extracted_path.DS.'CSH_AUDT.DBF';
 
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $update = 0;
 
-        #for ($i = 1; $i <= $record_numbers; $i++) {
-        for ($i=$recno; $i>0; $i--) {
-          $row = dbase_get_record_with_names($db, $i);
-          $data = $this->getDailySalesDbfRowData($row);
-          $vfpdate = Carbon::parse($data['date']);
+      $c->info('record_numbers: '.$record_numbers);
 
-          $data['branchid'] = $branchid;
+      for ($i=1; $i<=$record_numbers; $i++) {
+        $row = dbase_get_record_with_names($db, $i);
 
-          // add day to include last month's EoD
-          if ($vfpdate->copy()->addDay()->gte($from) && $vfpdate->lte($to)) {
-            $c->info($data['date'].' '.$data['sales'].' '.$data['custcount'].' '.$data['trans_cnt'].' '.$data['empcount'].' '.$data['mancost'].' '.$data['mancostpct']);
-
-            $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig'];
-            
-            if ($from->copy()->subDay()->eq($vfpdate)) {
-              $c->info('before month:'. $vfpdate->format('Y-m-d'));
-              $c->info('trans_cnt:'. $data['trans_cnt']);
-              if ($data['trans_cnt']<1)
-                unset($data['trans_cnt']);
-              $c->info('custcount:'. $data['custcount']);
-              if ($data['custcount']<1) {
-                unset($data['custcount']);
-                unset($data['headspend']);
-              }
-            }
-
-            if ($this->ds->firstOrNewField(array_only($data, $fields), ['date', 'branchid']))
-              $update++;
-          
-          } else {
-            $c->info($update);
-            dbase_close($db);
-            unset($db);
-            return $update>0 ? $update:false;
-          }
+        // $c->info('record_number: '.$i);
+        
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
+        } catch(Exception $e) {
+          continue;
         }
-      
-        $c->info($update);
-        //$this->logAction('end:loop:ds', '');
-        dbase_close($db);
-        unset($db);
-        return $update>0 ? $update:false;
-      }
 
-      return false;
+        // $row = dbase_get_record_with_names($db, $i);
+        // $data = $this->getDailySalesDbfRowData($row);
+        // $vfpdate = Carbon::parse($data['date']);
+
+
+        // $c->info('TRANDATE '.$row['TRANDATE']);
+
+
+        // add day to include last month's EoD
+
+        // if ($vfpdate->copy()->addDay()->gte($from) && $vfpdate->lte($to)) {
+        if ($vfpdate->gte($from) && $vfpdate->lte($to)) {
+          $data = $this->getDailySalesDbfRowData($row);
+          
+          // $c->info('backlogDailySales loop: '.$vfpdate->format('Y-m-d').' - '.$from->format('Y-m-d').' - '.$to->format('Y-m-d'));
+          // $c->info($data['date'].' '.$data['sales'].' '.$data['custcount'].' '.$data['trans_cnt'].' '.$data['empcount'].' '.$data['mancost'].' '.$data['mancostpct']);
+
+          $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig'];
+
+          // $c->info(json_encode(array_only($data, $fields)));
+          // $c->info('branchid='.$branchid);
+          
+          $data['branchid'] = $branchid;
+          
+          // $c->info('data[branchid]='.$data['branchid']);
+          // $c->info(json_encode(array_only($data, $fields)));
+
+          if ($this->ds->firstOrNewField(array_only($data, $fields), ['date', 'branchid']))
+            $update++;
+        
+        }
+
+          
+
+
+          
+        //   if ($from->copy()->subDay()->eq($vfpdate)) {
+        //     $c->info('before month:'. $vfpdate->format('Y-m-d'));
+        //     $c->info('trans_cnt:'. $data['trans_cnt']);
+        //     if ($data['trans_cnt']<1)
+        //       unset($data['trans_cnt']);
+        //     $c->info('custcount:'. $data['custcount']);
+        //     if ($data['custcount']<1) {
+        //       unset($data['custcount']);
+        //       unset($data['headspend']);
+        //     }
+        //   }
+
+        
+        // } else {
+        //   $c->info('backlogDailySales $updates: '.$update);
+        //   dbase_close($db);
+        //   unset($db);
+        //   return $update>0 ? $update:false;
+        // }
+      } // end:foreach $record_numbers
+      
+      $c->info('backlogDailySales $updates: '.$update);
+      $c->info($update);
+      //$this->logAction('end:loop:ds', '');
+      dbase_close($db);
+      unset($db);
+      return $update>0 ? $update:false;
+    
+    } // end: file not exist
+    return false;
   }
 
   private function checkSalesmtdDS($data, $branchid, $date, $c) {
