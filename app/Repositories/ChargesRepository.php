@@ -26,9 +26,11 @@ class ChargesRepository extends BaseRepository implements CacheableInterface
 	 	if (($r['SR_TCUST']==$r['SR_BODY']) && ($r['SR_DISC']>0)) // 4 4 78.7
       $cuscount = $r['SR_TCUST']; 
     else if ($r['SR_TCUST']>0 && $r['SR_BODY']>0 && $r['SR_DISC']>0)
-      $cuscount = 0;
+      $cuscount = $r['SR_BODY'];
+      //$cuscount = 0;
     else
-      $cuscount = ($r['SR_TCUST'] + $r['SR_BODY']);
+      $cuscount = ($r['SR_TCUST'] - $r['SR_BODY']);
+      //$cuscount = ($r['SR_TCUST'] + $r['SR_BODY']);
     
     $disc_type = NULL;
     $disc_amt = 0;
