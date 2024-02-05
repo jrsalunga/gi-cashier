@@ -3041,7 +3041,7 @@ class PosUploadRepository extends Repository
         $c->info('delete range: '.$from->format('Y-m-d').'-'.$to->format('Y-m-d'));
         
         // \App\Models\Purchase2::whereBetween('date', [$from->format('Y-m-d'), $to->format('Y-m-d')])->delete();
-        // \App\Models\Purchase2::where('branchid', $branchid)->whereBetween('date', [$from->format('Y-m-d'), $to->format('Y-m-d')])->delete();
+        \App\Models\Purchase2::where('branchid', $branchid)->whereBetween('date', [$from->format('Y-m-d'), $to->format('Y-m-d')])->delete();
 
       } catch(Exception $e) {
         dbase_close($db);
