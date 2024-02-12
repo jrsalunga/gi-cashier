@@ -149,11 +149,8 @@ class BacklogMonth extends Command
       foreach (dateInterval($f, $t) as $key => $date)
         event(new AggregatorDaily('purchase', $date, $br->id));
 
-        event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date]]);
+        event('deliveryfee', ['data'=>['branch_id'=> $br->id, 'date'=>$date]]);
     }
-    
-    
-    
     
 
     
