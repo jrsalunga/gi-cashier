@@ -268,6 +268,34 @@ class Purchase2Repository extends BaseRepository
   }
 
 
+  // added 02/12/2024
+  // rewrite function
+  // para hindi sumama ung Tran Emp Meal sa total purchase sa POS vs Module | artisan backlog:month VS reg upload
+  public function sumFieldsByDate($field, Carbon $date, $branchid) {
+    
+    $select = '';
+    $arr = [];
+    if (is_array($field)) {
+      foreach ($field as $key => $value) {
+        $arr[$key] = 'sum('.$value.') as '.$value;
+      }
+      $select = join(',', $arr);
+    } else {
+      $select = 'sum('.$field.') as '.$field;
+    }
+
+    return $this
+        //->skipCache()
+        ->scopeQuery(function($query) use ($select, $date, $branchid) {
+          return $query->select(DB::raw($select))
+            ->whereNotIn('componentid', ['11E8BB3635ABF63DAEF21C1B0D85A7E0'])
+            ->where('date', $date->format('Y-m-d'))
+            ->where('branchid', $branchid);
+        })
+        ->first();
+  }
+
+
 
   
 
