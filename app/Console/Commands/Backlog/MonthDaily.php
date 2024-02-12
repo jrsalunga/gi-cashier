@@ -177,10 +177,10 @@ class MonthDaily extends Command
     } finally {
       foreach (dateInterval($f, $t) as $key => $date) {
         event(new AggregatorDaily('purchase', $date, $backup->branchid));
-        logAction('fire empmeal', $date);
+        // logAction('fire empmeal', $date);
         // push emp meal on purchase
         // event('transfer.empmeal', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date, 'suppliercode'=>$br->code]]);
-        logAction('fire deliveryfee', $date);
+        // logAction('fire deliveryfee', $date);
         // compute delivery fee (GrabFood, Food Panda)   \\App\Listeners\BackupEventListener
         event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date]]);
       }
@@ -224,7 +224,7 @@ class MonthDaily extends Command
     event(new \App\Events\Process\AggregatorDaily('trans-expense', $backup->date, $backup->branchid)); // recompute Daily Transfered and update day_expense
     event(new \App\Events\Process\AggregatorDaily('prodcat', $backup->date, $backup->branchid)); 
 
-    event(new \App\Events\Process\AggregatorDaily('change_item', $backup->date, $backup->branchid)); // update ds
+    // event(new \App\Events\Process\AggregatorDaily('change_item', $backup->date, $backup->branchid)); // update ds
     $this->info('DailySalesSuccess');
     event(new DailySalesSuccess($backup));
     $this->info('AggregateComponentMonthly');

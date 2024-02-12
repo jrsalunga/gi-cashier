@@ -85,6 +85,43 @@ class BacklogMonth extends Command
 
 
 	  DB::beginTransaction();
+
+
+    $this->info('extracting daily sales on cash audit...');
+    try {
+      $r = $this->backlogDailySales($br->id, $f, $t, $this);
+    } catch (Exception $e) {
+      $this->notify('csh_audt:'.$e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      $process->processed = 3;
+      $process->save();
+      exit;
+    }
+
+    $this->info('extracting salesmtd...');
+    try {
+      $r = $this->backlogSalesmtd($br->id, $f, $t, $this);
+    } catch (Exception $e) {
+      $this->notify('salesmtd:'.$e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      $process->processed = 3;
+      $process->save();
+      exit;
+    }
+
+    $this->info('extracting charges...');
+    try {
+      $r = $this->backlogCharges($br->id, $f, $t, $this);
+    } catch (Exception $e) {
+      $this->notify('charges:'.$e->getMessage());
+      $this->removeExtratedDir();
+      DB::rollback();
+      $process->processed = 3;
+      $process->save();
+      exit;
+    }
     
     $this->info('extracting purchased...');
     try {
@@ -112,45 +149,14 @@ class BacklogMonth extends Command
       foreach (dateInterval($f, $t) as $key => $date)
         event(new AggregatorDaily('purchase', $date, $br->id));
 
-
-
+        event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date]]);
     }
     
-    $this->info('extracting daily sales on cash audit...');
-    try {
-      $r = $this->backlogDailySales($br->id, $f, $t, $this);
-    } catch (Exception $e) {
-      $this->notify('csh_audt:'.$e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      $process->processed = 3;
-  		$process->save();
-      exit;
-    }
     
-    $this->info('extracting salesmtd...');
-    try {
-      $r = $this->backlogSalesmtd($br->id, $f, $t, $this);
-    } catch (Exception $e) {
-      $this->notify('salesmtd:'.$e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      $process->processed = 3;
-  		$process->save();
-      exit;
-    }
+    
+    
 
-    $this->info('extracting charges...');
-    try {
-      $r = $this->backlogCharges($br->id, $f, $t, $this);
-    } catch (Exception $e) {
-      $this->notify('charges:'.$e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      $process->processed = 3;
-  		$process->save();
-      exit;
-    }
+    
 
     $this->info('extracting cash audit...');
     try {
@@ -162,22 +168,22 @@ class BacklogMonth extends Command
       exit;
     }
 
-    $this->info('extracting kitchen log...');
-    $kl = 0;
-    try {
-      $kl = $this->backlogKitlog($br->id, $f, $t, $this);
-    } catch (Exception $e) {
-      $this->info($e->getMessage());
-      $this->removeExtratedDir();
-      DB::rollback();
-      exit;
-    }
-    // re Run the Backlog\Kitlog to process all 
-    // this will process only the kitlog on backup loaded on storage
-    if($kl>0) {
-      event(new \App\Events\Process\AggregatorKitlog('month_kitlog_food', $t, $br->id));
-      event(new \App\Events\Process\AggregatorKitlog('month_kitlog_area', $t, $br->id));
-    }
+    // $this->info('extracting kitchen log...');
+    // $kl = 0;
+    // try {
+    //   $kl = $this->backlogKitlog($br->id, $f, $t, $this);
+    // } catch (Exception $e) {
+    //   $this->info($e->getMessage());
+    //   $this->removeExtratedDir();
+    //   DB::rollback();
+    //   exit;
+    // }
+    // // re Run the Backlog\Kitlog to process all 
+    // // this will process only the kitlog on backup loaded on storage
+    // if($kl>0) {
+    //   event(new \App\Events\Process\AggregatorKitlog('month_kitlog_food', $t, $br->id));
+    //   event(new \App\Events\Process\AggregatorKitlog('month_kitlog_area', $t, $br->id));
+    // }
 
     foreach (dateInterval($f, $t) as $key => $date) {
       $this->info('working on events: '.$date);
