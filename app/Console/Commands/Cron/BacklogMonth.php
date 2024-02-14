@@ -40,9 +40,9 @@ class BacklogMonth extends Command
     $process = $this->process
                     ->where('processed', '0')
                     ->where('type', '3')
-                    ->orderBy('code')
-                    ->orderBy('filedate')
                     ->first();
+                    // ->orderBy('code')
+                    // ->orderBy('filedate')
 
     if (!is_null($process)) {
 
