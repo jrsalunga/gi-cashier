@@ -2359,7 +2359,7 @@ class PosUploadRepository extends Repository
           $c->info('del: '.$curr_date->format('Y-m-d'));
           try {
             $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
-            $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+            // $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]); // 02/14/2024
           } catch(Exception $e) {
             dbase_close($db);
             throw $e;    
@@ -2436,7 +2436,7 @@ class PosUploadRepository extends Repository
           $c->info('del: '.$curr_date->format('Y-m-d'));
           try {
             $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
-            $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+            // $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]); // 02/15/2024
           } catch(Exception $e) {
             dbase_close($db);
             throw $e;    
