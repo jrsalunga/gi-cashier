@@ -77,11 +77,11 @@ abstract class BaseModel extends Model {
 		//return str_replace("-", "", $uid);
 		
 		/* for ramsey/uuid */
-    return strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 24).SUBSTR($uid, 19, 4).SUBSTR($uid, 9, 4).SUBSTR($uid, 0, 8)); // 3 - 5 - 4 - 2 - 1 // 02/15/2024
     return strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 9, 4).SUBSTR($uid, 0, 8).SUBSTR($uid, 19, 4).SUBSTR($uid, 24)); // 3 - 2 - 1 - 4 - 5 (percona)
     return strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 9, 4).SUBSTR($uid, 24).SUBSTR($uid, 19, 4).SUBSTR($uid, 0, 8)); // 3 - 2 - 5 - 4 - 1 (this is the true sequential)
 		return strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 9, 4).SUBSTR($uid, 24).SUBSTR($uid, 0, 8).SUBSTR($uid, 19, 4)); // 3 - 2 - 5 - 1 - 4
     return strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 24).SUBSTR($uid, 9, 4).SUBSTR($uid, 19, 4).SUBSTR($uid, 0, 8)); // 3 - 5 - 2 - 4 - 1
+    return strtoupper(SUBSTR($uid, 14, 4).SUBSTR($uid, 24).SUBSTR($uid, 19, 4).SUBSTR($uid, 9, 4).SUBSTR($uid, 0, 8)); // 3 - 5 - 4 - 2 - 1
 	}
 
 //     11EA 1C1B0D85A7E0 8004 C700 0C07F7FA
