@@ -28,7 +28,7 @@ class SalesmtdController extends Controller
     try {
       $this->salesmtd->create($attributes);
     } catch(Exception $e) {
-      throw new Exception('Controller::create '.$e->getMessage());
+      throw new Exception('Controller::create '.$e->getMessage().' '.json_encode($attributes));
     }
   }
 
