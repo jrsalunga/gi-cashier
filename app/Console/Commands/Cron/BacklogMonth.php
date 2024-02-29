@@ -147,11 +147,12 @@ class BacklogMonth extends Command
       exit;
     } finally {
       foreach (dateInterval($f, $t) as $key => $date)
+        $this->info('AggregatorDaily::purchase '.$date);
         event(new AggregatorDaily('purchase', $date, $br->id));
-
+        $this->info('AggregatorDaily::deliveryfee '.$date);
         event('deliveryfee', ['data'=>['branch_id'=> $br->id, 'date'=>$date]]);
     }
-    
+    $this->info('done extracting transfer...');
 
     
 

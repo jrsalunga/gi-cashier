@@ -151,7 +151,10 @@ function filename_to_date2($filename){
 
 	$m = substr($f, 2, 2);
 	$d = substr($f, 4, 2);
-	$y = '20'.substr($f, 6, 2);
+  $y = substr($f, 6, 2);
+  $y = in_array($y, ['96','97','98','99']) ? '19'.$y : '20'.$y;
+
+	// $y = '20'.substr($f, 6, 2);
 
 	return Carbon\Carbon::parse($y.'-'.$m.'-'.$d);
 }

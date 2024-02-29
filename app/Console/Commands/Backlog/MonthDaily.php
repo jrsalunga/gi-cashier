@@ -166,7 +166,7 @@ class MonthDaily extends Command
       exit;
     } 
 
-    $this->info('extracting trasfer...');
+    $this->info('extracting trasfer........');
     try {
       $r = $this->backlogTransfer($br->id, $f, $t, $this);
     } catch (Exception $e) {
@@ -176,15 +176,18 @@ class MonthDaily extends Command
       exit;
     } finally {
       foreach (dateInterval($f, $t) as $key => $date) {
+        $this->info('AggregatorDaily::purchase '.$date);
         event(new AggregatorDaily('purchase', $date, $backup->branchid));
         // logAction('fire empmeal', $date);
         // push emp meal on purchase
         // event('transfer.empmeal', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date, 'suppliercode'=>$br->code]]);
         // logAction('fire deliveryfee', $date);
         // compute delivery fee (GrabFood, Food Panda)   \\App\Listeners\BackupEventListener
+        $this->info('AggregatorDaily::deliveryfee '.$date);
         event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date]]);
       }
     }
+    $this->info('done extracting transfer...................');
     
     $this->info('extracting cash audit...');
     try {

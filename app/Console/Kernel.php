@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Console;
 
@@ -93,7 +93,10 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Cron\Purchase::class,
         \App\Console\Commands\Cron\PurchaseNew::class,
 
-        \App\Console\Commands\Process\BegBal::class,
+        // \App\Console\Commands\Cron\BegBal::class,
+        \App\Console\Commands\Masterfile\Component::class,
+        
+        \App\Console\Commands\Import\Backup::class,
     ];
 
     /**
