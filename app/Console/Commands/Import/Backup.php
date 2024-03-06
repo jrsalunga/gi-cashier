@@ -55,6 +55,9 @@ class Backup extends Command
     // $locator->allFiles();
 
     $fs = $locator->allFiles('TEST_POS_BACKUP');
+
+    print_r($fs);
+
     $td = NULL;
 
     foreach($fs as $k => $v) {
@@ -92,6 +95,7 @@ class Backup extends Command
 
 
 
+    $this->info('End running: import:backup');
     exit;
    
     
