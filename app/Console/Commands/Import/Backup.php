@@ -49,6 +49,8 @@ class Backup extends Command
    */
   public function handle() {
 
+    $this->info('Running: import:backup');
+
     $locator = new Locator('pos');
     // $locator->allFiles();
 
