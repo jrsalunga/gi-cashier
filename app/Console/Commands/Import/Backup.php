@@ -51,10 +51,13 @@ class Backup extends Command
 
     $this->info('Running: import:backup');
 
-    $locator = new Locator('pos');
+    // if (app()->environment()=='production')
+    // else
+      $locator = new Locator('pos');
     // $locator->allFiles();
 
-    $fs = $locator->allFiles('TEST_POS_BACKUP');
+    // $fs = $locator->allFiles('TEST_POS_BACKUP');
+    $fs = $locator->allFiles();
 
     print_r($fs);
 
