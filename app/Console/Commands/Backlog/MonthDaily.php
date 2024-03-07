@@ -183,6 +183,7 @@ class MonthDaily extends Command
         // event('transfer.empmeal', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date, 'suppliercode'=>$br->code]]);
         // logAction('fire deliveryfee', $date);
         // compute delivery fee (GrabFood, Food Panda)   \\App\Listeners\BackupEventListener
+        event('direct-profit', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date]]);
         $this->info('AggregatorDaily::deliveryfee '.$date);
         event('deliveryfee', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$date]]);
       }

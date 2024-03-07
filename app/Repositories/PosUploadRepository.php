@@ -3156,6 +3156,146 @@ class PosUploadRepository extends Repository
     return false;
   }
 
+
+  public function backlogPurchased2($branchid, Carbon $from, Carbon $to, $c) {
+
+    $dbf_file = $this->extracted_path.DS.'PURCHASE.DBF';
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      $header = dbase_get_header_info($db);
+      $recno = dbase_numrecords($db);
+      $update = 0;
+      $trans = 0;
+      $curr_date = null;
+      $ds = [];
+
+      $ds['purchcost'] = 0;
+      $ds['cos'] = 0;
+      $ds['opex'] = 0;
+      $ds['branchid'] = $branchid;
+
+
+      try {
+        $c->info('delete range: '.$from->format('Y-m-d').'-'.$to->format('Y-m-d'));
+        
+        // \App\Models\Purchase2::whereBetween('date', [$from->format('Y-m-d'), $to->format('Y-m-d')])->delete();
+        \App\Models\Purchase2::where('branchid', $branchid)->whereBetween('date', [$from->format('Y-m-d'), $to->format('Y-m-d')])->delete();
+
+      } catch(Exception $e) {
+        dbase_close($db);
+        throw $e;    
+      }
+
+
+      for ($i=1; $i<=$recno; $i++) {
+        $row = dbase_get_record_with_names($db, $i);
+
+        try {
+          $data = $this->purchase2->associateAttributes($row);
+        } catch(Exception $e) {
+          // log on error
+          continue;
+        }
+
+        $data['branchid'] = $branchid;
+
+        try {
+          $vfpdate = vfpdate_to_carbon(trim($row['PODATE']));
+        } catch(Exception $e) {
+          // log on error
+          continue;
+        }
+
+        if (is_null($curr_date)) {
+          $curr_date = $vfpdate;
+          $trans = 1;
+
+        try {
+          $this->purchase->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw $e;    
+        }
+
+          try {
+            $c->info('del: '.$curr_date->format('Y-m-d'));
+            $this->purchase2->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
+        }
+
+
+        if ($curr_date->eq($vfpdate)) {
+
+          $trans++;
+          $ds['purchcost'] += $data['tcost'];
+          
+          $c->info($data['supno'].' '.substr($data['supno'], 0, 2));
+          if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
+           $ds['cos'] += $data['tcost'];
+          if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
+           $ds['opex'] += $data['tcost'];
+
+          if ($i==$recno) {
+            $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['purchcost'].' '.$ds['cos']);
+            $ds['date'] = $curr_date->format('Y-m-d');
+            $this->ds->firstOrNewField($ds, ['date', 'branchid']); /////////////////////////////////////////////////////////////////
+          }
+
+        } else {
+          
+          $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['purchcost'].' '.$ds['cos']); 
+          $ds['date'] = $curr_date->format('Y-m-d');  
+          $this->ds->firstOrNewField($ds, ['date', 'branchid']); ////////////////////////////////////////////////////////////////////
+          
+          $curr_date = $vfpdate;          
+          $trans=1;
+          $ds['purchcost'] = $data['tcost'];
+          $ds['cos']=0;
+          $ds['opex']=0;
+          
+          $c->info($data['supno'].' '.substr($data['supno'], 0, 2));
+          if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
+           $ds['cos'] = $data['tcost'];
+          if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
+           $ds['opex'] = $data['tcost'];
+
+          try {
+            $this->purchase->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
+
+          try {
+            $c->info('del: '.$curr_date->format('Y-m-d'));
+            $this->purchase2->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+          } catch(Exception $e) {
+            dbase_close($db);
+            throw $e;    
+          }
+        }
+
+        $c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
+        
+        try {
+          $this->purchase2->verifyAndCreate($data);
+        } catch(Exception $e) {
+          dbase_close($db);
+          throw $e;    
+        }
+
+      }
+
+      dbase_close($db);
+      unset($db);
+      return $update>0 ? $update:false;
+    }
+    return false;
+  }
+
   public function backlogTransfer($branchid, Carbon $from, Carbon $to, $c) {
 
     $dbf_file = $this->extracted_path.DS.'TRANSFER.DBF';

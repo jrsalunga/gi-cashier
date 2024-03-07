@@ -149,6 +149,7 @@ class BacklogMonth extends Command
       foreach (dateInterval($f, $t) as $key => $date)
         $this->info('AggregatorDaily::purchase '.$date);
         event(new AggregatorDaily('purchase', $date, $br->id));
+        
         $this->info('AggregatorDaily::deliveryfee '.$date);
         event('deliveryfee', ['data'=>['branch_id'=> $br->id, 'date'=>$date]]);
     }
@@ -186,6 +187,7 @@ class BacklogMonth extends Command
     foreach (dateInterval($f, $t) as $key => $date) {
       $this->info('working on events: '.$date);
       $this->info('DailySalesSuccess');
+      event('direct-profit', ['data'=>['branch_id'=> $br->id, 'date'=>$date]]);
       event(new DailySalesSuccess2($date, $br->id));
     }
 
@@ -287,7 +289,8 @@ class BacklogMonth extends Command
 
   public function backlogPurchased($branchid, $from, $to, $c) {
     try {
-      return $this->posUploadRepo->backlogPurchased($branchid, $from, $to, $c);
+      // return $this->posUploadRepo->backlogPurchased($branchid, $from, $to, $c);
+      return $this->posUploadRepo->backlogPurchased2($branchid, $from, $to, $c);
     } catch(Exception $e) {
       throw $e;    
     }
