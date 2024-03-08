@@ -56,10 +56,12 @@ class Backup extends Command
     $this->info(app()->environment());
     if (app()->environment()=='production') {
       $folder = '/home/server-admin/Public/maindepot/TEST_POS_BACKUP';
-      $delimiter = '//';
+      $delimiter = '/';
+      $offset = 9;
     } else {
       $folder = 'TEST_POS_BACKUP';
       $delimiter = '\\';
+      $offset = 8;
     }
         
     $fs = $locator->allFiles($folder);
@@ -73,11 +75,11 @@ class Backup extends Command
 
     $td = NULL;
       
-    foreach($fs as $k => $v) {
-      $this->info($v);
-    }
+    // foreach($fs as $k => $v) {
+    //   $this->info($v);
+    // }
 
-    exit;
+    // exit;
 
     foreach($fs as $k => $v) {
 
@@ -86,7 +88,7 @@ class Backup extends Command
       
         $f = explode($delimiter,$v);
         // $this->info($d->format('Y-m-d'));
-        $d = filename_to_date2($f[8]);
+        $d = filename_to_date2($f[$offset]);
 
         if (is_null($f[8])) {
           $this->info($v);
