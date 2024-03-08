@@ -104,7 +104,11 @@ class Backup extends Command
 
         // if ($td->format('m')==$d->format('m')) {
         if (($td->format('m')==$d->format('m')) && ($td->format('Y')==$d->format('Y')) && !$skip) {
-          $this->info($k.' L1 '.$f[5].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
+
+          $this->info($k.' L1 '.$f[$offset2].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
+          
+          if ($td->format('Y-m-d')==$d->format('Y-m-d'))
+            $skip = true;
 
           $temp = $d;
         } else {
@@ -119,7 +123,7 @@ class Backup extends Command
           // $this->info($k.' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
           $td=$d->copy()->lastOfMonth();
           $temp = $d;
-          $this->info($k.' L2 '.$f[5].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
+          $this->info($k.' L2 '.$f[$offset2].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
         }
         
       } else {
