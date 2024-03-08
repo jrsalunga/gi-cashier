@@ -82,6 +82,8 @@ class Backup extends Command
         // $this->info($d->format('Y-m-d'));
 
         if (is_null($f[8])) {
+          $this->info($v);
+        } else {
           
           if (is_null($td))
             $td=$d->copy()->lastOfMonth();
@@ -106,8 +108,6 @@ class Backup extends Command
             $temp = $d;
             // $this->info($k.' L2 '.$f[5].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
           }
-        } else {
-          $this->info($v);
         }
       } else {
         $this->info($v);
