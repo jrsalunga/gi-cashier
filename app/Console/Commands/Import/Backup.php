@@ -54,6 +54,7 @@ class Backup extends Command
     // if (app()->environment()=='production')
     // else
       $locator = new Locator('pos');
+      $this->info(app()->environment());
     // $locator->allFiles();
 
     // $fs = $locator->allFiles('TEST_POS_BACKUP');
