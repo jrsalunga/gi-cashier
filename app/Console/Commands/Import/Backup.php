@@ -72,8 +72,12 @@ class Backup extends Command
     // print_r($fs);
 
     $td = NULL;
+      
+    foreach($fs as $k => $v) {
+      $this->info($v);
+    }
 
-    // exit;
+    exit;
 
     foreach($fs as $k => $v) {
 
