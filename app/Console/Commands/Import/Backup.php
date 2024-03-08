@@ -80,29 +80,34 @@ class Backup extends Command
         $f = explode('\\',$v);
         $d = filename_to_date2($f[8]);
         // $this->info($d->format('Y-m-d'));
+
+        if (is_null($f[8])) {
           
-        if (is_null($td))
-          $td=$d->copy()->lastOfMonth();
+          if (is_null($td))
+            $td=$d->copy()->lastOfMonth();
 
-        // if ($td->format('m')==$d->format('m')) {
-        if (($td->format('m')==$d->format('m')) && ($td->format('Y')==$d->format('Y'))) {
-          // $this->info($k.' L1 '.$f[5].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
+          // if ($td->format('m')==$d->format('m')) {
+          if (($td->format('m')==$d->format('m')) && ($td->format('Y')==$d->format('Y'))) {
+            // $this->info($k.' L1 '.$f[5].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
 
-          // 31      31 
-          $temp = $d;
+            // 31      31 
+            $temp = $d;
+          } else {
+          
+            // $this->info($k.' '.$td->format('Y-m-d').'=='.$temp->format('Y-m-d').'  temp');
+            if ($td->eq($temp))
+              $this->info('is eom! '. $temp->format('Y-m-d'));
+            else
+              $this->info('not eom! '. $temp->format('Y-m-d'));
+
+      
+            // $this->info($k.' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
+            $td=$d->copy()->lastOfMonth();
+            $temp = $d;
+            // $this->info($k.' L2 '.$f[5].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
+          }
         } else {
-        
-          // $this->info($k.' '.$td->format('Y-m-d').'=='.$temp->format('Y-m-d').'  temp');
-          if ($td->eq($temp))
-            $this->info('is eom! '. $temp->format('Y-m-d'));
-          else
-            $this->info('not eom! '. $temp->format('Y-m-d'));
-
-    
-          // $this->info($k.' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
-          $td=$d->copy()->lastOfMonth();
-          $temp = $d;
-          // $this->info($k.' L2 '.$f[5].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
+          $this->info($v);
         }
       } else {
         $this->info($v);
