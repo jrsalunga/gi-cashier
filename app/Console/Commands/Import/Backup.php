@@ -54,10 +54,13 @@ class Backup extends Command
     $locator = new Locator('pos');
 
     $this->info(app()->environment());
-    if (app()->environment()=='production')
+    if (app()->environment()=='production') {
       $folder = '/home/server-admin/Public/maindepot/TEST_POS_BACKUP';
-    else
+      $delimiter = '//';
+    } else {
       $folder = 'TEST_POS_BACKUP';
+      $delimiter = '\\';
+    }
         
     $fs = $locator->allFiles($folder);
 
@@ -77,14 +80,14 @@ class Backup extends Command
       if (ends_with($v, '.ZIP')) {
 
       
-        $f = explode('\\',$v);
+        $f = explode($delimiter,$v);
         // $this->info($d->format('Y-m-d'));
+        $d = filename_to_date2($f[8]);
 
         if (is_null($f[8])) {
           $this->info($v);
         } else {
           
-          $d = filename_to_date2($f[8]);
           
           if (is_null($td))
             $td=$d->copy()->lastOfMonth();
