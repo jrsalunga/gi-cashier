@@ -88,7 +88,13 @@ class Backup extends Command
       
         $f = explode($delimiter,$v);
         // $this->info($d->format('Y-m-d'));
-        $d = filename_to_date2($f[$offset]);
+
+        try {
+          $d = filename_to_date2($f[$offset]);
+        } catch(Exception $e) {
+          continue;
+        }
+        
 
         if (is_null($f[8])) {
           $this->info($v);
