@@ -105,7 +105,7 @@ class Backup extends Command
         // if ($td->format('m')==$d->format('m')) {
         if (($td->format('m')==$d->format('m')) && ($td->format('Y')==$d->format('Y')) && !$skip) {
 
-          $this->info($k.' L1 '.$f[$offset2].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
+          $this->info($k.' L1 '.$f[$offset2].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d').' '.$skip);
           
           if ($td->format('Y-m-d')==$d->format('Y-m-d'))
             $skip = true;
@@ -116,18 +116,18 @@ class Backup extends Command
           // $this->info($k.' '.$td->format('Y-m-d').'=='.$temp->format('Y-m-d').'  temp');
           if ($td->eq($temp)) {
             $this->info($f[$offset2].' is eom! '. $temp->format('Y-m-d'));
-          }
-          else 
+          } else {
             $this->info($f[$offset2].' not eom! '. $temp->format('Y-m-d'));
+          }
 
+          $skip = false;
 
     
           // $this->info($k.' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
           $td=$d->copy()->lastOfMonth();
           $temp = $d;
-          $this->info($k.' L2 '.$f[$offset2].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
+          $this->info($k.' L2 '.$f[$offset2].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d').' '.$skip);
         }
-        $skip = false;
         
       } else {
         $this->info($v);
