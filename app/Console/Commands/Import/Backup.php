@@ -58,10 +58,12 @@ class Backup extends Command
       $folder = '/home/server-admin/Public/maindepot/TEST_POS_BACKUP';
       $delimiter = '/';
       $offset = 9;
+      $offset2 = 6;
     } else {
       $folder = 'TEST_POS_BACKUP';
       $delimiter = '\\';
       $offset = 8;
+      $offset2 = 5;
     }
         
     $fs = $locator->allFiles($folder);
@@ -96,35 +98,30 @@ class Backup extends Command
         }
         
 
-        if (is_null($f[8])) {
-          $this->info($v);
+        if (is_null($td))
+          $td=$d->copy()->lastOfMonth();
+
+        // if ($td->format('m')==$d->format('m')) {
+        if (($td->format('m')==$d->format('m')) && ($td->format('Y')==$d->format('Y'))) {
+          // $this->info($k.' L1 '.$f[5].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
+
+          // 31      31 
+          $temp = $d;
         } else {
-          
-          
-          if (is_null($td))
-            $td=$d->copy()->lastOfMonth();
+        
+          // $this->info($k.' '.$td->format('Y-m-d').'=='.$temp->format('Y-m-d').'  temp');
+          if ($td->eq($temp))
+            $this->info($f[$offset2].' is eom! '. $temp->format('Y-m-d'));
+          else
+            $this->info($f[$offset2].' not eom! '. $temp->format('Y-m-d'));
 
-          // if ($td->format('m')==$d->format('m')) {
-          if (($td->format('m')==$d->format('m')) && ($td->format('Y')==$d->format('Y'))) {
-            // $this->info($k.' L1 '.$f[5].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
-
-            // 31      31 
-            $temp = $d;
-          } else {
-          
-            // $this->info($k.' '.$td->format('Y-m-d').'=='.$temp->format('Y-m-d').'  temp');
-            if ($td->eq($temp))
-              $this->info('is eom! '. $temp->format('Y-m-d'));
-            else
-              $this->info('not eom! '. $temp->format('Y-m-d'));
-
-      
-            // $this->info($k.' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
-            $td=$d->copy()->lastOfMonth();
-            $temp = $d;
-            // $this->info($k.' L2 '.$f[5].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
-          }
+    
+          // $this->info($k.' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
+          $td=$d->copy()->lastOfMonth();
+          $temp = $d;
+          // $this->info($k.' L2 '.$f[5].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
         }
+        
       } else {
         $this->info($v);
       }
