@@ -78,12 +78,13 @@ class Backup extends Command
 
       
         $f = explode('\\',$v);
-        $d = filename_to_date2($f[8]);
         // $this->info($d->format('Y-m-d'));
 
         if (is_null($f[8])) {
           $this->info($v);
         } else {
+          
+          $d = filename_to_date2($f[8]);
           
           if (is_null($td))
             $td=$d->copy()->lastOfMonth();
