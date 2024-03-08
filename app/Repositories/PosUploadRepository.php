@@ -3232,7 +3232,7 @@ class PosUploadRepository extends Repository
           $trans++;
           $ds['purchcost'] += $data['tcost'];
           
-          $c->info($data['supno'].' '.substr($data['supno'], 0, 2));
+          // $c->info($data['supno'].' '.substr($data['supno'], 0, 2));
           if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
            $ds['cos'] += $data['tcost'];
           if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
@@ -3256,7 +3256,7 @@ class PosUploadRepository extends Repository
           $ds['cos']=0;
           $ds['opex']=0;
           
-          $c->info($data['supno'].' '.substr($data['supno'], 0, 2));
+          // $c->info($data['supno'].' '.substr($data['supno'], 0, 2));
           if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
            $ds['cos'] = $data['tcost'];
           if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))

@@ -57,11 +57,14 @@ class Backup extends Command
     // $locator->allFiles();
 
     // $fs = $locator->allFiles('TEST_POS_BACKUP');
-    $fs = $locator->allFiles();
+    $fs = $locator->allFiles('tests');
+    // $fs = $locator->allFiles();
 
     print_r($fs);
 
     $td = NULL;
+
+    exit;
 
     foreach($fs as $k => $v) {
       
