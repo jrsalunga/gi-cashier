@@ -57,6 +57,8 @@ class Backup extends Command
       $this->info(app()->environment());
     // $locator->allFiles();
 
+      dd($locator->realFullPath('..'));
+
     // $fs = $locator->allFiles('TEST_POS_BACKUP');
     $fs = $locator->allFiles('tests');
     // $fs = $locator->allFiles();
