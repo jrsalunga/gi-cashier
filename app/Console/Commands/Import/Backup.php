@@ -56,11 +56,11 @@ class Backup extends Command
       $locator = new Locator('pos');
       $this->info(app()->environment());
     // $locator->allFiles();
+    $fs = $locator->allFiles('/home/server-admin/Public/maindepot/TEST_POS_BACKUP');
 
-      dd($locator->realFullPath('..'));
+      // dd($locator->realFullPath('..'));
 
     // $fs = $locator->allFiles('TEST_POS_BACKUP');
-    $fs = $locator->allFiles('tests');
     // $fs = $locator->allFiles();
 
     print_r($fs);
