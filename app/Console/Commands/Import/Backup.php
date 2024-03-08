@@ -114,12 +114,12 @@ class Backup extends Command
         } else {
         
           // $this->info($k.' '.$td->format('Y-m-d').'=='.$temp->format('Y-m-d').'  temp');
-          if ($td->eq($temp))
+          if ($td->eq($temp)) {
             $this->info($f[$offset2].' is eom! '. $temp->format('Y-m-d'));
-          else
+          }
+          else 
             $this->info($f[$offset2].' not eom! '. $temp->format('Y-m-d'));
 
-          $skip = false;
 
     
           // $this->info($k.' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
@@ -127,6 +127,7 @@ class Backup extends Command
           $temp = $d;
           $this->info($k.' L2 '.$f[$offset2].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
         }
+        $skip = false;
         
       } else {
         $this->info($v);
