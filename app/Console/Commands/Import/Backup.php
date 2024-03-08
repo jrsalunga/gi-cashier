@@ -76,6 +76,7 @@ class Backup extends Command
     // print_r($fs);
 
     $td = NULL;
+    $skip = false;
       
     // foreach($fs as $k => $v) {
     //   $this->info($v);
@@ -102,7 +103,7 @@ class Backup extends Command
           $td=$d->copy()->lastOfMonth();
 
         // if ($td->format('m')==$d->format('m')) {
-        if (($td->format('m')==$d->format('m')) && ($td->format('Y')==$d->format('Y'))) {
+        if (($td->format('m')==$d->format('m')) && ($td->format('Y')==$d->format('Y')) && !$skip) {
           $this->info($k.' L1 '.$f[5].' '.$td->format('Y-m-d').'=='.$d->format('Y-m-d'));
 
           $temp = $d;
