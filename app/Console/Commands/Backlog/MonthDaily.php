@@ -247,8 +247,8 @@ class MonthDaily extends Command
     event(new AggregatorMonthly('change_item', $backup->date, $backup->branchid));
     $this->info('AggregatorMonthly cash-audit');
     event(new \App\Events\Process\AggregatorMonthly('cash_audit', $backup->date, $backup->branchid));
-    $this->info('RankMonthlyProduct');
-    event(new RankMonthlyProduct($backup->date, $backup->branchid));
+    // $this->info('RankMonthlyProduct'); //AggregatorDailyEventListener@rankMonthlyProduct
+    // event(new RankMonthlyProduct($backup->date, $backup->branchid));
 
 
     event(new \App\Events\Process\AggregatorMonthly('charge-type', $backup->date, $backup->branchid));

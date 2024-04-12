@@ -213,8 +213,8 @@ class BacklogMonth extends Command
     // event(new AggregatorMonthly('change_item', $t, $br->id));
     $this->info('AggregatorMonthly cash-audit');
     event(new \App\Events\Process\AggregatorMonthly('cash_audit', $t, $br->id));
-    $this->info('RankMonthlyProduct');
-    event(new RankMonthlyProduct($t, $br->id));
+    // $this->info('RankMonthlyProduct');
+    // event(new RankMonthlyProduct($t, $br->id));
 
 
     event(new \App\Events\Process\AggregatorMonthly('charge-type', $t, $br->id));
