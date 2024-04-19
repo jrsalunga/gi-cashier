@@ -47,8 +47,8 @@ class BegBalRepository extends BaseRepository implements CacheableInterface
       $attr = [
         'date' => $data['date'],
         'component_id' => $componentid,
+        'uom' => $data['unit'],
         'qty' => $data['qty'],
-        //'unit' => $data['unit'],
         'ucost' => $data['ucost'],
         'tcost' => $data['tcost'],
         'branch_id' => $data['branch_id'],
@@ -106,6 +106,21 @@ class BegBalRepository extends BaseRepository implements CacheableInterface
                   )
                 ->where('branch_id', $branchid)
                 ->groupBy('expense_id');
+    })->skipCache()->all();
+  }
+
+
+  public function aggregateComponentByDr($fr, $to, $branchid) {
+    return $this->scopeQuery(function($query) use ($fr, $to, $branchid) {
+      return $query
+                ->select(DB::raw("LAST_DAY(begbal.date) as date, sum(begbal.qty) as qty, sum(begbal.tcost) as tcost, begbal.component_id as component_id, begbal.expensecode as expensecode, begbal.expense_id as expense_id, component.status as status, component.uom as uom"))
+                ->leftJoin('component', 'component.id', '=', 'begbal.component_id')
+                ->whereBetween('begbal.date', 
+                  [$fr->format('Y-m-d'), $to->format('Y-m-d')]
+                  )
+                ->where('begbal.branch_id', $branchid)
+                ->groupBy('begbal.component_id')
+                ->groupBy('begbal.uom');
     })->skipCache()->all();
   }
 

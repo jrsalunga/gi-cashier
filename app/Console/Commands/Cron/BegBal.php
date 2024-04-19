@@ -1,9 +1,9 @@
-<?php namespace App\Console\Commands\Process;
+<?php 
+namespace App\Console\Commands\Cron;
 
 use DB;
 use Carbon\Carbon;
 use App\Models\Branch;
-use App\Models\Process;
 use App\Helpers\Locator;
 use App\Helpers\BackupExtractor;
 use App\Events\Notifier;
@@ -12,7 +12,7 @@ use App\Services\BegBalImporter;
 
 class BegBal extends Command {
 
-  protected $signature = 'process:begbal {date : YYYY-MM-DD} {--brcode=ALL : Branch Code} {--dateTo=NULL : YYYY-MM-DD}';
+  protected $signature = 'cron:begbal {date : YYYY-MM-DD} {--brcode=ALL : Branch Code} {--dateTo=NULL : YYYY-MM-DD}';
   protected $description = 'process begbal for a given date range run via command.';
 
   protected $extractor;
@@ -81,6 +81,8 @@ class BegBal extends Command {
 
           event(new \App\Events\Process\AggregatorDaily('begbal', $d, $b->id));  // update ds
           event(new \App\Events\Process\AggregatorMonthly('begbal', $d, $b->id));  // update ms_expense
+          event(new \App\Events\Process\AggregatorMonthly('trans-component',  $d, $b->id));  // update ms_component
+          event(new \App\Events\Process\AggregatorMonthly('begbal-component', $d, $b->id));  // update ms_component
 
        
         } else {

@@ -74,6 +74,8 @@
   ga('create', 'UA-68152291-2', 'auto');
   ga('send', 'pageview');
 </script>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9897737241100378" crossorigin="anonymous"></script>
 @endif
 
 </body>

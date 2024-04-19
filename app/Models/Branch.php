@@ -5,18 +5,18 @@ use Carbon\Carbon;
 
 class Branch extends BaseModel {
 
-  protected $connection = 'mysql-hr';
+  // protected $connection = 'mysql-hr';
 	protected $table = 'branch';
  	protected $fillable = ['code', 'descriptor', 'opendate', 'email', 'mancost', 'address'];
  	public static $header = ['code', 'descriptor'];
 
-  public function __construct(array $attributes = [])
-  {
-    parent::__construct($attributes);
-    if (app()->environment()==='production')
-      $this->setConnection('mysql-hr');
-    $this->setConnection('hr');
-  }
+  // public function __construct(array $attributes = [])
+  // {
+  //   parent::__construct($attributes);
+  //   if (app()->environment()==='production')
+  //     $this->setConnection('mysql-hr');
+  //   $this->setConnection('hr');
+  // }
 
 	public function employee() {
     return $this->hasMany('App\Models\Employee', 'employeeid');
@@ -30,9 +30,9 @@ class Branch extends BaseModel {
     return $this->hasMany('App\Models\DailySales', 'branchid');
   }
 
-  public function opendate() {
-    return Carbon::parse($this->opendate);
-  }
+  // public function opendate() {
+  //   return Carbon::parse($this->opendate);
+  // }
 
   public function branch_to() {
     return $this->hasOne('App\Models\EmploymentActivity', 'to_branch_id');
