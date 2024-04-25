@@ -1,6 +1,6 @@
 @extends('index')
 
-@section('title', '- Uploader')
+@section('title', '- Uploader ('.stu(brcode()).')')
 
 @section('body-class', 'uploader')
 
