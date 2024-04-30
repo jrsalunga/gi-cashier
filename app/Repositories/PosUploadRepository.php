@@ -2181,6 +2181,11 @@ class PosUploadRepository extends Repository
     return $cnt;
   }
 
+  public function processAuditReport($brcode) {
+    $dbf_file = $this->extracted_path.DS.'AUDT_'.$brcode.'.PDF';
+    return file_exists($dbf_file) ? $dbf_file : false;
+  }
+
 
 
 
@@ -3155,7 +3160,6 @@ class PosUploadRepository extends Repository
     }
     return false;
   }
-
 
   public function backlogPurchased2($branchid, Carbon $from, Carbon $to, $c) {
 

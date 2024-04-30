@@ -209,8 +209,8 @@ class BacklogMonth extends Command
     event(new AggregatorMonthly('prodcat', $t, $br->id));
     $this->info('AggregatorMonthly groupies');
     event(new AggregatorMonthly('groupies', $t, $br->id));
-    // $this->info('AggregatorMonthly change_item groupies');
-    // event(new AggregatorMonthly('change_item', $t, $br->id));
+    $this->info('AggregatorMonthly change_item groupies');
+    event(new AggregatorMonthly('change_item', $t, $br->id));
     $this->info('AggregatorMonthly cash-audit');
     event(new \App\Events\Process\AggregatorMonthly('cash_audit', $t, $br->id));
     // $this->info('RankMonthlyProduct');

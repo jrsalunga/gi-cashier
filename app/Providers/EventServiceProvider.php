@@ -69,6 +69,7 @@ class EventServiceProvider extends ServiceProvider
         EmploymentActivityEventListener::class,
         KitlogAggregatorEventListener::class,
         \App\Listeners\ApuEventListener::class,
+        \App\Listeners\AsrEventListener::class,
     ];
     
     /**

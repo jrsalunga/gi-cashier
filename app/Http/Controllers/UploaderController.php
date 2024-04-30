@@ -269,7 +269,7 @@ class UploaderController extends Controller
 						}
 					}
 
-          
+
           /******** check BEG_BAL.DBF on 1st day backup  *****/
 					
           if ($backup->date->format('Y-m-d')==$backup->date->copy()->startOfMonth()->format('Y-m-d')) {
@@ -484,14 +484,11 @@ class UploaderController extends Controller
 					event(new \App\Events\Process\AggregatorMonthly('groupies', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('change_item', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('cash_audit', $backup->date, $backup->branchid));
-					event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid)); //AggregatorDailyEventListener@rankMonthlyProduct
 
           event(new \App\Events\Process\AggregatorMonthly('charge-type', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('sale-type', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('card-type', $backup->date, $backup->branchid));
           event(new \App\Events\Process\AggregatorMonthly('disc-type', $backup->date, $backup->branchid));
-
-
 
 
           $u = [];
@@ -507,6 +504,9 @@ class UploaderController extends Controller
             $u['kitlog'] = 1;
           }
 
+
+					// event(new \App\Events\Process\RankMonthlyProduct($backup->date, $backup->branchid)); //AggregatorDailyEventListener@rankMonthlyProduct
+
 					/******* end: extract trasanctions data ***********/
 
 					try {
@@ -517,6 +517,18 @@ class UploaderController extends Controller
 
 					DB::commit();
 
+
+
+          try {
+            $res = $this->processAuditReport($backup->branchid, $backup->date);
+          } catch (Exception $e) {
+            $msg =  'Process Audit Report: '.$e->getMessage();
+          }
+
+
+          if ($res != false) {
+            event('email-asr', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date, 'brcode'=>session('user.branchcode')]]);
+          }
 
 
           ##### Turn Off Change Item Process 12/19/2023
@@ -858,6 +870,29 @@ class UploaderController extends Controller
     }
   }
 
+  public function processAuditReport($branchid, $date) {
+
+    $br = strtoupper(session('user.branchcode'));
+
+    try {
+      $path = $this->posUploadRepo->processAuditReport($br);
+    } catch(Exception $e) {
+      return false;
+      throw $e;    
+    }
+
+    $filename = 'ASR_'.$br.'_'.$date->format('Ymd').'.PDF';
+    $storage_path = 'ASR'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
+
+    try {
+      $this->files->moveFile($path, $storage_path, false); // false = override file!
+    } catch(Exception $e) {
+      return false;
+      throw $e;   
+    }
+
+    return $storage_path;
+  }
  
 
 
