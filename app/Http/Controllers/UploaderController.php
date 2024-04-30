@@ -526,8 +526,13 @@ class UploaderController extends Controller
           }
 
 
+          test_log(json_encode($res));
+
+
           if ($res != false) {
             event('email-asr', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date, 'brcode'=>session('user.branchcode')]]);
+          } else {
+            return $res;
           }
 
 
@@ -877,7 +882,7 @@ class UploaderController extends Controller
     try {
       $path = $this->posUploadRepo->processAuditReport($br);
     } catch(Exception $e) {
-      return false;
+      return $e->getMessage();
       throw $e;    
     }
 
@@ -887,7 +892,7 @@ class UploaderController extends Controller
     try {
       $this->files->moveFile($path, $storage_path, false); // false = override file!
     } catch(Exception $e) {
-      return false;
+      return $e->getMessage();
       throw $e;   
     }
 
