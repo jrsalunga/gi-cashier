@@ -525,15 +525,9 @@ class UploaderController extends Controller
             $msg =  'Process Audit Report: '.$e->getMessage();
           }
 
-
-          test_log(json_encode($res));
-
-
-          if ($res != false) {
+          if ($res != false)
             event('email-asr', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date, 'brcode'=>session('user.branchcode')]]);
-          } else {
-            return $res;
-          }
+        
 
 
           ##### Turn Off Change Item Process 12/19/2023
