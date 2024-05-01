@@ -876,7 +876,7 @@ class UploaderController extends Controller
     try {
       $path = $this->posUploadRepo->processAuditReport($br);
     } catch(Exception $e) {
-      return $e->getMessage();
+      return false;
       throw $e;    
     }
 
@@ -886,7 +886,7 @@ class UploaderController extends Controller
     try {
       $this->files->moveFile($path, $storage_path, false); // false = override file!
     } catch(Exception $e) {
-      return $e->getMessage();
+      return false;
       throw $e;   
     }
 

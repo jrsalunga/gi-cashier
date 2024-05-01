@@ -80,7 +80,7 @@ class BossBranch {
   }
 
 
-  public function getUsersByBranchid($branchid=NULL, array $ordinal = ['12', '20'], array $admin = ['3']) {
+  public function getUsersByBranchid($branchid=NULL, array $ordinal = ['12', '16', '20'], array $admin = ['3']) { // RM AM AHC
 
     if (is_null($branchid) ||  !is_uuid($branchid))
       return NULL;
