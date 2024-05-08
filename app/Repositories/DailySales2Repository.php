@@ -94,6 +94,8 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
     $sql .= 'AVG(totdeliver) as ave_deliver,  (SUM(totdeliver)/SUM(sales) * 100) as pct_deliver, ';
     $sql .= 'SUM(tot_dine) as tot_dine, SUM(tot_togo) as tot_togo, AVG(tot_dine) as ave_dine, AVG(tot_togo) as ave_togo, SUM(ncos) as ncos, SUM(profit_direct) as profit_direct, ';
     $sql .= 'SUM(tot_onlrid) as tot_onlrid, SUM(tot_osaletype) as tot_osaletype, AVG(tot_onlrid) as ave_onlrid, AVG(tot_osaletype) as ave_osaletype, ';
+    $sql .= 'SUM(pax_dine) as pax_dine, SUM(trx_dine) as trx_dine, SUM(pax_togo) as pax_togo, SUM(trx_togo) as trx_togo, ';
+    $sql .= 'SUM(pax_onlrid) as pax_onlrid, SUM(trx_onlrid) as trx_onlrid, SUM(pax_osaletype) as pax_osaletype, SUM(trx_osaletype) as trx_osaletype, ';
     $sql .= 'SUM(zap) AS zap, SUM(zap_fee) AS zap_fee, SUM(zap_delfee) AS zap_delfee, SUM(utang) as utang, ';
     $sql .= 'SUM(begcost) AS begcost, SUM(begcos) AS begcos, SUM(begncos) AS begncos, SUM(zap_sales) AS zap_sales, SUM(vat_xmpt) AS vat_xmpt';
     
@@ -146,6 +148,8 @@ class DailySales2Repository extends BaseRepository implements CacheableInterface
     $sql .= 'SUM(smo) AS smo, SUM(maya) AS maya, SUM(smo_fee) AS smo_fee, SUM(maya_fee) AS maya_fee, ';
     $sql .= 'SUM(tot_dine) as tot_dine, SUM(tot_togo) as tot_togo,  SUM(ncos) as ncos, SUM(profit_direct) as profit_direct, ';
     $sql .= 'SUM(tot_onlrid) as tot_onlrid, SUM(tot_osaletype) as tot_osaletype, ';
+    $sql .= 'SUM(pax_dine) as pax_dine, SUM(trx_dine) as trx_dine, SUM(pax_togo) as pax_togo, SUM(trx_togo) as trx_togo, ';
+    $sql .= 'SUM(pax_onlrid) as pax_onlrid, SUM(trx_onlrid) as trx_onlrid, SUM(pax_osaletype) as pax_osaletype, SUM(trx_osaletype) as trx_osaletype, ';
     $sql .= 'SUM(zap) AS zap, SUM(zap_fee) AS zap_fee, SUM(zap_delfee) AS zap_delfee, SUM(utang) as utang, ';
     $sql .= 'SUM(begcost) AS begcost, SUM(begcos) AS begcos, SUM(begncos) AS begncos, SUM(zap_sales) AS zap_sales, SUM(vat_xmpt) AS vat_xmpt';
     

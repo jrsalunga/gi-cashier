@@ -1479,6 +1479,15 @@ class PosUploadRepository extends Repository
     $ds['tot_osaletype'] = 0;
     $ds['zap_sales'] = 0;
     $ds['vat_xmpt'] = 0;
+    $ds['pax_dine'] = 0;
+    $ds['pax_togo'] = 0;
+    $ds['pax_onlrid'] = 0;
+    $ds['pax_osaletype'] = 0;
+    $ds['trx_dine'] = 0;
+    $ds['trx_togo'] = 0;
+    $ds['trx_onlrid'] = 0;
+    $ds['trx_osaletype'] = 0;
+
     
     if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) // same sas line 1226
       $ds['custcount'] = 0;
@@ -1518,6 +1527,14 @@ class PosUploadRepository extends Repository
     $ds['tot_osaletype'] =  $c['tot_osaletype'];
     $ds['zap_sales']  = $c['zap_sales'] + $s['zap_sales'];
     $ds['vat_xmpt']  = $c['vat_xmpt'] + $s['vat_xmpt'];
+    $ds['pax_dine'] =  $c['pax_dine'];
+    $ds['pax_togo'] =  $c['pax_togo'];
+    $ds['pax_onlrid'] =  $c['pax_onlrid'];
+    $ds['pax_osaletype'] =  $c['pax_osaletype'];
+    $ds['trx_dine'] =  $c['trx_dine'];
+    $ds['trx_togo'] =  $c['trx_togo'];
+    $ds['trx_onlrid'] =  $c['trx_onlrid'];
+    $ds['trx_osaletype'] =  $c['trx_osaletype'];
 
 
     // remove the date bec of $this->postNewDailySales
@@ -1576,8 +1593,14 @@ class PosUploadRepository extends Repository
       $ds['tot_osaletype'] = 0;
       $ds['zap_sales'] = 0;
       $ds['vat_xmpt'] = 0;
-
-      $ds['vat_xmpt'] = 0;
+      $ds['pax_dine'] = 0;
+      $ds['pax_togo'] = 0;
+      $ds['pax_onlrid'] = 0;
+      $ds['pax_osaletype'] = 0;
+      $ds['trx_dine'] = 0;
+      $ds['trx_togo'] = 0;
+      $ds['trx_onlrid'] = 0;
+      $ds['trx_osaletype'] = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
         
@@ -1619,15 +1642,23 @@ class PosUploadRepository extends Repository
           switch (strtolower($data['saletype'])) {
             case 'dinein':
               $ds['tot_dine'] += $data['tot_chrg'];
+              $ds['pax_dine'] += $data['custcount'];
+              $ds['trx_dine'] ++;
               break;
             case 'tkeout':
               $ds['tot_togo'] += $data['tot_chrg'];
+              $ds['pax_togo'] += $data['custcount'];
+              $ds['trx_togo'] ++;
               break;
             case 'onlrid':
               $ds['tot_onlrid'] += $data['tot_chrg'];
+              $ds['pax_onlrid'] += $data['custcount'];
+              $ds['trx_onlrid'] ++;
               break;
             default:
               $ds['tot_osaletype'] += $data['tot_chrg'];
+              $ds['pax_osaletype'] += $data['custcount'];
+              $ds['trx_osaletype'] ++;
               break;
           }
           
@@ -1713,6 +1744,10 @@ class PosUploadRepository extends Repository
       $ds['totdeliver'] = 0;
       $ds['zap_sales'] = 0;
       $ds['vat_xmpt'] = 0;
+      $ds['pax_dine'] = 0;
+      $ds['pax_togo'] = 0;
+      $ds['pax_onlrid'] = 0;
+      $ds['pax_osaletype'] = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
         
