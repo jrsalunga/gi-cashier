@@ -1744,10 +1744,6 @@ class PosUploadRepository extends Repository
       $ds['totdeliver'] = 0;
       $ds['zap_sales'] = 0;
       $ds['vat_xmpt'] = 0;
-      $ds['pax_dine'] = 0;
-      $ds['pax_togo'] = 0;
-      $ds['pax_onlrid'] = 0;
-      $ds['pax_osaletype'] = 0;
 
       for ($i=1; $i<=$record_numbers; $i++) {
         
@@ -2683,6 +2679,14 @@ class PosUploadRepository extends Repository
     $ds['tot_osaletype'] = 0;
     $ds['zap_sales'] = 0;
     $ds['vat_xmpt'] = 0;
+    $ds['pax_dine'] = 0;
+    $ds['pax_togo'] = 0;
+    $ds['pax_onlrid'] = 0;
+    $ds['pax_osaletype'] = 0;
+    $ds['trx_dine'] = 0;
+    $ds['trx_togo'] = 0;
+    $ds['trx_onlrid'] = 0;
+    $ds['trx_osaletype'] = 0;
 
 
     try {
@@ -2718,6 +2722,14 @@ class PosUploadRepository extends Repository
     $ds['tot_osaletype'] =  $c['tot_osaletype'];
     $ds['zap_sales'] = $c['zap_sales'] + $s['zap_sales'];
     $ds['vat_xmpt'] = $c['vat_xmpt'] + $s['vat_xmpt'];
+    $ds['pax_dine'] =  $c['pax_dine'];
+    $ds['pax_togo'] =  $c['pax_togo'];
+    $ds['pax_onlrid'] =  $c['pax_onlrid'];
+    $ds['pax_osaletype'] =  $c['pax_osaletype'];
+    $ds['trx_dine'] =  $c['trx_dine'];
+    $ds['trx_togo'] =  $c['trx_togo'];
+    $ds['trx_onlrid'] =  $c['trx_onlrid'];
+    $ds['trx_osaletype'] =  $c['trx_osaletype'];
 
 
     $cnt = $c['custcount'] + $s['custcount'];
@@ -2749,60 +2761,6 @@ class PosUploadRepository extends Repository
     //$cmd->info(json_encode($ds));
     unset($ds);
     return false;
-
-
-    /*
-    $ds = [];
-    $ds['bank_totchrg'] = 0;
-    $ds['chrg_total']   = 0;
-    $ds['chrg_csh']     = 0;
-    $ds['chrg_chrg']    = 0;
-    $ds['chrg_othr']    = 0;
-    $ds['disc_totamt']  = 0;
-    $ds['date']         = $date->format('Y-m-d');
-    $ds['branchid']     = $backup->branchid;
-    
-    if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) // same sas line 1226
-      $ds['custcount'] = 0;
-      
-
-    try {
-      $c = $this->postRawCharges($date, $backup);
-    } catch(Exception $e) {
-      throw new Exception('postCharges:charges: '.$e->getMessage());    
-    }
-
-    try {
-      $s = $this->postRawSigned($date, $backup);
-    } catch(Exception $e) {
-      throw new Exception('postCharges:signed: '.$e->getMessage());    
-    }
-
-
-    $ds['bank_totchrg'] = $c['bank_totchrg'] + $s['bank_totchrg'];
-    $ds['chrg_total']   = $c['chrg_total'] + $s['chrg_total'];
-    $ds['chrg_csh']     = $c['chrg_csh'] + $s['chrg_csh'];
-    $ds['chrg_chrg']    = $c['chrg_chrg'] + $s['chrg_chrg'];
-    $ds['chrg_othr']    = $c['chrg_othr'] + $s['chrg_othr'];
-    $ds['disc_totamt']  = $c['disc_totamt'] + $s['disc_totamt'];
-
-    if ($date->gt(Carbon::parse('2016-05-18')) && $date->lt(Carbon::parse('2016-10-31'))) {
-      $ds['custcount']  = $c['custcount'] + $s['custcount'];
-      $ds['headspend']  = ($ds['custcount'] > 0) ? $ds['chrg_total'] / $ds['custcount'] : 0 ;
-      $ds['trans_cnt']  = $c['ctr'] + $s['ctr'];
-    }
-
-
-    // update dailysales
-    try {
-      $this->ds->firstOrNewField($ds, ['date', 'branchid']);
-      } catch(Exception $e) {
-      //dbase_close($db);
-      throw new Exception('charges:ds: '.$e->getMessage());    
-    }
-    //unset($ds);
-    return false;
-    */
   }
 
   private function backlogRawCharges($branchid, $date, $c) {
@@ -2838,6 +2796,14 @@ class PosUploadRepository extends Repository
       $ds['tot_osaletype'] = 0;
       $ds['zap_sales'] = 0;
       $ds['vat_xmpt'] = 0;
+      $ds['pax_dine'] = 0;
+      $ds['pax_togo'] = 0;
+      $ds['pax_onlrid'] = 0;
+      $ds['pax_osaletype'] = 0;
+      $ds['trx_dine'] = 0;
+      $ds['trx_togo'] = 0;
+      $ds['trx_onlrid'] = 0;
+      $ds['trx_osaletype'] = 0;
 
       for ($i=1; $i<=$recno; $i++) {
         
@@ -2880,15 +2846,23 @@ class PosUploadRepository extends Repository
           switch (strtolower($data['saletype'])) {
             case 'dinein':
               $ds['tot_dine'] += $data['tot_chrg'];
+              $ds['pax_dine'] += $data['custcount'];
+              $ds['trx_dine'] ++;
               break;
             case 'tkeout':
               $ds['tot_togo'] += $data['tot_chrg'];
+              $ds['pax_togo'] += $data['custcount'];
+              $ds['trx_togo'] ++;
               break;
             case 'onlrid':
               $ds['tot_onlrid'] += $data['tot_chrg'];
+              $ds['pax_onlrid'] += $data['custcount'];
+              $ds['trx_onlrid'] ++;
               break;
             default:
               $ds['tot_osaletype'] += $data['tot_chrg'];
+              $ds['pax_osaletype'] += $data['custcount'];
+              $ds['trx_osaletype'] ++;
               break;
           }
           
