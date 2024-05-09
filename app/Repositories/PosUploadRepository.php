@@ -1651,6 +1651,8 @@ class PosUploadRepository extends Repository
               $ds['trx_togo'] ++;
               break;
             case 'onlrid':
+            case 'calwed':
+            case 'onlwed':
               $ds['tot_onlrid'] += $data['tot_chrg'];
               $ds['pax_onlrid'] += $data['custcount'];
               $ds['trx_onlrid'] ++;
@@ -2855,6 +2857,8 @@ class PosUploadRepository extends Repository
               $ds['trx_togo'] ++;
               break;
             case 'onlrid':
+            case 'calwed':
+            case 'onlwed':
               $ds['tot_onlrid'] += $data['tot_chrg'];
               $ds['pax_onlrid'] += $data['custcount'];
               $ds['trx_onlrid'] ++;
