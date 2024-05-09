@@ -60,7 +60,7 @@ class AsrEventListener
 
     // $expl = explode('.', $event->model->filename);
     $filename = 'ASR_'.$brcode.'_'.$date->format('Ymd').'.PDF';
-    $e['subject'] = 'EOD ASR '.$brcode.' '.$date->format('Y-m');    
+    $e['subject'] = 'EOD ASR '.$brcode.' '.$date->format('Y-m-d');    
     $e['attachment'] = NULL;
 
     $filepath = 'ASR'.DS.$date->format('Y').DS.$brcode.DS.$date->format('m').DS.$filename;

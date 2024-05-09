@@ -1,4 +1,4 @@
-<h3>Daily EOD Cash Audit Report Summary</h3>
+<h3>Daily EOD Cash Audit Report Summary: {{ $date }} </h3>
 
 <p></p>
 
