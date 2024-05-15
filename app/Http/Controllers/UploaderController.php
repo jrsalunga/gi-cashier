@@ -814,8 +814,11 @@ class UploaderController extends Controller
   }
 
   public function processCharges($date, Backup $backup){
+
+    $parse = session('user.branchcode')=='EGC' ? true : false;
+
   	try {
-      $this->posUploadRepo->postCharges($date, $backup);
+      $this->posUploadRepo->postCharges($date, $backup, $parse);
     } catch(Exception $e) {
       throw $e;    
     }
