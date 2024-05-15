@@ -525,7 +525,7 @@ class UploaderController extends Controller
             $msg =  'Process Audit Report: '.$e->getMessage();
           }
 
-          if ($res != false && app()->environment()==='production')
+          if ($res != false && app()->environment()==='production' && (c()->format('Y-m-d')==$backup->date->format('Y-m-d')))
             event('email-asr', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date, 'brcode'=>session('user.branchcode')]]);
         
 
