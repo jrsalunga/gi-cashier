@@ -145,9 +145,12 @@ class ApuController extends Controller {
 		} else 
 			return abort('404');
 
+    // turn off AP Upload Notification
+    /*
 		if (app()->environment()==='production')
 			if (request()->input('src')=='email')
     		event(new Notifier(session('user.fullname').' accessed Payables Storage via Email'));
+    */
 
 		return view('docu.apu.filelist')->with('data', $data);
 	}
@@ -412,10 +415,13 @@ class ApuController extends Controller {
       $cnt = count($arr);
 			array_forget($arr, 'updated_at');
 			
+      // turn off AP Upload Notification
+      /*
       if ($cnt>0) {
         if (app()->environment()==='production')
 				  event(new \App\Events\Update\ApUpload($o, $d, $arr));
       }
+      */
 
 			return redirect(brcode().'/apu/'.$d->lid())
 							->with('alert-success', 'Accounts payable is updated!');
@@ -447,8 +453,11 @@ class ApuController extends Controller {
 			if ($this->files->exists($this->getPath($apu)))
 				$this->files->deleteFile($this->getPath($apu));
 
+      // turn off AP Upload Notification
+      /*
 			if (app()->environment()==='production')
 				event(new \App\Events\Delete\ApUpload($apu));
+      */
 
 			return redirect(brcode().'/apu/log')
 							->with('apu.delete', $apu)
