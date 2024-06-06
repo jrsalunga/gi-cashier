@@ -1656,6 +1656,14 @@ class PosUploadRepository extends Repository
               $ds['tot_onlrid'] += $data['tot_chrg'];
               $ds['pax_onlrid'] += $data['custcount'];
               $ds['trx_onlrid'] ++;
+              // if ($data['terms']!='CHARGE' && strlen($data['tblno'])>4 && (starts_with(stl($data['tblno']), 'z') || starts_with(stl($data['tblno']), 'p') || starts_with(stl($data['tblno']), 'g') || starts_with(stl($data['tblno']), 's'))) {
+              //   test_log($data['tblno'].' '.$data['terms'].' '.$data['saletype'].' '.$data['chrg_type']);
+              // }
+              if ((starts_with(stl($data['tblno']), 'z') || starts_with(stl($data['tblno']), 'p') || starts_with(stl($data['tblno']), 'g') || starts_with(stl($data['tblno']), 's'))
+                  && (strlen($data['tblno'])>4) && (strtolower($data['terms'])!='charge')) {
+                  // test_log($data['tblno'].' '.$data['terms'].' '.$data['saletype'].' '.$data['chrg_type']);
+                  $ds['totdeliver'] += $data['tot_chrg'];
+                }
               break;
             default:
               $ds['tot_osaletype'] += $data['tot_chrg'];
@@ -1687,9 +1695,11 @@ class PosUploadRepository extends Repository
                 $ds['maya'] += $data['tot_chrg'];
                 break;
               case 'smo-del':
-              case 'smo-pu':
                 $ds['smo'] += $data['tot_chrg'];
                 $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+              case 'smo-pu':
+                $ds['smo'] += $data['tot_chrg'];
                 break;
               case 'zap':
               case 'cod-panda':
@@ -2862,6 +2872,10 @@ class PosUploadRepository extends Repository
               $ds['tot_onlrid'] += $data['tot_chrg'];
               $ds['pax_onlrid'] += $data['custcount'];
               $ds['trx_onlrid'] ++;
+              if ((starts_with(stl($data['tblno']), 'z') || starts_with(stl($data['tblno']), 'p') || starts_with(stl($data['tblno']), 'g') || starts_with(stl($data['tblno']), 's'))
+                && (strlen($data['tblno'])>4) && (strtolower($data['terms'])!='charge')) {
+                $ds['totdeliver'] += $data['tot_chrg'];
+              }
               break;
             default:
               $ds['tot_osaletype'] += $data['tot_chrg'];
@@ -2894,9 +2908,11 @@ class PosUploadRepository extends Repository
                 $ds['maya'] += $data['tot_chrg'];
                 break;
               case 'smo-del':
-              case 'smo-pu':
                 $ds['smo'] += $data['tot_chrg'];
                 $ds['totdeliver'] += $data['tot_chrg'];
+                break;
+              case 'smo-pu':
+                $ds['smo'] += $data['tot_chrg'];
                 break;
               case 'zap':
               case 'cod-panda':
