@@ -262,6 +262,7 @@
                   +'<option value="1">BDO</option>'
                   +'<option value="2">RCBC</option>'
                   +'<option value="3">HSBC</option>'
+                  +'<option value="4">MAYA</option>'
                 +'</select>'
               +'</div>'
             +'</div>'
