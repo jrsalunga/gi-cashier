@@ -2287,6 +2287,10 @@ class PosUploadRepository extends Repository
           // $c->info('backlogDailySales loop: '.$vfpdate->format('Y-m-d').' - '.$from->format('Y-m-d').' - '.$to->format('Y-m-d'));
           // $c->info($data['date'].' '.$data['sales'].' '.$data['custcount'].' '.$data['trans_cnt'].' '.$data['empcount'].' '.$data['mancost'].' '.$data['mancostpct']);
 
+          // 2024-08-16 - POS custcount not tally, rerun manually compute
+          $data['custcount'] = 0;
+          $data['trans_cnt'] = 0;
+
           $fields = ['date', 'branchid', 'managerid', 'sales', 'empcount', 'tips', 'tipspct', 'mancost', 'mancostpct', 'salesemp', 'custcount', 'headspend', 'crew_kit', 'crew_din', 'trans_cnt', 'man_hrs', 'man_pay', 'depo_cash', 'depo_check', 'sale_csh', 'sale_chg', 'sale_sig'];
 
           // $c->info(json_encode(array_only($data, $fields)));

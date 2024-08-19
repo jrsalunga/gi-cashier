@@ -815,7 +815,9 @@ class UploaderController extends Controller
 
   public function processCharges($date, Backup $backup){
 
-    $parse = session('user.branchcode')=='EGC' ? true : false;
+    // 2024-08-16 - parse true to all
+    // $parse = session('user.branchcode')=='EGC' ? true : false;
+    $parse = true;
 
   	try {
       $this->posUploadRepo->postCharges($date, $backup, $parse);
