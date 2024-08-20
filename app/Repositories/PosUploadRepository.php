@@ -2753,14 +2753,14 @@ class PosUploadRepository extends Repository
     $hspend = ($cnt > 0) ? number_format($ds['chrg_total']/$cnt,2,'.','') : 0;
     $trans = $c['ctr'] + $s['ctr'];
 
-    // $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans, 'custcount'=>$cnt, 'headspend'=>$hspend], $branchid, $date, $cmd);
-    // if ($x)
-    //   $ds = array_merge($ds, $x);
-    // else {
+    $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans, 'custcount'=>$cnt, 'headspend'=>$hspend], $branchid, $date, $cmd);
+    if ($x)
+      $ds = array_merge($ds, $x);
+    else {
       //unset($ds['custcount']);
       //unset($ds['headspend']);
       //unset($ds['trans_cnt']);
-    // }
+    }
 
 
     // update dailysales
