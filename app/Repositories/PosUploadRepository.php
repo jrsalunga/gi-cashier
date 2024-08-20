@@ -2300,6 +2300,7 @@ class PosUploadRepository extends Repository
           
           // $c->info('data[branchid]='.$data['branchid']);
           // $c->info(json_encode(array_only($data, $fields)));
+          $c->info(json_encode($data));
 
           if ($this->ds->firstOrNewField(array_only($data, $fields), ['date', 'branchid']))
             $update++;
@@ -2348,12 +2349,12 @@ class PosUploadRepository extends Repository
     if (is_null($d)) {
       $d = DailySales::firstOrCreate(['date'=>$date->format('Y-m-d'), 'branchid'=>$branchid]);
     }
-    //$c->info($d->date->format('Y-m-d').' '.$d->custcount.' '.$d->trans_cnt);
+    $c->info($d->date->format('Y-m-d').' '.$d->custcount.' '.$d->trans_cnt);
     $arr = [];
     foreach ($data as $key => $value) {
+      $c->info($d->{$key});
       $x = $d->{$key};
       if ($x=='0' || is_null($x) || empty($x)) {
-        #$c->info($d->{$key});
         $c->info('checkSalesmtdDS:'.$key.': '.$value);
         $arr[$key]=$value;
       } else {
@@ -2752,14 +2753,14 @@ class PosUploadRepository extends Repository
     $hspend = ($cnt > 0) ? number_format($ds['chrg_total']/$cnt,2,'.','') : 0;
     $trans = $c['ctr'] + $s['ctr'];
 
-    $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans, 'custcount'=>$cnt, 'headspend'=>$hspend], $branchid, $date, $cmd);
-    if ($x)
-      $ds = array_merge($ds, $x);
-    else {
+    // $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans, 'custcount'=>$cnt, 'headspend'=>$hspend], $branchid, $date, $cmd);
+    // if ($x)
+    //   $ds = array_merge($ds, $x);
+    // else {
       //unset($ds['custcount']);
       //unset($ds['headspend']);
       //unset($ds['trans_cnt']);
-    }
+    // }
 
 
     // update dailysales
