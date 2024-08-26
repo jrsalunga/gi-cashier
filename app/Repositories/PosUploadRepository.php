@@ -291,25 +291,15 @@ class PosUploadRepository extends Repository
     $shrt_ovr = isset($r['SHRT_OVR']) ? trim($r['SHRT_OVR']):0;
 
     $vfpdate    = vfpdate_to_carbon(trim($r['TRANDATE']));
-    /*
-    try {
-      $vfpdate = vfpdate_to_carbon(trim($row['TRANDATE']));
-    } catch(Exception $e) {
-      $vfpdate = Carbon::now()->subDay();
-    }
-    */
 
-
-    //$sales      = ($r['CSH_SALE'] + $r['CHG_SALE'] + $r['SIG_SALE']) + 0;
     $sales      = ($r['CSH_SALE'] + $r['CHG_SALE']) + 0; // netsales: removed sign
     $empcount   = ((int)$kit + (int)$din);
-    //$tips       = empty(trim($r['TIP'])) ? 0: trim($r['TIP']);
     $tips       = $tip;
-    //$custcount  = empty(trim($r['CUST_CNT'])) ? 0 : trim($r['CUST_CNT']);
-    $custcount  = $cuscnt;
+    // 2024-08-26 - disable to parse customer count
+    // $custcount  = $cuscnt;
+    $custcount  = 0;
     $headspend  = $custcount==0 ? 0:($sales/$custcount);
     $tipspct    = $sales>0 ? ($tips/$sales)*100 : 0;
-    //$brmancost  = ($r['MAN_COST'] * $empcount);
     $mancost    = $mcost*$empcount;
 
     $mancostpct = $sales>0 ? ($mancost/$sales)*100 : 0;
@@ -381,7 +371,8 @@ class PosUploadRepository extends Repository
       $db = dbase_open($dbf_file, 0);
       $header = dbase_get_header_info($db);
       $recno = dbase_numrecords($db);
-      $from = $backup->date->copy()->subDay();
+      //$from = $backup->date->copy()->subDay(); // 2024-08-26
+      $from = $backup->date;
       $to = $backup->date;
       //$from = $date->copy()->subDay();
       //$to = $date;
@@ -2300,7 +2291,7 @@ class PosUploadRepository extends Repository
           
           // $c->info('data[branchid]='.$data['branchid']);
           // $c->info(json_encode(array_only($data, $fields)));
-          $c->info(json_encode($data));
+          // $c->info(json_encode($data));
 
           if ($this->ds->firstOrNewField(array_only($data, $fields), ['date', 'branchid']))
             $update++;
@@ -2352,7 +2343,7 @@ class PosUploadRepository extends Repository
     $c->info($d->date->format('Y-m-d').' '.$d->custcount.' '.$d->trans_cnt);
     $arr = [];
     foreach ($data as $key => $value) {
-      $c->info($d->{$key});
+      // $c->info($d->{$key});
       $x = $d->{$key};
       if ($x=='0' || is_null($x) || empty($x)) {
         $c->info('checkSalesmtdDS:'.$key.': '.$value);
@@ -3177,7 +3168,7 @@ class PosUploadRepository extends Repository
           }
         }
 
-        $c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
+        // $c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
         
         try {
           $this->purchase2->verifyAndCreate($data);
