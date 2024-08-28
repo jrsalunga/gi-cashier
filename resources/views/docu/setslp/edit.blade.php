@@ -64,6 +64,7 @@
                   <option value="1" <?=$setslp->terminal_id==1?'selected':''?> >BDO</option>
                   <option value="2" <?=$setslp->terminal_id==2?'selected':''?> >RCBC</option>
                   <option value="3" <?=$setslp->terminal_id==3?'selected':''?> >HSBC</option>
+                  <option value="3" <?=$setslp->terminal_id==4?'selected':''?> >MAYA</option>
                 </select>
               </div>
               </div>
