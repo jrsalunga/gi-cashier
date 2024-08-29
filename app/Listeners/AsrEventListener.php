@@ -60,7 +60,7 @@ class AsrEventListener
 
     // $expl = explode('.', $event->model->filename);
     $e['attachment'] = [];
-    $e['subject'] = 'EOD REPORTS '.$brcode.' '.$date->format('Y-m-d');    
+    $e['subject'] = $brcode.' EOD REPORTS '.$date->format('Ymd');    
     $filename1 = 'ASR_'.$brcode.'_'.$date->format('Ymd').'.PDF';
     $filename2 = 'ZREAD_'.$brcode.'_'.$date->format('Ymd').'.PDF';
     $filename3 = 'CSHAUDT_'.$brcode.'_'.$date->format('Ymd').'.PDF';
