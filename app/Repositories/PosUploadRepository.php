@@ -2220,8 +2220,15 @@ class PosUploadRepository extends Repository
     return file_exists($dbf_file) ? $dbf_file : false;
   }
 
+  public function processZReadReport($brcode) {
+    $dbf_file = $this->extracted_path.DS.'READ_'.$brcode.'.PDF';
+    return file_exists($dbf_file) ? $dbf_file : false;
+  }
 
-
+  public function processCashAudtReport($brcode) {
+    $dbf_file = $this->extracted_path.DS.'CASH_'.$brcode.'.PDF';
+    return file_exists($dbf_file) ? $dbf_file : false;
+  }
 
   #########################################################################################################################################################################################################
   ############## for App\Command\Backlog\MonthDaily #######################################################################################################################################################

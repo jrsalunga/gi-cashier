@@ -520,13 +520,35 @@ class UploaderController extends Controller
 
 
           try {
-            $res = $this->processAuditReport($backup->branchid, $backup->date);
+            $res1 = $this->processAuditReport($backup->branchid, $backup->date);
           } catch (Exception $e) {
             $msg =  'Process Audit Report: '.$e->getMessage();
           }
 
-          if ($res != false && app()->environment()==='production' && (c()->format('Y-m-d')==$backup->date->format('Y-m-d')))
-            event('email-asr', ['data'=>['branch_id'=> $backup->branchid, 'date'=>$backup->date, 'brcode'=>session('user.branchcode')]]);
+          try {
+            $res2 = $this->processZReadReport($backup->branchid, $backup->date);
+          } catch (Exception $e) {
+            $msg =  'Process ZRead Report: '.$e->getMessage();
+          }
+
+          try {
+            $res3 = $this->processCashAudtReport($backup->branchid, $backup->date);
+          } catch (Exception $e) {
+            $msg =  'Process Cash Audit Report: '.$e->getMessage();
+          }
+
+          // if (app()->environment()==='production' && (c()->format('Y-m-d')==$backup->date->format('Y-m-d'))) {
+            event('email-asr', [
+              'data'=>[
+                'branch_id'=> $backup->branchid, 
+                'date'=>$backup->date, 
+                'brcode'=>session('user.branchcode'),
+                'res1'=>$res1,
+                'res2'=>$res2,
+                'res3'=>$res3,
+              ]
+            ]);
+          // }
         
 
 
@@ -887,6 +909,54 @@ class UploaderController extends Controller
 
     $filename = 'ASR_'.$br.'_'.$date->format('Ymd').'.PDF';
     $storage_path = 'ASR'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
+
+    try {
+      $this->files->moveFile($path, $storage_path, false); // false = override file!
+    } catch(Exception $e) {
+      return false;
+      throw $e;   
+    }
+
+    return $storage_path;
+  }
+
+  public function processZReadReport($branchid, $date) {
+
+    $br = strtoupper(session('user.branchcode'));
+
+    try {
+      $path = $this->posUploadRepo->processZReadReport($br);
+    } catch(Exception $e) {
+      return false;
+      throw $e;    
+    }
+
+    $filename = 'ZREAD_'.$br.'_'.$date->format('Ymd').'.PDF';
+    $storage_path = 'ZREAD'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
+
+    try {
+      $this->files->moveFile($path, $storage_path, false); // false = override file!
+    } catch(Exception $e) {
+      return false;
+      throw $e;   
+    }
+
+    return $storage_path;
+  }
+
+  public function processCashAudtReport($branchid, $date) {
+
+    $br = strtoupper(session('user.branchcode'));
+
+    try {
+      $path = $this->posUploadRepo->processCashAudtReport($br);
+    } catch(Exception $e) {
+      return false;
+      throw $e;    
+    }
+
+    $filename = 'CSHAUDT_'.$br.'_'.$date->format('Ymd').'.PDF';
+    $storage_path = 'CSHAUDT'.DS.$date->format('Y').DS.$br.DS.$date->format('m').DS.$filename; 
 
     try {
       $this->files->moveFile($path, $storage_path, false); // false = override file!

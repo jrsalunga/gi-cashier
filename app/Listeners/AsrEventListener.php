@@ -59,13 +59,23 @@ class AsrEventListener
     }
 
     // $expl = explode('.', $event->model->filename);
-    $filename = 'ASR_'.$brcode.'_'.$date->format('Ymd').'.PDF';
-    $e['subject'] = 'EOD ASR '.$brcode.' '.$date->format('Y-m-d');    
-    $e['attachment'] = NULL;
+    $e['attachment'] = [];
+    $e['subject'] = 'EOD REPORTS '.$brcode.' '.$date->format('Y-m-d');    
+    $filename1 = 'ASR_'.$brcode.'_'.$date->format('Ymd').'.PDF';
+    $filename2 = 'ZREAD_'.$brcode.'_'.$date->format('Ymd').'.PDF';
+    $filename3 = 'CSHAUDT_'.$brcode.'_'.$date->format('Ymd').'.PDF';
 
-    $filepath = 'ASR'.DS.$date->format('Y').DS.$brcode.DS.$date->format('m').DS.$filename;
+    $filepath = 'ASR'.DS.$date->format('Y').DS.$brcode.DS.$date->format('m').DS.$filename1;
     if ($this->fileStorage->exists($filepath)) 
-      $e['attachment'] = $this->fileStorage->realFullPath($filepath);
+      array_push($e['attachment'], $this->fileStorage->realFullPath($filepath));
+
+    $filepath = 'ZREAD'.DS.$date->format('Y').DS.$brcode.DS.$date->format('m').DS.$filename2;
+    if ($this->fileStorage->exists($filepath)) 
+      array_push($e['attachment'], $this->fileStorage->realFullPath($filepath));
+
+    $filepath = 'CSHAUDT'.DS.$date->format('Y').DS.$brcode.DS.$date->format('m').DS.$filename3;
+    if ($this->fileStorage->exists($filepath)) 
+      array_push($e['attachment'], $this->fileStorage->realFullPath($filepath));
 
 
     // email RM, AM, AHC 
@@ -75,7 +85,7 @@ class AsrEventListener
     $e['date'] = $date->format('m/d/Y');
     $this->mailer->queue('docu.asr.mail-notifier', $e, function ($message) use ($e) {
       $message->subject($e['subject']);
-      $message->from('giligans.app@gmail.com', 'GI ASR Alerts');
+      $message->from('giligans.app@gmail.com', 'GI App');
       $message->replyTo($e['replyTo']);
 
       foreach ($e['mailing_list'] as $u)
@@ -83,8 +93,10 @@ class AsrEventListener
         
       $message->cc('giligans.log@gmail.com');
 
-      if (!is_null($e['attachment']))
-        $message->attach($e['attachment']);
+      if (count($e['attachment'])>0) 
+        foreach($e['attachment'] as $k => $value)
+          $message->attach($value);
+  
 
     });
 
