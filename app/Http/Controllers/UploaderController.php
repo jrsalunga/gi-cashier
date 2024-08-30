@@ -537,7 +537,7 @@ class UploaderController extends Controller
             $msg =  'Process Cash Audit Report: '.$e->getMessage();
           }
 
-          // if (app()->environment()==='production' && (c()->format('Y-m-d')==$backup->date->format('Y-m-d'))) {
+          if (app()->environment()==='production' && (c()->format('Y-m-d')==$backup->date->format('Y-m-d') || c()->subDay()->format('Y-m-d')==$backup->date->format('Y-m-d'))) {
             event('email-asr', [
               'data'=>[
                 'branch_id'=> $backup->branchid, 
@@ -548,7 +548,7 @@ class UploaderController extends Controller
                 'res3'=>$res3,
               ]
             ]);
-          // }
+          }
         
 
 

@@ -91,10 +91,10 @@ class AsrEventListener
       foreach ($e['mailing_list'] as $u)
         $message->to($u['email'], $u['name']);
         
-      $message->cc('giligans.log@gmail.com');
+      // $message->cc('giligans.log@gmail.com');
 
       if (count($e['attachment'])>0) 
-        foreach($e['attachment'] as $k => $value)
+        foreach($e['attachment'] as $value)
           $message->attach($value);
   
 
