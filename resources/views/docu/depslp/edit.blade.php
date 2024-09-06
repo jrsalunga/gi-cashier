@@ -186,7 +186,7 @@
 
     if ($('#time')[0]!==undefined) {
       $('#time').datetimepicker({
-        format: 'HH:mm:ss',
+        format: 'HH:mm:ss A',
         ignoreReadonly: true,
       });
     }
