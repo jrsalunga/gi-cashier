@@ -186,7 +186,8 @@
 
     if ($('#time')[0]!==undefined) {
       $('#time').datetimepicker({
-        format: 'HH:mm:ss A',
+        // format: 'HH:mm:ss A', remove AM/PM, 24hr default saving errror
+        format: 'HH:mm:ss',
         ignoreReadonly: true,
       });
     }
