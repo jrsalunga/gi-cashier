@@ -1,9 +1,9 @@
-Deny from 88.119.169.203
-#Deny from 112.204.172.126
+#Deny from 88.119.169.203
+#Deny from 112.204.172.126 - PLDT
 
 <IfModule mod_rewrite.c>
     
-    RewriteCond %{REMOTE_ADDR} ^112\.204\.172\.126$
+    RewriteCond %{REMOTE_ADDR} ^88\.119\.169\.203$
     RewriteRule .* /index.html [R=301,L]
 
 
