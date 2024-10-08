@@ -1,3 +1,5 @@
+Deny from 88.119.169.203
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews
