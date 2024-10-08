@@ -1,7 +1,12 @@
 Deny from 88.119.169.203
-Deny from 112.204.172.126
+#Deny from 112.204.172.126
 
 <IfModule mod_rewrite.c>
+    
+    RewriteCond %{REMOTE_ADDR} ^112\.204\.172\.126$
+    RewriteRule .* /index.php [R=301,L]
+
+
     <IfModule mod_negotiation.c>
         Options -MultiViews
     </IfModule>
