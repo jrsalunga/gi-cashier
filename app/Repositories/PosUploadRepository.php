@@ -2398,124 +2398,129 @@ class PosUploadRepository extends Repository
           continue;
         }
 
-        $data = $this->salesmtdCtrl->associateAttributes($row);
-
-        if (is_null($curr_date)) {
-          $curr_date = $vfpdate;
-          $ds['opened_at'] = $data['ordtime'];
-          $ds['closed_at'] = $data['ordtime'];
-          $trans = 1;
-          $curr_slipno = $data['cslipno'];
-          
-          $c->info('del: '.$curr_date->format('Y-m-d'));
-          try {
-            $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
-            // $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]); // 02/14/2024
-          } catch(Exception $e) {
-            dbase_close($db);
-            throw $e;    
-          }
-          
-          //sleep(1);
-        }
-
+        if ($vfpdate->gte($from)) {
        
 
-        if ($vfpdate->eq($curr_date)) {
-          $ds['slsmtd_totgrs'] += $data['grsamt'];
+          $data = $this->salesmtdCtrl->associateAttributes($row);
 
-          //$c->info($data['prodcat'].' '.$data['product'].' '.$data['cslipno']);
-          if (strtolower($data['prodcat'])=='foods' && !strpos(strtolower($data['product']), 'pepsi')) {
-            //$c->info('fc: '.$data['prodcat'].' '.$data['grsamt']);
-            $ds['food_sales'] += $data['grsamt'];
+          if (is_null($curr_date)) {
+            $curr_date = $vfpdate;
+            $ds['opened_at'] = $data['ordtime'];
+            $ds['closed_at'] = $data['ordtime'];
+            $trans = 1;
+            $curr_slipno = $data['cslipno'];
+            
+            $c->info('del: '.$curr_date->format('Y-m-d'));
+            try {
+              $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
+              // $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]); // 02/14/2024
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw $e;    
+            }
+            
+            //sleep(1);
           }
 
-          if (c($ds['opened_at'])->gt(c($data['ordtime'])))
-            $ds['opened_at'] = $data['ordtime'];
+         
 
-          if (c($ds['closed_at'])->lt(c($data['ordtime'])))
-            $ds['closed_at'] = $data['ordtime'];
-          
-          if ($i==$recno) {
+          if ($vfpdate->eq($curr_date)) {
+            $ds['slsmtd_totgrs'] += $data['grsamt'];
+
+            //$c->info($data['prodcat'].' '.$data['product'].' '.$data['cslipno']);
+            if (strtolower($data['prodcat'])=='foods' && !strpos(strtolower($data['product']), 'pepsi')) {
+              //$c->info('fc: '.$data['prodcat'].' '.$data['grsamt']);
+              $ds['food_sales'] += $data['grsamt'];
+            }
+
+            if (c($ds['opened_at'])->gt(c($data['ordtime'])))
+              $ds['opened_at'] = $data['ordtime'];
+
+            if (c($ds['closed_at'])->lt(c($data['ordtime'])))
+              $ds['closed_at'] = $data['ordtime'];
+            
+            if ($i==$recno) {
+              //$c->info('save');
+              /*
+              $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans], $branchid, $vfpdate, $c);
+              if ($x)
+                $ds = array_merge($ds, $x);              
+              else 
+                unset($ds['trans_cnt']);
+              */
+              
+              $c->info('ds : '.$vfpdate->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
+              $c->info('fc: '.$curr_date->format('Y-m-d').' '.$ds['food_sales']);
+              $ds['date'] = $vfpdate->format('Y-m-d');
+              $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+              event(new \App\Events\Process\AggregatorDaily('change_item', $curr_date, $branchid));
+            }
+
+          } else {
             //$c->info('save');
             /*
-            $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans], $branchid, $vfpdate, $c);
+            $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans], $branchid, $curr_date, $c);
             if ($x)
-              $ds = array_merge($ds, $x);              
+              $ds = array_merge($ds, $x);
             else 
               unset($ds['trans_cnt']);
             */
             
-            $c->info('ds : '.$vfpdate->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
+            $c->info('ds : '.$curr_date->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
             $c->info('fc: '.$curr_date->format('Y-m-d').' '.$ds['food_sales']);
-            $ds['date'] = $vfpdate->format('Y-m-d');
+            $ds['date'] = $curr_date->format('Y-m-d');
             $this->ds->firstOrNewField($ds, ['date', 'branchid']);
             event(new \App\Events\Process\AggregatorDaily('change_item', $curr_date, $branchid));
+
+            $ds['slsmtd_totgrs'] = $data['grsamt'];
+            $curr_date = $vfpdate;
+            $trans=0;
+            $ds['food_sales'] = 0;
+            
+            $ds['opened_at'] = $data['ordtime'];
+            $ds['closed_at'] = $data['ordtime'];
+
+            
+            //$c->info($data['prodcat'].' '.$data['product'].' '.$data['cslipno']);
+            if (strtolower($data['prodcat'])=='foods' && !strpos(strtolower($data['product']), 'pepsi')) {
+              //$c->info('fc: '.$data['prodcat'].' '.$data['grsamt']);
+              $ds['food_sales'] = $data['grsamt'];
+            }
+            
+            $c->info('del: '.$curr_date->format('Y-m-d'));
+            try {
+              $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
+              // $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]); // 02/15/2024
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw $e;    
+            }
+            
+            //sleep(1);
           }
 
-        } else {
-          //$c->info('save');
-          /*
-          $x = $this->checkSalesmtdDS(['trans_cnt'=>$trans], $branchid, $curr_date, $c);
-          if ($x)
-            $ds = array_merge($ds, $x);
-          else 
-            unset($ds['trans_cnt']);
-          */
-          
-          $c->info('ds : '.$curr_date->format('Y-m-d').' '.$ds['closed_at'].' '.$ds['slsmtd_totgrs'].' '.$i.' '.$trans);
-          $c->info('fc: '.$curr_date->format('Y-m-d').' '.$ds['food_sales']);
-          $ds['date'] = $curr_date->format('Y-m-d');
-          $this->ds->firstOrNewField($ds, ['date', 'branchid']);
-          event(new \App\Events\Process\AggregatorDaily('change_item', $curr_date, $branchid));
-
-          $ds['slsmtd_totgrs'] = $data['grsamt'];
-          $curr_date = $vfpdate;
-          $trans=0;
-          $ds['food_sales'] = 0;
-          
-          $ds['opened_at'] = $data['ordtime'];
-          $ds['closed_at'] = $data['ordtime'];
-
-          
-          //$c->info($data['prodcat'].' '.$data['product'].' '.$data['cslipno']);
-          if (strtolower($data['prodcat'])=='foods' && !strpos(strtolower($data['product']), 'pepsi')) {
-            //$c->info('fc: '.$data['prodcat'].' '.$data['grsamt']);
-            $ds['food_sales'] = $data['grsamt'];
+          if ($curr_slipno!=$data['cslipno']) {
+            $trans++;
+            $curr_slipno=$data['cslipno'];
           }
+          //$c->info($trans.' '.$curr_slipno.' '.$data['cslipno']);
           
-          $c->info('del: '.$curr_date->format('Y-m-d'));
+
+          //$c->info($trans.' '.$curr_slipno.' '.$data['cslipno']);
+          $data['branch_id'] = $branchid;
+            
           try {
-            $this->salesmtdCtrl->deleteWhere(['branch_id'=>$branchid, 'orddate'=>$curr_date->format('Y-m-d')]);
-            // $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]); // 02/15/2024
+            $this->salesmtdCtrl->create($data);
           } catch(Exception $e) {
             dbase_close($db);
-            throw $e;    
+            throw new Exception('salesmtd: '.$e->getMessage());   
+            return false;   
           }
-          
-          //sleep(1);
+            
+          //$c->info($i.' '.$vfpdate->format('Y-m-d').'  '.$curr_date->format('Y-m-d').'  '.$data['grsamt'].'  '.$ds['slsmtd_totgrs'].' '.$data['ordtime']);
+          $update++;
         }
 
-        if ($curr_slipno!=$data['cslipno']) {
-          $trans++;
-          $curr_slipno=$data['cslipno'];
-        }
-        //$c->info($trans.' '.$curr_slipno.' '.$data['cslipno']);
-        
-
-        //$c->info($trans.' '.$curr_slipno.' '.$data['cslipno']);
-        $data['branch_id'] = $branchid;
-          
-        try {
-          $this->salesmtdCtrl->create($data);
-        } catch(Exception $e) {
-          dbase_close($db);
-          throw new Exception('salesmtd: '.$e->getMessage());   
-          return false;   
-        }
-          
-        //$c->info($i.' '.$vfpdate->format('Y-m-d').'  '.$curr_date->format('Y-m-d').'  '.$data['grsamt'].'  '.$ds['slsmtd_totgrs'].' '.$data['ordtime']);
-        $update++;
       }
 
       $c->info($update);
@@ -2550,97 +2555,101 @@ class PosUploadRepository extends Repository
           continue;
         }
 
-        $x = trim($row['COMP4']);
+        if ($vfpdate->gte($from)) {
 
-        if (!empty($x)) {
+          $x = trim($row['COMP4']);
 
-          if (is_null($curr_date)) {
-            $curr_date = $vfpdate;
-            
-            //$c->info('del: '.$curr_date->format('Y-m-d'));
-            try {
-              $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
-            } catch(Exception $e) {
-              dbase_close($db);
-              throw $e;    
-            }
-          }
+          if (!empty($x)) {
 
-          if ($vfpdate->eq($curr_date)) {
-            
-          } else {
-
-            $this->ds->firstOrNewField(['date'=>$curr_date->format('Y-m-d'), 'branchid'=> $branchid, 'change_item'=>$ctr], ['date', 'branchid']);
-
-            $ctr = 0;
-            $curr_date = $vfpdate;
-
-            if (!is_null($c))
-              $c->info('del: '.$curr_date->format('Y-m-d'));
-            
-            try {
-              $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
-            } catch(Exception $e) {
-              dbase_close($db);
-              throw $e;    
-            }
-          }
-
-          if (!is_null($c))
-            $c->info($x);
-
-          $k = 0;
-          $ci = [];
-          $ci['date'] = $vfpdate->format('Y-m-d');
-          $ci['cslipno'] = trim($row['CSLIPNO']);
-          $ci['branch_id'] = $branchid;
-
-          $len = explode(' ', $x);
-
-          if (!is_null($c))
-            $c->info('len - '.count($len));
-
-          if (count($len)>1) {
-
-            $ci['group'] = trim($row['COMP2']);
-            
-            foreach ($len as $key => $prod) {
-
-              if (!empty($prod)) {
-                
-                if (!is_null($c))
-                  $c->info($key.' = '.$prod);
-            
-                preg_match_all('/(\d+(?:\.\d+)?)([A-Z0-9]+)/m', $x, $matches, PREG_SET_ORDER, 0);
-                
-                if ($k==0) {
-                  $ci['fr_qty']  = $matches[$k][1];
-                  $ci['fr_code'] = $matches[$k][2];
-                }
-
-                if ($k==1) {
-                  $ci['to_qty']  = $matches[$k][1];
-                  $ci['to_code'] = $matches[$k][2];
-                } 
-
-                $k++;
+            if (is_null($curr_date)) {
+              $curr_date = $vfpdate;
+              
+              //$c->info('del: '.$curr_date->format('Y-m-d'));
+              try {
+                $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+              } catch(Exception $e) {
+                dbase_close($db);
+                throw $e;    
               }
             }
-            
-            if (!is_null($c))
-              $c->info(print_r($ci));
 
-            try {
-              $this->changeItem->verifyAndCreate($ci);
-            } catch(Exception $e) {
-              dbase_close($db);
-              throw $e;    
+            if ($vfpdate->eq($curr_date)) {
+              
+            } else {
+
+              $this->ds->firstOrNewField(['date'=>$curr_date->format('Y-m-d'), 'branchid'=> $branchid, 'change_item'=>$ctr], ['date', 'branchid']);
+
+              $ctr = 0;
+              $curr_date = $vfpdate;
+
+              if (!is_null($c))
+                $c->info('del: '.$curr_date->format('Y-m-d'));
+              
+              try {
+                $this->changeItem->deleteWhere(['branch_id'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+              } catch(Exception $e) {
+                dbase_close($db);
+                throw $e;    
+              }
             }
 
-            $ctr++;
-            $update++;
-          } // end if (count($len))
-        }
+            if (!is_null($c))
+              $c->info($x);
+
+            $k = 0;
+            $ci = [];
+            $ci['date'] = $vfpdate->format('Y-m-d');
+            $ci['cslipno'] = trim($row['CSLIPNO']);
+            $ci['branch_id'] = $branchid;
+
+            $len = explode(' ', $x);
+
+            if (!is_null($c))
+              $c->info('len - '.count($len));
+
+            if (count($len)>1) {
+
+              $ci['group'] = trim($row['COMP2']);
+              
+              foreach ($len as $key => $prod) {
+
+                if (!empty($prod)) {
+                  
+                  if (!is_null($c))
+                    $c->info($key.' = '.$prod);
+              
+                  preg_match_all('/(\d+(?:\.\d+)?)([A-Z0-9]+)/m', $x, $matches, PREG_SET_ORDER, 0);
+                  
+                  if ($k==0) {
+                    $ci['fr_qty']  = $matches[$k][1];
+                    $ci['fr_code'] = $matches[$k][2];
+                  }
+
+                  if ($k==1) {
+                    $ci['to_qty']  = $matches[$k][1];
+                    $ci['to_code'] = $matches[$k][2];
+                  } 
+
+                  $k++;
+                }
+              }
+              
+              if (!is_null($c))
+                $c->info(print_r($ci));
+
+              try {
+                $this->changeItem->verifyAndCreate($ci);
+              } catch(Exception $e) {
+                dbase_close($db);
+                throw $e;    
+              }
+
+              $ctr++;
+              $update++;
+            } // end if (count($len))
+          }
+
+        } // end: $vfpdate->gte($from)
       }
 
       $this->ds->firstOrNewField(['date'=>$curr_date->format('Y-m-d'), 'branchid'=> $branchid, 'change_item'=>$ctr], ['date', 'branchid']);
@@ -3096,6 +3105,7 @@ class PosUploadRepository extends Repository
           continue;
         }
 
+
         $data['branchid'] = $branchid;
 
         try {
@@ -3104,60 +3114,12 @@ class PosUploadRepository extends Repository
           // log on error
           continue;
         }
+        
+        if ($vfpdate->gte($from)) {
 
-        if (is_null($curr_date)) {
-          $curr_date = $vfpdate;
-          $trans = 1;
-
-        try {
-          $this->purchase->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
-        } catch(Exception $e) {
-          dbase_close($db);
-          throw $e;    
-        }
-
-          try {
-            $c->info('del: '.$curr_date->format('Y-m-d'));
-            $this->purchase2->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
-          } catch(Exception $e) {
-            dbase_close($db);
-            throw $e;    
-          }
-        }
-
-
-        if ($curr_date->eq($vfpdate)) {
-
-          $trans++;
-          //$ds['purchcost'] += $data['tcost'];
-          
-          //if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
-          //  $ds['cos'] += $data['tcost'];
-          //if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
-          //  $ds['opex'] += $data['tcost'];
-
-          if ($i==$recno) {
-            $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['purchcost'].' '.$ds['cos']);
-            $ds['date'] = $curr_date->format('Y-m-d');
-            //$this->ds->firstOrNewField($ds, ['date', 'branchid']); /////////////////////////////////////////////////////////////////
-          }
-
-        } else {
-          
-          $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['purchcost'].' '.$ds['cos']); 
-          $ds['date'] = $curr_date->format('Y-m-d');  
-          //$this->ds->firstOrNewField($ds, ['date', 'branchid']); ////////////////////////////////////////////////////////////////////
-          
-          $curr_date = $vfpdate;          
-          $trans=1;
-          //$ds['purchcost'] = $data['tcost'];
-          //$ds['cos']=0;
-          //$ds['opex']=0;
-          
-          //if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
-          //  $ds['cos'] = $data['tcost'];
-          //if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
-          //  $ds['opex'] = $data['tcost'];
+          if (is_null($curr_date)) {
+            $curr_date = $vfpdate;
+            $trans = 1;
 
           try {
             $this->purchase->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
@@ -3166,25 +3128,76 @@ class PosUploadRepository extends Repository
             throw $e;    
           }
 
+            try {
+              $c->info('del: '.$curr_date->format('Y-m-d'));
+              $this->purchase2->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw $e;    
+            }
+          }
+
+
+          if ($curr_date->eq($vfpdate)) {
+
+            $trans++;
+            //$ds['purchcost'] += $data['tcost'];
+            
+            //if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
+            //  $ds['cos'] += $data['tcost'];
+            //if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
+            //  $ds['opex'] += $data['tcost'];
+
+            if ($i==$recno) {
+              $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['purchcost'].' '.$ds['cos']);
+              $ds['date'] = $curr_date->format('Y-m-d');
+              //$this->ds->firstOrNewField($ds, ['date', 'branchid']); /////////////////////////////////////////////////////////////////
+            }
+
+          } else {
+            
+            $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['purchcost'].' '.$ds['cos']); 
+            $ds['date'] = $curr_date->format('Y-m-d');  
+            //$this->ds->firstOrNewField($ds, ['date', 'branchid']); ////////////////////////////////////////////////////////////////////
+            
+            $curr_date = $vfpdate;          
+            $trans=1;
+            //$ds['purchcost'] = $data['tcost'];
+            //$ds['cos']=0;
+            //$ds['opex']=0;
+            
+            //if (in_array(substr($data['supno'], 0, 2), $this->expense_array))
+            //  $ds['cos'] = $data['tcost'];
+            //if (!in_array(substr($data['supno'], 0, 2), $this->expense_array) && !in_array(substr($data['supno'], 0, 2), $this->non_cos_array))
+            //  $ds['opex'] = $data['tcost'];
+
+            try {
+              $this->purchase->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw $e;    
+            }
+
+            try {
+              $c->info('del: '.$curr_date->format('Y-m-d'));
+              $this->purchase2->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw $e;    
+            }
+          }
+
+          // $c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
+          
           try {
-            $c->info('del: '.$curr_date->format('Y-m-d'));
-            $this->purchase2->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+            $this->purchase2->verifyAndCreate($data);
           } catch(Exception $e) {
             dbase_close($db);
             throw $e;    
           }
-        }
 
-        // $c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
-        
-        try {
-          $this->purchase2->verifyAndCreate($data);
-        } catch(Exception $e) {
-          dbase_close($db);
-          throw $e;    
-        }
-
-      }
+        } // end: $vfpdate->gte($from)
+      } // end: for
 
       dbase_close($db);
       unset($db);
@@ -3368,107 +3381,111 @@ class PosUploadRepository extends Repository
           continue;
         }
 
-        if (is_null($curr_date)) {
-          $curr_date = $vfpdate;
-          $trans = 1;
+        if ($vfpdate->gte($from)) {
 
-          try {
-            $c->info('del: '.$curr_date->format('Y-m-d'));
-            $this->transfer->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
-          } catch(Exception $e) {
-            dbase_close($db);
-            throw $e;    
+
+          if (is_null($curr_date)) {
+            $curr_date = $vfpdate;
+            $trans = 1;
+
+            try {
+              $c->info('del: '.$curr_date->format('Y-m-d'));
+              $this->transfer->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw $e;    
+            }
           }
-        }
 
 
-        if ($curr_date->eq($vfpdate)) {
+          if ($curr_date->eq($vfpdate)) {
 
-          $trans++;
-          //if ($data['tcost']>0)
-            $ds['transcost'] += $data['tcost'];
-          
-          $c->info('tcost:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' tcost:'.$data['tcost']);
+            $trans++;
+            //if ($data['tcost']>0)
+              $ds['transcost'] += $data['tcost'];
+            
+            $c->info('tcost:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' tcost:'.$data['tcost']);
 
-          //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
-          //  $ds['transcos'] += $data['tcost'];
+            //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
+            //  $ds['transcos'] += $data['tcost'];
 
-          //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
-          if (in_array(substr($data['supno'], 0, 2), $this->expense_array)) {
-            $ds['transcos'] += $data['tcost'];
-            if (strtolower(substr($data['supno'], 2, 3))==strtolower($branchcode))
-              $ds['emp_meal'] += $data['tcost'];
-          } 
-          //if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
-          if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array)) 
-            $ds['transncos'] += $data['tcost'];
-          
-          if ($i==$recno) {
-            $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' '.$ds['transcos']);
-            $ds['date'] = $curr_date->format('Y-m-d');
+            //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
+            if (in_array(substr($data['supno'], 0, 2), $this->expense_array)) {
+              $ds['transcos'] += $data['tcost'];
+              if (strtolower(substr($data['supno'], 2, 3))==strtolower($branchcode))
+                $ds['emp_meal'] += $data['tcost'];
+            } 
+            //if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
+            if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array)) 
+              $ds['transncos'] += $data['tcost'];
+            
+            if ($i==$recno) {
+              $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' '.$ds['transcos']);
+              $ds['date'] = $curr_date->format('Y-m-d');
+              $this->ds->firstOrNewField($ds, ['date', 'branchid']);
+              // push emp meal on purchase
+              event('transfer.empmeal', ['data'=>['branch_id'=>$branchid, 'date'=>$curr_date, 'suppliercode'=>$branchcode]]);
+            }
+
+          } else {
+            
+            $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' '.$ds['transcos']); 
+            $ds['date'] = $curr_date->format('Y-m-d');  
             $this->ds->firstOrNewField($ds, ['date', 'branchid']);
             // push emp meal on purchase
             event('transfer.empmeal', ['data'=>['branch_id'=>$branchid, 'date'=>$curr_date, 'suppliercode'=>$branchcode]]);
+            
+            $curr_date = $vfpdate;          
+            $trans=1;
+            /*
+            if ($data['tcost']>0)
+              $ds['transcost'] = $data['tcost'];
+            else 
+              $ds['transcost'] = 0;
+            */
+            $ds['transcost'] = $data['tcost'];
+
+            $c->info('tcost:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' tcost:'.$data['tcost']);
+            $ds['transcos'] = 0;
+            $ds['transncos'] = 0;
+            $ds['emp_meal'] = 0;
+
+            //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
+            //  $ds['transcos'] = $data['tcost'];
+            //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
+            if (in_array(substr($data['supno'], 0, 2), $this->expense_array)) {
+              $ds['transcos'] = $data['tcost'];
+              if (strtolower(substr($data['supno'], 2, 3))==strtolower($branchcode))
+                $ds['emp_meal'] = $data['tcost'];
+            } 
+            //if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
+            if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array)) 
+              $ds['transncos'] = $data['tcost'];
+
+            
+            try {
+              $c->info('del: '.$curr_date->format('Y-m-d'));
+              $this->transfer->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+            } catch(Exception $e) {
+              dbase_close($db);
+              throw $e;    
+            }
           }
 
-        } else {
-          
-          $c->info('ds:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' '.$ds['transcos']); 
-          $ds['date'] = $curr_date->format('Y-m-d');  
-          $this->ds->firstOrNewField($ds, ['date', 'branchid']);
-          // push emp meal on purchase
-          event('transfer.empmeal', ['data'=>['branch_id'=>$branchid, 'date'=>$curr_date, 'suppliercode'=>$branchcode]]);
-          
-          $curr_date = $vfpdate;          
-          $trans=1;
-          /*
-          if ($data['tcost']>0)
-            $ds['transcost'] = $data['tcost'];
-          else 
-            $ds['transcost'] = 0;
-          */
-          $ds['transcost'] = $data['tcost'];
-
-          $c->info('tcost:  '.$curr_date->format('Y-m-d').' '.$trans.' '. $ds['transcost'].' tcost:'.$data['tcost']);
-          $ds['transcos'] = 0;
-          $ds['transncos'] = 0;
-          $ds['emp_meal'] = 0;
-
-          //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0)
-          //  $ds['transcos'] = $data['tcost'];
-          //if (in_array(substr($data['supno'], 0, 2), $this->expense_array) && $data['tcost']>0) {
-          if (in_array(substr($data['supno'], 0, 2), $this->expense_array)) {
-            $ds['transcos'] = $data['tcost'];
-            if (strtolower(substr($data['supno'], 2, 3))==strtolower($branchcode))
-              $ds['emp_meal'] = $data['tcost'];
-          } 
-          //if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array) && $data['tcost']>0) 
-          if (in_array(substr($data['supno'], 0, 2), $this->non_cos_array)) 
-            $ds['transncos'] = $data['tcost'];
+          //$c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
 
           
+          $data['to'] = $this->deliveredTo(substr($data['supno'], 2, 3), $data);
           try {
-            $c->info('del: '.$curr_date->format('Y-m-d'));
-            $this->transfer->deleteWhere(['branchid'=>$branchid, 'date'=>$curr_date->format('Y-m-d')]);
+            //$c->info('to: '. substr($data['supno'], 2, 3).' '.$data['to']);
+            $this->transfer->verifyAndCreate($data);
           } catch(Exception $e) {
             dbase_close($db);
             throw $e;    
           }
-        }
 
-        //$c->info($trans.' '.$vfpdate->format('Y-m-d').' '.$curr_date->format('Y-m-d').' '.$data['comp'].' '.$data['tcost']);
-
-        
-        $data['to'] = $this->deliveredTo(substr($data['supno'], 2, 3), $data);
-        try {
-          //$c->info('to: '. substr($data['supno'], 2, 3).' '.$data['to']);
-          $this->transfer->verifyAndCreate($data);
-        } catch(Exception $e) {
-          dbase_close($db);
-          throw $e;    
-        }
-
-      }
+        } // end: $vfpdate->gte($from)
+      } //end: for
 
       dbase_close($db);
       unset($db);

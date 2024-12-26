@@ -25,7 +25,7 @@ class MonthDaily extends Command
    *
    * @var string
    */
-  protected $signature = 'backlog:month {brcode : Branch Code} {date : YYYY-MM-DD}';
+  protected $signature = 'backlog:month {brcode : Branch Code} {date : YYYY-MM-DD}  {--dateTo= : Date To}';
 
   /**
    * The console command description.
@@ -78,9 +78,28 @@ class MonthDaily extends Command
       exit;
     }
 
-    $d = Carbon::parse($date);
-    $f = Carbon::parse($date)->startOfMonth();
-    $t = Carbon::parse($date)->endOfMonth();
+    if (is_null($this->option('dateTo'))) {
+      $d = Carbon::parse($date);
+      $f = Carbon::parse($date)->startOfMonth();
+      $t = Carbon::parse($date)->endOfMonth();
+    } else {
+      if (!is_iso_date($this->option('dateTo'))) {
+        $this->info('Invalid date.');
+        exit;
+      }
+
+      $d = Carbon::parse($date);
+      $f = Carbon::parse($date);
+      $t = Carbon::parse($this->option('dateTo'));
+    }
+
+
+
+    $this->info('d:'.$d->format('Y-m-d').' f:'.$f->format('Y-m-d').' t:'.$t->format('Y-m-d'));
+
+
+    // exit;
+
 
     $this->info($f->format('Y-m-d'));
 
@@ -145,6 +164,7 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
+
 
     $this->info('extracting charges...');
     try {
