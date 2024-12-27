@@ -25,7 +25,7 @@ class MonthDaily extends Command
    *
    * @var string
    */
-  protected $signature = 'backlog:month {brcode : Branch Code} {date : YYYY-MM-DD}  {--dateTo= : Date To}';
+  protected $signature = 'backlog:month {brcode : Branch Code} {date : YYYY-MM-DD}  {--dateTo= : Date To} {--backup= : Backup}' ;
 
   /**
    * The console command description.
@@ -105,7 +105,16 @@ class MonthDaily extends Command
 
 
     $locator = new Locator('pos');
-    $path = $br->code.DS.$t->format('Y').DS.$t->format('m').DS.'GC'.$t->format('mdy').'.ZIP';
+    
+    if (is_null($this->option('backup'))){
+      $backup_filename = 'GC'.$t->format('mdy').'.ZIP';
+    }
+    else
+      $backup_filename = strtoupper($this->option('backup'));
+
+    $path = $br->code.DS.$t->format('Y').DS.$t->format('m').DS.$backup_filename;
+      // $path = $br->code.DS.$t->format('Y').DS.$t->format('m').DS.'GC'.$t->format('mdy').'.ZIP';
+
     $this->info('Location: '.$locator->realFullPath($path));
     if (!$locator->exists($path)) {
       $t = $d;
@@ -115,10 +124,11 @@ class MonthDaily extends Command
         $this->info('Backup '.$path.' do not exist.');
         exit;
       } else {
-        $this->info($t->format('Y-m-d'));
+        $this->info($t->format('Y-m-d').' palit 1');
+        $backup_filename = 'GC'.$t->format('mdy').'.ZIP';
       }
     } else {
-      $this->info($t->format('Y-m-d'));
+      $this->info($t->format('Y-m-d').' palit 2');
     }
     $this->info($path);
 
@@ -130,10 +140,10 @@ class MonthDaily extends Command
 
     $this->info('start processing...');
 
-    $backup = Backup::where('branchid', $br->id)->where('filename', 'GC'.$t->format('mdy').'.ZIP')->first();
+    $backup = Backup::where('branchid', $br->id)->where('filename', $backup_filename)->first();
 
     if (is_null($backup)) {
-      $this->info('No backup log found on '. $t->format('Y-m-d'));
+      $this->info('No backup log found on '. $backup_filename);
       exit;
     }
     //$this->posUploadRepo->postNewDailySales($br->id, Carbon::parse($date), $this);
@@ -154,7 +164,6 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
-
     $this->info('extracting salesmtd...');
     try {
       $r = $this->backlogSalesmtd($br->id, $f, $t, $this);
@@ -164,7 +173,6 @@ class MonthDaily extends Command
       DB::rollback();
       exit;
     }
-
 
     $this->info('extracting charges...');
     try {

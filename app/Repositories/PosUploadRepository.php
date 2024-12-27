@@ -2398,8 +2398,8 @@ class PosUploadRepository extends Repository
           continue;
         }
 
-        if ($vfpdate->gte($from)) {
-       
+
+        if ($vfpdate->gt($from->copy()->subDay()) && $vfpdate->lt($to->copy()->addDay())) {
 
           $data = $this->salesmtdCtrl->associateAttributes($row);
 
@@ -2555,7 +2555,7 @@ class PosUploadRepository extends Repository
           continue;
         }
 
-        if ($vfpdate->gte($from)) {
+       if ($vfpdate->gt($from->copy()->subDay()) && $vfpdate->lt($to->copy()->addDay())) {
 
           $x = trim($row['COMP4']);
 
@@ -3115,7 +3115,7 @@ class PosUploadRepository extends Repository
           continue;
         }
         
-        if ($vfpdate->gte($from)) {
+        if ($vfpdate->gt($from->copy()->subDay()) && $vfpdate->lt($to->copy()->addDay())) {
 
           if (is_null($curr_date)) {
             $curr_date = $vfpdate;
@@ -3381,7 +3381,7 @@ class PosUploadRepository extends Repository
           continue;
         }
 
-        if ($vfpdate->gte($from)) {
+        if ($vfpdate->gt($from->copy()->subDay()) && $vfpdate->lt($to->copy()->addDay())) {
 
 
           if (is_null($curr_date)) {
