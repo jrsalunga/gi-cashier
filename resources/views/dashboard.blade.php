@@ -28,7 +28,7 @@
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
     <li class="active">Dashboard</li>
   </ol>
-  
+ <!-- 
   @if(app()->environment()=='production')
   @if($inadequates)
     <div class="alert alert-warning alert-important">
@@ -41,6 +41,7 @@
       </ul>
     </div>
   @endif
+-->
   @endif
   <!--
   <div class="alert alert-warning alert-important">
