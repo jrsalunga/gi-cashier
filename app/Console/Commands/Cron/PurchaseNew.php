@@ -33,6 +33,7 @@ class PurchaseNew extends Command
   public function handle() {
 
     $cmd = app()->environment()=='local' ? $this : NULL;
+    $segment = app()->environment()=='local' ? 8 : 9;
     $factory = new Locator('backup_factory');
     $factory_path = config('gi-dtr.upload_path.backup_factory.'.app()->environment());
 
@@ -53,10 +54,10 @@ class PurchaseNew extends Command
 
         $boom = explode(DS, $file);
         $cnt = count($boom);  // count the explode segment if 8 array
-        $this->info(print_r($boom));
-        $this->info($cnt); 
+        // $this->info(print_r($boom));
+        // $this->info($cnt); 
 
-        if (ends_with($file, '.NEW') && $cnt==8) {
+        if (ends_with($file, '.NEW') && $cnt==$segment) {
 
           // $this->info($file); 
 
@@ -66,8 +67,6 @@ class PurchaseNew extends Command
           $filename = $boom[($cnt-1)];
           $brcode = $boom[($cnt-2)];
           $date = Carbon::now();
-
-
 
           if (strtoupper($filename)==='PURCHASE.NEW') {
 
@@ -135,7 +134,7 @@ class PurchaseNew extends Command
   }
 
   private function sendEmail(Branch $branch, Carbon $date, array $data, $attachment=NULL) {
-    $this->info('trigger sendEmail');
+
     $e = [];
     $e['csh_email'] = app()->environment('production') ? $branch->email : env('DEV_CSH_MAIL');
     if (app()->environment('production')) {
@@ -300,7 +299,7 @@ class PurchaseNew extends Command
       }
     }
 
-    $this->info(print_r($rcpt_array));
+    // $this->info(print_r($rcpt_array));
     return $rcpt_array;
   }
 
