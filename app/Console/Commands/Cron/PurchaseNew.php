@@ -300,7 +300,7 @@ class PurchaseNew extends Command
       }
     }
 
-    // $this->info(print_r($rcpt_array));
+    $this->info(print_r($rcpt_array));
     return $rcpt_array;
   }
 
