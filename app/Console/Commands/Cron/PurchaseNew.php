@@ -135,7 +135,7 @@ class PurchaseNew extends Command
   }
 
   private function sendEmail(Branch $branch, Carbon $date, array $data, $attachment=NULL) {
-
+    $this->info('trigger sendEmail');
     $e = [];
     $e['csh_email'] = app()->environment('production') ? $branch->email : env('DEV_CSH_MAIL');
     if (app()->environment('production')) {
