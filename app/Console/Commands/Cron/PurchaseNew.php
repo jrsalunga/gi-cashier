@@ -122,7 +122,7 @@ class PurchaseNew extends Command
             $this->sendEmail($br, $date, $rcpt_array, $apd_filepath);
 
             // test_log($date->format('Y-m-d').','.$br->code.','.Carbon::now()->format('Y-m-d').','.Carbon::now()->format('H:i:s'), $factory_path.DS.'STAGING'.DS.$date->format('Y').'-purchase.new.log');
-
+            exit;
           } // end: ==='PURCHASE.NEW'
         } // end: ends_with($file)
         if (!is_null($cmd)) 
