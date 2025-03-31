@@ -53,8 +53,8 @@ class PurchaseNew extends Command
 
         $boom = explode(DS, $file);
         $cnt = count($boom);  // count the explode segment if 8 array
-        // $this->info(print_r($boom));
-        // $this->info($cnt); 
+        $this->info(print_r($boom));
+        $this->info($cnt); 
 
         if (ends_with($file, '.NEW') && $cnt==8) {
 
