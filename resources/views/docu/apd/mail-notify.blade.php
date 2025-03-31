@@ -4,21 +4,58 @@
   <title>{{ $subject }}</title>
 </head>
 <body>
+
 <div style="background-color:#F8F9FA;font-size:14px;">
   <div style=";width:90%;margin-left:auto;margin-right: auto;margin-top:0px;margin-bottom:30px;">
     <div style="padding: 10px 0 10px 0;background-color:#F8F9FA;">
       <img src="http://boss.giligansrestaurant.com/images/giligans-header.png" style="background-color:#F8F9FA;">
+    </div>
+
+    <div itemscope itemtype="http://schema.org/EmailMessage">
+      <div itemprop="potentialAction" itemscope itemtype="http://schema.org/ConfirmAction">
+        <meta itemprop="name" content="Approve Expense"/>
+        <div itemprop="handler" itemscope itemtype="http://schema.org/HttpActionHandler">
+          <link itemprop="url" href="https://myexpenses.com/approve?expenseId=abc123"/>
+        </div>
+      </div>
+      <meta itemprop="description" content="Approval request for John's $10.13 expense for office supplies"/>
     </div>
     
     <div style="border: 1px solid #E8EAED;background-color:#fff;">
       <div style="margin:20px;">
         <!-- <h2>Welcome</h2> -->
         <p style="padding:0;margin:0;margin-bottom:15px;line-height:24px;font-family:Roboto,Helvetica,Arial,sans-serif;">Dear Cashier,</p>
-        <p style="padding:0;margin:0;margin-bottom:15px;line-height:24px;font-family:Roboto,Helvetica,Arial,sans-serif;">Your expense record <em><strong>(PURCHASE.NEW)</strong></em> from the Head Office is ready.</p>
+        <p style="padding:0;margin:0;margin-bottom:15px;line-height:24px;font-family:Roboto,Helvetica,Arial,sans-serif;">Your expense record <em><strong>(PURCHASE.NEW)</strong></em> with {{ count($data) }} invoce(s) from the Head Office is ready.</p>
         <p style="padding:0;margin:0;margin-bottom:15px;line-height:24px;font-family:Roboto,Helvetica,Arial,sans-serif;">Kindly follow the instructions below to update your POS expense record (6,1).</p>
         <p style="padding:0;margin:0;margin-bottom:15px;line-height:24px;font-family:Roboto,Helvetica,Arial,sans-serif;">Thank you!</p>
       </div>
     </div>
+
+    @foreach($data as $rcpt)
+
+      <div style="border: 1px solid green ;background-color:#fff; margin-top: 10px; font-family: Noto Sans Mono, monospace; width: 600px;"  >
+      <div style="margin:20px 20px 5px;">
+      <p style="padding:0;margin:0;">{{ $rcpt['suppcode'] }} - {{ $rcpt['supplier'] }}</p>
+      <p style="padding:0;margin:0;">REF NO: {{ $rcpt['inv'] }}</p>
+      <p style="padding:0;margin:0;">DATE: {{ $rcpt['date'] }}</p>
+      <p style="padding:0;margin:0;">TERMS: {{ $rcpt['terms'] }}</p>
+      <p style="padding:0;margin:0;">TOTAL AMOUNT: {{ nf($rcpt['total']) }}</p>
+      </div>
+      <table style="margin:0px 0px 20px 20px; width:92%;">
+        <tbody>
+          @foreach($rcpt['items'] as $item)
+          <tr>
+            <td style="width:5%;">{{ $item['pcode'] }}</td>  
+            <td style="width:45%;">{{ $item['comp'] }}</td>  
+            <td>{{ $item['qty'] }} {{ $item['unit'] }}</td>  
+            <td style="text-align: right;">@ {{ nf($item['ucost']) }}</td>  
+            <td style="text-align: right;">{{ nf($item['tcost']) }}</td>  
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+    @endforeach
 
     <div style="border: 1px solid #E8EAED;background-color:#fff; margin-top: 10px">
       <div style="margin:20px;">

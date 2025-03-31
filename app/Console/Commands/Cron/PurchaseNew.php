@@ -52,12 +52,13 @@ class PurchaseNew extends Command
       foreach ($files as $idx => $file) {
 
         $boom = explode(DS, $file);
-        $cnt = count($boom);
+        $cnt = count($boom);  // count the explode segment if 8 array
+        // $this->info(print_r($boom));
         // $this->info($cnt); 
 
-        if (ends_with($file, '.NEW') && $cnt>8) {
+        if (ends_with($file, '.NEW') && $cnt==8) {
 
-          $this->info($file); 
+          // $this->info($file); 
 
           $this->filepath = $file;
 
@@ -78,6 +79,7 @@ class PurchaseNew extends Command
             }
 
             $apd_dir = 'APN'.DS.$date->format('Y').DS.$brcode.DS.$date->format('m').DS.$date->format('d');
+            // $this->info('apd_dir: '.$apd_dir); 
 
            
             // copy to processed
@@ -112,11 +114,15 @@ class PurchaseNew extends Command
             }
 
 
-            $this->sendEmail($br, $date, $apd_filepath);
+            // $this->info('apd_filepath: '.$apd_filepath); 
+
+            $rcpt_array = $this->aggregateReceipt($this->dbfToArray($apd_filepath));
+
+
+            $this->sendEmail($br, $date, $rcpt_array, $apd_filepath);
 
             // test_log($date->format('Y-m-d').','.$br->code.','.Carbon::now()->format('Y-m-d').','.Carbon::now()->format('H:i:s'), $factory_path.DS.'STAGING'.DS.$date->format('Y').'-purchase.new.log');
 
-            exit;
           } // end: ==='PURCHASE.NEW'
         } // end: ends_with($file)
         if (!is_null($cmd)) 
@@ -128,7 +134,7 @@ class PurchaseNew extends Command
       $this->info('Run check only');
   }
 
-  private function sendEmail(Branch $branch, Carbon $date, $attachment=NULL) {
+  private function sendEmail(Branch $branch, Carbon $date, array $data, $attachment=NULL) {
 
     $e = [];
     $e['csh_email'] = app()->environment('production') ? $branch->email : env('DEV_CSH_MAIL');
@@ -159,8 +165,17 @@ class PurchaseNew extends Command
       ];
     }
 
-    $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New '.$date->format('F').' Payables Record to Download from Head Office 💼 📥';
+    $subj = []; 
+    foreach($data as $d)
+      if(!in_array($d['supplier'], $subj))
+        array_push($subj, $d['supplier']);
+  
+
+    $e['subject'] = 'APN '.$branch->code.' - '.$date->format('F').' Payables from '.implode(', ',$subj); //  .' '.c()->format('His');
+    // $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New '.$date->format('F').' Payables Record to Download from Head Office 💼 📥 '.c()->format('YmdHis');
     $e['attachment'] = $attachment;
+
+    $e['data'] = $data;
 
     
   
@@ -187,6 +202,108 @@ class PurchaseNew extends Command
     });
 
   }
+
+
+  public function dbfToArray($dbf_file) {
+
+    $dbf_data = [];
+
+    if (file_exists($dbf_file)) {
+      $db = dbase_open($dbf_file, 0);
+      
+      $header = dbase_get_header_info($db);
+      $record_numbers = dbase_numrecords($db);
+      $update = 0;
+
+      for ($i=1; $i<=$record_numbers; $i++) {
+        $r = dbase_get_record_with_names($db, $i);
+
+        $dbf_data[$i] = [
+          'COMP' => $r['COMP'],
+          'QTY' => $r['QTY'],
+          'UNIT' => $r['UNIT'],
+          'UCOST' => $r['UCOST'],
+          'TCOST' => $r['TCOST'],
+          'PODATE' => c($r['PODATE'])->format('Y-m-d'),
+          'SUPNO' => $r['SUPNO'],
+          'SUPCODE' => substr(trim($r['SUPNO']),2),
+          'SUPNAME' => $r['SUPNAME'],
+          'TERMS' => $r['TERMS'],
+          'FILLER1' => $r['FILLER1'],
+          'SUPTIN' => $r['SUPTIN'],
+          'BRCODE' => $r['GI_BRCODE'],
+          'PCODE' => substr(trim($r['SUPNO']),0,2),
+          'ID' => preg_replace("/[^A-Za-z0-9]/", '', substr(trim($r['SUPNO']),2).trim($r['FILLER1'])),
+        ];
+      }
+    }
+    // $this->info(print_r($dbf_data));
+    return $dbf_data;
+  }
+
+  public function aggregateReceipt(array $arr_data) {
+
+    if (empty($arr_data)) 
+      return [];
+
+    $rcpt_array = [];
+
+    foreach($arr_data as $key => $comp) {
+      // dd($comp['ID']);
+      // $this->info($comp['ID']);
+
+      if (array_key_exists($comp['ID'], $rcpt_array)) {
+
+        $ctr++;
+        $total += $comp['TCOST'];
+
+
+        array_push($rcpt_array[$comp['ID']]['items'], 
+          [
+            'comp' => $comp['COMP'],
+            'unit' => $comp['UNIT'],
+            'qty' => $comp['QTY'],
+            'ucost' => $comp['UCOST'],
+            'tcost' => $comp['TCOST'],
+            'pcode' => $comp['PCODE'],
+          ]
+        );
+
+        $rcpt_array[$comp['ID']]['line'] = $ctr;
+        $rcpt_array[$comp['ID']]['total'] = $total;
+
+      } else {
+        $ctr = 1;
+        $total = $comp['TCOST'];
+
+        $rcpt_array[$comp['ID']] = [
+          'brcode' => $comp['BRCODE'],
+          'supplier' => $comp['SUPNAME'],
+          'suppcode' => $comp['SUPCODE'],
+          'supptin' => $comp['SUPTIN'],
+          'date' => $comp['PODATE'],
+          'terms' => $comp['TERMS'],
+          'inv' => $comp['FILLER1'],
+          'items' => [
+            [
+              'comp' => $comp['COMP'],
+              'unit' => $comp['UNIT'],
+              'qty' => $comp['QTY'],
+              'ucost' => $comp['UCOST'],
+              'tcost' => $comp['TCOST'],
+              'pcode' => $comp['PCODE'],
+            ]
+          ],
+          'line' => $ctr,
+          'total' => $comp['TCOST'],
+        ];
+      }
+    }
+
+    // $this->info(print_r($rcpt_array));
+    return $rcpt_array;
+  }
+
 
   private function notify($msg) {
   	if(app()->environment()=='production')
