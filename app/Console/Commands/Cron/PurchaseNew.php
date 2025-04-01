@@ -170,12 +170,11 @@ class PurchaseNew extends Command
         array_push($subj, $d['supplier']);
   
 
-    $e['subject'] = 'APN '.$branch->code.' - '.$date->format('F').' Payables from '.implode(', ',$subj); //  .' '.c()->format('His');
+    $e['subject'] = '💼 APN '.$branch->code.' - '.$date->format('F').' Payables from '.implode(', ',$subj); //  .' '.c()->format('His');
     // $e['subject'] = 'APN '.$branch->code.' '.$date->format('Ymd'). ' - New '.$date->format('F').' Payables Record to Download from Head Office 💼 📥 '.c()->format('YmdHis');
     $e['attachment'] = $attachment;
 
     $e['data'] = $data;
-
     
   
     // \Mail::send('docu.apd.mail-notify', $e, function ($m) use ($e) {
