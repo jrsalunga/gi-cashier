@@ -1503,6 +1503,7 @@ class PosUploadRepository extends Repository
     $ds['chrg_chrg']    = $c['chrg_chrg'] + $s['chrg_chrg'];
     $ds['chrg_othr']    = $c['chrg_othr'] + $s['chrg_othr'];
     $ds['disc_totamt']  = $c['disc_totamt'] + $s['disc_totamt'];
+    $ds['sales'] = $ds['chrg_csh'] + $ds['chrg_chrg'];
 
     $ds['grab']   = $c['grab'] + $s['grab'];
     $ds['panda']  = $c['panda'] + $s['panda'];

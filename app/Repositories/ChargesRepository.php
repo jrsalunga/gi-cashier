@@ -23,9 +23,9 @@ class ChargesRepository extends BaseRepository implements CacheableInterface
 
 		$vfpdate = c(trim($r['ORDDATE']).' '.trim($r['ORDTIME']));
     
-	 	if (($r['SR_TCUST']==$r['SR_BODY']) && ($r['SR_DISC']>0)) // 4 4 78.7
+	 	if (($r['SR_TCUST']==$r['SR_BODY']) && ($r['SR_DISC']>0)) // 4=4 78.7
       $cuscount = $r['SR_TCUST']; 
-    else if ($r['SR_TCUST']>0 && $r['SR_BODY']>0 && $r['SR_DISC']>0)
+    else if ($r['SR_TCUST']>0 && $r['SR_BODY']>0 && $r['SR_DISC']>0) // 4 2 78.7 
       $cuscount = $r['SR_BODY'];
       //$cuscount = 0;
     else
@@ -142,3 +142,6 @@ class ChargesRepository extends BaseRepository implements CacheableInterface
 	
 
 }
+
+
+
