@@ -195,8 +195,8 @@ class PurchaseNew extends Command
       } else
         $m->to('jefferson.salunga@gmail.com')->subject($e['subject']);
 
-      if (!is_null($e['attachment']))
-        $m->attach($e['attachment']);
+      // if (!is_null($e['attachment']))
+      //   $m->attach($e['attachment']);
     });
 
   }
