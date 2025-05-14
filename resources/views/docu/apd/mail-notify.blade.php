@@ -25,7 +25,7 @@
       <div style="margin:20px;">
         <!-- <h2>Welcome</h2> -->
         <p style="padding:0;margin:0;margin-bottom:15px;line-height:24px;font-family:Roboto,Helvetica,Arial,sans-serif;">Dear Cashier,</p>
-        <p style="padding:0;margin:0;margin-bottom:15px;line-height:24px;font-family:Roboto,Helvetica,Arial,sans-serif;">Your expense record with {{ count($data) }} invoice{{ count($data)>1?'s':'' }} below from the Head Office is ready for manually encoding.</p>
+        <p style="padding:0;margin:0;margin-bottom:15px;line-height:24px;font-family:Roboto,Helvetica,Arial,sans-serif;">Your expense record with {{ count($data) }} invoice{{ count($data)>1?'s':'' }} below from Head Office is ready for manually encoding.</p>
         <p style="padding:0;margin:0;margin-bottom:15px;line-height:24px;font-family:Roboto,Helvetica,Arial,sans-serif;">Kindly follow the instructions below to update your POS expense record (6,1).</p>
         <p style="padding:0;margin:0;margin-bottom:15px;line-height:24px;font-family:Roboto,Helvetica,Arial,sans-serif;">Thank you!</p>
       </div>
