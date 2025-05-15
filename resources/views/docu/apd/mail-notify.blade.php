@@ -80,7 +80,7 @@
 
         <ol style="font-family: Roboto,Helvetica,Arial,sans-serif;">
           <li style="margin-top: 10px">Before encoding the invoice{{count($data)>1?'s':''}}, make sure to check whether it has already been encoded on POS to avoid duplication.</li>
-          <li style="margin-top: 10px">If everything is clear, please proceed with encoding the invoice{{count($data)>1?'s':''}} on the POS expense record (6,1).</li>
+          <li style="margin-top: 10px">If everything is clear, please proceed with encoding of the invoice{{count($data)>1?'s':''}} on the POS expense record (6,1).</li>
           <li style="margin-top: 10px">After encoding, make sure to match the POS printout on the email to ensure that all details are accurate and the same.</li>
           <!--
           <li style="margin-top: 10px">Lastly, <strong>print</strong> and <strong>scan</strong> the Stock Purchase Transmittal slip and make sure to <strong>upload</strong> it on Cashier's Module.</li>
