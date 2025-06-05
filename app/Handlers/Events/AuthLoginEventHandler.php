@@ -42,10 +42,12 @@ class AuthLoginEventHandler
           'message'=> $data['user'].' successfully logged in at this IP: '.clientIP()
         ]);
         */
-        Mail::queue('emails.loggedin', $data, function ($message) {
-            $message->subject('User Logged In');
-            $message->from('no-reply@giligansrestaurant.com', 'GI App - Cashier');
-            $message->to('giligans.app@gmail.com');
-        });
+
+        // 2025-06-05 - turn off sending email on login to limit sending email
+        // Mail::queue('emails.loggedin', $data, function ($message) {
+        //     $message->subject('User Logged In');
+        //     $message->from('no-reply@giligansrestaurant.com', 'GI App - Cashier');
+        //     $message->to('giligans.app@gmail.com');
+        // });
     }
 }

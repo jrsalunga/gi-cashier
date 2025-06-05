@@ -40,8 +40,7 @@ class ChangePasswordEventHandler
         Mail::queue('emails.change_password', $data, function ($message) {
             $message->subject('User Change Password');
             $message->from('no-reply@giligansrestaurant.com', 'GI App - Cashier');
-            $message->to('giligans.app@gmail.com');
-            $message->to('freakyash_02@yahoo.com');
+            $message->to('jefferson.salunga@gmail.com');
         });
     }
 }
