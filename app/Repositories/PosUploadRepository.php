@@ -252,7 +252,6 @@ class PosUploadRepository extends Repository
       dbase_close($db);
 
       if (!$valid) {
-        throw new Exception("Validation Error: Invalid EoD backup. No encoded ".join(", ", $a)." on CSH_AUDT.DBF. Kindly backup after you encode the ".join(", ", $a). " and upload the backup file."); 
       }
       
 
