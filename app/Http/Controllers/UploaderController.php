@@ -285,18 +285,18 @@ class UploaderController extends Controller
               return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
             }
 
-            if ($res <= 5) {
-              if ($res <= 0)
-                $msg = 'No beginning records found.';
-              else 
-                $msg = 'Beginning records too few.';
+            // if ($res <= 5) {
+            //   if ($res <= 0)
+            //     $msg = 'No beginning records found.';
+            //   else 
+            //     $msg = 'Beginning records too few.';
 
-              $this->removeExtratedDir();
-              DB::rollBack();
+            //   $this->removeExtratedDir();
+            //   DB::rollBack();
 
-              $this->updateBackupRemarks($backup, $msg);
-              return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
-            } 
+            //   $this->updateBackupRemarks($backup, $msg);
+            //   return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+            // } 
           } 
 
 
