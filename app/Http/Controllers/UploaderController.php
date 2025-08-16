@@ -272,32 +272,32 @@ class UploaderController extends Controller
 
           /******** check BEG_BAL.DBF on 1st day backup  *****/
 					
-          // if ($backup->date->format('Y-m-d')==$backup->date->copy()->startOfMonth()->format('Y-m-d')) {
+          if ($backup->date->format('Y-m-d')==$backup->date->copy()->startOfMonth()->format('Y-m-d')) {
 
-          //   try {
-          //     $res = $this->processBegBal($backup->branchid, $backup->date);
-          //   } catch (Exception $e) {
-          //     if (strpos($e->getMessage(), 'timeout')==false)
-          //       $msg =  'Process Beg Bal: '.$e->getMessage();
-          //     else 
-          //       $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes. (processBegBal)';
-          //     $this->updateBackupRemarks($backup, $msg);
-          //     return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
-          //   }
+            try {
+              $res = $this->processBegBal($backup->branchid, $backup->date);
+            } catch (Exception $e) {
+              if (strpos($e->getMessage(), 'timeout')==false)
+                $msg =  'Process Beg Bal: '.$e->getMessage();
+              else 
+                $msg = 'Error: recent upload still on process, re-upload after 10-30 minutes. (processBegBal)';
+              $this->updateBackupRemarks($backup, $msg);
+              return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+            }
 
-          //   if ($res <= 5) {
-          //     if ($res <= 0)
-          //       $msg = 'No beginning records found.';
-          //     else 
-          //       $msg = 'Beginning records too few.';
+            if ($res <= 5) {
+              if ($res <= 0)
+                $msg = 'No beginning records found.';
+              else 
+                $msg = 'Beginning records too few.';
 
-          //     $this->removeExtratedDir();
-          //     DB::rollBack();
+              $this->removeExtratedDir();
+              DB::rollBack();
 
-          //     $this->updateBackupRemarks($backup, $msg);
-          //     return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
-          //   } 
-          // } 
+              $this->updateBackupRemarks($backup, $msg);
+              return redirect()->back()->with('alert-error', $msg)->with('alert-important', '');
+            } 
+          } 
 
 
 					/******* extract trasanctions data ***********/
