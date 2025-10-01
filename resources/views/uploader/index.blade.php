@@ -98,6 +98,7 @@
                     placeholder="Anna (cashier's name only, required)"  
                     maxlength="20"                         
                     title="Please put cashiers name only"
+                    value="Jeff"
                     <?=app()->environment()==='local'?'value="Jeff"':''?>
                   >
                   <!--
