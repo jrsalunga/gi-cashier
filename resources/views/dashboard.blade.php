@@ -29,6 +29,7 @@
     <li class="active">Dashboard</li>
   </ol>
   
+  <!--
   @if(app()->environment()=='production')
   @if($inadequates)
     <div class="alert alert-warning alert-important">
@@ -42,6 +43,9 @@
     </div>
   @endif
   @endif
+  -->
+
+
   <!--
   <div class="alert alert-warning alert-important">
     <p><span class="glyphicon glyphicon-warning-sign"></span> Please be reminded that starting Aug 19, the <b>Deposit Slip</b> upload should be <b>one is to one (1:1)</b>. One scanned deposit slip for every upload on DropBox.</p>
