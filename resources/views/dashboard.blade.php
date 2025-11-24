@@ -26,23 +26,9 @@
 	
   <ol class="breadcrumb">
     <li><span class="gly gly-shop"></span> <a href="/">{{ $branch }}</a></li>
-    <li class="active">Dashboard</li>
+    <li class="active">Dashboards</li>
   </ol>
   
-  <!--
-  @if(app()->environment()=='production')
-  @if($inadequates)
-    <div class="alert alert-warning alert-important">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <strong><span class="glyphicon glyphicon-warning-sign"></span> Warning</strong>: No backup uploaded on the following date(s) below. This may affect the report generation.
-      <ul>
-      @foreach($inadequates as $d) 
-        <li>{{ $d->format('m/d/Y') }} - <b>GC{{ $d->format('mdy') }}.ZIP</b></li>
-      @endforeach
-      </ul>
-    </div>
-  @endif
-  @endif
   
 
   -->
